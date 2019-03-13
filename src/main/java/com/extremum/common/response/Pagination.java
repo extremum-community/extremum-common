@@ -1,4 +1,4 @@
-package com.extremum.common;
+package com.extremum.common.response;
 
 import lombok.Builder;
 import lombok.Getter;
