@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static java.util.Objects.requireNonNull;
+import static org.springframework.http.HttpStatus.OK;
 
 /**
  * Common response structure
@@ -23,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 @Getter
 public class Response {
     private static final Logger LOGGER = LoggerFactory.getLogger(Response.class);
-    public static final int OK_HTTP_STATUS_CODE = 200;
 
     private ResponseStatusEnum status;
     private Integer code;
@@ -77,7 +77,7 @@ public class Response {
 
     private static class Builder {
         private ResponseStatusEnum status;
-        private Integer code = OK_HTTP_STATUS_CODE;
+        private Integer code = OK.value();
         private Object result;
         private String locale;
         private List<Alert> alerts;
@@ -86,7 +86,7 @@ public class Response {
 
         public Builder withOkStatus() {
             this.status = ResponseStatusEnum.OK;
-            this.code = OK_HTTP_STATUS_CODE;
+            this.code = OK.value();
 
             withNowTimestamp();
 
@@ -100,7 +100,7 @@ public class Response {
 
         public Builder withFailStatus() {
             this.status = ResponseStatusEnum.FAIL;
-            this.code = OK_HTTP_STATUS_CODE;
+            this.code = OK.value();
 
             withNowTimestamp();
 
