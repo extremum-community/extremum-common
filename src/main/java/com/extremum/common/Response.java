@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static java.util.Objects.requireNonNull;
 
@@ -126,7 +127,7 @@ public class Response {
             response.alerts = alerts;
             response.requestId = tryToDetermineRequestId();
             response.timestamp = timestamp;
-            response.locale = (this.locale == null ? Constants.DEFAULT_LOCALE : this.locale);
+            response.locale = (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale);
 
             return response;
         }
