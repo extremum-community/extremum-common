@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +32,8 @@ public class Response {
     private String locale;
     private List<Alert> alerts;
     private Object result;
+    @JsonProperty("paged")
+    private Pagination pagination;
 
     public static Builder builder() {
         return new Builder();
@@ -40,6 +43,14 @@ public class Response {
         return builder()
                 .withOkStatus()
                 .withResult(result)
+                .withNowTimestamp()
+                .build();
+    }
+
+    public static Response ok(Collection<? extends Serializable> result, Pagination pagination) {
+        return builder()
+                .withOkStatus()
+                .withResult(result, pagination)
                 .withNowTimestamp()
                 .build();
     }
@@ -70,6 +81,7 @@ public class Response {
         private String locale;
         private List<Alert> alerts;
         private ZonedDateTime timestamp;
+        private Pagination pagination;
 
         public Builder withOkStatus() {
             this.status = ResponseStatusEnum.OK;
@@ -77,6 +89,11 @@ public class Response {
 
             withNowTimestamp();
 
+            return this;
+        }
+
+        public Builder withPagination(Pagination pagination) {
+            this.pagination = pagination;
             return this;
         }
 
@@ -91,6 +108,15 @@ public class Response {
 
         public Builder withResult(Object result) {
             this.result = result;
+            if (pagination == null && result instanceof Collections) {
+                pagination = Pagination.singlePage(((Collection) result).size());
+            }
+            return this;
+        }
+
+        public Builder withResult(Collection<? extends Serializable> result, Pagination pagination) {
+            this.result = result;
+            this.pagination = pagination;
             return this;
         }
 
@@ -128,6 +154,7 @@ public class Response {
             response.requestId = tryToDetermineRequestId();
             response.timestamp = timestamp;
             response.locale = (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale);
+            response.pagination = pagination;
 
             return response;
         }
