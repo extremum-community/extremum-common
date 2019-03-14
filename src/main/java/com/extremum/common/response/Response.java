@@ -75,7 +75,7 @@ public class Response {
                 .build();
     }
 
-    private static class Builder {
+    public static class Builder {
         private ResponseStatusEnum status;
         private Integer code = OK.value();
         private Object result;

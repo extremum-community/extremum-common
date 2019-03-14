@@ -22,14 +22,16 @@ public class Alert {
                 .build();
     }
 
-    private static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
-    private static class Builder {
+    public static class Builder {
         private AlertLevelEnum level;
         private String message;
         private ZonedDateTime timestamp;
+        private String element;
+        private String code;
 
         public Builder withErrorLevel() {
             level = AlertLevelEnum.ERROR;
@@ -46,12 +48,24 @@ public class Alert {
             return this;
         }
 
+        public Builder withCode(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder withElement(String element) {
+            this.element = element;
+            return this;
+        }
+
         public Alert build() {
             Alert alert = new Alert();
 
             alert.level = level;
             alert.message = message;
             alert.timestamp = timestamp;
+            alert.code = code;
+            alert.element = element;
 
             return alert;
         }
