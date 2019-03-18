@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 public interface ResponseDto extends Dto {
     String getId();
 
-    Integer getVersion();
+    Long getVersion();
 
     ZonedDateTime getCreated();
 

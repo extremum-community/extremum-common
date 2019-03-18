@@ -22,6 +22,10 @@ public class Alert {
                 .build();
     }
 
+    public boolean isError() {
+        return this.level == AlertLevelEnum.ERROR;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
