@@ -25,8 +25,8 @@ public class StubDtoConverter implements ToResponseDtoConverter {
         }
 
         @Override
-        public Integer getVersion() {
-            return 0;
+        public Long getVersion() {
+            return 0L;
         }
 
         @Override
