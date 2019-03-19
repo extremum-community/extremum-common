@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -40,9 +42,22 @@ public class Response {
         return new Builder();
     }
 
+    public static Builder builder(Response response) {
+        return new Builder(response);
+    }
+
     public static Response ok(Object result) {
+        return ok(result, emptyList());
+    }
+
+    public static Response ok(Object result, Alert alert) {
+        return ok(result, singletonList(alert));
+    }
+
+    public static Response ok(Object result, List<Alert> alerts) {
         return builder()
                 .withOkStatus()
+                .withAlerts(alerts)
                 .withResult(result)
                 .withNowTimestamp()
                 .build();
@@ -68,11 +83,42 @@ public class Response {
     }
 
     public static Response fail(Alert alert) {
+        return fail(alert, 200);
+    }
+
+    public static Response fail(Alert alert, int code) {
+        return fail(singletonList(alert), code);
+    }
+
+    public static Response fail(Collection<Alert> alerts) {
+        return fail(alerts, 200);
+    }
+
+    public static Response fail(Collection<Alert> alerts, int code) {
         return Response.builder()
                 .withFailStatus()
-                .withAlert(alert)
+                .withCode(code)
+                .withAlerts(alerts)
                 .withNowTimestamp()
                 .build();
+    }
+
+    public boolean hasAlerts() {
+        return alerts != null && !alerts.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return "Response{" +
+                "status=" + status +
+                ", code=" + code +
+                ", timestamp=" + timestamp +
+                ", requestId='" + requestId + '\'' +
+                ", locale='" + locale + '\'' +
+                ", alerts=" + alerts +
+                ", result=" + result +
+                ", pagination=" + pagination +
+                '}';
     }
 
     public static class Builder {
@@ -83,6 +129,21 @@ public class Response {
         private List<Alert> alerts;
         private ZonedDateTime timestamp;
         private Pagination pagination;
+        private String requestId;
+
+        public Builder() {
+        }
+
+        public Builder(Response response) {
+            this.status = response.status;
+            this.code = response.code;
+            this.result = response.result;
+            this.locale = response.locale;
+            this.alerts = response.alerts;
+            this.timestamp = response.timestamp;
+            this.pagination = response.pagination;
+            this.requestId = response.requestId;
+        }
 
         public Builder withOkStatus() {
             this.status = ResponseStatusEnum.OK;
@@ -93,17 +154,36 @@ public class Response {
             return this;
         }
 
-        public Builder withPagination(Pagination pagination) {
-            this.pagination = pagination;
-            return this;
-        }
-
         public Builder withFailStatus() {
             this.status = ResponseStatusEnum.FAIL;
             this.code = OK.value();
 
             withNowTimestamp();
 
+            return this;
+        }
+
+        public Builder withDoingStatus() {
+            this.status = ResponseStatusEnum.DOING;
+            this.code = OK.value();
+
+            withNowTimestamp();
+
+            return this;
+        }
+
+        public Builder withWarningStatus() {
+            this.status = ResponseStatusEnum.WARNING;
+            this.code = OK.value();
+
+            withNowTimestamp();
+
+            return this;
+        }
+
+
+        public Builder withPagination(Pagination pagination) {
+            this.pagination = pagination;
             return this;
         }
 
@@ -122,7 +202,7 @@ public class Response {
         }
 
         public Builder withAlert(Alert alert) {
-            withAlerts(Collections.singletonList(alert));
+            withAlerts(singletonList(alert));
 
             return this;
         }
@@ -142,6 +222,21 @@ public class Response {
             return this;
         }
 
+        public Builder withLocale(String locale) {
+            this.locale = locale;
+            return this;
+        }
+
+        public Builder withCode(int code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder withRequestId(String requestId) {
+            this.requestId = requestId;
+            return this;
+        }
+
         public Response build() {
             requireNonNull(status, "Status can't be null");
             requireNonNull(code, "Code can't be null");
@@ -152,7 +247,11 @@ public class Response {
             response.code = code;
             response.result = result;
             response.alerts = alerts;
-            response.requestId = tryToDetermineRequestId();
+            if (this.requestId == null) {
+                response.requestId = tryToDetermineRequestId();
+            } else {
+                response.requestId = this.requestId;
+            }
             response.timestamp = timestamp;
             response.locale = (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale);
             response.pagination = pagination;
