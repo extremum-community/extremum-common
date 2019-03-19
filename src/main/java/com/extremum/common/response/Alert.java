@@ -15,9 +15,55 @@ public class Alert {
     private String traceId;
 
     public static Alert errorAlert(String errorMessage) {
+        return errorAlert(errorMessage, null, "400");
+    }
+
+    public static Alert errorAlert(String errorMessage, String element) {
+        return errorAlert(errorMessage, element, "400");
+    }
+
+    public static Alert errorAlert(String errorMessage, String element, String code) {
         return Alert.builder()
                 .withErrorLevel()
+                .withElement(element)
+                .withCode(code)
                 .withMessage(errorMessage)
+                .withNowTimestamp()
+                .build();
+    }
+
+    public static Alert warningAlert(String message) {
+        return warningAlert(message, null, "200");
+    }
+
+    public static Alert warningAlert(String message, String element) {
+        return warningAlert(message, element, "200");
+    }
+
+    public static Alert warningAlert(String message, String element, String code) {
+        return Alert.builder()
+                .withWarningLevel()
+                .withElement(element)
+                .withCode(code)
+                .withMessage(message)
+                .withNowTimestamp()
+                .build();
+    }
+
+    public static Alert infoAlert(String message) {
+        return infoAlert(message, null, "200");
+    }
+
+    public static Alert infoAlert(String message, String element) {
+        return infoAlert(message, message, "200");
+    }
+
+    public static Alert infoAlert(String message, String element, String code) {
+        return Alert.builder()
+                .withInfoLevel()
+                .withElement(element)
+                .withCode(code)
+                .withMessage(message)
                 .withNowTimestamp()
                 .build();
     }
@@ -38,6 +84,16 @@ public class Alert {
         private String code;
 
         public Builder withErrorLevel() {
+            level = AlertLevelEnum.ERROR;
+            return this;
+        }
+
+        public Builder withWarningLevel() {
+            level = AlertLevelEnum.WARNING;
+            return this;
+        }
+
+        public Builder withInfoLevel() {
             level = AlertLevelEnum.ERROR;
             return this;
         }
