@@ -187,6 +187,15 @@ public class Response {
             return this;
         }
 
+        public Builder withWarningStatus() {
+            this.status = ResponseStatusEnum.WARNING;
+            this.code = OK.value();
+
+            withNowTimestamp();
+
+            return this;
+        }
+
         public Builder withResult(Object result) {
             this.result = result;
             if (pagination == null && result instanceof Collections) {
