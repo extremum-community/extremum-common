@@ -1,4 +1,4 @@
-package com.extremum.common.config;
+package com.extremum.common.descriptor.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,11 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties("mongo")
-public class MongoProperties {
-
-    private String uri;
-
-    private String dbName;
-
+@ConfigurationProperties("descriptors")
+public class DescriptorsProperties {
+    private String descriptorsMapName;
+    private String internalIdsMapName;
 }

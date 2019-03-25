@@ -1,7 +1,6 @@
-package com.extremum.common.dao;
+package com.extremum.common.descriptor.dao;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import org.bson.types.ObjectId;

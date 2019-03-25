@@ -5,7 +5,7 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
-import exception.ModelNotFoundException;
+import com.extremum.common.exception.ModelNotFoundException;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

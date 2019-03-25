@@ -1,4 +1,4 @@
-package com.extremum.common.config;
+package com.extremum.common.descriptor.config;
 
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.MongoDescriptorDao;
@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, DescriptorsProperties.class})
-//@PropertySource("classpath:application.yml")
 public class DescriptorConfiguration {
 
     @Autowired

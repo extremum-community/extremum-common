@@ -1,4 +1,4 @@
-package com.extremum.common.config;
+package com.extremum.common.descriptor.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.extremum.common;
+package com.extremum.common.descriptor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
