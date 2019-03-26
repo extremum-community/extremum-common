@@ -58,6 +58,4 @@ public interface MongoCommonService<Model extends MongoCommonModel> {
 
     @Nullable
     Model getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames);
-
-    boolean exists(String id);
 }

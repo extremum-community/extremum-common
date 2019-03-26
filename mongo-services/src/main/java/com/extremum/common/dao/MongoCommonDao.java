@@ -8,135 +8,108 @@ import org.mongodb.morphia.query.*;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nullable;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 
 public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDAO<T, ObjectId> {
+
+    private static final String ID = MongoCommonModel.FIELDS.id.name();
+    private static final String DELETED = MongoCommonModel.FIELDS.deleted.name();
 
     public MongoCommonDao(Datastore datastore) {
         super(datastore);
     }
 
     public List<T> listAll() {
-        Query<T> q = createQuery().disableValidation();
-        orDeleted(q);
-        return q.asList();
+        return createNotDeletedQuery().asList();
     }
 
     public List<T> listByParameters(Map<String, Object> parameters) {
         if (CollectionUtils.isEmpty(parameters)) {
-            return this.listAll();
+            return listAll();
         }
-
-        Query<T> q = createQuery().disableValidation();
-        List<Criteria> arr = new ArrayList<>();
-        arr.add(orDeleted(q));
+        Query<T> q = createNotDeletedQuery();
+        FindOptions findOptions = new FindOptions();
 
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             String key = entry.getKey();
             switch (key) {
                 case "limit":
-                    String limitStr = (String) entry.getValue();
-                    Integer limit = Integer.valueOf(limitStr);
-                    q.limit(limit);
+                    String limitStr = String.valueOf(entry.getValue());
+                    int limit = Integer.valueOf(limitStr);
+                    findOptions.limit(limit);
                     break;
                 case "offset":
-                    String offsetStr = (String) entry.getValue();
-                    Integer offset = Integer.valueOf(offsetStr);
-                    q.offset(offset);
+                    String offsetStr = String.valueOf(entry.getValue());
+                    int offset = Integer.valueOf(offsetStr);
+                    findOptions.skip(offset);
                     break;
                 case "ids":
                     Collection ids = (Collection) entry.getValue();
                     List<ObjectId> objectIds = new ArrayList<>();
                     for (Object id : ids) {
-                        ObjectId objectId = new ObjectId(id.toString());
-                        objectIds.add(objectId);
+                        objectIds.add(new ObjectId(id.toString()));
                     }
-                    arr.add(q.criteria("id").in(objectIds));
+                    q.and(q.criteria(ID).in(objectIds));
                     break;
                 default:
-                    arr.add(q.criteria(key).equal(entry.getValue()));
+                    q.and(q.criteria(key).equal(entry.getValue()));
                     break;
             }
         }
-
-        if (CollectionUtils.isEmpty(arr)) {
-            return q.asList();
-        }
-
-        q.and(arr.toArray(new Criteria[arr.size()]));
-
-        return q.asList();
+        return q.asList(findOptions);
     }
 
-    public T get (ObjectId id) {
-        if (id == null) {
-            return null;
-        }
-        Query<T> q = createQuery().disableValidation();
-        orDeleted(q);
-
-        return q.field(MongoCommonModel.FIELDS.id.name()).equal(id).get();
+    @Nullable
+    public T get(ObjectId id) {
+        return getByFieldValueQuery(ID, id).map(QueryResults::get).orElse(null);
     }
 
-    public List<T> getByFieldValue (String fieldName, Object fieldValue) {
+    public List<T> getByFieldValue(String fieldName, Object fieldValue) {
+        return getByFieldValueQuery(fieldName, fieldValue).map(QueryResults::asList).orElse(null);
+    }
+
+    private Optional<Query<T>> getByFieldValueQuery(String fieldName, Object fieldValue) {
         if (fieldName == null || fieldValue == null) {
-            return null;
+            return Optional.empty();
         }
-        Query<T> q = createQuery().disableValidation();
-        orDeleted(q);
-
-        return q.field(fieldName).equal(fieldValue).asList();
+        Query<T> query = createNotDeletedQuery().field(fieldName).equal(fieldValue);
+        return Optional.of(query);
     }
 
+    @Nullable
     public T create(T obj) {
-        if (obj == null) {
-            return null;
+        if (obj != null) {
+            super.save(obj);
         }
-        obj.created = ZonedDateTime.now();
-        obj.version = 0L;
-        super.save(obj);
-
         return obj;
     }
 
     public List<T> create(List<T> objects) {
         if (!CollectionUtils.isEmpty(objects)) {
-            ZonedDateTime created = ZonedDateTime.now();
-            for (T object : objects) {
-                object.created = created;
-                object.version = 0L;
-            }
             getDatastore().save(objects);
         }
         return objects;
     }
 
+    @Nullable
     public T merge(T obj) {
-        if (obj == null) {
-            return null;
+        if (obj != null) {
+            getDatastore().merge(obj);
         }
-        obj.modified = ZonedDateTime.now();
-        getDatastore().merge(obj);
         return obj;
     }
 
+    // TODO возможно нужно менять еще и modified
+    @Nullable
     public T delete(ObjectId id) {
         if (id == null) {
             return null;
         }
-        Query<T> q = createQuery().field(MongoCommonModel.FIELDS.id.name()).equal(id);
-        UpdateOperations<T> ops = createUpdateOperations().set(MongoCommonModel.FIELDS.deleted.name(), Boolean.TRUE);
+        Query<T> q = createQuery().field(ID).equal(id);
+        UpdateOperations<T> ops = createUpdateOperations().set(DELETED, Boolean.TRUE);
 
         return getDatastore().findAndModify(q, ops);
-    }
-
-    public boolean exists(ObjectId id) {
-        CountOptions countOptions = new CountOptions();
-        countOptions.limit(1);
-
-        return createQuery().field("_id").equal(id).count(countOptions) > 0;
     }
 
     @Nullable
@@ -144,25 +117,21 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
         if (fieldNames == null || fieldNames.length == 0) {
             return null;
         }
-
-        Query<T> query = createQuery();
+        Query<T> query = createNotDeletedQuery();
+        query.and(query.criteria(ID).equal(id));
 
         for (String fieldName : fieldNames) {
             query.project(fieldName, true);
         }
-
-        query.and(
-                query.criteria(MongoCommonModel.FIELDS.id.name()).equal(id),
-                orDeleted(query)
-        );
-
         return query.get();
     }
 
-    private CriteriaContainer orDeleted(Query<T> query) {
-        return query.or(
-                query.criteria(MongoCommonModel.FIELDS.deleted.name()).doesNotExist(),
-                query.criteria(MongoCommonModel.FIELDS.deleted.name()).equal(Boolean.FALSE)
+    private Query<T> createNotDeletedQuery() {
+        Query<T> query = createQuery().disableValidation();
+        query.or(
+                query.criteria(DELETED).doesNotExist(),
+                query.criteria(DELETED).equal(Boolean.FALSE)
         );
+        return query;
     }
 }

@@ -183,12 +183,12 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
         Model returned = null;
 
-        if (data.id != null) {
-            Model existed = dao.get(data.id);
+        if (data.getId() != null) {
+            Model existed = dao.get(data.getId());
             if (existed != null) {
                 copyServiceFields(existed, data);
-                if (data.uuid == null) {
-                        data.uuid = existed.uuid;
+                if (data.getUuid() == null) {
+                        data.setUuid(existed.getUuid());
                     }
                 returned = dao.merge(data);
             }
@@ -219,9 +219,9 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         LOGGER.debug("Create model {}", data);
         Objects.requireNonNull(data);
 
-        data.created = ZonedDateTime.now();
-        data.version = 0L;
-        data.deleted = false;
+        data.setCreated(ZonedDateTime.now());
+        data.setVersion(0L);
+        data.setDeleted(false);
 
         return dao.create(data);
     }
@@ -256,12 +256,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
         Objects.requireNonNull(id, "id can't be null");
         return dao.getSelectedFieldsById(new ObjectId(id), fieldNames);
-    }
-
-    @Override
-    public boolean exists(String id) {
-        Objects.requireNonNull(id, "id can't be null");
-        return dao.exists(new ObjectId(id));
     }
 
     protected String getDescriptorId(String id) {
