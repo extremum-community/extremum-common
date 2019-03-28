@@ -197,11 +197,11 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
             return null;
         }
-
         Model returned = null;
 
         if (data.getId() != null) {
             Model existed = dao.get(data.getId());
+            // TODO если у модели deleted=true, то get ничего не вернет. Но реально доумент в БД есть. Всё упадет
             if (existed != null) {
                 copyServiceFields(existed, data);
                 if (data.getUuid() == null) {
