@@ -201,7 +201,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
         if (data.getId() != null) {
             Model existed = dao.get(data.getId());
-            // TODO если у модели deleted=true, то get ничего не вернет. Но реально доумент в БД есть. Всё упадет
             if (existed != null) {
                 copyServiceFields(existed, data);
                 if (data.getUuid() == null) {
@@ -211,6 +210,8 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
             }
         }
         if (returned == null) {
+            // Если у модели deleted=true, то get ничего не вернет. Но реально документ в БД есть.
+            // Он будет здесь перезаписан
             returned = dao.create(data);
         }
         return returned;
