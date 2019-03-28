@@ -31,13 +31,13 @@ public interface MongoCommonService<Model extends MongoCommonModel> {
 
     List<Model> listByParameters(Map<String, Object> parameters, Collection<Alert> alerts);
 
-    List<Model> listByFieldValue(String filed, Object value);
+    List<Model> listByFieldValue(String fieldName, Object fieldValue);
 
-    List<Model> listByFieldValue(String filed, Object value, Collection<Alert> alerts);
+    List<Model> listByFieldValue(String fieldName, Object fieldValue, Collection<Alert> alerts);
 
-    List<Model> listByFieldValue(String filed, Object value, int offset, int limit);
+    List<Model> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit);
 
-    List<Model> listByFieldValue(String filed, Object value, int offset, int limit, Collection<Alert> alerts);
+    List<Model> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Collection<Alert> alerts);
 
     Model save(Model data);
 

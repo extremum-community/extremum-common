@@ -3,6 +3,7 @@ package com.extremum.common.exception;
 
 import com.extremum.common.response.Alert;
 import com.extremum.common.response.Response;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,18 +16,18 @@ public class CommonException extends RuntimeException {
 
     private final List<Alert> alerts = new ArrayList<>();
 
-    private int code;
+    private final int code;
 
-    public CommonException(String message, int code) {
+    public CommonException(String message, HttpStatus status) {
         super(message);
-        this.code = code;
-        this.alerts.add(Alert.errorAlert(message));
+        this.code = status.value();
+        this.alerts.add(Alert.errorAlert(message, null, status.toString()));
     }
 
-    public CommonException(Throwable cause, String message, int code) {
+    public CommonException(Throwable cause, String message, HttpStatus status) {
         super(message, cause);
-        this.code = code;
-        this.alerts.add(Alert.errorAlert(message));
+        this.code = status.value();
+        this.alerts.add(Alert.errorAlert(message, null, status.toString()));
     }
 
     public CommonException(int code) {

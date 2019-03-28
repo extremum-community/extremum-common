@@ -3,7 +3,6 @@ package com.extremum.common.dao;
 import com.extremum.common.config.AppConfiguration;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.TestModel;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bson.types.ObjectId;
@@ -20,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.extremum.common.models.MongoCommonModel.FIELDS.created;
 import static org.junit.Assert.*;
 
 
@@ -46,6 +46,7 @@ public class MongoCommonDaoTest {
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
         assertNotNull(model.getVersion());
+        assertFalse(model.getDeleted());
     }
 
     @Test(expected = ConcurrentModificationException.class)
@@ -133,17 +134,17 @@ public class MongoCommonDaoTest {
         TestModel model = getTestModel();
         dao.create(model);
 
-        List<TestModel> resultModels = dao.getByFieldValue(MongoCommonModel.FIELDS.created.name(), model.getCreated());
+        List<TestModel> resultModels = dao.listByFieldValue(created.name(), model.getCreated());
         assertEquals(1, resultModels.size());
         assertEquals(model, resultModels.get(0));
 
-        resultModels = dao.getByFieldValue(MongoCommonModel.FIELDS.created.name(), ZonedDateTime.now());
+        resultModels = dao.listByFieldValue(created.name(), ZonedDateTime.now());
         assertTrue(resultModels.isEmpty());
 
         TestModel deletedModel = getDeletedTestModel();
         dao.create(deletedModel);
 
-        resultModels = dao.getByFieldValue(MongoCommonModel.FIELDS.created.name(), deletedModel.getCreated());
+        resultModels = dao.listByFieldValue(created.name(), deletedModel.getCreated());
         assertTrue(resultModels.isEmpty());
     }
 
@@ -155,7 +156,7 @@ public class MongoCommonDaoTest {
         TestModel resultModel = dao.getSelectedFieldsById(model.getId(), null);
         assertNull(resultModel);
 
-        String[] fields = {MongoCommonModel.FIELDS.created.name()};
+        String[] fields = {created.name()};
         resultModel = dao.getSelectedFieldsById(model.getId(), fields);
         assertNotNull(resultModel);
         assertNotNull(resultModel.getId());
@@ -226,7 +227,7 @@ public class MongoCommonDaoTest {
         count = dao.listByParameters(Collections.singletonMap("ids", createdIds.subList(0, idsSize))).size();
         assertEquals(idsSize, count);
 
-        count = dao.listByParameters(Collections.singletonMap(MongoCommonModel.FIELDS.created.name(), createTime)).size();
+        count = dao.listByParameters(Collections.singletonMap(created.name(), createTime)).size();
         assertEquals(modelsToCreate, count);
     }
 

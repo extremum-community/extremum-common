@@ -65,7 +65,7 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
         return getByFieldValueQuery(ID, id).map(QueryResults::get).orElse(null);
     }
 
-    public List<T> getByFieldValue(String fieldName, Object fieldValue) {
+    public List<T> listByFieldValue(String fieldName, Object fieldValue) {
         return getByFieldValueQuery(fieldName, fieldValue).map(QueryResults::asList).orElse(null);
     }
 

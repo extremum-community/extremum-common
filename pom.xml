@@ -22,6 +22,9 @@
         <jsr.version>3.0.2</jsr.version>
         <redisson.version>3.10.3</redisson.version>
         <morphia.version>1.3.2</morphia.version>
+        <testcontainer-mongodb.version>0.1.0-RC10</testcontainer-mongodb.version>
+        <testcontainer-redis.version>0.1.0-RC9</testcontainer-redis.version>
+        <spring-cloud.version>2.1.1.RELEASE</spring-cloud.version>
     </properties>
 
     <dependencyManagement>

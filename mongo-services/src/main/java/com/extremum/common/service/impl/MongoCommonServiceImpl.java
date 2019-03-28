@@ -1,16 +1,16 @@
 package com.extremum.common.service.impl;
 
 import com.extremum.common.dao.MongoCommonDao;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.exception.CommonException;
+import com.extremum.common.exception.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
 import com.extremum.common.exception.ModelNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nullable;
 import java.time.ZonedDateTime;
@@ -41,38 +41,11 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     public Model get(String id, Collection<Alert> alerts){
         LOGGER.debug("Get mode {} with id {}", modelTypeName, id);
 
-        Objects.requireNonNull(id, "id can't be null");
-
-        Model found = dao.get(new ObjectId(id));
-
-        if (found == null) {
-            String descriptorId = getDescriptorId(id);
-
-            LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, descriptorId);
-
-            if (alerts == null) {
-                throw new ModelNotFoundException(dao.getEntityClass(), descriptorId);
-            } else {
-                alerts.add(Alert.errorAlert( "Model " + modelTypeName
-                        + " with id " + descriptorId + " wasn't found", null, HttpStatus.NOT_FOUND.toString()));
-            }
+        if(!checkId(id, alerts)) {
+            return null;
         }
-
-        return found;
-    }
-
-    @Override
-    public Model delete(String id){
-        return delete(id, null);
-    }
-
-    @Override
-    public Model delete(String id, Collection<Alert> alerts){
-        LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
-
-        Objects.requireNonNull(id, "id can't be null");
-
-        return dao.delete(new ObjectId(id));
+        Model found = dao.get(new ObjectId(id));
+        return getResultWithNullabilityCheck(found, id, alerts);
     }
 
     @Override
@@ -83,14 +56,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     @Override
     public List<Model> list(Collection<Alert> alerts){
         LOGGER.debug("Get list of models of type {}", modelTypeName);
-
-        List<Model> returned = dao.listAll();
-
-        if (returned == null) {
-            returned = Collections.emptyList();
-        }
-
-        return returned;
+        return dao.listAll();
     }
 
     @Override
@@ -99,72 +65,122 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     }
 
     @Override
-    public List<Model> listByParameters(Map<String, Object> parameters, Collection<Alert> alerts){
+    public List<Model> listByParameters(Map<String, Object> parameters, Collection<Alert> alerts) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Getting list of models of type {} by parameters {}", modelTypeName,
-                    parameters.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue()));
+                    parameters != null ? parameters.entrySet().stream()
+                            .map(entry -> entry.getKey() + ": " + entry.getValue())
+                            .collect(Collectors.joining(", ")) : "-none-");
         }
-
-        if (CollectionUtils.isEmpty(parameters)) {
-            return list(alerts);
-        }
-
-        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            String key = entry.getKey();
-            Object valueObj = entry.getValue();
-
-            if (key.equals("limit") || key.equals("offset")) {
-                entry.setValue(String.valueOf(valueObj));
-            }
-        }
-
         return dao.listByParameters(parameters);
     }
 
     @Override
-    public List<Model> listByFieldValue(String filed, Object value){
-        return listByFieldValue(filed, value, null);
+    public List<Model> listByFieldValue(String fieldName, Object fieldValue){
+        return listByFieldValue(fieldName, fieldValue, null);
     }
 
     @Override
-    public List<Model> listByFieldValue(String filed, Object value, Collection<Alert> alerts){
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Get list of models of type {} by field {} with value {}",
-                    modelTypeName, filed, value);
-        }
+    public List<Model> listByFieldValue(String fieldName, Object fieldValue, Collection<Alert> alerts){
+        LOGGER.debug("Get list of models of type {} by field {} with value {}", modelTypeName, fieldName, fieldValue);
 
-        Objects.requireNonNull(filed);
-        Objects.requireNonNull(value);
-
-        List<Model> result;
-        result = dao.getByFieldValue(filed, value);
-
-        if (result == null) {
+        if(!checkFieldNameAndValue(fieldName, fieldValue, alerts)) {
             return Collections.emptyList();
         }
-
-        return result;
+        return dao.listByFieldValue(fieldName, fieldValue);
     }
 
     @Override
-    public List<Model> listByFieldValue(String filed, Object value, int offset, int limit){
-        return listByFieldValue(filed, value, offset, limit, null);
+    public List<Model> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit){
+        return listByFieldValue(fieldName, fieldValue, offset, limit, null);
     }
 
     @Override
-    public List<Model> listByFieldValue(String filed, Object value, int offset, int limit, Collection<Alert> alerts)
-           {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Get list of models of type {} by field {} with value {} using offset {}" +
-                            "and limit {}", modelTypeName, filed, value, offset, limit);
+    public List<Model> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Collection<Alert> alerts) {
+        LOGGER.debug("Get list of models of type {} by field {} with value {} using offset {} and limit {}",
+                modelTypeName, fieldName, fieldValue, offset, limit);
+
+        if(!checkFieldNameAndValue(fieldName, fieldValue, alerts)) {
+            return Collections.emptyList();
         }
-
         Map<String, Object> params = new HashMap<>();
-        params.put(filed, value);
+        params.put(fieldName, fieldValue);
         params.put("limit", limit);
         params.put("offset", offset);
 
         return listByParameters(params, alerts);
+    }
+
+    private boolean checkFieldNameAndValue(String fieldName, Object fieldValue, Collection<Alert> alerts) {
+        boolean valid = true;
+        if(StringUtils.isBlank(fieldName)) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Field name can't be blank"));
+            valid = false;
+        }
+        if(fieldValue == null) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Field value can't be null"));
+            valid = false;
+        }
+        return valid;
+    }
+
+    @Override
+    public Model getSelectedFieldsById(String id, String[] fieldNames) {
+        return getSelectedFieldsById(id, null, fieldNames);
+    }
+
+    @Nullable
+    @Override
+    public Model getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Get fields {} by id {} of model {}", Stream.of(fieldNames).map(Object::toString)
+                            .collect(Collectors.joining(", ")), id, modelTypeName);
+        }
+        boolean valid = checkId(id, alerts);
+        if (fieldNames == null || fieldNames.length == 0) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Field names can't be null"));
+            valid = false;
+        }
+        if(!valid) {
+            return null;
+        }
+        Model found = dao.getSelectedFieldsById(new ObjectId(id), fieldNames);
+        return getResultWithNullabilityCheck(found, id, alerts);
+    }
+
+    @Override
+    public Model create(Model data){
+        return create(data, null);
+    }
+
+    @Nullable
+    @Override
+    public Model create(Model data, Collection<Alert> alerts){
+        LOGGER.debug("Create model {}", data);
+
+        if(data == null) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
+            return null;
+        }
+        return dao.create(data);
+    }
+
+    @Override
+    public List<Model> create(List<Model> data){
+        return create(data, null);
+    }
+
+    @Override
+    public List<Model> create(List<Model> data, Collection<Alert> alerts){
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Create models {}", data != null ?
+                    data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
+        }
+        if(data == null) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Models can't be null"));
+            return null;
+        }
+        return dao.create(data);
     }
 
     @Override
@@ -175,11 +191,12 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     @Nullable
     @Override
     public Model save(Model data, Collection<Alert> alerts){
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Save model {}", modelTypeName);
-        }
+        LOGGER.debug("Save model {}", modelTypeName);
 
-        Objects.requireNonNull(data);
+        if(data == null) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
+            return null;
+        }
 
         Model returned = null;
 
@@ -196,7 +213,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         if (returned == null) {
             returned = dao.create(data);
         }
-
         return returned;
     }
 
@@ -209,56 +225,43 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     }
 
     @Override
-    public Model create(Model data){
-        return create(data, null);
-    }
-
-    @Nullable
-    @Override
-    public Model create(Model data, Collection<Alert> alerts){
-        LOGGER.debug("Create model {}", data);
-        Objects.requireNonNull(data);
-
-        data.setCreated(ZonedDateTime.now());
-        data.setVersion(0L);
-        data.setDeleted(false);
-
-        return dao.create(data);
+    public Model delete(String id){
+        return delete(id, null);
     }
 
     @Override
-    public List<Model> create(List<Model> data){
-        return create(data, null);
-    }
+    public Model delete(String id, Collection<Alert> alerts){
+        LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
-    @Override
-    public List<Model> create(List<Model> data, Collection<Alert> alerts){
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Create models {}", data.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        if(!checkId(id, alerts)) {
+            return null;
         }
-
-        Objects.requireNonNull(data);
-
-        return dao.create(data);
+        Model deleted = dao.delete(new ObjectId(id));
+        return getResultWithNullabilityCheck(deleted, id, alerts);
     }
 
-    @Override
-    public Model getSelectedFieldsById(String id, String[] fieldNames) {
-        return getSelectedFieldsById(id, null, fieldNames);
-    }
-
-    @Override
-    public Model getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Get fields {} by id {} of model {}",
-                    Stream.of(fieldNames).map(Object::toString).collect(Collectors.joining(", ")), id, modelTypeName);
+    private boolean checkId(String id, Collection<Alert> alerts) {
+        boolean valid = true;
+        if(StringUtils.isBlank(id)) {
+            fillAlertsOrThrowException(alerts, new WrongArgumentException("Model id can't be null"));
+            valid = false;
         }
-
-        Objects.requireNonNull(id, "id can't be null");
-        return dao.getSelectedFieldsById(new ObjectId(id), fieldNames);
+        return valid;
     }
 
-    protected String getDescriptorId(String id) {
-        return MongoDescriptorFactory.fromInternalId(id).getExternalId();
+    private Model getResultWithNullabilityCheck(Model result, String id, Collection<Alert> alerts) {
+        if(result == null) {
+            LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, id);
+            fillAlertsOrThrowException(alerts, new ModelNotFoundException(dao.getEntityClass(), id));
+        }
+        return result;
+    }
+
+    private void fillAlertsOrThrowException(Collection<Alert> alerts, CommonException ex) {
+        if (alerts == null) {
+            throw ex;
+        } else {
+            alerts.add(ex.getAlerts().get(0));
+        }
     }
 }

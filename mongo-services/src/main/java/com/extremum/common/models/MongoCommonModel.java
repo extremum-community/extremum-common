@@ -47,6 +47,7 @@ public abstract class MongoCommonModel implements Model {
     public void fillRequiredFields() {
         initCreated();
         initModified();
+        initDeleted();
         initVersion();
 
         if (this.id == null && this.uuid != null) {
@@ -67,6 +68,12 @@ public abstract class MongoCommonModel implements Model {
     private void initVersion() {
         if (this.id == null && this.version == null) {
             this.version = 0L;
+        }
+    }
+
+    private void initDeleted() {
+        if (this.id == null && this.deleted == null) {
+            this.deleted = false;
         }
     }
 

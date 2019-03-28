@@ -44,19 +44,19 @@
         <dependency>
             <groupId>com.avides.springboot.testcontainer</groupId>
             <artifactId>springboot-testcontainer-mongodb</artifactId>
-            <version>0.1.0-RC10</version>
+            <version>${testcontainer-mongodb.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.avides.springboot.testcontainer</groupId>
             <artifactId>springboot-testcontainer-redis</artifactId>
-            <version>0.1.0-RC9</version>
+            <version>${testcontainer-redis.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter</artifactId>
-            <version>2.0.2.RELEASE</version>
+            <version>${spring-cloud.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -77,8 +77,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>
         </plugins>
