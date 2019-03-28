@@ -12,6 +12,7 @@
     <modules>
         <module>models</module>
         <module>descriptors</module>
+        <module>everything-everything</module>
         <module>mongo-services</module>
     </modules>
 
