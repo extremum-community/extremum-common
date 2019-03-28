@@ -7,7 +7,7 @@ public class ModelNotFoundException extends CommonException {
     private String modelId;
 
     public ModelNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND.value());
+        super(message, HttpStatus.NOT_FOUND);
     }
 
     public ModelNotFoundException(Class<?> modelClass, String modelId) {
