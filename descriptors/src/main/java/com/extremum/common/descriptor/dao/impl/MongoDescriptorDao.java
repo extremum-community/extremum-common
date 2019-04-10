@@ -6,10 +6,7 @@ import org.mongodb.morphia.Key;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;
-import org.redisson.api.map.MapWriter;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -25,49 +22,24 @@ public class MongoDescriptorDao extends BaseDescriptorDao {
 
     public MongoDescriptorDao(RedissonClient redissonClient, Datastore mongoDatastore,
                               String descriptorsMapName, String internalIdsMapName, int cacheSize, long timeToLive) {
-        super(redissonClient.getLocalCachedMap(
-                    descriptorsMapName,
-                    LocalCachedMapOptions
-                            .<String, Descriptor> defaults()
-                            .writer(descriptorMapWriter(mongoDatastore))
-                            .loader(descriptorIdMapLoader(mongoDatastore))
-                            .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
-                            .cacheSize(cacheSize)
-                            .maxIdle(timeToLive, TimeUnit.SECONDS)
-                            .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
-            redissonClient.getLocalCachedMap(
+        super(mongoDatastore,
+                redissonClient.getLocalCachedMap(
+                        descriptorsMapName,
+                        LocalCachedMapOptions
+                                .<String, Descriptor>defaults()
+                                .loader(descriptorIdMapLoader(mongoDatastore))
+                                .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+                                .cacheSize(cacheSize)
+                                .maxIdle(timeToLive, TimeUnit.SECONDS)
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)), redissonClient.getLocalCachedMap(
                         internalIdsMapName,
                         LocalCachedMapOptions
-                                .<String, String> defaults()
+                                .<String, String>defaults()
                                 .loader(descriptorInternalIdMapLoader(mongoDatastore))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(timeToLive, TimeUnit.SECONDS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)));
-    }
-
-    private static MapWriter<String, Descriptor> descriptorMapWriter(Datastore descriptorsStore) {
-        return new MapWriter<String, Descriptor>() {
-            @Override
-            public void write(String key, Descriptor value) {
-                descriptorsStore.save(value);
-            }
-
-            @Override
-            public void writeAll(Map<String, Descriptor> map) {
-                descriptorsStore.save(map.values());
-            }
-
-            @Override
-            public void delete(String key) {
-                descriptorsStore.delete(Descriptor.class, key);
-            }
-
-            @Override
-            public void deleteAll(Collection<String> keys) {
-                descriptorsStore.delete(Descriptor.class, keys);
-            }
-        };
     }
 
     private static MapLoader<String, Descriptor> descriptorIdMapLoader(Datastore descriptorsStore) {
@@ -96,6 +68,7 @@ public class MongoDescriptorDao extends BaseDescriptorDao {
                         ? descriptor.getExternalId()
                         : null;
             }
+
             @Override
             public Iterable<String> loadAllKeys() {
                 return descriptorsStore.find(Descriptor.class).asList().stream()
@@ -104,5 +77,4 @@ public class MongoDescriptorDao extends BaseDescriptorDao {
             }
         };
     }
-
 }

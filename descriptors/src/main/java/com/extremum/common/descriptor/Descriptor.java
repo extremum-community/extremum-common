@@ -14,7 +14,6 @@ import java.util.Objects;
 
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
 public class Descriptor implements Serializable {
-
     @Id
     private String externalId;
     @Indexed
