@@ -3,8 +3,6 @@ package com.extremum.common.models;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.utils.DateUtils;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
@@ -48,7 +46,6 @@ public abstract class MongoCommonModel implements Model {
         initCreated();
         initModified();
         initDeleted();
-        initVersion();
 
         if (this.id == null && this.uuid != null) {
             this.id = MongoDescriptorFactory.resolve(uuid);
@@ -63,12 +60,6 @@ public abstract class MongoCommonModel implements Model {
 
     private void initModified() {
         this.modified = ZonedDateTime.now();
-    }
-
-    private void initVersion() {
-        if (this.id == null && this.version == null) {
-            this.version = 0L;
-        }
     }
 
     private void initDeleted() {

@@ -1,17 +1,19 @@
 package com.extremum.common.descriptor;
 
 import com.extremum.common.descriptor.exception.DescriptorNotFoundException;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Indexed;
+import lombok.NoArgsConstructor;
+import org.mongodb.morphia.annotations.*;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
+@NoArgsConstructor
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
 public class Descriptor implements Serializable {
     @Id
@@ -20,9 +22,14 @@ public class Descriptor implements Serializable {
     private String internalId;
     private String modelType;
     private StorageType storageType;
+    @Property
+    private ZonedDateTime created;
 
-    public Descriptor() {
-    }
+    @Property
+    private ZonedDateTime modified;
+
+    @Property
+    private Boolean deleted;
 
     public Descriptor(String externalId) {
         this(externalId, null, null, null);
@@ -42,6 +49,30 @@ public class Descriptor implements Serializable {
         this.internalId = internalId;
         this.modelType = modelType;
         this.storageType = storageType;
+    }
+
+
+    @PrePersist
+    public void fillRequiredFields() {
+        initCreated();
+        initModified();
+        initDeleted();
+    }
+
+    private void initCreated() {
+        if (this.externalId == null && this.internalId == null && this.created == null) {
+            this.created = ZonedDateTime.now();
+        }
+    }
+
+    private void initModified() {
+        this.modified = ZonedDateTime.now();
+    }
+
+    private void initDeleted() {
+        if (this.externalId == null && this.internalId == null && this.deleted == null) {
+            this.deleted = false;
+        }
     }
 
     @JsonValue
@@ -103,6 +134,7 @@ public class Descriptor implements Serializable {
                 .filter(d -> d.internalId != null)
                 .orElseThrow(() -> new DescriptorNotFoundException("Internal ID was not found for external ID " + this.externalId));
     }
+
 
     private Descriptor copy(Descriptor d) {
         this.externalId = d.externalId;
