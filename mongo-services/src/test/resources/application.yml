@@ -1,3 +1,0 @@
-mongo:
-  uri: mongodb://${embedded.container.mongodb.host}:${embedded.container.mongodb.port}
-  dbName: test
