@@ -1,0 +1,4 @@
+custom:
+  descriptor:
+#    in days
+    max-idle-time: 30

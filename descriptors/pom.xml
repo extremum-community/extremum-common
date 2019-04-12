@@ -19,20 +19,18 @@
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-data-21</artifactId>
             <version>${redisson.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Mongo -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mongodb.morphia</groupId>
             <artifactId>morphia</artifactId>
             <version>${morphia.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Test -->

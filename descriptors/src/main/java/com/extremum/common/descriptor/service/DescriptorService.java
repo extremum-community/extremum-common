@@ -7,7 +7,7 @@ import java.util.*;
 
 public final class DescriptorService {
 
-    private volatile static DescriptorDao descriptorDao;
+    private static DescriptorDao descriptorDao;
 
     static void setDescriptorDao(DescriptorDao descriptorDao) {
         DescriptorService.descriptorDao = descriptorDao;

@@ -20,6 +20,7 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     private final Datastore mongoDatastore;
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
+    private static final int RETRY_ATTEMPTS = 3;
 
     BaseDescriptorDao(Datastore mongoDatastore, RMap<String, Descriptor> descriptors, RMap<String, String> internalIdIndex) {
         this.mongoDatastore = mongoDatastore;
@@ -60,14 +61,15 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 .equal(descriptor.getExternalId())
                 .get());
 
+        mongoDatastore.save(descriptor);
+
         if (optionalDesc.isPresent()) {
-            mongoDatastore.save(descriptor);
             try {
                 descriptors.put(descriptor.getExternalId(), descriptor);
                 internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 Descriptor oldDescriptor = optionalDesc.get();
-                for (int i = 1; i <= 3; i++) {
+                for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
                     try {
                         mongoDatastore.save(oldDescriptor);
                         break;
@@ -79,7 +81,6 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 }
             }
         } else {
-            mongoDatastore.save(descriptor);
             descriptors.put(descriptor.getExternalId(), descriptor);
             internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
         }

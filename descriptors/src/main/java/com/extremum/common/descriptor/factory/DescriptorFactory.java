@@ -22,7 +22,7 @@ public class DescriptorFactory {
     }
 
     protected static Descriptor fromInternalId(String internalId, Descriptor.StorageType storageType) {
-        Preconditions.checkArgument(StringUtils.isNotBlank(internalId), "Blank internal id detected");
+        Preconditions.checkArgument(StringUtils.isNotBlank(internalId), "Empty internal id detected");
         return new Descriptor(null, internalId, null, storageType);
     }
 

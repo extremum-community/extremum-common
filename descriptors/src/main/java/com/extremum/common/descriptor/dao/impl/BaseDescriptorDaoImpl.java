@@ -6,22 +6,27 @@ import org.mongodb.morphia.Key;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
+    private static final int DEFAULT_CACHE_SIZE = 500000;
+    private static long DEFAULT_IDLE_TIME;
 
-public class MongoDescriptorDao extends BaseDescriptorDao {
-    private static final int DEFAULT_CACHE_SIZE = 1000;
-    private static final long DEFAULT_TTL = 0;    // in seconds
-
-    public MongoDescriptorDao(RedissonClient redissonClient, Datastore mongoDatastore,
-                              String descriptorsMapName, String internalIdsMapName) {
-        this(redissonClient, mongoDatastore, descriptorsMapName, internalIdsMapName, DEFAULT_CACHE_SIZE, DEFAULT_TTL);
+    @Value("${custom.descriptor.max-idle-time}")
+    public void setDefaultIdleTime(long defaultIdleTime) {
+        DEFAULT_IDLE_TIME = defaultIdleTime;
     }
 
-    public MongoDescriptorDao(RedissonClient redissonClient, Datastore mongoDatastore,
-                              String descriptorsMapName, String internalIdsMapName, int cacheSize, long timeToLive) {
+    public BaseDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
+                                 String descriptorsMapName, String internalIdsMapName) {
+        this(redissonClient, mongoDatastore, descriptorsMapName, internalIdsMapName, DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME);
+    }
+
+    public BaseDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
+                                 String descriptorsMapName, String internalIdsMapName, int cacheSize, long idleTime) {
         super(mongoDatastore,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
@@ -30,7 +35,7 @@ public class MongoDescriptorDao extends BaseDescriptorDao {
                                 .loader(descriptorIdMapLoader(mongoDatastore))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
-                                .maxIdle(timeToLive, TimeUnit.SECONDS)
+                                .maxIdle(idleTime, TimeUnit.SECONDS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)), redissonClient.getLocalCachedMap(
                         internalIdsMapName,
                         LocalCachedMapOptions
@@ -38,7 +43,7 @@ public class MongoDescriptorDao extends BaseDescriptorDao {
                                 .loader(descriptorInternalIdMapLoader(mongoDatastore))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
-                                .maxIdle(timeToLive, TimeUnit.SECONDS)
+                                .maxIdle(idleTime, TimeUnit.SECONDS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)));
     }
 

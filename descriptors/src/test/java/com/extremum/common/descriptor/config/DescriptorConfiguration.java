@@ -1,7 +1,7 @@
 package com.extremum.common.descriptor.config;
 
 import com.extremum.common.descriptor.dao.DescriptorDao;
-import com.extremum.common.descriptor.dao.impl.MongoDescriptorDao;
+import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.serde.mongo.DescriptorConverter;
 import com.extremum.common.descriptor.serde.mongo.DescriptorCreator;
 import com.mongodb.MongoClient;
@@ -52,7 +52,7 @@ public class DescriptorConfiguration {
 
     @Bean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        return new MongoDescriptorDao(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
-                descriptorsProperties.getInternalIdsMapName(), redisProps.getCacheSize(), redisProps.getTtl());
+        return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
+                descriptorsProperties.getInternalIdsMapName(), redisProps.getCacheSize(), redisProps.getIdleTime());
     }
 }

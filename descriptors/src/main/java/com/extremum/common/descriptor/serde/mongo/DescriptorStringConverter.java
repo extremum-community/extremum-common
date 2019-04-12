@@ -5,18 +5,21 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class DescriptorStringConverter extends TypeConverter implements SimpleValueConverter {
+    private final MongoDescriptorFactory mongoFactory;
 
-    public DescriptorStringConverter() {
+    public DescriptorStringConverter(MongoDescriptorFactory mongoFactory) {
         super(Descriptor.class);
+        this.mongoFactory = mongoFactory;
     }
 
     @Override
     public Object decode(Class<?> targetClass, Object fromDBObject, MappedField optionalExtraInfo) {
         if (targetClass.equals(Descriptor.class)) {
-            return MongoDescriptorFactory.fromInternalId(fromDBObject.toString());
+            return mongoFactory.fromInternalId(fromDBObject.toString());
         } else {
             throw new IllegalArgumentException("Unexpected class " + targetClass);
         }

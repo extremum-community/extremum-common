@@ -1,18 +1,18 @@
 package com.extremum.common.descriptor.factory.impl;
 
-import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.factory.DescriptorFactory;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Component
 public final class MongoDescriptorFactory extends DescriptorFactory {
-
     private static Descriptor.StorageType storageType = Descriptor.StorageType.MONGO;
-
-    private MongoDescriptorFactory() {}
 
     public static Descriptor create(ObjectId id, String modelType) {
         return DescriptorFactory.create(id.toString(), modelType, storageType);
@@ -26,16 +26,22 @@ public final class MongoDescriptorFactory extends DescriptorFactory {
         return DescriptorFactory.fromInternalId(internalId, storageType);
     }
 
-    public static Descriptor fromInternalIdOrNull(String internalId) {
+    public List<String> getInternalIdList(List<Descriptor> descriptors) {
+        return descriptors.stream()
+                .map(Descriptor::getInternalId)
+                .collect(Collectors.toList());
+    }
+
+    private Descriptor fromInternalIdOrNull(String internalId) {
         return DescriptorFactory.fromInternalIdOrNull(internalId, storageType);
     }
 
-    public static List<Descriptor> fromInternalIdListOrNull(List<String> internalIdList) {
+    public List<Descriptor> fromInternalIdListOrNull(List<String> internalIdList) {
         if (internalIdList == null) {
             return null;
         }
         return internalIdList.stream()
-                .map(MongoDescriptorFactory::fromInternalIdOrNull)
+                .map(this::fromInternalIdOrNull)
                 .collect(Collectors.toList());
     }
 

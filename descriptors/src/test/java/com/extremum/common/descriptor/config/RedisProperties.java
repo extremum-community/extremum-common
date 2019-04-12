@@ -17,5 +17,5 @@ public class RedisProperties {
 
     private int cacheSize;
 
-    private long ttl;
+    private long idleTime;
 }
