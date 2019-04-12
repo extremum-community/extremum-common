@@ -2,23 +2,23 @@ package com.extremum.common.models;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
-import com.extremum.common.utils.DateUtils;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.*;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.PostLoad;
+import org.mongodb.morphia.annotations.PostPersist;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Transient;
+import org.mongodb.morphia.annotations.Version;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-import static java.util.Optional.ofNullable;
-
-
 @Getter
 @Setter
-public abstract class MongoCommonModel implements Model {
+public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     public static final int VERSION_INITIAL_VALUE = 0;
     public static final boolean DELETED_INITIAL_VALUE = false;
@@ -97,30 +97,5 @@ public abstract class MongoCommonModel implements Model {
         MongoCommonModel that = (MongoCommonModel) o;
 
         return (Objects.equals(id, that.id)) && (Objects.equals(version, that.version));
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (version != null ? version.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "<" + this.getClass().getSimpleName() + " : [" +
-                FIELDS.id.name() + "(" +
-                "internal: " + ofNullable(getId()).map(Object::toString).orElse("<definition not available>") + ", " +
-                "external: " + ofNullable(getUuid()).map(Descriptor::getExternalId).orElse("<definition not available>") + "), " +
-                FIELDS.created.name() + ": " + ofNullable(this.getCreated()).map(DateUtils::convert).orElse("<definition not available>") + ", " +
-                FIELDS.modified.name() + ": " + ofNullable(this.getModified()).map(DateUtils::convert).orElse("<definition not available>") + ", " +
-                FIELDS.deleted.name() + ": " + this.getDeleted() +
-                "] >";
-    }
-
-
-    // TODO по deleted искать нельзя: ничего не вернется. Должен ли он быть в public доступе?
-    public enum FIELDS {
-        id, created, modified, version, deleted
     }
 }

@@ -4,11 +4,17 @@ import com.extremum.common.models.MongoCommonModel;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
-import org.mongodb.morphia.query.*;
+import org.mongodb.morphia.query.FindOptions;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.QueryResults;
+import org.mongodb.morphia.query.UpdateOperations;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDAO<T, ObjectId> {
@@ -60,7 +66,6 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
         return q.asList(findOptions);
     }
 
-    @Nullable
     public T get(ObjectId id) {
         return getByFieldValueQuery(ID, id).map(QueryResults::get).orElse(null);
     }
@@ -77,7 +82,6 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
         return Optional.of(query);
     }
 
-    @Nullable
     public T create(T obj) {
         if (obj != null) {
             super.save(obj);
@@ -92,7 +96,6 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
         return objects;
     }
 
-    @Nullable
     public T merge(T obj) {
         if (obj != null) {
             getDatastore().merge(obj);
@@ -101,7 +104,6 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
     }
 
     // TODO возможно нужно менять еще и modified
-    @Nullable
     public T delete(ObjectId id) {
         if (id == null) {
             return null;
@@ -112,7 +114,6 @@ public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDA
         return getDatastore().findAndModify(q, ops);
     }
 
-    @Nullable
     public T getSelectedFieldsById(ObjectId id, String[] fieldNames) {
         if (fieldNames == null || fieldNames.length == 0) {
             return null;

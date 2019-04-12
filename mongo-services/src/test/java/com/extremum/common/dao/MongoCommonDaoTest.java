@@ -15,12 +15,19 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.extremum.common.models.MongoCommonModel.FIELDS.created;
-import static org.junit.Assert.*;
+import static com.extremum.common.models.AbstractCommonModel.FIELDS.created;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

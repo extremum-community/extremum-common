@@ -5,14 +5,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.extremum.common</groupId>
-    <artifactId>descriptors</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <parent>
         <groupId>com.extremum</groupId>
         <artifactId>common</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
+    <artifactId>common-descriptors</artifactId>
 
     <dependencies>
         <dependency>
@@ -69,6 +68,20 @@
             <artifactId>lettuce-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

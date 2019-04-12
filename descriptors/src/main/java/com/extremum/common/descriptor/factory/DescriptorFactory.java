@@ -1,6 +1,5 @@
 package com.extremum.common.descriptor.factory;
 
-import com.google.common.base.Preconditions;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import org.apache.commons.lang3.StringUtils;
@@ -22,14 +21,19 @@ public class DescriptorFactory {
     }
 
     protected static Descriptor fromInternalId(String internalId, Descriptor.StorageType storageType) {
-        Preconditions.checkArgument(StringUtils.isNotBlank(internalId), "Blank internal id detected");
+        if (StringUtils.isBlank(internalId)) {
+            throw new IllegalArgumentException("Blank internal id detected");
+        }
+
         return new Descriptor(null, internalId, null, storageType);
     }
 
     protected static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
         String internalId = descriptor.getInternalId();
         Descriptor.StorageType currentType = descriptor.getStorageType();
-        Preconditions.checkArgument(currentType == storageType,"Wrong descriptor storage type " + currentType);
+        if (currentType != storageType) {
+            throw new IllegalArgumentException("Wrong descriptor storage type " + currentType);
+        }
 
         return internalId;
     }

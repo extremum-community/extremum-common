@@ -13,11 +13,19 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.extremum.common.models.MongoCommonModel.FIELDS.version;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static com.extremum.common.models.AbstractCommonModel.FIELDS.version;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
