@@ -1,6 +1,5 @@
 package com.extremum.common.utils;
 
-import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +15,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * @author iPolyakov on 03.02.15.
- */
-@Log
-public final class DateUtils {
-
+public class DateUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
     public static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";

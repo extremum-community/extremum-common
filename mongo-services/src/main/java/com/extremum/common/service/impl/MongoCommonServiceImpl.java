@@ -2,19 +2,21 @@ package com.extremum.common.service.impl;
 
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.exception.CommonException;
+import com.extremum.common.exception.ModelNotFoundException;
 import com.extremum.common.exception.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
-import com.extremum.common.exception.ModelNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +38,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         return get(id, null);
     }
 
-    @Nullable
     @Override
     public Model get(String id, Collection<Alert> alerts){
         LOGGER.debug("Get mode {} with id {}", modelTypeName, id);
@@ -129,7 +130,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         return getSelectedFieldsById(id, null, fieldNames);
     }
 
-    @Nullable
     @Override
     public Model getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames) {
         if (LOGGER.isDebugEnabled()) {
@@ -153,7 +153,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         return create(data, null);
     }
 
-    @Nullable
     @Override
     public Model create(Model data, Collection<Alert> alerts){
         LOGGER.debug("Create model {}", data);
@@ -188,7 +187,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         return save(data, null);
     }
 
-    @Nullable
     @Override
     public Model save(Model data, Collection<Alert> alerts){
         LOGGER.debug("Save model {}", modelTypeName);

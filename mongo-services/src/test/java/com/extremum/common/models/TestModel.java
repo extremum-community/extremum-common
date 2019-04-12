@@ -13,5 +13,4 @@ public class TestModel extends MongoCommonModel {
     public String getModelName() {
         return COLLECTION;
     }
-
 }
