@@ -23,7 +23,6 @@ public class DescriptorDeserializer extends StdScalarDeserializer<Descriptor> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Descriptor deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         String externalId = _parseString(p, ctxt);
         return DescriptorFactory.fromExternalId(externalId);

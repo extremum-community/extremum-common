@@ -1,7 +1,7 @@
 redis:
   uri: redis://${embedded.container.redis.host}:${embedded.container.redis.port}
   cacheSize: 5
-  ttl: 1
+  idleTime: 1
 
 mongo:
   uri: mongodb://${embedded.container.mongodb.host}:${embedded.container.mongodb.port}

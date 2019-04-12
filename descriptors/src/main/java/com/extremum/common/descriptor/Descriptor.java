@@ -1,7 +1,6 @@
 package com.extremum.common.descriptor;
 
 import com.extremum.common.descriptor.exception.DescriptorNotFoundException;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,7 +23,6 @@ public class Descriptor implements Serializable {
     private StorageType storageType;
     @Property
     private ZonedDateTime created;
-
     @Property
     private ZonedDateTime modified;
 
