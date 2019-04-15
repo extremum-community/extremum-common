@@ -6,19 +6,13 @@ import org.mongodb.morphia.Key;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
     private static final int DEFAULT_CACHE_SIZE = 500000;
-    private static long DEFAULT_IDLE_TIME;
-
-    @Value("${custom.descriptor.max-idle-time}")
-    public void setDefaultIdleTime(long defaultIdleTime) {
-        DEFAULT_IDLE_TIME = defaultIdleTime;
-    }
+    private static long DEFAULT_IDLE_TIME = 30; //in days
 
     public BaseDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
                                  String descriptorsMapName, String internalIdsMapName) {
@@ -35,7 +29,7 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                 .loader(descriptorIdMapLoader(mongoDatastore))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
-                                .maxIdle(idleTime, TimeUnit.SECONDS)
+                                .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)), redissonClient.getLocalCachedMap(
                         internalIdsMapName,
                         LocalCachedMapOptions
@@ -43,7 +37,7 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                 .loader(descriptorInternalIdMapLoader(mongoDatastore))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
-                                .maxIdle(idleTime, TimeUnit.SECONDS)
+                                .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)));
     }
 
