@@ -2,19 +2,12 @@ package com.extremum.common.models;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
-import com.extremum.common.utils.DateUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.PostLoad;
-import org.mongodb.morphia.annotations.PostPersist;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Property;
-import org.mongodb.morphia.annotations.Transient;
-import org.mongodb.morphia.annotations.Version;
+import org.mongodb.morphia.annotations.*;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -29,26 +22,25 @@ public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     @Id
     private ObjectId id;
+// TODO move to ZonedDateTime (see mongo-driver and custom conversions)
+    @Property
+    private LocalDateTime created;
 
     @Property
-    private ZonedDateTime created;
-
-    @Property
-    private ZonedDateTime modified;
+    private LocalDateTime modified;
 
     @Property
     @Version
     private Long version;
 
     @Property
-    private Boolean deleted;
+    private boolean deleted;
 
 
     @PrePersist
     public void fillRequiredFields() {
         initCreated();
         initModified();
-        initDeleted();
 
         if (this.id == null && this.uuid != null) {
             this.id = MongoDescriptorFactory.resolve(uuid);
@@ -57,19 +49,14 @@ public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     private void initCreated() {
         if (this.id == null && this.created == null) {
-            this.created = ZonedDateTime.now();
+            this.created = LocalDateTime.now();
         }
     }
 
     private void initModified() {
-        this.modified = ZonedDateTime.now();
+        this.modified = LocalDateTime.now();
     }
 
-    private void initDeleted() {
-        if (this.id == null && this.deleted == null) {
-            this.deleted = false;
-        }
-    }
 
     @PostLoad
     public void resolveDescriptor() {
