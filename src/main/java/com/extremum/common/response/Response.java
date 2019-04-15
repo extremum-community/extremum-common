@@ -9,12 +9,15 @@ import org.slf4j.MDC;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.springframework.http.HttpStatus.OK;
 
 /**
  * Common response structure
@@ -118,8 +121,10 @@ public class Response {
     }
 
     public static class Builder {
+        private static final int OK_STATUS_CODE = 200;
+
         private ResponseStatusEnum status;
-        private Integer code = OK.value();
+        private Integer code = OK_STATUS_CODE;
         private Object result;
         private String locale;
         private List<Alert> alerts;
@@ -143,7 +148,7 @@ public class Response {
 
         public Builder withOkStatus() {
             this.status = ResponseStatusEnum.OK;
-            this.code = OK.value();
+            this.code = OK_STATUS_CODE;
 
             withNowTimestamp();
 
@@ -152,7 +157,7 @@ public class Response {
 
         public Builder withFailStatus() {
             this.status = ResponseStatusEnum.FAIL;
-            this.code = OK.value();
+            this.code = OK_STATUS_CODE;
 
             withNowTimestamp();
 
@@ -161,7 +166,7 @@ public class Response {
 
         public Builder withDoingStatus() {
             this.status = ResponseStatusEnum.DOING;
-            this.code = OK.value();
+            this.code = OK_STATUS_CODE;
 
             withNowTimestamp();
 
@@ -170,7 +175,7 @@ public class Response {
 
         public Builder withWarningStatus() {
             this.status = ResponseStatusEnum.WARNING;
-            this.code = OK.value();
+            this.code = OK_STATUS_CODE;
 
             withNowTimestamp();
 
