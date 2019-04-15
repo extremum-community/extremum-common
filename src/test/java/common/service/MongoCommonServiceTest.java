@@ -13,7 +13,6 @@ import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.NOT_FOUND.toString(), alertList.get(0).getCode());
+        assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
         resultModel = service.get(null, alertList);
@@ -78,7 +77,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
+        assertEquals("400", alertList.get(0).getCode());
     }
 
     @Test
@@ -179,8 +178,8 @@ public class MongoCommonServiceTest {
 
         resultModelList = service.listByFieldValue(null, null, alertList);
         assertEquals(2, alertList.size());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(1).getCode());
+        assertEquals("400", alertList.get(0).getCode());
+        assertEquals("400", alertList.get(1).getCode());
 
         assertNotNull(resultModelList);
         assertTrue(resultModelList.isEmpty());
@@ -235,8 +234,8 @@ public class MongoCommonServiceTest {
         assertEquals(2, alertList.size());
         assertTrue(alertList.get(0).isError());
         assertTrue(alertList.get(1).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(1).getCode());
+        assertEquals("400", alertList.get(0).getCode());
+        assertEquals("400", alertList.get(1).getCode());
 
         assertNotNull(resultModelList);
         assertTrue(resultModelList.isEmpty());
@@ -274,7 +273,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.NOT_FOUND.toString(), alertList.get(0).getCode());
+        assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
         resultModel = service.getSelectedFieldsById(null, alertList);
@@ -283,8 +282,8 @@ public class MongoCommonServiceTest {
         assertEquals(2, alertList.size());
         assertTrue(alertList.get(0).isError());
         assertTrue(alertList.get(1).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(1).getCode());
+        assertEquals("400", alertList.get(0).getCode());
+        assertEquals("400", alertList.get(1).getCode());
     }
 
     @Test
@@ -316,7 +315,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
+        assertEquals("400", alertList.get(0).getCode());
     }
 
     @Test
@@ -353,7 +352,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModels);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
+        assertEquals("400", alertList.get(0).getCode());
     }
 
     @Test
@@ -407,7 +406,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
+        assertEquals("400", alertList.get(0).getCode());
     }
 
     @Test
@@ -443,7 +442,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.NOT_FOUND.toString(), alertList.get(0).getCode());
+        assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
         resultModel = service.delete(null, alertList);
@@ -451,7 +450,7 @@ public class MongoCommonServiceTest {
         assertNull(resultModel);
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), alertList.get(0).getCode());
+        assertEquals("400", alertList.get(0).getCode());
     }
 
 
