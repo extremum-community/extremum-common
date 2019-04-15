@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.mongodb.morphia.annotations.*;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -21,10 +21,12 @@ public class Descriptor implements Serializable {
     private String internalId;
     private String modelType;
     private StorageType storageType;
+
+    //    TODO изменить LocalDateTime на ZonedDateTime (смотреть на mongo-driver или кастомный конвертер)
     @Property
-    private ZonedDateTime created;
+    private LocalDateTime created;
     @Property
-    private ZonedDateTime modified;
+    private LocalDateTime modified;
     @Version
     private long version;
 
@@ -59,12 +61,12 @@ public class Descriptor implements Serializable {
 
     private void initCreated() {
         if (this.externalId == null && this.internalId == null && this.created == null) {
-            this.created = ZonedDateTime.now();
+            this.created = LocalDateTime.now();
         }
     }
 
     private void initModified() {
-        this.modified = ZonedDateTime.now();
+        this.modified = LocalDateTime.now();
     }
 
     @JsonValue
