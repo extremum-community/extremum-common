@@ -25,9 +25,10 @@ public class Descriptor implements Serializable {
     private ZonedDateTime created;
     @Property
     private ZonedDateTime modified;
+    @Version
+    private long version;
 
-    @Property
-    private Boolean deleted;
+    private boolean deleted;
 
     public Descriptor(String externalId) {
         this(externalId, null, null, null);
@@ -54,7 +55,6 @@ public class Descriptor implements Serializable {
     public void fillRequiredFields() {
         initCreated();
         initModified();
-        initDeleted();
     }
 
     private void initCreated() {
@@ -65,12 +65,6 @@ public class Descriptor implements Serializable {
 
     private void initModified() {
         this.modified = ZonedDateTime.now();
-    }
-
-    private void initDeleted() {
-        if (this.externalId == null && this.internalId == null && this.deleted == null) {
-            this.deleted = false;
-        }
     }
 
     @JsonValue

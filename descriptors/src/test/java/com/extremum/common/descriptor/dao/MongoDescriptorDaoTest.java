@@ -20,9 +20,6 @@ import static org.junit.Assert.*;
 @SpringBootTest
 public class MongoDescriptorDaoTest {
     @Autowired
-    private MongoDescriptorFactory mongoFactory;
-
-    @Autowired
     private DescriptorDao descriptorDao;
 
     @Autowired
@@ -31,7 +28,7 @@ public class MongoDescriptorDaoTest {
     @Test
     public void testRetrieveByExternalId() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoFactory.create(objectId, "test_model");
+        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -44,7 +41,7 @@ public class MongoDescriptorDaoTest {
     @Test
     public void testRetrieveByInternalId() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoFactory.create(objectId, "test_model");
+        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -57,7 +54,7 @@ public class MongoDescriptorDaoTest {
     @Test
     public void testRetrieveMapByExternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoFactory.create(objectId, "test_model");
+        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -70,7 +67,7 @@ public class MongoDescriptorDaoTest {
     @Test
     public void testRetrieveMapByInternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoFactory.create(objectId, "test_model");
+        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
