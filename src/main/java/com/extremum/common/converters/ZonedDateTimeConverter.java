@@ -1,4 +1,4 @@
-package com.extremum.common.converter;
+package com.extremum.common.converters;
 
 import com.extremum.common.utils.DateUtils;
 import org.mongodb.morphia.converters.SimpleValueConverter;

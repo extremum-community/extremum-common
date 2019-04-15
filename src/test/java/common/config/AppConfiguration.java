@@ -1,6 +1,6 @@
 package common.config;
 
-import com.extremum.common.converter.ZonedDateTimeConverter;
+import com.extremum.common.converters.ZonedDateTimeConverter;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import common.dao.TestModelDao;

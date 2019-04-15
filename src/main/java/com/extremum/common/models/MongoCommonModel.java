@@ -1,5 +1,6 @@
 package com.extremum.common.models;
 
+import com.extremum.common.converters.ZonedDateTimeConverter;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import lombok.Getter;
@@ -7,11 +8,12 @@ import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Getter
 @Setter
+@Converters({ZonedDateTimeConverter.class})
 public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     public static final int VERSION_INITIAL_VALUE = 0;
@@ -22,19 +24,18 @@ public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     @Id
     private ObjectId id;
-// TODO move to ZonedDateTime (see mongo-driver and custom conversions)
     @Property
-    private LocalDateTime created;
+    private ZonedDateTime created;
 
     @Property
-    private LocalDateTime modified;
+    private ZonedDateTime modified;
 
     @Property
     @Version
     private Long version;
 
     @Property
-    private boolean deleted;
+    private Boolean deleted = false;
 
 
     @PrePersist
@@ -49,12 +50,12 @@ public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     private void initCreated() {
         if (this.id == null && this.created == null) {
-            this.created = LocalDateTime.now();
+            this.created = ZonedDateTime.now();
         }
     }
 
     private void initModified() {
-        this.modified = LocalDateTime.now();
+        this.modified = ZonedDateTime.now();
     }
 
 
