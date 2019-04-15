@@ -1,0 +1,12 @@
+redis:
+  uri: redis://${embedded.container.redis.host}:${embedded.container.redis.port}
+  cacheSize: 5
+  idleTime: 1
+
+mongo:
+  uri: mongodb://${embedded.container.mongodb.host}:${embedded.container.mongodb.port}
+  dbName: test
+
+descriptors:
+  descriptorsMapName: descriptors
+  internalIdsMapName: descriptors_internalId_idx
