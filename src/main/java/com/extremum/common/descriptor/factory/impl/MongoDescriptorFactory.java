@@ -2,9 +2,6 @@ package com.extremum.common.descriptor.factory.impl;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import com.extremum.common.descriptor.factory.DescriptorFactory;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 

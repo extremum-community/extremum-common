@@ -8,7 +8,6 @@ import org.mongodb.morphia.mapping.DefaultCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DescriptorCreator extends DefaultCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DescriptorCreator.class);
 

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDAO<T, ObjectId> {
 
     private static final String ID = MongoCommonModel.FIELDS.id.name();

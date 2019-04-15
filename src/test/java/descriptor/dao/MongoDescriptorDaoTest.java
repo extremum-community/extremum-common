@@ -5,7 +5,6 @@ import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import org.bson.types.ObjectId;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mongodb.morphia.Datastore;
@@ -18,6 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
@@ -35,10 +37,10 @@ public class MongoDescriptorDaoTest {
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
-        Assert.assertNotNull(externalId);
+        assertNotNull(externalId);
 
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByExternalId(externalId);
-        Assert.assertTrue(retrievedDescriptor.isPresent());
+        assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
     }
 
@@ -48,10 +50,10 @@ public class MongoDescriptorDaoTest {
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
-        Assert.assertNotNull(externalId);
+        assertNotNull(externalId);
 
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(objectId.toString());
-        Assert.assertTrue(retrievedDescriptor.isPresent());
+        assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
     }
 
@@ -61,11 +63,11 @@ public class MongoDescriptorDaoTest {
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
-        Assert.assertNotNull(externalId);
+        assertNotNull(externalId);
 
         Map<String, String> retrievedMap = descriptorDao.retrieveMapByExternalIds(Collections.singleton(externalId));
-        Assert.assertEquals(1, retrievedMap.size());
-        Assert.assertEquals(objectId.toString(), retrievedMap.get(externalId));
+        assertEquals(1, retrievedMap.size());
+        assertEquals(objectId.toString(), retrievedMap.get(externalId));
     }
 
     @Test
@@ -74,11 +76,11 @@ public class MongoDescriptorDaoTest {
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
-        Assert.assertNotNull(externalId);
+        assertNotNull(externalId);
 
         Map<String, String> retrievedMap = descriptorDao.retrieveMapByInternalIds(Collections.singleton(objectId.toString()));
-        Assert.assertEquals(1, retrievedMap.size());
-        Assert.assertEquals(externalId, retrievedMap.get(objectId.toString()));
+        assertEquals(1, retrievedMap.size());
+        assertEquals(externalId, retrievedMap.get(objectId.toString()));
     }
 
     @Test
@@ -88,11 +90,11 @@ public class MongoDescriptorDaoTest {
                 internalId,"test_model", Descriptor.StorageType.MONGO);
 
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
-        Assert.assertFalse(retrievedDescriptor.isPresent());
+        assertFalse(retrievedDescriptor.isPresent());
 
         descriptorsStore.save(descriptor);
         retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
-        Assert.assertTrue(retrievedDescriptor.isPresent());
+        assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
     }
 }

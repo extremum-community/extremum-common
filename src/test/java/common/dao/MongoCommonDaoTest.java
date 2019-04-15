@@ -79,9 +79,9 @@ public class MongoCommonDaoTest {
         assertEquals(modelsToCreate, createdModelList.size());
 
         long validCreated = createdModelList.stream()
-                                .filter(model -> modelList.contains(model) && model.getCreated() != null
-                                        && model.getVersion() != null && model.getId() != null)
-                                .count();
+                .filter(model -> modelList.contains(model) && model.getCreated() != null
+                        && model.getVersion() != null && model.getId() != null)
+                .count();
         assertEquals(modelsToCreate, validCreated);
     }
 

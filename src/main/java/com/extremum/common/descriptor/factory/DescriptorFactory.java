@@ -30,8 +30,9 @@ public class DescriptorFactory {
     protected static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
         String internalId = descriptor.getInternalId();
         Descriptor.StorageType currentType = descriptor.getStorageType();
+
         if (currentType != storageType) {
-            throw new IllegalArgumentException("Wrong descriptor storage type " + currentType);
+            throw new IllegalStateException("Wrong descriptor storage type " + currentType);
         }
 
         return internalId;

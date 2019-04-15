@@ -1,12 +1,17 @@
 package com.extremum.common.descriptor;
 
-import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
+import com.extremum.common.descriptor.exception.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NoArgsConstructor;
-import org.mongodb.morphia.annotations.*;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Version;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
