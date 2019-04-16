@@ -50,7 +50,7 @@ public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
     }
 
     private void initCreated() {
-        if (this.id != null && this.created == null) {
+        if (this.id == null && this.created == null) {
             this.created = ZonedDateTime.now();
         }
     }
