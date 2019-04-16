@@ -1,24 +1,21 @@
 package com.extremum.common.descriptor;
 
+import com.extremum.common.converters.ZonedDateTimeConverter;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NoArgsConstructor;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Indexed;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Property;
-import org.mongodb.morphia.annotations.Version;
+import org.mongodb.morphia.annotations.*;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @NoArgsConstructor
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
+@Converters({ZonedDateTimeConverter.class})
 public class Descriptor implements Serializable {
     @Id
     private String externalId;
@@ -27,11 +24,10 @@ public class Descriptor implements Serializable {
     private String modelType;
     private StorageType storageType;
 
-    //    TODO изменить LocalDateTime на ZonedDateTime (смотреть на mongo-driver или кастомный конвертер)
     @Property
-    private LocalDateTime created;
+    private ZonedDateTime created;
     @Property
-    private LocalDateTime modified;
+    private ZonedDateTime modified;
     @Version
     private long version;
 
@@ -65,13 +61,13 @@ public class Descriptor implements Serializable {
     }
 
     private void initCreated() {
-        if (this.externalId == null && this.internalId == null && this.created == null) {
-            this.created = LocalDateTime.now();
+        if (this.created == null) {
+            this.created = ZonedDateTime.now();
         }
     }
 
     private void initModified() {
-        this.modified = LocalDateTime.now();
+        this.modified = ZonedDateTime.now();
     }
 
     @JsonValue
