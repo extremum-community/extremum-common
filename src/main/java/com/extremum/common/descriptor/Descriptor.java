@@ -5,7 +5,6 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.NoArgsConstructor;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Indexed;
@@ -17,7 +16,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@NoArgsConstructor
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
 public class Descriptor implements Serializable {
     @Id
