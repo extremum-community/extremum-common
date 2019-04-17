@@ -1,19 +1,22 @@
 package com.extremum.common.descriptor;
 
-import com.extremum.common.converters.ZonedDateTimeConverter;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.mongodb.morphia.annotations.*;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Version;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
-@Converters({ZonedDateTimeConverter.class})
 public class Descriptor implements Serializable {
     @Id
     private String externalId;
@@ -31,19 +34,22 @@ public class Descriptor implements Serializable {
 
     private boolean deleted;
 
+    private String display;
+
     public Descriptor(String externalId) {
-        this(externalId, null, null, null);
+        this(externalId, null, null, null, null, ZonedDateTime.now(), null, 1, false);
     }
 
     public Descriptor(String externalId, String internalId, StorageType storageType) {
-        this(externalId, internalId, null, storageType);
+        this(externalId, internalId, storageType, null);
     }
 
-    public Descriptor(String externalId, String internalId, String modelType, StorageType storageType) {
-        this.externalId = externalId;
-        this.internalId = internalId;
-        this.modelType = modelType;
-        this.storageType = storageType;
+    public Descriptor(String externalId, String internalId, String model, StorageType storageType) {
+        this(externalId, internalId, model, storageType, null, ZonedDateTime.now(), null, 1, false);
+    }
+
+    public Descriptor(String externalId, String internalId, StorageType storageType, String display) {
+        this(externalId, internalId, null, storageType, display, ZonedDateTime.now(), null, 1, false);
     }
 
     @JsonCreator
@@ -52,6 +58,7 @@ public class Descriptor implements Serializable {
             @JsonProperty("internalId") String internalId,
             @JsonProperty("modelType") String modelType,
             @JsonProperty("storageType") StorageType storageType,
+            @JsonProperty("display") String display,
             @JsonProperty("created") ZonedDateTime created,
             @JsonProperty("modified") ZonedDateTime modified,
             @JsonProperty("version") long version,
@@ -60,6 +67,7 @@ public class Descriptor implements Serializable {
         this.internalId = internalId;
         this.modelType = modelType;
         this.storageType = storageType;
+        this.display = display;
         this.created = created;
         this.modified = modified;
         this.version = version;
@@ -116,6 +124,10 @@ public class Descriptor implements Serializable {
             fillByIds();
         }
         return this.modelType;
+    }
+
+    public String getDisplay() {
+        return display;
     }
 
     private void fillByIds() {
