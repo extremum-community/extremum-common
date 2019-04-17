@@ -14,9 +14,11 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +38,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
 
     private static final DateTimeFormatter FORMATTER = ofPattern(DateUtils.FORMAT);
 
-    BasicJsonObjectMapper() {
+    public BasicJsonObjectMapper() {
         super();
         // deserialization
         this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
@@ -57,6 +59,8 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         SimpleModule module = new SimpleModule();
         module.setDeserializerModifier(new EnumDeserializerModifier());
         module.addSerializer(Enum.class, new EnumSerializer());
+        module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
+
         return module;
     }
 
@@ -65,6 +69,17 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         javaTimeModule.addSerializer(ZonedDateTime.class, new ZoneDateTimeSerializer());
         javaTimeModule.addDeserializer(ZonedDateTime.class, new ZoneDateTimeDeserializer());
         return javaTimeModule;
+    }
+
+    private static class ObjectIdDeserializer extends StdDeserializer<ObjectId> {
+        ObjectIdDeserializer() {
+            super(ObjectId.class);
+        }
+
+        @Override
+        public ObjectId deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return new ObjectId(p.getValueAsString());
+        }
     }
 
     private static class EnumSerializer extends StdSerializer<Enum> {

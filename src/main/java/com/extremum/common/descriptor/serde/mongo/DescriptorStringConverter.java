@@ -5,6 +5,7 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,7 +20,7 @@ public class DescriptorStringConverter extends TypeConverter implements SimpleVa
     @Override
     public Object decode(Class<?> targetClass, Object fromDBObject, MappedField optionalExtraInfo) {
         if (targetClass.equals(Descriptor.class)) {
-            return mongoFactory.fromInternalId(fromDBObject.toString());
+            return MongoDescriptorFactory.fromInternalId(fromDBObject.toString());
         } else {
             throw new IllegalArgumentException("Unexpected class " + targetClass);
         }

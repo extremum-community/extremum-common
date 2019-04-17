@@ -16,7 +16,7 @@ abstract class UUIDDescriptorFactory extends DescriptorFactory {
         return fromInternalId(uuid.toString());
     }
 
-    private Descriptor fromInternalId(String uuid) {
+    public Descriptor fromInternalId(String uuid) {
         return DescriptorFactory.fromInternalId(uuid, storageType());
     }
 

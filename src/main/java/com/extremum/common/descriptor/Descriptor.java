@@ -6,14 +6,12 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.NoArgsConstructor;
 import org.mongodb.morphia.annotations.*;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@NoArgsConstructor
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
 @Converters({ZonedDateTimeConverter.class})
 public class Descriptor implements Serializable {
@@ -41,16 +39,31 @@ public class Descriptor implements Serializable {
         this(externalId, internalId, null, storageType);
     }
 
+    public Descriptor(String externalId, String internalId, String modelType, StorageType storageType) {
+        this.externalId = externalId;
+        this.internalId = internalId;
+        this.modelType = modelType;
+        this.storageType = storageType;
+    }
+
     @JsonCreator
     public Descriptor(
             @JsonProperty("externalId") String externalId,
             @JsonProperty("internalId") String internalId,
             @JsonProperty("modelType") String modelType,
-            @JsonProperty("storageType") StorageType storageType) {
+            @JsonProperty("storageType") StorageType storageType,
+            @JsonProperty("created") ZonedDateTime created,
+            @JsonProperty("modified") ZonedDateTime modified,
+            @JsonProperty("version") long version,
+            @JsonProperty("deleted") boolean deleted) {
         this.externalId = externalId;
         this.internalId = internalId;
         this.modelType = modelType;
         this.storageType = storageType;
+        this.created = created;
+        this.modified = modified;
+        this.version = version;
+        this.deleted = deleted;
     }
 
 
