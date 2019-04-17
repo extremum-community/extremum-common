@@ -91,7 +91,6 @@ public class Descriptor implements Serializable {
         this.modified = ZonedDateTime.now();
     }
 
-    @JsonValue
     public String getExternalId() {
         if (this.externalId == null) {
             fillByInternalId();
