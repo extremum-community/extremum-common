@@ -18,6 +18,11 @@ public class StubDtoConverter implements ToResponseDtoConverter {
         return ResponseDto.class;
     }
 
+    @Override
+    public String getSupportedModel() {
+        return "StubModel";
+    }
+
     private static class StubResponseDto implements ResponseDto {
         @Override
         public String getId() {

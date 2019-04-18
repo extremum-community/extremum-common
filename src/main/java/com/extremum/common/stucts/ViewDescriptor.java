@@ -1,6 +1,7 @@
 package com.extremum.common.stucts;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 
 /**
  * An object descriptior represents some Object referenced by an attribute in another Object. The descriptor has the
@@ -27,7 +28,8 @@ public class ViewDescriptor<T> {
      * Some descriptive information that represents the object referenced and described by the ViewDescriptor.
      * May be a string or {@link Preview} object
      */
-    public Object display;
+    @JsonRawValue
+    public String display;
 
     /**
      * Some or all properties of the described object.

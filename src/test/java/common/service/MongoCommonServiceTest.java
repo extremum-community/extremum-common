@@ -462,8 +462,13 @@ public class MongoCommonServiceTest {
         model.setVersion(1L);
         model.setId(new ObjectId());
 
-        Descriptor descriptor = new Descriptor(DescriptorService.createExternalId(), model.getId().toString(),
-                model.getModelName(), Descriptor.StorageType.MONGO);
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(DescriptorService.createExternalId())
+                .internalId(model.getId().toString())
+                .modelType(model.getModelName())
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
+
         model.setUuid(descriptor);
 
         return model;
