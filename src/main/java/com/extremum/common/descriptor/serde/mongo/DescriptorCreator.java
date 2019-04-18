@@ -24,12 +24,11 @@ public class DescriptorCreator extends DefaultCreator {
             LOGGER.warn("Unknown descriptor type: {}", rawType);
         }
 
-        return new Descriptor(
-                descriptorDbObject.getString("_id"),
-                descriptorDbObject.getString("internalId"),
-                descriptorDbObject.getString("model"),
-                storageType
-        );
+        return Descriptor.builder()
+                .externalId(descriptorDbObject.getString("_id"))
+                .internalId(descriptorDbObject.getString("internalId"))
+                .modelType(descriptorDbObject.getString("model"))
+                .build();
     }
 
     @Override
