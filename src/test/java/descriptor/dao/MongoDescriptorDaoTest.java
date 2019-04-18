@@ -90,8 +90,12 @@ public class MongoDescriptorDaoTest {
     @Test
     public void testRetrieveFromMongo() {
         String internalId = new ObjectId().toString();
-        Descriptor descriptor = new Descriptor(DescriptorService.createExternalId(),
-                internalId,"test_model", Descriptor.StorageType.MONGO);
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(DescriptorService.createExternalId())
+                .internalId(internalId)
+                .modelType("test_model")
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
 
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
         assertFalse(retrievedDescriptor.isPresent());
@@ -106,8 +110,12 @@ public class MongoDescriptorDaoTest {
     public void testSaveDisplayFieldAsNull() {
         String internalId = new ObjectId().toString();
         String externalId = DescriptorService.createExternalId();
-        Descriptor descriptor = new Descriptor(externalId, internalId, "test_model",
-                Descriptor.StorageType.MONGO, null);
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(externalId)
+                .internalId(internalId)
+                .modelType("test_model")
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
 
         descriptorDao.store(descriptor);
 
@@ -120,8 +128,13 @@ public class MongoDescriptorDaoTest {
     public void testSaveDisplayFieldAsString() {
         String internalId = new ObjectId().toString();
         String externalId = DescriptorService.createExternalId();
-        Descriptor descriptor = new Descriptor(externalId, internalId, "test_model",
-                Descriptor.StorageType.MONGO, "abcd");
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(externalId)
+                .internalId(internalId)
+                .modelType("test_model")
+                .storageType(Descriptor.StorageType.MONGO)
+                .display("abcd")
+                .build();
 
         descriptorDao.store(descriptor);
 
@@ -144,8 +157,13 @@ public class MongoDescriptorDaoTest {
 
         String internalId = new ObjectId().toString();
         String externalId = DescriptorService.createExternalId();
-        Descriptor descriptor = new Descriptor(externalId, internalId, "test_model",
-                Descriptor.StorageType.MONGO, json.toString());
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(externalId)
+                .internalId(internalId)
+                .modelType("test_model")
+                .storageType(Descriptor.StorageType.MONGO)
+                .display(json.toString())
+                .build();
 
         descriptorDao.store(descriptor);
 

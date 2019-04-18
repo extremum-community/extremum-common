@@ -17,14 +17,18 @@ public class DescriptorFactory {
     }
 
     protected static Descriptor fromInternalIdOrNull(String internalId, Descriptor.StorageType storageType) {
-        return StringUtils.isBlank(internalId) ? null : new Descriptor(null, internalId, null, storageType);
+        return StringUtils.isBlank(internalId) ? null :
+                Descriptor.builder().internalId(internalId).storageType(storageType).build();
     }
 
     protected static Descriptor fromInternalId(String internalId, Descriptor.StorageType storageType) {
         if (StringUtils.isBlank(internalId)) {
             throw new IllegalArgumentException("Empty internal id detected");
         }
-        return new Descriptor(null, internalId, null, storageType);
+        return Descriptor.builder()
+                .internalId(internalId)
+                .storageType(storageType)
+                .build();
     }
 
     protected static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
@@ -39,21 +43,23 @@ public class DescriptorFactory {
     }
 
     protected static Descriptor create(UUID uuid, Descriptor.StorageType storageType) {
-        Descriptor descriptor = new Descriptor(
-                DescriptorService.createExternalId(),
-                uuid.toString(),
-                storageType
-        );
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(DescriptorService.createExternalId())
+                .internalId(uuid.toString())
+                .storageType(storageType)
+                .build();
+
         return DescriptorService.store(descriptor);
     }
 
     protected static Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
-        Descriptor descriptor = new Descriptor(
-                DescriptorService.createExternalId(),
-                internalId,
-                modelType,
-                storageType
-        );
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(DescriptorService.createExternalId())
+                .internalId(internalId)
+                .modelType(modelType)
+                .storageType(storageType)
+                .build();
+
         return DescriptorService.store(descriptor);
     }
 }

@@ -246,8 +246,13 @@ public class MongoCommonDaoTest {
 
     private static TestModel getTestModel() {
         TestModel model = new TestModel();
-        Descriptor descriptor = new Descriptor(DescriptorService.createExternalId(), new ObjectId().toString(),
-                model.getModelName(), Descriptor.StorageType.MONGO);
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(DescriptorService.createExternalId())
+                .internalId(new ObjectId().toString())
+                .modelType(model.getModelName())
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
+
         model.setUuid(descriptor);
         return model;
     }
