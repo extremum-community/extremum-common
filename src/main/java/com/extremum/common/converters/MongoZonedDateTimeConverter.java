@@ -1,16 +1,16 @@
 package com.extremum.common.converters;
 
 import com.extremum.common.utils.DateUtils;
-import org.mongodb.morphia.converters.SimpleValueConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
 
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.Optional;
 
-public class ZonedDateTimeConverter extends TypeConverter implements SimpleValueConverter {
-    public ZonedDateTimeConverter() {
+@Slf4j
+public class MongoZonedDateTimeConverter extends TypeConverter {
+    public MongoZonedDateTimeConverter() {
         super(ZonedDateTime.class);
     }
 
@@ -19,11 +19,11 @@ public class ZonedDateTimeConverter extends TypeConverter implements SimpleValue
         if (!targetClass.isAssignableFrom(ZonedDateTime.class)) {
             throw new IllegalArgumentException("Unexpected class " + targetClass);
         }
-        if (!(fromDBObject instanceof Date)) {
-            throw new IllegalArgumentException("Unexpected fromDBObject " + fromDBObject);
+        if (!(fromDBObject instanceof String)) {
+            throw new IllegalArgumentException("Unexpected type fromDBObject " + fromDBObject);
         }
-        Date date = (Date) fromDBObject;
-        return DateUtils.fromInstant(date.toInstant());
+        String date = (String) fromDBObject;
+        return DateUtils.parseZonedDateTime(date);
     }
 
     @Override
@@ -31,8 +31,7 @@ public class ZonedDateTimeConverter extends TypeConverter implements SimpleValue
         return Optional.ofNullable(value)
                 .filter(ZonedDateTime.class::isInstance)
                 .map(ZonedDateTime.class::cast)
-                .map(ZonedDateTime::toInstant)
-                .map(Date::from)
+                .map(DateUtils::formatZonedDateTimeISO_8601)
                 .orElse(null);
     }
 }

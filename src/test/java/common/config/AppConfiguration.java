@@ -1,6 +1,6 @@
 package common.config;
 
-import com.extremum.common.converters.ZonedDateTimeConverter;
+import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import common.dao.TestModelDao;
@@ -22,7 +22,7 @@ public class AppConfiguration {
     @Bean
     public Datastore datastore() {
         Morphia morphia = new Morphia();
-        morphia.getMapper().getConverters().addConverter(ZonedDateTimeConverter.class);
+        morphia.getMapper().getConverters().addConverter(MongoZonedDateTimeConverter.class);
         MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
         MongoClient mongoClient = new MongoClient(databaseUri);
         Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());

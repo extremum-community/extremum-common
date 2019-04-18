@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor;
 
-import com.extremum.common.converters.ZonedDateTimeConverter;
+import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
-@Converters({ZonedDateTimeConverter.class})
+@Converters({MongoZonedDateTimeConverter.class})
 public class Descriptor implements Serializable {
     @Id
     private String externalId;

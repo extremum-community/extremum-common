@@ -1,5 +1,7 @@
 package com.extremum.starter;
 
+import com.extremum.common.converters.RedisStringToZonedConverter;
+import com.extremum.common.converters.RedisZonedToStringConverter;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.serde.mongo.DescriptorConverter;
@@ -31,6 +33,7 @@ import org.springframework.data.redis.core.convert.RedisCustomConversions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
@@ -103,5 +106,12 @@ public class CommonConfiguration {
     @Primary
     public ObjectMapper jacksonObjectMapper() {
         return new JsonObjectMapper();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(RedissonClient.class)
+    public RedisCustomConversions customConversions() {
+        return new RedisCustomConversions(Arrays.asList(new RedisZonedToStringConverter(), new RedisStringToZonedConverter()));
     }
 }
