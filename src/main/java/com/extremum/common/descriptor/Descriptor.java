@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.mongodb.morphia.annotations.Converters;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
@@ -22,6 +24,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Builder
+@Getter
+@Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
 @Converters(ZonedDateTimeConverter.class)
