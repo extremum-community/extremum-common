@@ -23,7 +23,7 @@ public class MongoZonedDateTimeConverter extends TypeConverter {
             throw new IllegalArgumentException("Unexpected type fromDBObject " + fromDBObject);
         }
         String date = (String) fromDBObject;
-        return DateUtils.parseZonedDateTime(date);
+        return DateUtils.parseZonedDateTimeFromISO_8601(date);
     }
 
     @Override
