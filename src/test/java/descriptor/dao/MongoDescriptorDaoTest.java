@@ -4,10 +4,12 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.stucts.Display;
+import com.extremum.common.stucts.IntegerOrString;
+import com.extremum.common.stucts.Media;
+import com.extremum.common.stucts.MultilingualObject;
 import org.bson.types.ObjectId;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mongodb.morphia.Datastore;
@@ -133,27 +135,33 @@ public class MongoDescriptorDaoTest {
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
-                .display("abcd")
+                .display(new Display("abcd"))
                 .build();
 
         descriptorDao.store(descriptor);
 
         Optional<Descriptor> retrieved = descriptorDao.retrieveByExternalId(externalId);
         assertTrue(retrieved.isPresent());
-        assertEquals("abcd", retrieved.get().getDisplay());
+        assertTrue(retrieved.get().getDisplay().isString());
+        assertEquals("abcd", retrieved.get().getDisplay().getStringValue());
     }
 
     @Test
     public void testSaveDisplayFieldAsSerializedString() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("key1", "string value");
-        json.put("key2", 4);
+        Media iconObj = new Media();
+        iconObj.setUrl("/url/to/resource");
+        iconObj.setType(Media.Type.IMAGE);
+        iconObj.setWidth(100);
+        iconObj.setHeight(200);
+        iconObj.setDepth(2);
+        iconObj.setDuration(new IntegerOrString(20));
 
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.put(1);
-        jsonArray.put("abcd");
 
-        json.put("key3", jsonArray);
+        Display displayObj = new Display(
+                new MultilingualObject("aaa"),
+                iconObj,
+                iconObj
+        );
 
         String internalId = new ObjectId().toString();
         String externalId = DescriptorService.createExternalId();
@@ -162,7 +170,7 @@ public class MongoDescriptorDaoTest {
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
-                .display(json.toString())
+                .display(displayObj)
                 .build();
 
         descriptorDao.store(descriptor);
@@ -170,20 +178,33 @@ public class MongoDescriptorDaoTest {
         Optional<Descriptor> retrieved = descriptorDao.retrieveByExternalId(externalId);
         assertTrue(retrieved.isPresent());
 
-        JSONObject deserializedJson = new JSONObject(retrieved.get().getDisplay());
+        Descriptor retrievedDescriptor = retrieved.get();
+        Display display = retrievedDescriptor.getDisplay();
 
-        assertTrue(deserializedJson.has("key1"));
-        assertTrue(deserializedJson.has("key2"));
-        assertTrue(deserializedJson.has("key3"));
+        assertNotNull(display);
+        assertTrue(display.isObject());
+        Media icon = display.getIcon();
+        assertNotNull(icon);
 
-        assertEquals("string value", deserializedJson.getString("key1"));
-        assertEquals(4, deserializedJson.getInt("key2"));
+        assertEquals("/url/to/resource", icon.getUrl());
+        assertEquals(Media.Type.IMAGE, icon.getType());
+        assertEquals(100, (int) icon.getWidth());
+        assertEquals(200, (int) icon.getHeight());
+        assertEquals(2, (int) icon.getDepth());
+        assertNotNull(icon.getDuration());
+        assertTrue(icon.getDuration().isInteger());
+        assertEquals(20, (int) icon.getDuration().getIntegerValue());
 
-        JSONArray deserializedArray = deserializedJson.getJSONArray("key3");
+        Media splash = display.getSplash();
+        assertNotNull(splash);
 
-        assertNotNull(deserializedArray);
-        assertEquals(2, deserializedArray.length());
-        assertEquals(1, deserializedArray.getInt(0));
-        assertEquals("abcd", deserializedArray.getString(1));
+        assertEquals("/url/to/resource", splash.getUrl());
+        assertEquals(Media.Type.IMAGE, splash.getType());
+        assertEquals(100, (int) splash.getWidth());
+        assertEquals(200, (int) splash.getHeight());
+        assertEquals(2, (int) splash.getDepth());
+        assertNotNull(splash.getDuration());
+        assertTrue(splash.getDuration().isInteger());
+        assertEquals(20, (int) splash.getDuration().getIntegerValue());
     }
 }
