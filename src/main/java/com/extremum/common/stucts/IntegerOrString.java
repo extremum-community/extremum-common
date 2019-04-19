@@ -1,5 +1,6 @@
 package com.extremum.common.stucts;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,29 +9,32 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class IntegerOrString implements Serializable {
+    @JsonProperty("type")
     private Type type;
+    @JsonProperty("integerValue")
     private Integer integerValue;
+    @JsonProperty("stringValue")
     private String stringValue;
 
     public IntegerOrString(int value) {
-        type = Type.number;
+        type = Type.NUMBER;
         integerValue = value;
     }
 
     public IntegerOrString(String value) {
-        type = Type.string;
+        type = Type.STRING;
         stringValue = value;
     }
 
     public boolean isInteger() {
-        return Type.number.equals(type);
+        return Type.NUMBER.equals(type);
     }
 
     public boolean isString() {
-        return Type.string.equals(type);
+        return Type.STRING.equals(type);
     }
 
     private enum Type {
-        number, string
+        NUMBER, STRING
     }
 }
