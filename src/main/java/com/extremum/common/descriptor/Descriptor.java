@@ -7,8 +7,18 @@ import com.extremum.common.stucts.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.*;
-import org.mongodb.morphia.annotations.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.mongodb.morphia.annotations.Converters;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Version;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -136,6 +146,11 @@ public class Descriptor implements Serializable {
         this.internalId = d.internalId;
         this.modelType = d.modelType;
         this.storageType = d.storageType;
+        this.created = d.created;
+        this.modified = d.modified;
+        this.version = d.version;
+        this.deleted = d.deleted;
+        this.display = d.display;
 
         return d;
     }
