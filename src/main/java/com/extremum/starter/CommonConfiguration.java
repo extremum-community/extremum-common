@@ -2,8 +2,6 @@ package com.extremum.starter;
 
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
-import com.extremum.common.descriptor.serde.mongo.DescriptorConverter;
-import com.extremum.common.descriptor.serde.mongo.DescriptorCreator;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.starter.properties.DescriptorsProperties;
@@ -27,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.convert.RedisCustomConversions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,8 +59,6 @@ public class CommonConfiguration {
     public Datastore descriptorsStore() {
         Morphia morphia = new Morphia();
         morphia.getMapper().getOptions().setStoreEmpties(true);
-        morphia.getMapper().getOptions().setObjectFactory(new DescriptorCreator());
-        morphia.getMapper().getConverters().addConverter(DescriptorConverter.class);
         MongoClientURI databaseUri = new MongoClientURI(mongoProperties.getUri());
         MongoClient mongoClient = new MongoClient(databaseUri);
         Datastore datastore = morphia.createDatastore(mongoClient, mongoProperties.getDbName());
