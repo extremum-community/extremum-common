@@ -32,6 +32,10 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
         return Optional.ofNullable(descriptors.get(externalId));
     }
 
+    public Datastore getMongoDatastore() {
+        return mongoDatastore;
+    }
+
     @Override
     public Optional<Descriptor> retrieveByInternalId(String internalId) {
         String descriptorId = internalIdIndex.get(internalId);

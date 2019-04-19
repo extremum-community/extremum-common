@@ -2,8 +2,6 @@ package descriptor.config;
 
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
-import com.extremum.common.descriptor.serde.mongo.DescriptorConverter;
-import com.extremum.common.descriptor.serde.mongo.DescriptorCreator;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import org.mongodb.morphia.Datastore;
@@ -39,8 +37,6 @@ public class DescriptorConfiguration {
     public Datastore descriptorsStore() {
         Morphia morphia = new Morphia();
         morphia.getMapper().getOptions().setStoreEmpties(true);
-        morphia.getMapper().getOptions().setObjectFactory(new DescriptorCreator());
-        morphia.getMapper().getConverters().addConverter(DescriptorConverter.class);
         MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
         MongoClient mongoClient = new MongoClient(databaseUri);
         Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());

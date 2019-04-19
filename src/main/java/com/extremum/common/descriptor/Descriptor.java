@@ -3,6 +3,7 @@ package com.extremum.common.descriptor;
 import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.stucts.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -45,7 +46,7 @@ public class Descriptor implements Serializable {
     private boolean deleted;
 
     @JsonProperty("display")
-    private String display;
+    private Display display;
 
     public Descriptor() {
     }
@@ -102,10 +103,6 @@ public class Descriptor implements Serializable {
             fillByIds();
         }
         return this.modelType;
-    }
-
-    public String getDisplay() {
-        return display;
     }
 
     private void fillByIds() {

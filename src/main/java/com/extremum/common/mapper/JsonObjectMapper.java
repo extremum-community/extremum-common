@@ -2,15 +2,20 @@ package com.extremum.common.mapper;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
+import com.extremum.common.deserializers.DisplayDeserializer;
 import com.extremum.common.deserializers.DurationVariativeValueDeserializer;
 import com.extremum.common.deserializers.IntegerRangeOrValueDeserializer;
 import com.extremum.common.deserializers.MultilingualObjectDeserializer;
+import com.extremum.common.serializers.DisplaySerializer;
 import com.extremum.common.serializers.DurationVariativeValueSerializer;
 import com.extremum.common.serializers.IdListOrObjectListStructSerializer;
+import com.extremum.common.serializers.IntegerOrStringSerializer;
 import com.extremum.common.serializers.IntegerRangeOrValueSerializer;
 import com.extremum.common.serializers.MultilingualObjectSerializer;
+import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.extremum.common.stucts.IdListOrObjectListStruct;
+import com.extremum.common.stucts.IntegerOrString;
 import com.extremum.common.stucts.IntegerRangeOrValue;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -41,6 +46,11 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
         module.addDeserializer(DurationVariativeValue.class, new DurationVariativeValueDeserializer());
         module.addSerializer(DurationVariativeValue.class, new DurationVariativeValueSerializer());
+
+        module.addDeserializer(Display.class, new DisplayDeserializer(this));
+        module.addSerializer(Display.class, new DisplaySerializer());
+
+        module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
 
         return module;
     }

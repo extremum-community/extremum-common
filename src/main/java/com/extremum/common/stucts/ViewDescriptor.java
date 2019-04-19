@@ -29,7 +29,7 @@ public class ViewDescriptor<T> {
      * May be a string or {@link Preview} object
      */
     @JsonRawValue
-    public String display;
+    public Display display;
 
     /**
      * Some or all properties of the described object.
