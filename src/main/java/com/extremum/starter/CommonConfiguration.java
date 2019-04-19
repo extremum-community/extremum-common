@@ -3,6 +3,7 @@ package com.extremum.starter;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
+import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -15,6 +16,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -45,10 +47,10 @@ public class CommonConfiguration {
         Config config;
         try {
             config = Config.fromJSON(redisStream);
-            System.out.println(config.getCodec().getClass().getName());
         } catch (IOException e) {
             config = new Config();
         }
+        config.setCodec(new JsonJacksonCodec(new BasicJsonObjectMapper()));
         config.useSingleServer().setAddress(redisProperties.getUri());
         return Redisson.create(config);
     }

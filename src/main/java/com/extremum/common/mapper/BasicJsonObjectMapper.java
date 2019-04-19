@@ -38,6 +38,11 @@ public class BasicJsonObjectMapper extends ObjectMapper {
 
     private static final DateTimeFormatter FORMATTER = ofPattern(DateUtils.FORMAT);
 
+    @Override
+    public ObjectMapper copy() {
+        return this;
+    }
+
     public BasicJsonObjectMapper() {
         super();
         // deserialization
