@@ -18,9 +18,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -95,9 +94,8 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         }
     }
 
+    @Slf4j
     private static class EnumDeserializerModifier extends BeanDeserializerModifier {
-        private static final Logger LOGGER = LoggerFactory.getLogger(EnumDeserializerModifier.class);
-
         @Override
         public JsonDeserializer<Enum> modifyEnumDeserializer(DeserializationConfig deserializationConfig, JavaType javaType, BeanDescription beanDescription, JsonDeserializer<?> jsonDeserializer) {
             return new JsonDeserializer<Enum>() {
@@ -109,7 +107,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
                             try {
                                 return (Enum) method.invoke(rawClass, jsonParser.getValueAsString());
                             } catch (IllegalAccessException | InvocationTargetException e) {
-                                LOGGER.error("Can't retrieve enum " + rawClass.getName() +
+                                log.error("Can't retrieve enum " + rawClass.getName() +
                                         " from string value " + jsonParser.getValueAsString(), e);
                             }
                         }

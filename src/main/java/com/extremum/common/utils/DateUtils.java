@@ -1,8 +1,6 @@
 package com.extremum.common.utils;
 
-import lombok.extern.java.Log;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -19,11 +17,8 @@ import java.util.Locale;
 /**
  * @author iPolyakov on 03.02.15.
  */
-@Log
+@Slf4j
 public final class DateUtils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
-
     public static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     public static final String FORMAT_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}T[\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3}-[\\d]{4}";
 
@@ -47,7 +42,7 @@ public final class DateUtils {
             try {
                 return DATE_FORMAT.parse(from);
             } catch (ParseException e) {
-                LOGGER.debug("cannot convert Date", e);
+                log.debug("cannot convert Date", e);
             }
         }
         return null;
@@ -72,7 +67,7 @@ public final class DateUtils {
             try {
                 return ZonedDateTime.parse(date, formatter);
             } catch (DateTimeParseException e) {
-                LOGGER.debug("cannot parse ZonedDateTime", e);
+                log.debug("cannot parse ZonedDateTime", e);
             }
         }
         return null;

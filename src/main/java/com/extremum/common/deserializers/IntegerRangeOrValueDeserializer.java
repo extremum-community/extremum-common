@@ -9,14 +9,12 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class IntegerRangeOrValueDeserializer extends StdDeserializer<IntegerRangeOrValue> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IntegerRangeOrValueDeserializer.class);
-
     public IntegerRangeOrValueDeserializer() {
         super(IntegerRangeOrValue.class);
     }
@@ -26,7 +24,7 @@ public class IntegerRangeOrValueDeserializer extends StdDeserializer<IntegerRang
         TreeNode tree = p.getCodec().readTree(p);
 
         if (tree == null) {
-            LOGGER.warn("Nothing to parse");
+            log.warn("Nothing to parse");
             return null;
         }
 

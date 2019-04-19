@@ -7,10 +7,9 @@ import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,14 +19,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+@Slf4j
 public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements MongoCommonService<Model> {
     
     protected final MongoCommonDao<Model> dao;
     private final String modelTypeName;
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(MongoCommonServiceImpl.class);
-
+    
     public MongoCommonServiceImpl(MongoCommonDao<Model> dao) {
         this.dao = dao;
         modelTypeName = dao.getEntityClass().getSimpleName();
@@ -40,7 +37,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public Model get(String id, Collection<Alert> alerts){
-        LOGGER.debug("Get mode {} with id {}", modelTypeName, id);
+        log.debug("Get mode {} with id {}", modelTypeName, id);
 
         if(!checkId(id, alerts)) {
             return null;
@@ -56,7 +53,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public List<Model> list(Collection<Alert> alerts){
-        LOGGER.debug("Get list of models of type {}", modelTypeName);
+        log.debug("Get list of models of type {}", modelTypeName);
         return dao.listAll();
     }
 
@@ -67,8 +64,8 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public List<Model> listByParameters(Map<String, Object> parameters, Collection<Alert> alerts) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Getting list of models of type {} by parameters {}", modelTypeName,
+        if (log.isDebugEnabled()) {
+            log.debug("Getting list of models of type {} by parameters {}", modelTypeName,
                     parameters != null ? parameters.entrySet().stream()
                             .map(entry -> entry.getKey() + ": " + entry.getValue())
                             .collect(Collectors.joining(", ")) : "-none-");
@@ -83,7 +80,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public List<Model> listByFieldValue(String fieldName, Object fieldValue, Collection<Alert> alerts){
-        LOGGER.debug("Get list of models of type {} by field {} with value {}", modelTypeName, fieldName, fieldValue);
+        log.debug("Get list of models of type {} by field {} with value {}", modelTypeName, fieldName, fieldValue);
 
         if(!checkFieldNameAndValue(fieldName, fieldValue, alerts)) {
             return Collections.emptyList();
@@ -98,7 +95,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public List<Model> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Collection<Alert> alerts) {
-        LOGGER.debug("Get list of models of type {} by field {} with value {} using offset {} and limit {}",
+        log.debug("Get list of models of type {} by field {} with value {} using offset {} and limit {}",
                 modelTypeName, fieldName, fieldValue, offset, limit);
 
         if(!checkFieldNameAndValue(fieldName, fieldValue, alerts)) {
@@ -132,8 +129,8 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public Model getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Get fields {} by id {} of model {}", Stream.of(fieldNames).map(Object::toString)
+        if (log.isDebugEnabled()) {
+            log.debug("Get fields {} by id {} of model {}", Stream.of(fieldNames).map(Object::toString)
                             .collect(Collectors.joining(", ")), id, modelTypeName);
         }
         boolean valid = checkId(id, alerts);
@@ -155,7 +152,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public Model create(Model data, Collection<Alert> alerts){
-        LOGGER.debug("Create model {}", data);
+        log.debug("Create model {}", data);
 
         if(data == null) {
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
@@ -171,8 +168,8 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public List<Model> create(List<Model> data, Collection<Alert> alerts){
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Create models {}", data != null ?
+        if (log.isDebugEnabled()) {
+            log.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
         }
         if(data == null) {
@@ -189,7 +186,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public Model save(Model data, Collection<Alert> alerts){
-        LOGGER.debug("Save model {}", modelTypeName);
+        log.debug("Save model {}", modelTypeName);
 
         if(data == null) {
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
@@ -230,7 +227,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public Model delete(String id, Collection<Alert> alerts){
-        LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
+        log.debug("Delete model {} with id {}", modelTypeName, id);
 
         if(!checkId(id, alerts)) {
             return null;
@@ -250,7 +247,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     private Model getResultWithNullabilityCheck(Model result, String id, Collection<Alert> alerts) {
         if(result == null) {
-            LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, id);
+            log.warn("Model {} with id {} wasn't found", modelTypeName, id);
             fillAlertsOrThrowException(alerts, new ModelNotFoundException(dao.getEntityClass(), id));
         }
         return result;

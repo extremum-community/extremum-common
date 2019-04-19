@@ -10,8 +10,7 @@ import com.extremum.common.dto.converters.ToResponseDtoConverter;
 import com.extremum.common.models.Model;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +24,9 @@ import static java.util.Optional.ofNullable;
 
 @Getter
 @Setter
+@Slf4j
 @Service
 public class DefaultDtoConversionService implements DtoConversionService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDtoConversionService.class);
-
     private StubDtoConverter stubDtoConverter;
     private List<DtoConverter> converters;
     private boolean useStubConverter = true;
@@ -56,7 +54,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
     public DtoConverter determineConverterOrElseThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier) {
         DtoConverter converter = determineConverter(model);
         if (converter == null) {
-            LOGGER.error("Unable to determine a converter for model {}", model.getModelName());
+            log.error("Unable to determine a converter for model {}", model.getModelName());
             throw exceptionSupplier.get();
         } else {
             return converter;
@@ -68,7 +66,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
         DtoConverter converter = determineConverter(model);
 
         if (converter == null) {
-            LOGGER.error("Unable to determine converter for model {}: {}", model.getModelName(), model);
+            log.error("Unable to determine converter for model {}: {}", model.getModelName(), model);
             converter = stubDtoConverter;
         }
 
@@ -77,7 +75,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
         } else {
             String message = format("Found converter for a model %s is not a ToResponseDtoConverter instance",
                     model.getModelName());
-            LOGGER.error(message);
+            log.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -89,7 +87,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
         if (converter == null) {
             String message = format("Unable to determine converter for model %s: %s", model.getModelName(), model);
 
-            LOGGER.error(message);
+            log.error(message);
 
             throw new RuntimeException(message);
         } else {
@@ -98,7 +96,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
             } else {
                 String message = format("Found converter for a model %s is not a instance ToRequestDtoConverter",
                         model.getModelName());
-                LOGGER.error(message);
+                log.error(message);
                 throw new RuntimeException(message);
             }
         }

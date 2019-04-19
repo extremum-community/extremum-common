@@ -1,7 +1,6 @@
 package com.extremum.common.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,9 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
+@Slf4j
 public class InputStreamUtils {
     private static final int BYTE_BUFFER_SIZE = 1024;
-    private static final Logger LOGGER = LoggerFactory.getLogger(InputStreamUtils.class);
 
     public static byte[] toByteArray(InputStream is) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -25,7 +24,7 @@ public class InputStreamUtils {
                 bos.write(buffer, 0, read);
             }
         } catch (IOException ex) {
-            LOGGER.error("Can't read an InputStream", ex);
+            log.error("Can't read an InputStream", ex);
             throw new RuntimeException("Can't read an InputStream", ex);
         }
 
