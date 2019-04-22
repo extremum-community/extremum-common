@@ -26,15 +26,37 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Public object mapper for clients.
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
+    private boolean descriptorTransfigurationDisabled;
+
+    public JsonObjectMapper(boolean disableDescriptorTransfiguration) {
+        super();
+        descriptorTransfigurationDisabled = disableDescriptorTransfiguration;
+    }
+
+    public static JsonObjectMapper createdWithoutDescriptorTransfiguration() {
+        JsonObjectMapper mapper = new JsonObjectMapper(true);
+        mapper.configure();
+        return mapper;
+    }
+
+    public static JsonObjectMapper createdMapper() {
+        JsonObjectMapper mapper = new JsonObjectMapper(false);
+        mapper.configure();
+        return mapper;
+    }
+
+
     /**
      * Masking descriptor details as if it were a plain string
      */
     @Override
-    protected SimpleModule createSimpozioModule() {
-        SimpleModule module = super.createSimpozioModule();
+    protected SimpleModule createCustomModule() {
+        SimpleModule module = super.createCustomModule();
 
-        module.addSerializer(Descriptor.class, new ToStringSerializer());
-        module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
+        if (!descriptorTransfigurationDisabled) {
+            module.addSerializer(Descriptor.class, new ToStringSerializer());
+            module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
+        }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
         module.addDeserializer(MultilingualObject.class, new MultilingualObjectDeserializer());

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class DurationVariativeValueSerializerTest {
-    private ObjectMapper mapper = new JsonObjectMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createdMapper();
 
     @Test
     public void simpleIntSerializeTest() throws JsonProcessingException, JSONException {

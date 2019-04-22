@@ -3,7 +3,6 @@ package com.extremum.starter;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
-import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -50,7 +49,8 @@ public class CommonConfiguration {
         } catch (IOException e) {
             config = new Config();
         }
-        config.setCodec(new JsonJacksonCodec(new BasicJsonObjectMapper()));
+        config.setCodec(new JsonJacksonCodec(JsonObjectMapper
+                .createdWithoutDescriptorTransfiguration()));
         config.useSingleServer().setAddress(redisProperties.getUri());
         return Redisson.create(config);
     }
@@ -99,6 +99,6 @@ public class CommonConfiguration {
     @Bean
     @Primary
     public ObjectMapper jacksonObjectMapper() {
-        return new JsonObjectMapper();
+        return JsonObjectMapper.createdMapper();
     }
 }

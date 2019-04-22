@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MultilingualObjectSerializerTest {
-    private ObjectMapper mapper = new JsonObjectMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createdMapper();
 
     @Test
     public void serializeToSimpleTextTest() throws JsonProcessingException {

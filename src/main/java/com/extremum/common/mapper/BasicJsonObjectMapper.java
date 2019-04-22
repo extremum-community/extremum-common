@@ -45,11 +45,14 @@ public class BasicJsonObjectMapper extends ObjectMapper {
 
     public BasicJsonObjectMapper() {
         super();
+    }
+
+    public void configure() {
         // deserialization
         this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
         this.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
-        SimpleModule module = createSimpozioModule();
+        SimpleModule module = createCustomModule();
         this.registerModule(module);
 
         JavaTimeModule javaTimeModule = createJavaTimeModule();
@@ -60,7 +63,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         this.setDateFormat(DateUtils.DATE_FORMAT);
     }
 
-    protected SimpleModule createSimpozioModule() {
+    protected SimpleModule createCustomModule() {
         SimpleModule module = new SimpleModule();
         module.setDeserializerModifier(new EnumDeserializerModifier());
         module.addSerializer(Enum.class, new EnumSerializer());
