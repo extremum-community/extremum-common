@@ -2,12 +2,14 @@ package com.extremum.common.stucts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class IntegerOrString implements Serializable {
     @JsonProperty("type")
     private Type type;

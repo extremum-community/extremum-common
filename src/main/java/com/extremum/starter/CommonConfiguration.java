@@ -15,7 +15,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -49,8 +49,10 @@ public class CommonConfiguration {
         } catch (IOException e) {
             config = new Config();
         }
-        config.setCodec(new JsonJacksonCodec(JsonObjectMapper
-                .createdWithoutDescriptorTransfiguration()));
+        TypedJsonJacksonCodec codec = new TypedJsonJacksonCodec((Class<?>) null,
+                JsonObjectMapper.createdWithoutDescriptorTransfiguration());
+
+        config.setCodec(codec);
         config.useSingleServer().setAddress(redisProperties.getUri());
         return Redisson.create(config);
     }
