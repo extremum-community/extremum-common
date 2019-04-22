@@ -104,21 +104,6 @@ public class MongoCommonDaoTest {
     }
 
     @Test
-    public void testDelete() {
-        TestModel deletedModel = dao.delete((ObjectId) null);
-        assertNull(deletedModel);
-
-        deletedModel = dao.delete(new ObjectId());
-        assertNull(deletedModel);
-
-        TestModel model = getTestModel();
-        dao.create(model);
-
-        deletedModel = dao.delete(model.getId());
-        assertTrue(deletedModel.getDeleted());
-    }
-
-    @Test
     public void testGet() {
         TestModel model = getTestModel();
         dao.create(model);
@@ -126,13 +111,13 @@ public class MongoCommonDaoTest {
         TestModel resultModel = dao.get(model.getId());
         assertEquals(model, resultModel);
 
-        resultModel = dao.get(new ObjectId());
+        resultModel = dao.findById(new ObjectId());
         assertNull(resultModel);
 
         TestModel deletedModel = getDeletedTestModel();
         dao.create(deletedModel);
 
-        resultModel = dao.get(deletedModel.getId());
+        resultModel = dao.findById(deletedModel.getId());
         assertNull(resultModel);
     }
 
@@ -180,20 +165,20 @@ public class MongoCommonDaoTest {
 
     @Test
     public void testListAll() {
-        int initCount = dao.listAll().size();
+        int initCount = dao.findAll().size();
         int modelsToCreate = 10;
 
         for(int i = 0; i < modelsToCreate; i++) {
             dao.create(getTestModel());
         }
-        int count = dao.listAll().size();
+        int count = dao.findAll().size();
         assertEquals(initCount + modelsToCreate, count);
 
         initCount = count;
         for(int i = 0; i < modelsToCreate; i++) {
             dao.create(getDeletedTestModel());
         }
-        count = dao.listAll().size();
+        count = dao.findAll().size();
         assertEquals(initCount, count);
     }
 
