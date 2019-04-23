@@ -14,4 +14,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DescriptorsProperties {
     private String descriptorsMapName;
     private String internalIdsMapName;
+    private String collectionDescriptorsMapName;
 }

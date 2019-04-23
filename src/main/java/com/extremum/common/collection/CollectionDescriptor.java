@@ -2,12 +2,18 @@ package com.extremum.common.collection;
 
 import com.extremum.common.descriptor.Descriptor;
 import lombok.Getter;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+
+import java.io.Serializable;
 
 /**
  * @author rpuch
  */
 @Getter
-public final class CollectionDescriptor {
+@Entity(value = "collection-descriptors", noClassnameStored = true)
+public final class CollectionDescriptor implements Serializable {
+    @Id
     private String externalId;
     private Type type;
     private CollectionCoordinates coordinates;

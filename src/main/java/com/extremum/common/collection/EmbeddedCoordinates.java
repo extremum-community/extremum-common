@@ -4,12 +4,14 @@ import com.extremum.common.descriptor.Descriptor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 /**
  * @author rpuch
  */
 @AllArgsConstructor
 @Getter
-public class EmbeddedCoordinates {
+public class EmbeddedCoordinates implements Serializable {
     private final Descriptor hostId;
     private final String hostFieldName;
 }

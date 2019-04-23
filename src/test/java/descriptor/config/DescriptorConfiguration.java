@@ -1,5 +1,9 @@
 package descriptor.config;
 
+import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
+import com.extremum.common.collection.dao.CollectionDescriptorDao;
+import com.extremum.common.collection.service.CollectionDescriptorService;
+import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.mongodb.MongoClient;
@@ -50,5 +54,17 @@ public class DescriptorConfiguration {
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
         return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(), redisProps.getCacheSize(), redisProps.getIdleTime());
+    }
+
+    @Bean
+    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+        return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
+                descriptorsProperties.getCollectionDescriptorsMapName(),
+                redisProps.getCacheSize(), redisProps.getIdleTime());
+    }
+
+    @Bean
+    public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
+        return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
     }
 }

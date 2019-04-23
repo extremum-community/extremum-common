@@ -10,3 +10,4 @@ mongo:
 descriptors:
   descriptorsMapName: descriptors
   internalIdsMapName: descriptors_internalId_idx
+  collectionDescriptorsMapName: collection_descriptors
