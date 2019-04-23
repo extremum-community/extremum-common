@@ -14,4 +14,8 @@ import java.io.Serializable;
 public class EmbeddedCoordinates implements Serializable {
     private final Descriptor hostId;
     private final String hostFieldName;
+
+    public String toCoordinatesString() {
+        return "EMBEDDED/" + hostId + "/" + hostFieldName;
+    }
 }

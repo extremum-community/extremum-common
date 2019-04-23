@@ -32,11 +32,22 @@ public final class CollectionDescriptor implements Serializable {
         return externalId;
     }
 
+    public String toCoordinatesString() {
+        return type.toCoordinatesString(coordinates);
+    }
+
     public enum Type {
         /**
          * Collection is identified by host (embedding) entity and host field name.
          */
-        EMBEDDED
+        EMBEDDED {
+            @Override
+            String toCoordinatesString(CollectionCoordinates coordinates) {
+                return coordinates.getEmbeddedCoordinates().toCoordinatesString();
+            }
+        };
+
+        abstract String toCoordinatesString(CollectionCoordinates coordinates);
     }
 
     public enum FIELDS {
