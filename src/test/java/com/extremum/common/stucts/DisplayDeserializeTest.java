@@ -36,7 +36,7 @@ public class DisplayDeserializeTest {
         assertNotNull(icon);
 
         assertEquals("/url/to/resource", icon.getUrl());
-        assertEquals(Media.Type.IMAGE, icon.getType());
+        assertEquals(MediaType.IMAGE, icon.getType());
         assertEquals(100, (int) icon.getWidth());
         assertEquals(200, (int) icon.getHeight());
         assertEquals(2, (int) icon.getDepth());
@@ -50,7 +50,7 @@ public class DisplayDeserializeTest {
         Media thumbnail = thumbnails.get(0);
 
         assertEquals("/url/to/resource2", thumbnail.getUrl());
-        assertEquals(Media.Type.IMAGE, thumbnail.getType());
+        assertEquals(MediaType.IMAGE, thumbnail.getType());
         assertEquals(200, (int) thumbnail.getWidth());
         assertEquals(300, (int) thumbnail.getHeight());
         assertEquals(4, (int) thumbnail.getDepth());
@@ -62,7 +62,7 @@ public class DisplayDeserializeTest {
         assertNotNull(splash);
 
         assertEquals("/url/to/resource3", splash.getUrl());
-        assertEquals(Media.Type.IMAGE, splash.getType());
+        assertEquals(MediaType.IMAGE, splash.getType());
         assertEquals(200, (int) splash.getWidth());
         assertEquals(300, (int) splash.getHeight());
         assertEquals(4, (int) splash.getDepth());
