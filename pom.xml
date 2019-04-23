@@ -77,19 +77,6 @@
             <artifactId>morphia</artifactId>
             <version>${morphia.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter</artifactId>
-            <version>${spring-cloud.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -125,22 +112,15 @@
 
         <!-- Test -->
         <dependency>
-            <groupId>com.avides.springboot.testcontainer</groupId>
-            <artifactId>springboot-testcontainer-redis</artifactId>
-            <version>${testcontainer-redis.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.avides.springboot.testcontainer</groupId>
-            <artifactId>springboot-testcontainer-mongodb</artifactId>
-            <version>${testcontainer-mongodb.version}</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.11.1</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>

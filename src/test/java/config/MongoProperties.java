@@ -1,4 +1,4 @@
-package descriptor.config;
+package config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
