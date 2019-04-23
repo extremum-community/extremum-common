@@ -3,7 +3,6 @@ package com.extremum.starter;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
-import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -16,7 +15,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -50,7 +49,10 @@ public class CommonConfiguration {
         } catch (IOException e) {
             config = new Config();
         }
-        config.setCodec(new JsonJacksonCodec(new BasicJsonObjectMapper()));
+        TypedJsonJacksonCodec codec = new TypedJsonJacksonCodec((Class<?>) null,
+                JsonObjectMapper.createdWithoutDescriptorTransfiguration());
+
+        config.setCodec(codec);
         config.useSingleServer().setAddress(redisProperties.getUri());
         return Redisson.create(config);
     }
@@ -99,6 +101,6 @@ public class CommonConfiguration {
     @Bean
     @Primary
     public ObjectMapper jacksonObjectMapper() {
-        return new JsonObjectMapper();
+        return JsonObjectMapper.createdMapper();
     }
 }
