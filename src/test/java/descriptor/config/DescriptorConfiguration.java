@@ -2,10 +2,10 @@ package descriptor.config;
 
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import config.AppConfiguration;
+import config.DescriptorsProperties;
+import config.RedisProperties;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -13,37 +13,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Import;
+import org.testcontainers.containers.GenericContainer;
 
 
 @Configuration
-@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, DescriptorsProperties.class})
+@Import(AppConfiguration.class)
+@EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class})
 public class DescriptorConfiguration {
-
     @Autowired
     private RedisProperties redisProps;
-    @Autowired
-    private MongoProperties mongoProps;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
 
     @Bean
+    @DependsOn("redisContainer")
     public RedissonClient redissonClient() {
         Config config =  new Config();
         config.useSingleServer().setAddress(redisProps.getUri());
         return Redisson.create(config);
     }
 
-    @Bean
-    public Datastore descriptorsStore() {
-        Morphia morphia = new Morphia();
-        morphia.getMapper().getOptions().setStoreEmpties(true);
-        MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
-        MongoClient mongoClient = new MongoClient(databaseUri);
-        Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());
-
-        datastore.ensureIndexes();
-
-        return datastore;
+    @Bean(name="redisContainer")
+    public GenericContainer redisContainer() {
+        GenericContainer redis = new GenericContainer("redis:5.0.4").withExposedPorts(6379);
+        redis.start();
+        redisProps.setUri("redis://" + redis.getContainerIpAddress() + ":" + redis.getFirstMappedPort());
+        return redis;
     }
 
     @Bean
