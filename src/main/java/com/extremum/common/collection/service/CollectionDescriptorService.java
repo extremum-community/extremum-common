@@ -6,5 +6,5 @@ import com.extremum.common.collection.CollectionDescriptor;
  * @author rpuch
  */
 public interface CollectionDescriptorService {
-    CollectionDescriptor store(CollectionDescriptor descriptor);
+    void store(CollectionDescriptor descriptor);
 }
