@@ -83,7 +83,7 @@ public class MongoCommonServiceTest {
     @Test
     public void testList() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.listAll()).thenReturn(Collections.singletonList(createdModel));
+        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
         List<TestModel> resultModelList = service.list();
         assertNotNull(resultModelList);
@@ -95,7 +95,7 @@ public class MongoCommonServiceTest {
     public void testListWithAlerts() {
         TestModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
-        Mockito.when(dao.listAll()).thenReturn(Collections.singletonList(createdModel));
+        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
         List<TestModel> resultModelList = service.list(alertList);
         assertTrue(alertList.isEmpty());
@@ -409,15 +409,6 @@ public class MongoCommonServiceTest {
         assertEquals("400", alertList.get(0).getCode());
     }
 
-    @Test
-    public void testDelete() {
-        TestModel createdModel = getTestModel();
-        Mockito.when(dao.delete(createdModel.getId())).thenReturn(createdModel);
-
-        TestModel resultModel = service.delete(createdModel.getId().toString());
-        assertNotNull(resultModel);
-    }
-
     @Test(expected = WrongArgumentException.class)
     public void testDeleteWithNullId() {
         service.delete(null);
@@ -426,31 +417,6 @@ public class MongoCommonServiceTest {
     @Test(expected = ModelNotFoundException.class)
     public void testDeleteWithException() {
         service.delete(new ObjectId().toString());
-    }
-
-    @Test
-    public void testDeleteWithAlerts() {
-        List<Alert> alertList = new ArrayList<>();
-        TestModel createdModel = getTestModel();
-        Mockito.when(dao.delete(createdModel.getId())).thenReturn(createdModel);
-
-        TestModel resultModel = service.delete(createdModel.getId().toString(), alertList);
-        assertNotNull(resultModel);
-        assertTrue(alertList.isEmpty());
-
-        resultModel = service.delete(new ObjectId().toString(), alertList);
-        assertNull(resultModel);
-        assertEquals(1, alertList.size());
-        assertTrue(alertList.get(0).isError());
-        assertEquals("404", alertList.get(0).getCode());
-
-        alertList = new ArrayList<>();
-        resultModel = service.delete(null, alertList);
-
-        assertNull(resultModel);
-        assertEquals(1, alertList.size());
-        assertTrue(alertList.get(0).isError());
-        assertEquals("400", alertList.get(0).getCode());
     }
 
 

@@ -1,6 +1,6 @@
 package com.extremum.common.service.impl;
 
-import com.extremum.common.dao.MongoCommonDao;
+import com.extremum.common.dao.MorphiaMongoCommonDao;
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
@@ -23,12 +23,12 @@ import java.util.stream.Stream;
 
 public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements MongoCommonService<Model> {
     
-    protected final MongoCommonDao<Model> dao;
+    protected final MorphiaMongoCommonDao<Model> dao;
     private final String modelTypeName;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MongoCommonServiceImpl.class);
 
-    public MongoCommonServiceImpl(MongoCommonDao<Model> dao) {
+    public MongoCommonServiceImpl(MorphiaMongoCommonDao<Model> dao) {
         this.dao = dao;
         modelTypeName = dao.getEntityClass().getSimpleName();
     }
@@ -57,7 +57,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     @Override
     public List<Model> list(Collection<Alert> alerts){
         LOGGER.debug("Get list of models of type {}", modelTypeName);
-        return dao.listAll();
+        return dao.findAll();
     }
 
     @Override
@@ -235,8 +235,12 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         if(!checkId(id, alerts)) {
             return null;
         }
-        Model deleted = dao.delete(new ObjectId(id));
-        return getResultWithNullabilityCheck(deleted, id, alerts);
+        if (dao.remove(new ObjectId(id))) {
+            Model found = dao.findById(new ObjectId(id));
+            return getResultWithNullabilityCheck(found, id, alerts);
+        } else {
+            throw new ModelNotFoundException(dao.getEntityClass(), id);
+        }
     }
 
     private boolean checkId(String id, Collection<Alert> alerts) {
