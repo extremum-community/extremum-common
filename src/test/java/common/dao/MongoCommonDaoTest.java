@@ -107,8 +107,8 @@ public class MongoCommonDaoTest {
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
-        assertEquals(model.getDeleted(), resultModel.getDeleted());
         assertEquals(model.getVersion(), resultModel.getVersion());
+        assertEquals(model.getDeleted(), resultModel.getDeleted());
 
         resultModel = dao.findById(new ObjectId());
         assertNull(resultModel);
