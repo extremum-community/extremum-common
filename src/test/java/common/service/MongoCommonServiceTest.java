@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.extremum.common.models.AbstractCommonModel.FIELDS.version;
+import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

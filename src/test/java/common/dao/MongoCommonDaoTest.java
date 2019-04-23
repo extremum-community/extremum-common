@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.extremum.common.models.AbstractCommonModel.FIELDS.created;
+import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -109,7 +109,11 @@ public class MongoCommonDaoTest {
         dao.create(model);
 
         TestModel resultModel = dao.get(model.getId());
-        assertEquals(model, resultModel);
+        assertEquals(model.getId(), resultModel.getId());
+        assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
+        assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
+        assertEquals(model.getDeleted(), resultModel.getDeleted());
+        assertEquals(model.getVersion(), resultModel.getVersion());
 
         resultModel = dao.findById(new ObjectId());
         assertNull(resultModel);
@@ -128,7 +132,11 @@ public class MongoCommonDaoTest {
 
         List<TestModel> resultModels = dao.listByFieldValue(created.name(), model.getCreated());
         assertEquals(1, resultModels.size());
-        assertEquals(model, resultModels.get(0));
+        assertEquals(model.getId(), resultModels.get(0).getId());
+        assertEquals(model.getCreated().toEpochSecond(), resultModels.get(0).getCreated().toEpochSecond());
+        assertEquals(model.getModified().toEpochSecond(), resultModels.get(0).getModified().toEpochSecond());
+        assertEquals(model.getDeleted(), resultModels.get(0).getDeleted());
+        assertEquals(model.getVersion(), resultModels.get(0).getVersion());
 
         resultModels = dao.listByFieldValue(created.name(), ZonedDateTime.now());
         assertTrue(resultModels.isEmpty());

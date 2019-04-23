@@ -1,11 +1,13 @@
 package com.extremum.common.stucts;
 
-import com.extremum.common.models.AbstractCommonModel;
+import com.extremum.common.models.PersistableCommonModel;
+
+import java.io.Serializable;
 
 /**
  * Common model - Resource
  */
-public abstract class Resource extends AbstractCommonModel {
+public abstract class Resource<ID extends Serializable> implements PersistableCommonModel<ID> {
     /**
      * The type of the object as a Resource
      */
