@@ -1,5 +1,6 @@
 package com.extremum.common.dto.converters;
 
+import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.models.Model;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class StubDtoConverter implements ToResponseDtoConverter {
 
     private static class StubResponseDto implements ResponseDto {
         @Override
-        public String getId() {
+        public Descriptor getId() {
             return null;
         }
 

@@ -1,5 +1,6 @@
 package com.extremum.common.dto;
 
+import com.extremum.common.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,11 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 public abstract class AbstractResponseDto implements ResponseDto {
+    /**
+     * The unique ID of the object.
+     */
+    private Descriptor id;
+
     /**
      * The name of model that specifies the object structure
      */
@@ -27,5 +33,4 @@ public abstract class AbstractResponseDto implements ResponseDto {
      * The object's version
      */
     private Long version;
-
 }
