@@ -42,6 +42,11 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         super();
     }
 
+    @Override
+    public ObjectMapper copy() {
+        return this;
+    }
+
     public void configure() {
         // deserialization
         this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
