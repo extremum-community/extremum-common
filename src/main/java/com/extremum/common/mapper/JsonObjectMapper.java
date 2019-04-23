@@ -2,15 +2,20 @@ package com.extremum.common.mapper;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
+import com.extremum.common.deserializers.DisplayDeserializer;
 import com.extremum.common.deserializers.DurationVariativeValueDeserializer;
 import com.extremum.common.deserializers.IntegerRangeOrValueDeserializer;
 import com.extremum.common.deserializers.MultilingualObjectDeserializer;
+import com.extremum.common.serializers.DisplaySerializer;
 import com.extremum.common.serializers.DurationVariativeValueSerializer;
 import com.extremum.common.serializers.IdListOrObjectListStructSerializer;
+import com.extremum.common.serializers.IntegerOrStringSerializer;
 import com.extremum.common.serializers.IntegerRangeOrValueSerializer;
 import com.extremum.common.serializers.MultilingualObjectSerializer;
+import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.extremum.common.stucts.IdListOrObjectListStruct;
+import com.extremum.common.stucts.IntegerOrString;
 import com.extremum.common.stucts.IntegerRangeOrValue;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -21,15 +26,37 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Public object mapper for clients.
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
+    private boolean descriptorTransfigurationDisabled;
+
+    public JsonObjectMapper(boolean disableDescriptorTransfiguration) {
+        super();
+        descriptorTransfigurationDisabled = disableDescriptorTransfiguration;
+    }
+
+    public static JsonObjectMapper createdWithoutDescriptorTransfiguration() {
+        JsonObjectMapper mapper = new JsonObjectMapper(true);
+        mapper.configure();
+        return mapper;
+    }
+
+    public static JsonObjectMapper createdMapper() {
+        JsonObjectMapper mapper = new JsonObjectMapper(false);
+        mapper.configure();
+        return mapper;
+    }
+
+
     /**
      * Masking descriptor details as if it were a plain string
      */
     @Override
-    protected SimpleModule createSimpozioModule() {
-        SimpleModule module = super.createSimpozioModule();
+    protected SimpleModule createCustomModule() {
+        SimpleModule module = super.createCustomModule();
 
-        module.addSerializer(Descriptor.class, new ToStringSerializer());
-        module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
+        if (!descriptorTransfigurationDisabled) {
+            module.addSerializer(Descriptor.class, new ToStringSerializer());
+            module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
+        }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
         module.addDeserializer(MultilingualObject.class, new MultilingualObjectDeserializer());
@@ -41,6 +68,11 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
         module.addDeserializer(DurationVariativeValue.class, new DurationVariativeValueDeserializer());
         module.addSerializer(DurationVariativeValue.class, new DurationVariativeValueSerializer());
+
+        module.addDeserializer(Display.class, new DisplayDeserializer(this));
+        module.addSerializer(Display.class, new DisplaySerializer());
+
+        module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
 
         return module;
     }

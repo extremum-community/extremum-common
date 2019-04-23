@@ -5,16 +5,12 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DescriptorStringConverter extends TypeConverter implements SimpleValueConverter {
-    private final MongoDescriptorFactory mongoFactory;
-
-    public DescriptorStringConverter(MongoDescriptorFactory mongoFactory) {
+    public DescriptorStringConverter() {
         super(Descriptor.class);
-        this.mongoFactory = mongoFactory;
     }
 
     @Override

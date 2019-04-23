@@ -1,6 +1,3 @@
 {
-  "codec": {
-    "class": "org.redisson.codec.JsonJacksonCodec"
-  },
   "transportMode": "NIO"
 }

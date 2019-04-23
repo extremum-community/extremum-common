@@ -30,7 +30,7 @@ public final class DateUtils {
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat(FORMAT, Locale.US);
 
     public static final DateTimeFormatter ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz");
-    public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(FORMAT);
 
     public static final ZoneId ZONE = ZoneId.systemDefault();
 
@@ -67,12 +67,16 @@ public final class DateUtils {
         return parseZonedDateTime(date, ISO_8601_ZONED_DATE_TIME_FORMATTER);
     }
 
+    public static String formatZonedDateTimeISO_8601(ZonedDateTime date){
+        return date.format(ISO_8601_ZONED_DATE_TIME_FORMATTER);
+    }
+
     public static ZonedDateTime parseZonedDateTime(String date, DateTimeFormatter formatter) {
         if (date != null) {
             try {
                 return ZonedDateTime.parse(date, formatter);
             } catch (DateTimeParseException e) {
-                LOGGER.debug("cannot parse ZonedDateTime", e);
+                LOGGER.error("Cannot parse ZonedDateTime", e);
             }
         }
         return null;

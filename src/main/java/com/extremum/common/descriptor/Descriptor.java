@@ -1,8 +1,9 @@
 package com.extremum.common.descriptor;
 
-import com.extremum.common.converters.ZonedDateTimeConverter;
+import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.stucts.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -28,7 +29,7 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity(value = "descriptor-identifiers", noClassnameStored = true)
-@Converters(ZonedDateTimeConverter.class)
+@Converters({MongoZonedDateTimeConverter.class})
 public class Descriptor implements Serializable {
     @Id
     @JsonProperty("externalId")
@@ -55,7 +56,7 @@ public class Descriptor implements Serializable {
     private boolean deleted;
 
     @JsonProperty("display")
-    private String display;
+    private Display display;
 
     public Descriptor() {
     }
@@ -114,10 +115,6 @@ public class Descriptor implements Serializable {
         return this.modelType;
     }
 
-    public String getDisplay() {
-        return display;
-    }
-
     private void fillByIds() {
         if (this.internalId != null) {
             fillByInternalId();
@@ -149,6 +146,11 @@ public class Descriptor implements Serializable {
         this.internalId = d.internalId;
         this.modelType = d.modelType;
         this.storageType = d.storageType;
+        this.created = d.created;
+        this.modified = d.modified;
+        this.version = d.version;
+        this.deleted = d.deleted;
+        this.display = d.display;
 
         return d;
     }

@@ -1,6 +1,6 @@
 package com.extremum.common.models;
 
-import com.extremum.common.converters.ZonedDateTimeConverter;
+import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@Converters({ZonedDateTimeConverter.class})
+@Converters({MongoZonedDateTimeConverter.class})
 public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
 
     public static final int VERSION_INITIAL_VALUE = 0;

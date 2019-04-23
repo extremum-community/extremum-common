@@ -1,5 +1,6 @@
 package com.extremum.common.dao;
 
+import com.extremum.common.models.AbstractCommonModel;
 import com.extremum.common.models.MongoCommonModel;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
@@ -18,8 +19,8 @@ import java.util.Optional;
 
 public abstract class MongoCommonDao<T extends MongoCommonModel> extends BasicDAO<T, ObjectId> {
 
-    private static final String ID = MongoCommonModel.FIELDS.id.name();
-    private static final String DELETED = MongoCommonModel.FIELDS.deleted.name();
+    private static final String ID = AbstractCommonModel.FIELDS.id.name();
+    private static final String DELETED = AbstractCommonModel.FIELDS.deleted.name();
 
     public MongoCommonDao(Datastore datastore) {
         super(datastore);
