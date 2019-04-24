@@ -11,9 +11,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * @author rpuch
- */
 @Getter
 @Entity(value = "collection-descriptors", noClassnameStored = true)
 public final class CollectionDescriptor implements Serializable {

@@ -6,8 +6,8 @@ import com.extremum.common.collection.EmbeddedCoordinates;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.CommonResponseDto;
-import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.stucts.IdOrObjectStruct;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,11 +16,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
@@ -33,36 +38,52 @@ public class CollectionMakeupImplTest {
     @Mock
     private CollectionDescriptorService collectionDescriptorService;
 
-    @Test
-    public void whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
+    private StreetResponseDto streetDto;
+    private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forEmbedded(
+            new Descriptor("the-street"), "the-buildings");
+
+    @Before
+    public void setUp() {
         BuildingResponseDto building1 = new BuildingResponseDto("building1", "address1");
         BuildingResponseDto building2 = new BuildingResponseDto("building2", "address2");
         List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings = Arrays.asList(
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building1),
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building2)
         );
-        StreetResponseDto street = new StreetResponseDto("the-street", new CollectionReference<>(buildings));
+        streetDto = new StreetResponseDto("the-street", new CollectionReference<>(buildings));
 
-        collectionMakeup.applyCollectionMakeup(street);
+        when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.empty());
+    }
 
-        CollectionDescriptor descriptor = street.buildings.getDescriptor();
+    @Test
+    public void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        CollectionDescriptor descriptor = streetDto.buildings.getDescriptor();
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor);
+
+        verify(collectionDescriptorService).store(descriptor);
+    }
+
+    private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor) {
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
         EmbeddedCoordinates embeddedCoordinates = descriptor.getCoordinates().getEmbeddedCoordinates();
         assertThat(embeddedCoordinates, is(notNullValue()));
         assertThat(embeddedCoordinates.getHostId().getExternalId(), is("the-street"));
         assertThat(embeddedCoordinates.getHostFieldName(), is("the-buildings"));
-
-        verify(collectionDescriptorService).store(descriptor);
     }
 
-    private static class Street extends MongoCommonModel {
-        public List<String> buildings;
+    @Test
+    public void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
+        when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.of(descriptorInDB));
 
-        @Override
-        public String getModelName() {
-            return "Street";
-        }
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        CollectionDescriptor descriptor = streetDto.buildings.getDescriptor();
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor);
+
+        verify(collectionDescriptorService, never()).store(any());
     }
 
     private static class BuildingResponseDto extends CommonResponseDto {

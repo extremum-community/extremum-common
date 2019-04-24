@@ -6,11 +6,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
@@ -23,12 +26,23 @@ public class CollectionDescriptorServiceImplTest {
     @Mock
     private CollectionDescriptorDao collectionDescriptorDao;
 
+    private final CollectionDescriptor collectionDescriptor = new CollectionDescriptor("test");
+
     @Test
-    public void test() {
-        CollectionDescriptor descriptor = new CollectionDescriptor("123");
+    public void whenRetrievingByCoordinates_thenRetriveFromDaoShouldBeCalled() {
+        when(collectionDescriptorDao.retrieveByCoordinates("coords"))
+                .thenReturn(Optional.of(collectionDescriptor));
 
-        collectionDescriptorService.store(descriptor);
+        Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
+        
+        assertThat(result.isPresent(), is(true));
+        assertThat(result.get(), is(collectionDescriptor));
+    }
 
-        verify(collectionDescriptorDao).store(descriptor);
+    @Test
+    public void whenStoring_thenStoreInDaoShouldBeCalled() {
+        collectionDescriptorService.store(collectionDescriptor);
+
+        verify(collectionDescriptorDao).store(collectionDescriptor);
     }
 }

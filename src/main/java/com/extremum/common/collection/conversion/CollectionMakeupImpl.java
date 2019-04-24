@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * @author rpuch
@@ -38,12 +39,20 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         if (value == null) {
             return;
         }
+
         CollectionReference reference = (CollectionReference) value;
         MongoEmbeddedCollection annotation = field.getAnnotation(MongoEmbeddedCollection.class);
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forEmbedded(dto.id, annotation.hostFieldName());
-        reference.setDescriptor(collectionDescriptor);
 
-        collectionDescriptorService.store(collectionDescriptor);
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forEmbedded(dto.id, annotation.hostFieldName());
+        Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
+                newDescriptor.toCoordinatesString());
+
+        if (existingDescriptor.isPresent()) {
+            reference.setDescriptor(existingDescriptor.get());
+        } else {
+            collectionDescriptorService.store(newDescriptor);
+            reference.setDescriptor(newDescriptor);
+        }
     }
 
     private boolean isOfTypeCollectionReference(Field field) {

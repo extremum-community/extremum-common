@@ -4,6 +4,8 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * @author rpuch
  */
@@ -13,6 +15,11 @@ public class CollectionDescriptorServiceImpl implements CollectionDescriptorServ
 
     public CollectionDescriptorServiceImpl(CollectionDescriptorDao collectionDescriptorDao) {
         this.collectionDescriptorDao = collectionDescriptorDao;
+    }
+
+    @Override
+    public Optional<CollectionDescriptor> retrieveByCoordinates(String coordinatesString) {
+        return collectionDescriptorDao.retrieveByCoordinates(coordinatesString);
     }
 
     @Override
