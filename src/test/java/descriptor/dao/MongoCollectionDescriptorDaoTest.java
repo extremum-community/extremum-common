@@ -7,6 +7,7 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mongodb.morphia.Datastore;
@@ -18,6 +19,8 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -36,16 +39,18 @@ public class MongoCollectionDescriptorDaoTest {
 
     @Test
     public void testRetrieveByExternalId() {
-        Descriptor hostDescriptor = createADescriptor();
-        String hostExternalId = hostDescriptor.getExternalId();
-        CollectionDescriptor collectionDescriptor = new CollectionDescriptor(new Descriptor(hostExternalId), "items");
-
-        collectionDescriptorService.store(collectionDescriptor);
-
-        assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
+        String hostExternalId = createADescriptor();
+        CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
 
         Optional<CollectionDescriptor> retrievedDescriptor = collectionDescriptorDao.retrieveByExternalId(
                 collectionDescriptor.getExternalId());
+
+        assertThatCollectionDescriptorRetrievalWasOk(hostExternalId, collectionDescriptor, retrievedDescriptor);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void assertThatCollectionDescriptorRetrievalWasOk(String hostExternalId,
+            CollectionDescriptor collectionDescriptor, Optional<CollectionDescriptor> retrievedDescriptor) {
         assertTrue(retrievedDescriptor.isPresent());
         assertThat(retrievedDescriptor.get().getExternalId(), is(collectionDescriptor.getExternalId()));
         assertThat(retrievedDescriptor.get().getType(), is(CollectionDescriptor.Type.EMBEDDED));
@@ -54,8 +59,46 @@ public class MongoCollectionDescriptorDaoTest {
         assertThat(embeddedCoordinates.getHostFieldName(), is("items"));
     }
 
-    private Descriptor createADescriptor() {
+    @NotNull
+    private CollectionDescriptor createACollectionDescriptor(String hostExternalId) {
+        CollectionDescriptor collectionDescriptor = new CollectionDescriptor(new Descriptor(hostExternalId), "items");
+
+        collectionDescriptorService.store(collectionDescriptor);
+
+        assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
+        return collectionDescriptor;
+    }
+
+    private String createADescriptor() {
         ObjectId objectId = new ObjectId();
-        return MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor hostDescriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        return hostDescriptor.getExternalId();
+    }
+
+    @Test
+    public void testRetrieveByInternalId() {
+        String hostExternalId = createADescriptor();
+        CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
+
+        Optional<CollectionDescriptor> retrievedDescriptor = collectionDescriptorDao.retrieveByCoordinates(
+                collectionDescriptor.toCoordinatesString());
+
+        assertThatCollectionDescriptorRetrievalWasOk(hostExternalId, collectionDescriptor, retrievedDescriptor);
+    }
+
+    @Test
+    public void testRetrieveFromMongo() {
+        String hostExternalId = createADescriptor();
+        CollectionDescriptor descriptor = new CollectionDescriptor(new Descriptor(hostExternalId), "items");
+        String coordinatesString = descriptor.toCoordinatesString();
+
+        Optional<CollectionDescriptor> retrievedDescriptor = collectionDescriptorDao.retrieveByCoordinates(
+                coordinatesString);
+        assertFalse(retrievedDescriptor.isPresent());
+
+        descriptorsStore.save(descriptor);
+        retrievedDescriptor = collectionDescriptorDao.retrieveByCoordinates(coordinatesString);
+        assertTrue(retrievedDescriptor.isPresent());
+        assertEquals(descriptor, retrievedDescriptor.get());
     }
 }

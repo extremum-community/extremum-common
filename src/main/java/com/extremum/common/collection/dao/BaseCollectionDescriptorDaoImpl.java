@@ -15,12 +15,13 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
     private static final long DEFAULT_IDLE_TIME_DAYS = 30;
 
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
-                                 String descriptorsMapName) {
-        this(redissonClient, mongoDatastore, descriptorsMapName, DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
+            String descriptorsMapName, String internalIdsMapName) {
+        this(redissonClient, mongoDatastore, descriptorsMapName, internalIdsMapName,
+                DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
     }
 
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
-                                 String descriptorsMapName, int cacheSize, long idleTime) {
+            String descriptorsMapName, String internalIdsMapName, int cacheSize, long idleTime) {
         super(mongoDatastore,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
@@ -30,7 +31,17 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
-                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)));
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
+                redissonClient.getLocalCachedMap(
+                        internalIdsMapName,
+                        LocalCachedMapOptions
+                                .<String, String>defaults()
+                                .loader(descriptorCoordinatesMapLoader(mongoDatastore))
+                                .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+                                .cacheSize(cacheSize)
+                                .maxIdle(idleTime, TimeUnit.DAYS)
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE))
+        );
     }
 
     private static MapLoader<String, CollectionDescriptor> descriptorIdMapLoader(Datastore descriptorsStore) {
@@ -45,6 +56,26 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                 return descriptorsStore.find(CollectionDescriptor.class).asKeyList().stream()
                         .map(Key::getId)
                         .map(String.class::cast)
+                        .collect(Collectors.toList());
+            }
+        };
+    }
+
+    private static MapLoader<String, String> descriptorCoordinatesMapLoader(Datastore descriptorsStore) {
+        return new MapLoader<String, String>() {
+            @Override
+            public String load(String key) {
+                CollectionDescriptor descriptor = descriptorsStore.find(CollectionDescriptor.class)
+                        .field(CollectionDescriptor.FIELDS.coordinatesString.name()).equal(key).get();
+                return descriptor != null
+                        ? descriptor.getExternalId()
+                        : null;
+            }
+
+            @Override
+            public Iterable<String> loadAllKeys() {
+                return descriptorsStore.find(CollectionDescriptor.class).asList().stream()
+                        .map(CollectionDescriptor::toCoordinatesString)
                         .collect(Collectors.toList());
             }
         };

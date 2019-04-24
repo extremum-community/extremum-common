@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface CollectionDescriptorDao {
     Optional<CollectionDescriptor> retrieveByExternalId(String externalId);
 
+    Optional<CollectionDescriptor> retrieveByCoordinates(String coordinatesString);
+
     CollectionDescriptor store(CollectionDescriptor descriptor);
 }

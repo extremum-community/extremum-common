@@ -4,8 +4,12 @@ import com.extremum.common.descriptor.Descriptor;
 import lombok.Getter;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.PrePersist;
 
 import java.io.Serializable;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author rpuch
@@ -17,6 +21,11 @@ public final class CollectionDescriptor implements Serializable {
     private String externalId;
     private Type type;
     private CollectionCoordinates coordinates;
+    @Indexed
+    private String coordinatesString;
+
+    private CollectionDescriptor() {
+    }
 
     public CollectionDescriptor(String externalId) {
         this.externalId = externalId;
@@ -32,8 +41,43 @@ public final class CollectionDescriptor implements Serializable {
         return externalId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CollectionDescriptor that = (CollectionDescriptor) o;
+        if (externalId != null && that.externalId != null) {
+            return Objects.equals(externalId, that.externalId);
+        }
+        return type == that.type && Objects.equals(coordinates, that.coordinates);
+    }
+
+    @Override
+    public int hashCode() {
+        if (externalId != null) {
+            return externalId.hashCode();
+        }
+        return Objects.hash(type, coordinates);
+    }
+
     public String toCoordinatesString() {
         return type.toCoordinatesString(coordinates);
+    }
+
+    @PrePersist
+    public void generateExternalIdIfNeeded() {
+        if (externalId == null) {
+            externalId = UUID.randomUUID().toString();
+        }
+    }
+
+    @PrePersist
+    public void refreshCoordinatesString() {
+        coordinatesString = toCoordinatesString();
     }
 
     public enum Type {
@@ -51,6 +95,6 @@ public final class CollectionDescriptor implements Serializable {
     }
 
     public enum FIELDS {
-        externalId, type, coordinates
+        externalId, type, coordinates, coordinatesString
     }
 }

@@ -6,6 +6,7 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
+import com.extremum.common.descriptor.serde.mongo.DescriptorStringConverter;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import org.mongodb.morphia.Datastore;
@@ -41,6 +42,7 @@ public class DescriptorConfiguration {
     public Datastore descriptorsStore() {
         Morphia morphia = new Morphia();
         morphia.getMapper().getOptions().setStoreEmpties(true);
+        morphia.getMapper().getConverters().addConverter(DescriptorStringConverter.class);
         MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
         MongoClient mongoClient = new MongoClient(databaseUri);
         Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());
@@ -60,6 +62,7 @@ public class DescriptorConfiguration {
     public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
         return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
                 descriptorsProperties.getCollectionDescriptorsMapName(),
+                descriptorsProperties.getCollectionCoordinatesMapName(),
                 redisProps.getCacheSize(), redisProps.getIdleTime());
     }
 
