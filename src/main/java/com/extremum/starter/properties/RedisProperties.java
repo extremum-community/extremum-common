@@ -18,4 +18,6 @@ public class RedisProperties {
     private int cacheSize;
 
     private long idleTime;
+
+    private String password;
 }

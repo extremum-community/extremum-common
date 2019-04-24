@@ -56,6 +56,9 @@ public class CommonConfiguration {
 
         config.setCodec(codec);
         config.useSingleServer().setAddress(redisProperties.getUri());
+        if (redisProperties.getPassword() != null) {
+            config.useSingleServer().setPassword(redisProperties.getPassword());
+        }
         return Redisson.create(config);
     }
 
