@@ -1,5 +1,9 @@
 package com.extremum.starter;
 
+import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
+import com.extremum.common.collection.dao.CollectionDescriptorDao;
+import com.extremum.common.collection.service.CollectionDescriptorService;
+import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
@@ -81,12 +85,16 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        if (redisProperties.getCacheSize() == 0 && redisProperties.getIdleTime() == 0) {
+        if (noRedis()) {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName());
         } else {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
                     descriptorsProperties.getInternalIdsMapName(), redisProperties.getCacheSize(), redisProperties.getIdleTime());
         }
+    }
+
+    private boolean noRedis() {
+        return redisProperties.getCacheSize() == 0 && redisProperties.getIdleTime() == 0;
     }
 
     @Bean
@@ -96,6 +104,29 @@ public class CommonConfiguration {
         DescriptorServiceConfigurator descriptorServiceConfigurator = new DescriptorServiceConfigurator(descriptorDao);
         descriptorServiceConfigurator.init();
         return descriptorServiceConfigurator;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "descriptors", value = {"collectionDescriptorsMapName", "collectionCoordinatesMapName"})
+    @ConditionalOnMissingBean
+    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+        if (noRedis()) {
+            return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
+                    descriptorsProperties.getCollectionDescriptorsMapName(),
+                    descriptorsProperties.getCollectionCoordinatesMapName());
+        } else {
+            return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
+                    descriptorsProperties.getCollectionDescriptorsMapName(),
+                    descriptorsProperties.getCollectionCoordinatesMapName(),
+                    redisProperties.getCacheSize(), redisProperties.getIdleTime());
+        }
+    }
+
+    @Bean
+    @ConditionalOnBean(CollectionDescriptorDao.class)
+    @ConditionalOnMissingBean
+    public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
+        return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
     }
 
     @Bean
