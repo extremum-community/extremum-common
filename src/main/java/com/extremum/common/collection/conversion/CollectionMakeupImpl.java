@@ -40,7 +40,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         }
         CollectionReference reference = (CollectionReference) value;
         MongoEmbeddedCollection annotation = field.getAnnotation(MongoEmbeddedCollection.class);
-        CollectionDescriptor collectionDescriptor = new CollectionDescriptor(dto.id, annotation.hostFieldName());
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forEmbedded(dto.id, annotation.hostFieldName());
         reference.setDescriptor(collectionDescriptor);
 
         collectionDescriptorService.store(collectionDescriptor);

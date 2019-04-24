@@ -31,9 +31,14 @@ public final class CollectionDescriptor implements Serializable {
         this.externalId = externalId;
     }
 
-    public CollectionDescriptor(Descriptor hostId, String hostFieldName) {
-        this.type = Type.EMBEDDED;
-        this.coordinates = new CollectionCoordinates(new EmbeddedCoordinates(hostId, hostFieldName));
+    private CollectionDescriptor(Type type, CollectionCoordinates coordinates) {
+        this.type = type;
+        this.coordinates = coordinates;
+    }
+
+    public static CollectionDescriptor forEmbedded(Descriptor hostId, String hostFieldName) {
+        return new CollectionDescriptor(Type.EMBEDDED,
+                new CollectionCoordinates(new EmbeddedCoordinates(hostId, hostFieldName)));
     }
 
     @Override

@@ -61,7 +61,8 @@ public class MongoCollectionDescriptorDaoTest {
 
     @NotNull
     private CollectionDescriptor createACollectionDescriptor(String hostExternalId) {
-        CollectionDescriptor collectionDescriptor = new CollectionDescriptor(new Descriptor(hostExternalId), "items");
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forEmbedded(
+                new Descriptor(hostExternalId), "items");
 
         collectionDescriptorService.store(collectionDescriptor);
 
@@ -89,7 +90,7 @@ public class MongoCollectionDescriptorDaoTest {
     @Test
     public void testRetrieveFromMongo() {
         String hostExternalId = createADescriptor();
-        CollectionDescriptor descriptor = new CollectionDescriptor(new Descriptor(hostExternalId), "items");
+        CollectionDescriptor descriptor = CollectionDescriptor.forEmbedded(new Descriptor(hostExternalId), "items");
         String coordinatesString = descriptor.toCoordinatesString();
 
         Optional<CollectionDescriptor> retrievedDescriptor = collectionDescriptorDao.retrieveByCoordinates(
