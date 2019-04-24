@@ -8,7 +8,6 @@ import com.extremum.common.dto.ResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -28,7 +27,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
-        Arrays.stream(dto.getClass().getFields())
+        new InstanceFields(dto.getClass()).stream()
                 .filter(this::isOfTypeCollectionReference)
                 .filter(this::isAnnotatedWithEmbeddedCollection)
                 .forEach(field -> applyMakeupToField(field, dto));
@@ -64,6 +63,9 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private Object getFieldValue(ResponseDto dto, Field field) {
+        if (!field.isAccessible()) {
+            field.setAccessible(true);
+        }
         try {
             return field.get(dto);
         } catch (IllegalAccessException e) {

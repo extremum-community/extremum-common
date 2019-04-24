@@ -50,7 +50,8 @@ public class CollectionMakeupImplTest {
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building1),
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building2)
         );
-        streetDto = new StreetResponseDto("the-street", new CollectionReference<>(buildings));
+        streetDto = new StreetResponseDto("the-street", new CollectionReference<>(buildings),
+                new CollectionReference<>(buildings));
 
         when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.empty());
     }
@@ -60,18 +61,19 @@ public class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildings.getDescriptor();
-        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor);
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
 
         verify(collectionDescriptorService).store(descriptor);
     }
 
-    private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor) {
+    private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor,
+            String expectedHostFieldName) {
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
         EmbeddedCoordinates embeddedCoordinates = descriptor.getCoordinates().getEmbeddedCoordinates();
         assertThat(embeddedCoordinates, is(notNullValue()));
         assertThat(embeddedCoordinates.getHostId().getExternalId(), is("the-street"));
-        assertThat(embeddedCoordinates.getHostFieldName(), is("the-buildings"));
+        assertThat(embeddedCoordinates.getHostFieldName(), is(expectedHostFieldName));
     }
 
     @Test
@@ -81,9 +83,19 @@ public class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildings.getDescriptor();
-        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor);
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
 
         verify(collectionDescriptorService, never()).store(any());
+    }
+
+    @Test
+    public void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        CollectionDescriptor descriptor = streetDto.privateBuildings.getDescriptor();
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-private-buildings");
+
+        verify(collectionDescriptorService).store(descriptor);
     }
 
     private static class BuildingResponseDto extends CommonResponseDto {
@@ -98,11 +110,15 @@ public class CollectionMakeupImplTest {
     private static class StreetResponseDto extends CommonResponseDto {
         @MongoEmbeddedCollection(hostFieldName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
+        @MongoEmbeddedCollection(hostFieldName = "the-private-buildings")
+        private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
 
         StreetResponseDto(String externalId,
-                CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+                CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings,
+                CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings) {
             this.id = new Descriptor(externalId);
             this.buildings = buildings;
+            this.privateBuildings = privateBuildings;
         }
     }
 }
