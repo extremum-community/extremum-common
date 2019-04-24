@@ -6,15 +6,21 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.*;
+import org.mongodb.morphia.annotations.Converters;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.PostLoad;
+import org.mongodb.morphia.annotations.PostPersist;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Transient;
+import org.mongodb.morphia.annotations.Version;
 
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Getter
 @Setter
 @Converters({MongoZonedDateTimeConverter.class})
-public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
+public abstract class MongoCommonModel implements PersistableCommonModel<ObjectId> {
 
     public static final int VERSION_INITIAL_VALUE = 0;
     public static final boolean DELETED_INITIAL_VALUE = false;
@@ -70,15 +76,5 @@ public abstract class MongoCommonModel extends AbstractCommonModel<ObjectId> {
         if (this.uuid == null) {
             this.uuid = MongoDescriptorFactory.create(id, getModelName());
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        MongoCommonModel that = (MongoCommonModel) o;
-
-        return (Objects.equals(id, that.id)) && (Objects.equals(version, that.version));
     }
 }

@@ -4,6 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import config.AppConfiguration;
 import models.TestModel;
+import org.apache.commons.lang.math.RandomUtils;
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,35 +100,24 @@ public class MongoCommonDaoTest {
     }
 
     @Test
-    public void testDelete() {
-        TestModel deletedModel = dao.delete((ObjectId) null);
-        assertNull(deletedModel);
-
-        deletedModel = dao.delete(new ObjectId());
-        assertNull(deletedModel);
-
-        TestModel model = getTestModel();
-        dao.create(model);
-
-        deletedModel = dao.delete(model.getId());
-        assertTrue(deletedModel.getDeleted());
-    }
-
-    @Test
     public void testGet() {
         TestModel model = getTestModel();
         dao.create(model);
 
         TestModel resultModel = dao.get(model.getId());
-        assertEquals(model, resultModel);
+        assertEquals(model.getId(), resultModel.getId());
+        assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
+        assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
+        assertEquals(model.getDeleted(), resultModel.getDeleted());
+        assertEquals(model.getVersion(), resultModel.getVersion());
 
-        resultModel = dao.get(new ObjectId());
+        resultModel = dao.findById(new ObjectId());
         assertNull(resultModel);
 
         TestModel deletedModel = getDeletedTestModel();
         dao.create(deletedModel);
 
-        resultModel = dao.get(deletedModel.getId());
+        resultModel = dao.findById(deletedModel.getId());
         assertNull(resultModel);
     }
 
@@ -138,7 +128,11 @@ public class MongoCommonDaoTest {
 
         List<TestModel> resultModels = dao.listByFieldValue(created.name(), model.getCreated());
         assertEquals(1, resultModels.size());
-        assertEquals(model, resultModels.get(0));
+        assertEquals(model.getId(), resultModels.get(0).getId());
+        assertEquals(model.getCreated().toEpochSecond(), resultModels.get(0).getCreated().toEpochSecond());
+        assertEquals(model.getModified().toEpochSecond(), resultModels.get(0).getModified().toEpochSecond());
+        assertEquals(model.getDeleted(), resultModels.get(0).getDeleted());
+        assertEquals(model.getVersion(), resultModels.get(0).getVersion());
 
         resultModels = dao.listByFieldValue(created.name(), ZonedDateTime.now());
         assertTrue(resultModels.isEmpty());
@@ -175,20 +169,20 @@ public class MongoCommonDaoTest {
 
     @Test
     public void testListAll() {
-        int initCount = dao.listAll().size();
+        int initCount = dao.findAll().size();
         int modelsToCreate = 10;
 
         for (int i = 0; i < modelsToCreate; i++) {
             dao.create(getTestModel());
         }
-        int count = dao.listAll().size();
+        int count = dao.findAll().size();
         assertEquals(initCount + modelsToCreate, count);
 
         initCount = count;
         for (int i = 0; i < modelsToCreate; i++) {
             dao.create(getDeletedTestModel());
         }
-        count = dao.listAll().size();
+        count = dao.findAll().size();
         assertEquals(initCount, count);
     }
 

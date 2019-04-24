@@ -29,4 +29,8 @@ public interface PersistableCommonModel<ID extends Serializable> extends Model {
     Boolean getDeleted();
 
     void setDeleted(Boolean deleted);
+
+    enum FIELDS {
+        id, uuid, created, modified, deleted, version
+    }
 }
