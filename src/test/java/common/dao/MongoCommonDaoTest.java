@@ -4,7 +4,6 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import config.AppConfiguration;
 import models.TestModel;
-import org.apache.commons.lang.math.RandomUtils;
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.extremum.common.models.AbstractCommonModel.FIELDS.created;
+import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.junit.Assert.*;
 
 
