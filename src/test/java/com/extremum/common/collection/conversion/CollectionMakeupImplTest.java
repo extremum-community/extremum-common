@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -95,6 +96,23 @@ public class CollectionMakeupImplTest {
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-private-buildings");
 
         verify(collectionDescriptorService).store(descriptor);
+    }
+
+    @Test
+    public void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+        streetDto.setId(null);
+
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        assertThat(streetDto.buildings.getDescriptor(), is(nullValue()));
+        verify(collectionDescriptorService, never()).store(any());
+    }
+
+    @Test
+    public void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+        streetDto.buildings = null;
+
+        collectionMakeup.applyCollectionMakeup(streetDto);
     }
 
     @Test
