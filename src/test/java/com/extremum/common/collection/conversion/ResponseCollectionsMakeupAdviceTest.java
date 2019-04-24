@@ -1,6 +1,6 @@
 package com.extremum.common.collection.conversion;
 
-import com.extremum.common.dto.CommonResponseDto;
+import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.response.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -107,7 +107,7 @@ public class ResponseCollectionsMakeupAdviceTest {
         }
     }
 
-    private static class TestResponseDto extends CommonResponseDto {
+    private static class TestResponseDto extends AbstractResponseDto {
 
     }
 }

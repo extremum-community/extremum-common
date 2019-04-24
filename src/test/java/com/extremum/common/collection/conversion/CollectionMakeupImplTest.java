@@ -5,7 +5,7 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.EmbeddedCoordinates;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.dto.CommonResponseDto;
+import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,16 +98,16 @@ public class CollectionMakeupImplTest {
         verify(collectionDescriptorService).store(descriptor);
     }
 
-    private static class BuildingResponseDto extends CommonResponseDto {
+    private static class BuildingResponseDto extends AbstractResponseDto {
         public String address;
 
         BuildingResponseDto(String externalId, String address) {
-            this.id = new Descriptor(externalId);
+            setId(new Descriptor(externalId));
             this.address = address;
         }
     }
 
-    private static class StreetResponseDto extends CommonResponseDto {
+    private static class StreetResponseDto extends AbstractResponseDto {
         @MongoEmbeddedCollection(hostFieldName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
         @MongoEmbeddedCollection(hostFieldName = "the-private-buildings")
@@ -116,7 +116,7 @@ public class CollectionMakeupImplTest {
         StreetResponseDto(String externalId,
                 CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings,
                 CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings) {
-            this.id = new Descriptor(externalId);
+            setId(new Descriptor(externalId));
             this.buildings = buildings;
             this.privateBuildings = privateBuildings;
         }

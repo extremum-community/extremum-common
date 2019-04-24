@@ -3,7 +3,7 @@ package com.extremum.common.collection.conversion;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
-import com.extremum.common.dto.CommonResponseDto;
+import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.dto.ResponseDto;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +22,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     @Override
-    public void applyCollectionMakeup(CommonResponseDto dto) {
-        if (dto.id == null) {
+    public void applyCollectionMakeup(AbstractResponseDto dto) {
+        if (dto.getId() == null) {
             return;
         }
 
@@ -33,7 +33,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                 .forEach(field -> applyMakeupToField(field, dto));
     }
 
-    private void applyMakeupToField(Field field, CommonResponseDto dto) {
+    private void applyMakeupToField(Field field, AbstractResponseDto dto) {
         Object value = getFieldValue(dto, field);
         if (value == null) {
             return;
@@ -42,7 +42,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         CollectionReference reference = (CollectionReference) value;
         MongoEmbeddedCollection annotation = field.getAnnotation(MongoEmbeddedCollection.class);
 
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forEmbedded(dto.id, annotation.hostFieldName());
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forEmbedded(dto.getId(), annotation.hostFieldName());
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 

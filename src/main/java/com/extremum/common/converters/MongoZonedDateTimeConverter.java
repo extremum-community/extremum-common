@@ -2,6 +2,7 @@ package com.extremum.common.converters;
 
 import com.extremum.common.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
 
@@ -9,7 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @Slf4j
-public class MongoZonedDateTimeConverter extends TypeConverter {
+public class MongoZonedDateTimeConverter extends TypeConverter implements SimpleValueConverter {
     public MongoZonedDateTimeConverter() {
         super(ZonedDateTime.class);
     }
