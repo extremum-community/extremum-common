@@ -8,6 +8,7 @@ import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.PrePersist;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,6 +21,9 @@ public final class CollectionDescriptor implements Serializable {
     private CollectionCoordinates coordinates;
     @Indexed
     private String coordinatesString;
+
+    private ZonedDateTime created;
+    private boolean deleted;
 
     private CollectionDescriptor() {
     }
@@ -80,6 +84,13 @@ public final class CollectionDescriptor implements Serializable {
     @PrePersist
     public void refreshCoordinatesString() {
         coordinatesString = toCoordinatesString();
+    }
+
+    @PrePersist
+    public void initCreatedIfNeeded() {
+        if (created == null) {
+            created = ZonedDateTime.now();
+        }
     }
 
     public enum Type {
