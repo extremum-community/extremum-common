@@ -42,7 +42,6 @@ public class DescriptorConfiguration {
     public Datastore descriptorsStore() {
         Morphia morphia = new Morphia();
         morphia.getMapper().getOptions().setStoreEmpties(true);
-        morphia.getMapper().getConverters().addConverter(DescriptorStringConverter.class);
         MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
         MongoClient mongoClient = new MongoClient(databaseUri);
         Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());
