@@ -5,6 +5,7 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.dto.ResponseDto;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -40,9 +41,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         }
 
         CollectionReference reference = (CollectionReference) value;
-        MongoEmbeddedCollection annotation = field.getAnnotation(MongoEmbeddedCollection.class);
 
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forEmbedded(dto.getId(), annotation.hostFieldName());
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forEmbedded(dto.getId(), getHostFieldName(field));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
@@ -52,6 +52,14 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             collectionDescriptorService.store(newDescriptor);
             reference.setDescriptor(newDescriptor);
         }
+    }
+
+    private String getHostFieldName(Field field) {
+        MongoEmbeddedCollection annotation = field.getAnnotation(MongoEmbeddedCollection.class);
+        if (StringUtils.isNotBlank(annotation.hostFieldName())) {
+            return annotation.hostFieldName();
+        }
+        return field.getName();
     }
 
     private boolean isOfTypeCollectionReference(Field field) {

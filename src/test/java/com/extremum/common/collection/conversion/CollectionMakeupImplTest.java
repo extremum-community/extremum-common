@@ -50,8 +50,7 @@ public class CollectionMakeupImplTest {
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building1),
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building2)
         );
-        streetDto = new StreetResponseDto("the-street", new CollectionReference<>(buildings),
-                new CollectionReference<>(buildings));
+        streetDto = new StreetResponseDto("the-street", buildings);
 
         when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.empty());
     }
@@ -98,6 +97,16 @@ public class CollectionMakeupImplTest {
         verify(collectionDescriptorService).store(descriptor);
     }
 
+    @Test
+    public void givenHostFieldNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostFieldNameIsDeducedFromFieldName() {
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getDescriptor();
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "buildingsWithDefaultName");
+
+        verify(collectionDescriptorService).store(descriptor);
+    }
+
     private static class BuildingResponseDto extends AbstractResponseDto {
         public String address;
 
@@ -112,13 +121,15 @@ public class CollectionMakeupImplTest {
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
         @MongoEmbeddedCollection(hostFieldName = "the-private-buildings")
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
+        @MongoEmbeddedCollection
+        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
 
         StreetResponseDto(String externalId,
-                CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings,
-                CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings) {
+                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
             setId(new Descriptor(externalId));
-            this.buildings = buildings;
-            this.privateBuildings = privateBuildings;
+            this.buildings = new CollectionReference<>(buildings);
+            this.privateBuildings = new CollectionReference<>(buildings);
+            this.buildingsWithDefaultName = new CollectionReference<>(buildings);
         }
     }
 }
