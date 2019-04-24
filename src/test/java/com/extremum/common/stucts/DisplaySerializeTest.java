@@ -27,7 +27,7 @@ public class DisplaySerializeTest {
     public void serializeToJsonObjectTest() throws JsonProcessingException, JSONException {
         Media icon = new Media();
         icon.setUrl("/url/to/resource");
-        icon.setType(Media.Type.IMAGE);
+        icon.setType(MediaType.IMAGE);
         icon.setWidth(100);
         icon.setHeight(200);
         icon.setDepth(2);
@@ -36,7 +36,7 @@ public class DisplaySerializeTest {
 
         Media thumbnails = new Media();
         thumbnails.setUrl("/url/to/resource2");
-        thumbnails.setType(Media.Type.IMAGE);
+        thumbnails.setType(MediaType.IMAGE);
         thumbnails.setWidth(200);
         thumbnails.setHeight(300);
         thumbnails.setDepth(4);
@@ -46,7 +46,7 @@ public class DisplaySerializeTest {
 
         Media splash = new Media();
         splash.setUrl("/url/to/resource3");
-        splash.setType(Media.Type.IMAGE);
+        splash.setType(MediaType.IMAGE);
         splash.setWidth(200);
         splash.setHeight(300);
         splash.setDepth(4);

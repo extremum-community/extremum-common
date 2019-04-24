@@ -2,9 +2,8 @@ package common.dao;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import common.config.AppConfiguration;
+import config.AppConfiguration;
 import models.TestModel;
-import org.apache.commons.lang.math.RandomUtils;
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -23,18 +23,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.extremum.common.models.AbstractCommonModel.FIELDS.created;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = AppConfiguration.class)
 public class MongoCommonDaoTest {
-
     @Autowired
     private TestModelDao dao;
 
@@ -183,14 +178,14 @@ public class MongoCommonDaoTest {
         int initCount = dao.listAll().size();
         int modelsToCreate = 10;
 
-        for(int i = 0; i < modelsToCreate; i++) {
+        for (int i = 0; i < modelsToCreate; i++) {
             dao.create(getTestModel());
         }
         int count = dao.listAll().size();
         assertEquals(initCount + modelsToCreate, count);
 
         initCount = count;
-        for(int i = 0; i < modelsToCreate; i++) {
+        for (int i = 0; i < modelsToCreate; i++) {
             dao.create(getDeletedTestModel());
         }
         count = dao.listAll().size();
@@ -209,7 +204,7 @@ public class MongoCommonDaoTest {
         ZonedDateTime createTime = ZonedDateTime.now();
         List<ObjectId> createdIds = new ArrayList<>();
 
-        for(int i = 0; i < modelsToCreate; i++) {
+        for (int i = 0; i < modelsToCreate; i++) {
             TestModel testModel = getTestModel();
             testModel.setCreated(createTime);
             dao.create(testModel);

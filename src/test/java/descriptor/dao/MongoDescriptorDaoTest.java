@@ -7,6 +7,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.IntegerOrString;
 import com.extremum.common.stucts.Media;
+import com.extremum.common.stucts.MediaType;
 import com.extremum.common.stucts.MultilingualObject;
 import org.bson.types.ObjectId;
 import org.codehaus.jettison.json.JSONException;
@@ -21,11 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
@@ -33,7 +30,6 @@ import static org.junit.Assert.assertTrue;
 public class MongoDescriptorDaoTest {
     @Autowired
     private DescriptorDao descriptorDao;
-
     @Autowired
     private Datastore descriptorsStore;
 
@@ -150,12 +146,11 @@ public class MongoDescriptorDaoTest {
     public void testSaveDisplayFieldAsSerializedString() throws JSONException {
         Media iconObj = new Media();
         iconObj.setUrl("/url/to/resource");
-        iconObj.setType(Media.Type.IMAGE);
+        iconObj.setType(MediaType.IMAGE);
         iconObj.setWidth(100);
         iconObj.setHeight(200);
         iconObj.setDepth(2);
         iconObj.setDuration(new IntegerOrString(20));
-
 
         Display displayObj = new Display(
                 new MultilingualObject("aaa"),
@@ -187,7 +182,7 @@ public class MongoDescriptorDaoTest {
         assertNotNull(icon);
 
         assertEquals("/url/to/resource", icon.getUrl());
-        assertEquals(Media.Type.IMAGE, icon.getType());
+        assertEquals(MediaType.IMAGE, icon.getType());
         assertEquals(100, (int) icon.getWidth());
         assertEquals(200, (int) icon.getHeight());
         assertEquals(2, (int) icon.getDepth());
@@ -199,7 +194,7 @@ public class MongoDescriptorDaoTest {
         assertNotNull(splash);
 
         assertEquals("/url/to/resource", splash.getUrl());
-        assertEquals(Media.Type.IMAGE, splash.getType());
+        assertEquals(MediaType.IMAGE, splash.getType());
         assertEquals(100, (int) splash.getWidth());
         assertEquals(200, (int) splash.getHeight());
         assertEquals(2, (int) splash.getDepth());

@@ -15,7 +15,7 @@ public class Display implements Serializable {
     private Type type;
 
     @JsonProperty("stringValue")
-    public String stringValue;
+    private String stringValue;
 
     @JsonProperty("caption")
     private MultilingualObject caption;
