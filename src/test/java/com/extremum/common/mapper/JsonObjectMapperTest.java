@@ -1,14 +1,13 @@
 package com.extremum.common.mapper;
 
+import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author rpuch
@@ -33,7 +32,24 @@ public class JsonObjectMapperTest {
 
     @Test
     public void whenDescriptorIsDeserializedFromAString_thenDescriptorObjectShouldBeTheResult() throws Exception {
-        Descriptor result = mapper.reader(Descriptor.class).readValue("\"external-id\"");
+        Descriptor result = mapper.readerFor(Descriptor.class).readValue("\"external-id\"");
+        assertThat(result.getExternalId(), is("external-id"));
+    }
+
+    @Test
+    public void whenCollectionDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
+        CollectionDescriptor descriptor = new CollectionDescriptor("external-id");
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, descriptor);
+
+        assertThat(writer.toString(), is("\"external-id\""));
+    }
+
+    @Test
+    public void whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
+            throws Exception {
+        CollectionDescriptor result = mapper.readerFor(CollectionDescriptor.class).readValue("\"external-id\"");
         assertThat(result.getExternalId(), is("external-id"));
     }
 }

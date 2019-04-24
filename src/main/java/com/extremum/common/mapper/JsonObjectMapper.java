@@ -1,6 +1,8 @@
 package com.extremum.common.mapper;
 
+import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.serde.CollectionDescriptorDeserializer;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
 import com.extremum.common.deserializers.DisplayDeserializer;
 import com.extremum.common.deserializers.DurationVariativeValueDeserializer;
@@ -56,6 +58,9 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         if (!descriptorTransfigurationDisabled) {
             module.addSerializer(Descriptor.class, new ToStringSerializer());
             module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
+
+            module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
+            module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer());
         }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
