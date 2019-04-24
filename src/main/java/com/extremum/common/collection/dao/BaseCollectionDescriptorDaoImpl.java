@@ -15,13 +15,13 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
     private static final long DEFAULT_IDLE_TIME_DAYS = 30;
 
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
-            String descriptorsMapName, String internalIdsMapName) {
-        this(redissonClient, mongoDatastore, descriptorsMapName, internalIdsMapName,
+            String descriptorsMapName, String coordinatesMapName) {
+        this(redissonClient, mongoDatastore, descriptorsMapName, coordinatesMapName,
                 DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
     }
 
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
-            String descriptorsMapName, String internalIdsMapName, int cacheSize, long idleTime) {
+            String descriptorsMapName, String coordinatesMapName, int cacheSize, long idleTime) {
         super(mongoDatastore,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
@@ -33,7 +33,7 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                                 .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
                 redissonClient.getLocalCachedMap(
-                        internalIdsMapName,
+                        coordinatesMapName,
                         LocalCachedMapOptions
                                 .<String, String>defaults()
                                 .loader(descriptorCoordinatesMapLoader(mongoDatastore))
