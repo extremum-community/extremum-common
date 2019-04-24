@@ -22,11 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
@@ -34,7 +30,6 @@ import static org.junit.Assert.assertTrue;
 public class MongoDescriptorDaoTest {
     @Autowired
     private DescriptorDao descriptorDao;
-
     @Autowired
     private Datastore descriptorsStore;
 

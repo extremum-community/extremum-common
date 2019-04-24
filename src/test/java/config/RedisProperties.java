@@ -1,4 +1,4 @@
-package common.config;
+package config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,11 +10,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties("mongo")
-public class MongoProperties {
+@ConfigurationProperties("redis")
+public class RedisProperties {
 
     private String uri;
 
-    private String dbName;
+    private int cacheSize;
 
+    private long idleTime;
 }

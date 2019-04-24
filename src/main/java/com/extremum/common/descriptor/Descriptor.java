@@ -184,7 +184,7 @@ public class Descriptor implements Serializable {
     public enum StorageType {
         MONGO("mongo"),
         ELASTIC("elastic"),
-        POSTGRE("postgre");
+        POSTGRES("postgres");
 
         private final String value;
 

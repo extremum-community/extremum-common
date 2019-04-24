@@ -1,4 +1,4 @@
-package descriptor.config;
+package config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,12 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties("redis")
-public class RedisProperties {
-
-    private String uri;
-
-    private int cacheSize;
-
-    private long idleTime;
+@ConfigurationProperties("descriptors")
+public class DescriptorsProperties {
+    private String descriptorsMapName;
+    private String internalIdsMapName;
 }
