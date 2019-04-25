@@ -3,7 +3,6 @@ package com.extremum.common.collection.conversion;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
-import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.dto.ResponseDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     @Override
-    public void applyCollectionMakeup(AbstractResponseDto dto) {
+    public void applyCollectionMakeup(ResponseDto dto) {
         if (dto.getId() == null) {
             return;
         }
@@ -34,7 +33,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                 .forEach(field -> applyMakeupToField(field, dto));
     }
 
-    private void applyMakeupToField(Field field, AbstractResponseDto dto) {
+    private void applyMakeupToField(Field field, ResponseDto dto) {
         Object value = getFieldValue(dto, field);
         if (value == null) {
             return;

@@ -1,6 +1,6 @@
 package com.extremum.common.collection.conversion;
 
-import com.extremum.common.dto.AbstractResponseDto;
+import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.response.Response;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -38,10 +38,10 @@ public class ResponseCollectionsMakeupAdvice implements ResponseBodyAdvice<Respo
         if (response == null) {
             return;
         }
-        if (!(response.getResult() instanceof AbstractResponseDto)) {
+        if (!(response.getResult() instanceof ResponseDto)) {
             return;
         }
 
-        makeup.applyCollectionMakeup((AbstractResponseDto) response.getResult());
+        makeup.applyCollectionMakeup((ResponseDto) response.getResult());
     }
 }
