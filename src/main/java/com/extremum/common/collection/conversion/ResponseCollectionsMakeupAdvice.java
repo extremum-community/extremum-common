@@ -35,10 +35,7 @@ public class ResponseCollectionsMakeupAdvice implements ResponseBodyAdvice<Respo
     }
 
     private void applyIfNeeded(Response response) {
-        if (response == null) {
-            return;
-        }
-        if (!(response.getResult() instanceof ResponseDto)) {
+        if (response == null || !(response.getResult() instanceof ResponseDto)) {
             return;
         }
 
