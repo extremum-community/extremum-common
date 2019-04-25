@@ -17,6 +17,12 @@
           <param name="userSettingsSelection" value="settings.xml" />
         </parameters>
       </runner>
+      <runner id="RUNNER_2" name="Docker init" type="DockerCompose">
+        <parameters>
+          <param name="dockerCompose.file" value="teamcity-services.yml" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
     </build-runners>
     <vcs-settings>
       <vcs-entry-ref root-id="ExtremumCommon_HttpsGithubComSmekalkaExtremumCommonGitRefsHeadsDevelop" />
