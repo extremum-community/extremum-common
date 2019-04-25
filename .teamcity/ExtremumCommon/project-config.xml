@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="a121d354-5eca-4c84-bbb9-4e65430a2b72" xsi:noNamespaceSchemaLocation="http://www.jetbrains.com/teamcity/schemas/2018.1/project-config.xsd">
+  <name>Extremum Common</name>
+  <parameters />
+  <project-extensions>
+    <extension id="PROJECT_EXT_4" type="OAuthProvider">
+      <parameters>
+        <param name="displayName" value="Docker Registry" />
+        <param name="providerType" value="Docker" />
+        <param name="repositoryUrl" value="https://docker.io" />
+        <param name="secure:userPass" value="credentialsJSON:89813381-91a8-41d7-bab4-b10118065653" />
+        <param name="userName" value="vov4a" />
+      </parameters>
+    </extension>
+    <extension id="PROJECT_EXT_5" type="storage_settings">
+      <parameters>
+        <param name="aws.access.key.id" value="AKIATWAKINWJPT26KWU4" />
+        <param name="aws.credentials.type" value="aws.access.keys" />
+        <param name="aws.external.id" value="TeamCity-server-2abee31d-c384-4bdc-b510-1bb627efabae" />
+        <param name="aws.region.name" value="eu-central-1" />
+        <param name="secure:aws.secret.access.key" value="credentialsJSON:c75660e6-d2a3-4c7b-8141-b08208d836be" />
+        <param name="storage.name" value="Cybernation build storage" />
+        <param name="storage.s3.bucket.name" value="cybernation-services-builds" />
+        <param name="storage.s3.upload.presignedUrl.enabled" value="true" />
+        <param name="storage.type" value="S3_storage" />
+      </parameters>
+    </extension>
+    <extension id="PROJECT_EXT_6" type="active_storage">
+      <parameters>
+        <param name="active.storage.feature.id" value="PROJECT_EXT_5" />
+      </parameters>
+    </extension>
+    <extension id="PROJECT_EXT_8" type="versionedSettings">
+      <parameters>
+        <param name="buildSettings" value="ALWAYS_USE_CURRENT" />
+        <param name="credentialsStorageType" value="credentialsJSON" />
+        <param name="enabled" value="true" />
+        <param name="rootId" value="ExtremumCommon_HttpsGithubComSmekalkaExtremumCommonGitRefsHeadsDevelop" />
+        <param name="showChanges" value="false" />
+      </parameters>
+    </extension>
+  </project-extensions>
+  <cleanup />
+</project>
+
