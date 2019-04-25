@@ -4,6 +4,7 @@ import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
@@ -17,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.mongodb.morphia.Datastore;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.Codec;
+import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
@@ -53,10 +56,8 @@ public class CommonConfiguration {
         } catch (IOException e) {
             config = new Config();
         }
-        TypedJsonJacksonCodec codec = new TypedJsonJacksonCodec((Class<?>) null,
-                JsonObjectMapper.createdWithoutDescriptorTransfiguration());
 
-        config.setCodec(codec);
+        config.setCodec(new JsonJacksonCodec(JsonObjectMapper.createdWithoutDescriptorTransfiguration()));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
@@ -82,11 +83,12 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+        Codec codec = new TypedJsonJacksonCodec(Descriptor.class, Descriptor.class, JsonObjectMapper.createdWithoutDescriptorTransfiguration());
         if (noRedis()) {
-            return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName());
+            return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
         } else {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
-                    descriptorsProperties.getInternalIdsMapName(), redisProperties.getCacheSize(), redisProperties.getIdleTime());
+                    descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(), redisProperties.getIdleTime());
         }
     }
 
