@@ -4,10 +4,11 @@ import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
-import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
-import com.extremum.starter.properties.MongoProperties;
+import config.AppConfiguration;
+import config.DescriptorsProperties;
+import config.RedisProperties;
 import org.mongodb.morphia.Datastore;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -16,29 +17,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Import;
+import org.testcontainers.containers.GenericContainer;
 
 
 @Configuration
-@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, DescriptorsProperties.class})
+@Import(AppConfiguration.class)
+@EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class})
 public class DescriptorConfiguration {
-
     @Autowired
     private RedisProperties redisProps;
-    @Autowired
-    private MongoProperties mongoProps;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
 
     @Bean
+    @DependsOn("redisContainer")
     public RedissonClient redissonClient() {
         Config config =  new Config();
         config.useSingleServer().setAddress(redisProps.getUri());
         return Redisson.create(config);
     }
 
-    @Bean
-    public Datastore descriptorsStore() {
-        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProps);
+    @Bean(name="redisContainer")
+    public GenericContainer redisContainer() {
+        GenericContainer redis = new GenericContainer("redis:5.0.4").withExposedPorts(6379);
+        redis.start();
+        redisProps.setUri("redis://" + redis.getContainerIpAddress() + ":" + redis.getFirstMappedPort());
+        return redis;
     }
 
     @Bean

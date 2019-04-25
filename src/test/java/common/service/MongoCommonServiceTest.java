@@ -33,7 +33,7 @@ public class MongoCommonServiceTest {
     {
         Mockito.when(dao.getEntityClass()).thenReturn(TestModel.class);
     }
-    private MongoCommonService<TestModel> service = new MongoCommonServiceImpl(dao);
+    private MongoCommonService<TestModel> service = new MongoCommonServiceImpl<>(dao);
 
     @Test
     public void testGet() {

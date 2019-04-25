@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 public class PostgresqlDescriptorFactory extends UUIDDescriptorFactory {
     @Override
     Descriptor.StorageType storageType() {
-        return Descriptor.StorageType.POSTGRE;
+        return Descriptor.StorageType.POSTGRES;
     }
 }
