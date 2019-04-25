@@ -39,6 +39,15 @@
         <param name="showChanges" value="false" />
       </parameters>
     </extension>
+    <extension id="PROJECT_EXT_9" type="OAuthProvider">
+      <parameters>
+        <param name="displayName" value="Docker Registry" />
+        <param name="providerType" value="Docker" />
+        <param name="repositoryUrl" value="https://docker.io" />
+        <param name="secure:userPass" value="credentialsJSON:89813381-91a8-41d7-bab4-b10118065653" />
+        <param name="userName" value="vov4a" />
+      </parameters>
+    </extension>
   </project-extensions>
   <cleanup />
 </project>
