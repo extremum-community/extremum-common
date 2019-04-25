@@ -16,8 +16,12 @@ public class CollectionReference<T> {
     private List<T> top;
 
     public CollectionReference(List<T> list) {
-        this.count = list.size();
-        this.top = list;
+        this(list, list.size());
+    }
+
+    public CollectionReference(List<T> top, int count) {
+        this.count = count;
+        this.top = top;
     }
 
     public void setDescriptor(CollectionDescriptor descriptor) {
