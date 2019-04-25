@@ -35,7 +35,6 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
                 redissonClient.getLocalCachedMap(
                         internalIdsMapName,
-                        codec,
                         LocalCachedMapOptions
                                 .<String, String>defaults()
                                 .loader(descriptorInternalIdMapLoader(mongoDatastore))
