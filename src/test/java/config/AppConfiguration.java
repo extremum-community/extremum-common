@@ -1,11 +1,9 @@
 package config;
 
-import com.extremum.common.converters.MongoZonedDateTimeConverter;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
+import com.extremum.starter.properties.MongoProperties;
 import common.dao.TestModelDao;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -23,15 +21,7 @@ public class AppConfiguration {
     @Bean
     @DependsOn("mongoContainer")
     public Datastore datastore() {
-        Morphia morphia = new Morphia();
-        morphia.getMapper().getConverters().addConverter(MongoZonedDateTimeConverter.class);
-        MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
-        MongoClient mongoClient = new MongoClient(databaseUri);
-        Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());
-
-        datastore.ensureIndexes();
-
-        return datastore;
+        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProps);
     }
 
     @Bean
