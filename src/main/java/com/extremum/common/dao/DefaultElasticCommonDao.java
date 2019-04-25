@@ -13,6 +13,10 @@ import com.extremum.starter.properties.ElasticProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.elasticsearch.action.get.GetRequest;
@@ -52,6 +56,8 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
 public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
+    private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted; ctx._source.modified = params.modified";
+
     private RestClientBuilder restClientBuilder;
     private ElasticDescriptorFactory elasticDescriptorFactory;
 
@@ -78,10 +84,17 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
             List<HttpHost> httpHosts = elasticProps.getHosts().stream()
                     .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
                     .collect(Collectors.toList());
-            this.restClientBuilder = RestClient
-                    .builder(httpHosts.toArray(new HttpHost[]{}))
-//                    .setHttpClientConfigCallback()
-            ;
+
+            this.restClientBuilder = RestClient.builder(httpHosts.toArray(new HttpHost[]{}));
+
+            if (elasticProps.getUsername() != null && elasticProps.getPassword() != null) {
+                CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY,
+                        new UsernamePasswordCredentials(elasticProps.getUsername(), elasticProps.getPassword()));
+
+                this.restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
+                        httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            }
         }
     }
 
@@ -95,14 +108,11 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                 model.setModified(model.getCreated());
             }
 
-            long newVersion = model.incrementAndGetVersion();
-
             JSONObject json = new JSONObject(model.getRawDocument());
 
             json.put(FIELDS.id.name(), model.getId());
             json.put(FIELDS.created.name(), DateUtils.formatZonedDateTimeISO_8601(model.getCreated()));
             json.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(model.getModified()));
-            json.put(FIELDS.version.name(), newVersion);
             json.put(FIELDS.deleted.name(), model.getDeleted());
 
             model.setRawDocument(json.toString());
@@ -114,13 +124,13 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         }
     }
 
-    public List<ElasticData> search(String simpleQueryStringQuery) {
+    public List<ElasticData> search(String queryString) {
         final SearchRequest request = new SearchRequest(indexName);
 
         request.source(
                 new SearchSourceBuilder()
                         .query(
-                                QueryBuilders.simpleQueryStringQuery(simpleQueryStringQuery)));
+                                QueryBuilders.queryStringQuery(queryString)));
 
         try (RestHighLevelClient client = getClient()) {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
@@ -146,12 +156,12 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
 
                 return foundData;
             } else {
-                log.error("Unable to perform search by query {}: {}", simpleQueryStringQuery, response.status());
-                throw new RuntimeException("Nothing found by query " + simpleQueryStringQuery);
+                log.error("Unable to perform search by query {}: {}", queryString, response.status());
+                throw new RuntimeException("Nothing found by query " + queryString);
             }
         } catch (IOException e) {
-            log.error("Unable to search by query {}", simpleQueryStringQuery, e);
-            throw new RuntimeException("Unable to search by query " + simpleQueryStringQuery, e);
+            log.error("Unable to search by query {}", queryString, e);
+            throw new RuntimeException("Unable to search by query " + queryString, e);
         }
     }
 
@@ -292,8 +302,9 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         final ElasticData updatedModel = updateServiceFields(model);
 
         try (RestHighLevelClient client = getClient()) {
-            final IndexRequest request = new IndexRequest(indexName, indexType,
-                    updatedModel.getId());
+            final IndexRequest request = new IndexRequest();
+            request.index(indexName);
+            request.id(model.getId());
 
             request.source(updatedModel.getRawDocument(), XContentType.JSON);
 
@@ -325,29 +336,34 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
 
     @Override
     public boolean remove(String id) {
-        try (RestHighLevelClient client = getClient()) {
-            final UpdateRequest request = new UpdateRequest(indexName, indexType, id);
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put(FIELDS.deleted.name(), Boolean.TRUE);
-            parameters.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put(FIELDS.deleted.name(), Boolean.TRUE);
+        parameters.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
 
-            request.script(
-                    new Script(ScriptType.INLINE, "painless",
-                            "ctx._source.deleted = params.deleted;" +
-                                    "ctx._source.modified = params.modified",
-                            parameters));
+        return patch(id, DELETE_DOCUMENT_PAINLESS_SCRIPT, parameters);
+    }
 
+    public boolean patch(String id, String painlessQuery) {
+        return patch(id, painlessQuery, null);
+    }
+
+    public boolean patch(String id, String painlessScript, Map<String, Object> params) {
+        final UpdateRequest request = new UpdateRequest(indexName, id);
+
+        request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
+
+        try (final RestHighLevelClient client = getClient()) {
             final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
 
             if (SC_OK == response.status().getStatus()) {
                 return true;
             } else {
-                log.warn("Document {} is not deleted, status {}", id, response.status());
+                log.warn("Document {} is not patched, status {}", id, response.status());
                 return false;
             }
         } catch (IOException e) {
-            log.error("Unable to remove document {}", id, e);
-            throw new RuntimeException("Unable to remove document " + id, e);
+            log.error("Unable to patch document {}", id, e);
+            throw new RuntimeException("Unable to patch document " + id, e);
         }
     }
 }

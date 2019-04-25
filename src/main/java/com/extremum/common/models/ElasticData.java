@@ -32,9 +32,4 @@ public class ElasticData extends ElasticCommonModel {
     public String getModelName() {
         return modelName;
     }
-
-    public synchronized long incrementAndGetVersion() {
-        version++;
-        return version;
-    }
 }

@@ -15,14 +15,16 @@ import java.util.List;
 @ConfigurationProperties("elastic")
 public class ElasticProperties {
     private List<ElasticProperties.Host> hosts;
+    private String username;
+    private String password;
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Host {
-        public String host;
-        public int port;
-        public String protocol;
+        private String host;
+        private int port;
+        private String protocol;
     }
 }
