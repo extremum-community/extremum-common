@@ -33,6 +33,7 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
+
                 redissonClient.getLocalCachedMap(
                         internalIdsMapName,
                         LocalCachedMapOptions

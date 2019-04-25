@@ -25,9 +25,16 @@ public class ElasticData extends ElasticCommonModel {
     private Long version;
     private Boolean deleted;
     private String modelName;
+    private Long seqNo;
+    private Long primaryTerm;
 
     @Override
     public String getModelName() {
         return modelName;
+    }
+
+    public synchronized long incrementAndGetVersion() {
+        version++;
+        return version;
     }
 }

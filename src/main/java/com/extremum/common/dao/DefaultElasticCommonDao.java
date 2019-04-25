@@ -1,6 +1,5 @@
 package com.extremum.common.dao;
 
-import com.extremum.common.cofnig.ElasticDaoConfig;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.ElasticDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
@@ -8,76 +7,105 @@ import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.ElasticData;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
+import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
+import com.extremum.starter.properties.ElasticProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
+import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_OK;
+
 @Slf4j
 public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
+    private RestClientBuilder restClientBuilder;
     private ElasticDescriptorFactory elasticDescriptorFactory;
 
-    private int taken = 0x0;
-    private ElasticDaoConfig daoConfig;
+    private ElasticProperties elasticProps;
+    private String indexName;
+    private String indexType;
 
-    public DefaultElasticCommonDao(ElasticDaoConfig config, ElasticDescriptorFactory descriptorFactory) {
-        daoConfig = config;
+    public DefaultElasticCommonDao(ElasticProperties elasticProperties, ElasticDescriptorFactory descriptorFactory,
+                                   String indexName, String indexType) {
+        this.elasticProps = elasticProperties;
         this.elasticDescriptorFactory = descriptorFactory;
+        this.indexName = indexName;
+        this.indexType = indexType;
+
+        initRest();
+    }
+
+    protected void initRest() {
+        if (CollectionUtils.isNullOrEmpty(elasticProps.getHosts())) {
+            log.error("Unable to configure {} because list of hosts is empty", RestClientBuilder.class.getName());
+            throw new RuntimeException("Unable to configure " + RestClientBuilder.class.getName() +
+                    " because list of hosts is empty");
+        } else {
+            List<HttpHost> httpHosts = elasticProps.getHosts().stream()
+                    .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
+                    .collect(Collectors.toList());
+            this.restClientBuilder = RestClient
+                    .builder(httpHosts.toArray(new HttpHost[]{}))
+//                    .setHttpClientConfigCallback()
+            ;
+        }
+    }
+
+    private RestHighLevelClient getClient() {
+        return new RestHighLevelClient(restClientBuilder);
     }
 
     private synchronized ElasticData updateServiceFields(ElasticData model) {
         try {
-            ZonedDateTime now = ZonedDateTime.now();
-
-            JSONObject newObject = new JSONObject(model.getRawDocument());
-
-            newObject.put(FIELDS.id.name(), model.getId());
-
-            if (!newObject.has(FIELDS.created.name())) {
-                model.setCreated(now);
-                newObject.put(FIELDS.created.name(), DateUtils.convert(now));
+            if (model.getModified() == null) {
+                model.setModified(model.getCreated());
             }
 
-            newObject.put(FIELDS.modified.name(), DateUtils.convert(now));
-            model.setModified(now);
+            long newVersion = model.incrementAndGetVersion();
 
+            JSONObject json = new JSONObject(model.getRawDocument());
 
-            long oldVersion = 0;
-            if (newObject.has(FIELDS.version.name())) {
-                oldVersion = newObject.getLong(FIELDS.version.name());
-            }
-            long newVersion = oldVersion + 1;
-            newObject.put(FIELDS.version.name(), newVersion);
-            model.setVersion(newVersion);
+            json.put(FIELDS.id.name(), model.getId());
+            json.put(FIELDS.created.name(), DateUtils.formatZonedDateTimeISO_8601(model.getCreated()));
+            json.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(model.getModified()));
+            json.put(FIELDS.version.name(), newVersion);
+            json.put(FIELDS.deleted.name(), model.getDeleted());
 
-            if (!newObject.has(FIELDS.deleted.name())) {
-                newObject.put(FIELDS.deleted.name(), Boolean.FALSE);
-                model.setDeleted(false);
-            }
-
-            model.setRawDocument(newObject.toString());
+            model.setRawDocument(json.toString());
 
             return model;
         } catch (JSONException e) {
@@ -86,91 +114,45 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         }
     }
 
-    public List<ElasticData> search(String filter, String path, String query) {
-        String currentElastic = nextUrl();
-        String url = currentElastic + "/" + daoConfig.getEndpoint() + "/" +
-                daoConfig.getSearchPrefix() + daoConfig.getScrollSize() + "&scroll=" + daoConfig.getScrollKeepAlive();
+    public List<ElasticData> search(String simpleQueryStringQuery) {
+        final SearchRequest request = new SearchRequest(indexName);
 
-        log.debug("Search with filter {} using path {} and query {}. Full URL is {}", filter, path, query, url);
+        request.source(
+                new SearchSourceBuilder()
+                        .query(
+                                QueryBuilders.simpleQueryStringQuery(simpleQueryStringQuery)));
 
-        HttpRequestBase request = buildQuery(filter, path, query)
-                .map(q -> {
-                    HttpEntity queryEntity = new StringEntity(q, ContentType.APPLICATION_JSON);
-                    HttpPost post = new HttpPost(url);
-                    post.setEntity(queryEntity);
-                    return (HttpRequestBase) post;
-                })
-                .orElseGet(() -> new HttpGet(url));
+        try (RestHighLevelClient client = getClient()) {
+            SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
-        String response = null;
-        int maxRetries = daoConfig.getMaxRetries();
+            if (HttpStatus.SC_OK == response.status().getStatus()) {
+                List<ElasticData> foundData = new ArrayList<>();
+                for (SearchHit hit : response.getHits()) {
+                    Descriptor descriptor = DescriptorService.loadByInternalId(hit.getId()).get();
 
-        while (response == null) {
-            try {
-                HttpResponse httpResponse = daoConfig.getClient().execute(request);
-                response = EntityUtils.toString(httpResponse.getEntity());
+                    ElasticData.ElasticDataBuilder builder = ElasticData.builder()
+                            .id(hit.getId())
+                            .uuid(descriptor)
+                            .modelName(descriptor.getModelType())
+                            .rawDocument(hit.getSourceAsString())
+                            .seqNo(hit.getSeqNo())
+                            .primaryTerm(hit.getPrimaryTerm())
+                            .version(hit.getVersion());
 
-                if (isBadGateway(response)) {
-                    log.error("Got bad gateway on initial request");
-                    if (maxRetries-- > 0) {
-                        response = null;
-                    } else {
-                        throw new RuntimeException("Elastic not behaving: " + response);
-                    }
+                    populateElasticDataBuilderFromSourceMap(hit.getSourceAsMap(), builder);
+
+                    foundData.add(builder.build());
                 }
-            } catch (IOException e) {
-                //ignore
-            } finally {
-                request.releaseConnection();
+
+                return foundData;
+            } else {
+                log.error("Unable to perform search by query {}: {}", simpleQueryStringQuery, response.status());
+                throw new RuntimeException("Nothing found by query " + simpleQueryStringQuery);
             }
+        } catch (IOException e) {
+            log.error("Unable to search by query {}", simpleQueryStringQuery, e);
+            throw new RuntimeException("Unable to search by query " + simpleQueryStringQuery, e);
         }
-
-        try {
-            JSONObject responseJson = new JSONObject(response);
-            if (this.hitsAreEmpty(responseJson)) {
-                log.info("No hits found for " + daoConfig.getEndpoint() + "/" + daoConfig.getSearchPrefix() +
-                        daoConfig.getScrollSize() + "&scroll=" + daoConfig.getScrollKeepAlive());
-                return null;
-            }
-            JSONArray hits = responseJson.getJSONObject("hits").getJSONArray("hits");
-
-            List<ElasticData> result = new ArrayList<>();
-
-            for (int i = 0x0; i < hits.length(); i++) {
-                ElasticData data = getElasticDataFromRawDocument(hits.getJSONObject(i).toString());
-                result.add(data);
-            }
-
-            return result;
-        } catch (JSONException e) {
-            throw new RuntimeException("Error parsing json : " + response);
-        }
-    }
-
-    private boolean isBadGateway(String response) {
-        return response.startsWith("<html>") && response.contains("Bad Gateway");
-    }
-
-    private boolean hitsAreEmpty(JSONObject scrollJson) throws JSONException {
-        return !scrollJson.has("hits") || scrollJson.getJSONObject("hits").getJSONArray("hits").length() == 0;
-    }
-
-    private synchronized String nextUrl() {
-        int nextUrlIdx = taken++ % daoConfig.getElasticUrlList().size();
-        if (taken > Integer.MAX_VALUE - 1) {
-            taken = 0;
-        }
-        String nextUrl = daoConfig.getElasticUrlList().get(nextUrlIdx);
-
-        String selected = nextUrl != null ? nextUrl : daoConfig.getElasticUrlList().get(0);
-
-        log.debug("Next URL selected {}", selected);
-
-        return selected;
-    }
-
-    private Optional<String> buildQuery(String filter, String path, String query) {
-        return query == null ? Optional.empty() : Optional.of(String.format(filter, query));
     }
 
     @Override
@@ -182,76 +164,59 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
 
     @Override
     public ElasticData findById(String id) {
-        String uri = buildUrl(id);
+        try (RestHighLevelClient client = getClient()) {
+            GetResponse response = client.get(
+                    new GetRequest(indexName, id),
+                    RequestOptions.DEFAULT
+            );
 
-        log.debug("Get model {} with id {}", daoConfig.getEndpoint(), id);
+            if (response.isExists()) {
+                Map<String, Object> sourceMap = response.getSourceAsMap();
 
-        HttpGet get = new HttpGet(uri);
-        try {
-            HttpResponse response = daoConfig.getClient().execute(get);
-            if (response != null && response.getStatusLine() != null) {
-                int statusCode = response.getStatusLine().getStatusCode();
-
-                if (statusCode == HttpStatus.SC_OK) {
-                    String entity = EntityUtils.toString(response.getEntity());
-
-                    return getElasticDataFromRawDocument(entity);
-                } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-                    throw new ModelNotFoundException(ElasticData.class, id);
+                if (sourceMap.getOrDefault(FIELDS.deleted.name(), Boolean.FALSE).equals(Boolean.TRUE)) {
+                    throw new ModelNotFoundException("Not found " + id);
                 } else {
-                    log.warn("Can't get data by id {}, response is {}", id, response);
-                    return null;
+                    Descriptor descriptor = elasticDescriptorFactory.fromInternalId(response.getId());
+
+                    ElasticData.ElasticDataBuilder builder = ElasticData.builder()
+                            .id(response.getId())
+                            .uuid(descriptor)
+                            .modelName(descriptor.getModelType())
+                            .version(response.getVersion())
+                            .rawDocument(response.getSourceAsString())
+                            .seqNo(response.getSeqNo())
+                            .primaryTerm(response.getPrimaryTerm());
+
+
+                    populateElasticDataBuilderFromSourceMap(sourceMap, builder);
+
+                    return builder.build();
                 }
+            } else {
+                throw new ModelNotFoundException("Not found " + id);
             }
         } catch (IOException e) {
-            log.error("Can't get a model with id {} from endpoint {}", id, daoConfig.getEndpoint(), e);
-            throw new RuntimeException(e);
-        } finally {
-            get.releaseConnection();
+            log.error("Unable to get data by id {} from index {} with type {}",
+                    id, indexName, indexType, e);
+            throw new RuntimeException("Unable to get data by id " + id +
+                    " from index " + indexName +
+                    " with type " + indexType,
+                    e);
         }
-
-        return null;
     }
 
-    private List<ElasticData> getElasticDataFromRawDocuments(List<String> rawDocuments) throws JSONException {
-        return rawDocuments.stream().map(this::getElasticDataFromRawDocument).collect(Collectors.toList());
-    }
+    private void populateElasticDataBuilderFromSourceMap(Map<String, Object> sourceMap, ElasticData.ElasticDataBuilder builder) {
+        ofNullable(sourceMap.get(FIELDS.created.name()))
+                .map(d -> DateUtils.parseZonedDateTime((String) d, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
+                .ifPresent(builder::created);
 
-    private ElasticData getElasticDataFromRawDocument(String rawDocument) {
-        try {
-            JSONObject json = new JSONObject(rawDocument);
-            JSONObject result = json.getJSONObject("_source");
+        ofNullable(sourceMap.get(FIELDS.modified.name()))
+                .map(d -> DateUtils.parseZonedDateTime((String) d, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
+                .ifPresent(builder::modified);
 
-            ElasticData.ElasticDataBuilder builder = ElasticData.builder();
-
-            if (json.has("_" + FIELDS.version.name())) {
-                long version = json.getLong("_" + FIELDS.version.name());
-                result.put(FIELDS.version.name(), version);
-                builder.version(version);
-            }
-
-            String foundDocument = result.toString();
-            builder.rawDocument(foundDocument);
-
-            String internalId = result.getString(FIELDS.id.name());
-            builder.id(internalId);
-            builder.uuid(DescriptorService.loadByInternalId(internalId).get());
-
-            if (result.has(FIELDS.created.name())) {
-                String rawCreated = result.getString(FIELDS.created.name());
-                builder.created(DateUtils.parseZonedDateTime(rawCreated, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER));
-            }
-
-            if (result.has(FIELDS.modified.name())) {
-                String rawModified = result.getString(FIELDS.modified.name());
-                builder.modified(DateUtils.parseZonedDateTime(rawModified, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER));
-            }
-
-            return builder.build();
-        } catch (JSONException e) {
-            log.error("Unable to transform raw document to ElasticData", e);
-            throw new RuntimeException("Unable to transform raw document to ElasticData", e);
-        }
+        ofNullable(sourceMap.get(FIELDS.deleted.name()))
+                .map(Boolean.class::cast)
+                .ifPresent(builder::deleted);
     }
 
     @Override
@@ -262,118 +227,127 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
 
     @Override
     public boolean isExists(String id) {
-        String url = buildUrl(id);
-
-        log.debug("Checking existing id: " + id);
-
-        HttpHead head = new HttpHead(url);
-        String response = null;
-        int maxRetries = daoConfig.getMaxRetries();
-
-        try {
-            while (response == null) {
-                HttpResponse httpResponse = daoConfig.getClient().execute(head);
-
-                if (httpResponse.getEntity() != null) {
-                    response = EntityUtils.toString(httpResponse.getEntity());
-                    if (isBadGateway(response)) {
-                        log.error("Got bad gateway on initial request");
-                        if (maxRetries-- > 0) {
-                            response = null;
-                        } else {
-                            throw new RuntimeException("Elastic not behaving: " + response);
-                        }
-                    }
-                } else {
-                    return httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Elastic not behaving");
-        } finally {
-            head.releaseConnection();
+        if (isDocumentExists(id)) {
+            final ElasticData data = findById(id);
+            return !data.getDeleted();
+        } else {
+            return false;
         }
+    }
 
-        return true;
+    protected boolean isDocumentExists(String id) {
+        try (RestHighLevelClient client = getClient()) {
+            GetRequest getRequest = new GetRequest(indexName, id);
+            getRequest.fetchSourceContext(FetchSourceContext.DO_NOT_FETCH_SOURCE);
+            getRequest.storedFields("_none_");
+
+            GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
+            return response.isExists();
+        } catch (IOException e) {
+            log.error("Unable to check exists data by id {}", id, e);
+            throw new RuntimeException("Unable to check data exists by id " + id, e);
+        }
     }
 
     @Override
     public boolean isDeleted(String id) {
-        return findById(id).getDeleted();
+        try (RestHighLevelClient client = getClient()) {
+            GetRequest getRequest = new GetRequest(indexName, id);
+            getRequest.storedFields("_none_");
+            GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
+
+            if (response.isExists()) {
+                return (boolean) response.getSourceAsMap().getOrDefault(FIELDS.deleted.name(), Boolean.TRUE);
+            } else {
+                return true;
+            }
+        } catch (IOException e) {
+            log.error("Unable to check deleted data by id {}", id, e);
+            throw new RuntimeException("Unable to check deleted data by id " + id, e);
+        }
     }
 
     @Override
     public ElasticData create(ElasticData model) {
+        return persist(model);
+    }
+
+    public ElasticData persist(ElasticData model, Long seqNo, Long primaryTerm) {
         if (model.getId() == null) {
-            Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
-            Descriptor stored = DescriptorService.store(descriptor);
+            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
+            final Descriptor stored = DescriptorService.store(descriptor);
             model.setUuid(stored);
             model.setId(stored.getInternalId());
+            model.setCreated(ZonedDateTime.now());
+            model.setVersion(0L);
+            model.setDeleted(Boolean.FALSE);
+        } else {
+            if (isDeleted(model.getId())) {
+                throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
+            } else {
+                model.setModified(ZonedDateTime.now());
+            }
         }
 
-        return persist(model);
+        final ElasticData updatedModel = updateServiceFields(model);
+
+        try (RestHighLevelClient client = getClient()) {
+            final IndexRequest request = new IndexRequest(indexName, indexType,
+                    updatedModel.getId());
+
+            request.source(updatedModel.getRawDocument(), XContentType.JSON);
+
+            if (seqNo != null && primaryTerm != null) {
+                request.setIfSeqNo(seqNo);
+                request.setIfPrimaryTerm(primaryTerm);
+            }
+
+            final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+
+            if (asList(SC_OK, SC_CREATED).contains(response.status().getStatus())) {
+                model.setSeqNo(response.getSeqNo());
+                model.setPrimaryTerm(response.getPrimaryTerm());
+                return updatedModel;
+            } else {
+                log.error("Document don't be indexed, status {}", response.status());
+                throw new RuntimeException("Document don't be indexed");
+            }
+        } catch (IOException e) {
+            log.error("Unable to add data to index", e);
+            throw new RuntimeException("Unable to add data to index", e);
+        }
     }
 
     @Override
     public ElasticData persist(ElasticData model) {
-        log.debug("Persisting {}", model);
-
-        if (model.getId() == null) {
-            return create(model);
-        } else {
-            String externalId = model.getUuid().getExternalId();
-
-            String uri = buildUrl(model.getId());
-            if (model.getVersion() != null) {
-                uri += "?version=" + model.getVersion();
-            }
-
-            log.debug("Selected elastic uri {}", uri);
-
-            HttpPut httpPut = new HttpPut(uri);
-
-            ElasticData updateData = updateServiceFields(model);
-
-            try {
-                StringEntity entity = new StringEntity(updateData.getRawDocument());
-                httpPut.setEntity(entity);
-                httpPut.setHeader("Accept", "application/json");
-                httpPut.setHeader("Content-type", "application/json");
-
-                HttpResponse response = daoConfig.getClient().execute(httpPut);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CONFLICT) {
-                    log.error("Concurrent modification of model with id {} detected", externalId);
-                    throw new ConcurrentModificationException("Concurrent modification of model with id " + externalId);
-                }
-
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED &&
-                        response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    log.error("Unable to update elasticsearch entity, because response status is {}",
-                            response.getStatusLine());
-                    throw new RuntimeException("Unable to update elasticsearch entity '" + model.getId() + "'");
-                }
-
-                return updateData;
-            } catch (IOException e) {
-                log.error("Unable to update elasticsearch entity", e);
-                throw new RuntimeException("Unable to update elasticsearch entity '" + model.getId() + "'");
-            } finally {
-                httpPut.releaseConnection();
-            }
-        }
+        return persist(model, null, null);
     }
 
     @Override
     public boolean remove(String id) {
-        return false;
-    }
+        try (RestHighLevelClient client = getClient()) {
+            final UpdateRequest request = new UpdateRequest(indexName, indexType, id);
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put(FIELDS.deleted.name(), Boolean.TRUE);
+            parameters.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
 
-    private String buildUrl(String id) {
-        return String.join(
-                "/",
-                nextUrl(),
-                daoConfig.getEndpoint(),
-                id
-        );
+            request.script(
+                    new Script(ScriptType.INLINE, "painless",
+                            "ctx._source.deleted = params.deleted;" +
+                                    "ctx._source.modified = params.modified",
+                            parameters));
+
+            final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
+
+            if (SC_OK == response.status().getStatus()) {
+                return true;
+            } else {
+                log.warn("Document {} is not deleted, status {}", id, response.status());
+                return false;
+            }
+        } catch (IOException e) {
+            log.error("Unable to remove document {}", id, e);
+            throw new RuntimeException("Unable to remove document " + id, e);
+        }
     }
 }
