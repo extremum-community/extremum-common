@@ -5,6 +5,12 @@
   <settings>
     <parameters />
     <build-runners>
+      <runner id="RUNNER_2" name="Docker init" type="DockerCompose">
+        <parameters>
+          <param name="dockerCompose.file" value="teamcity-services.yml" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
       <runner id="RUNNER_1" name="" type="Maven2">
         <parameters>
           <param name="goals" value="clean test" />
@@ -15,12 +21,6 @@
           <param name="target.jdk.home" value="%env.JDK_18_x64%" />
           <param name="teamcity.step.mode" value="default" />
           <param name="userSettingsSelection" value="settings.xml" />
-        </parameters>
-      </runner>
-      <runner id="RUNNER_2" name="Docker init" type="DockerCompose">
-        <parameters>
-          <param name="dockerCompose.file" value="teamcity-services.yml" />
-          <param name="teamcity.step.mode" value="default" />
         </parameters>
       </runner>
     </build-runners>
