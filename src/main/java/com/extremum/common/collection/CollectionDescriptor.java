@@ -42,6 +42,14 @@ public final class CollectionDescriptor implements Serializable {
                 new CollectionCoordinates(new EmbeddedCoordinates(hostId, hostFieldName)));
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     @Override
     public String toString() {
         return externalId;
