@@ -3,15 +3,6 @@
   <name>Extremum Common</name>
   <parameters />
   <project-extensions>
-    <extension id="PROJECT_EXT_4" type="OAuthProvider">
-      <parameters>
-        <param name="displayName" value="Docker Registry" />
-        <param name="providerType" value="Docker" />
-        <param name="repositoryUrl" value="https://docker.io" />
-        <param name="secure:userPass" value="credentialsJSON:89813381-91a8-41d7-bab4-b10118065653" />
-        <param name="userName" value="vov4a" />
-      </parameters>
-    </extension>
     <extension id="PROJECT_EXT_5" type="storage_settings">
       <parameters>
         <param name="aws.access.key.id" value="AKIATWAKINWJPT26KWU4" />
