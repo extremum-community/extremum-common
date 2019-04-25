@@ -2,7 +2,6 @@ package com.extremum.common.collection;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,8 +12,8 @@ public class CollectionReference<T> {
     private CollectionDescriptor descriptor;
 
     private String uri;
-    private Integer count = 0;
-    private List<T> top = new ArrayList<>();
+    private Integer count;
+    private List<T> top;
 
     public CollectionReference(List<T> list) {
         this.count = list.size();
