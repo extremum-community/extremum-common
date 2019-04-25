@@ -4,14 +4,18 @@ import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
+import com.extremum.common.mapper.JsonObjectMapper;
 import config.AppConfiguration;
 import config.DescriptorsProperties;
 import config.RedisProperties;
 import org.mongodb.morphia.Datastore;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.Codec;
+import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -49,8 +53,9 @@ public class DescriptorConfiguration {
 
     @Bean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+        Codec codec=new TypedJsonJacksonCodec(Descriptor.class,Descriptor.class, JsonObjectMapper.createdWithoutDescriptorTransfiguration());
         return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
-                descriptorsProperties.getInternalIdsMapName(), redisProps.getCacheSize(), redisProps.getIdleTime());
+                descriptorsProperties.getInternalIdsMapName(),codec, redisProps.getCacheSize(), redisProps.getIdleTime());
     }
 
     @Bean
