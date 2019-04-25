@@ -7,7 +7,7 @@
     <build-runners>
       <runner id="RUNNER_1" name="" type="Maven2">
         <parameters>
-          <param name="goals" value="clean deploy -DskipTests" />
+          <param name="goals" value="clean test" />
           <param name="maven.path" value="%teamcity.tool.maven.DEFAULT%" />
           <param name="plugin.docker.imagePlatform" value="linux" />
           <param name="pomLocation" value="pom.xml" />
