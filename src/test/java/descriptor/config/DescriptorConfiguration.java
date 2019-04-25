@@ -4,12 +4,11 @@ import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.extremum.starter.properties.MongoProperties;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -39,15 +38,7 @@ public class DescriptorConfiguration {
 
     @Bean
     public Datastore descriptorsStore() {
-        Morphia morphia = new Morphia();
-        morphia.getMapper().getOptions().setStoreEmpties(true);
-        MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
-        MongoClient mongoClient = new MongoClient(databaseUri);
-        Datastore datastore = morphia.createDatastore(mongoClient, mongoProps.getDbName());
-
-        datastore.ensureIndexes();
-
-        return datastore;
+        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProps);
     }
 
     @Bean

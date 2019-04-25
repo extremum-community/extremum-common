@@ -4,6 +4,7 @@ import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
@@ -12,11 +13,8 @@ import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.TypedJsonJacksonCodec;
@@ -65,13 +63,7 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "mongo", value = {"uri", "dbName"})
     @ConditionalOnMissingBean
     public Datastore descriptorsStore() {
-        Morphia morphia = new Morphia();
-        morphia.getMapper().getOptions().setStoreEmpties(true);
-        MongoClientURI databaseUri = new MongoClientURI(mongoProperties.getUri());
-        MongoClient mongoClient = new MongoClient(databaseUri);
-        Datastore datastore = morphia.createDatastore(mongoClient, mongoProperties.getDbName());
-        datastore.ensureIndexes();
-        return datastore;
+        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProperties);
     }
 
     @Bean

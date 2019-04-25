@@ -1,10 +1,7 @@
 package com.extremum.common.collection;
 
-import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.serde.mongo.DescriptorStringConverter;
 import lombok.Getter;
-import org.mongodb.morphia.annotations.Converters;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Indexed;
@@ -17,7 +14,6 @@ import java.util.UUID;
 
 @Getter
 @Entity(value = "collection-descriptors", noClassnameStored = true)
-@Converters({MongoZonedDateTimeConverter.class, DescriptorStringConverter.class})
 public final class CollectionDescriptor implements Serializable {
     @Id
     private String externalId;
