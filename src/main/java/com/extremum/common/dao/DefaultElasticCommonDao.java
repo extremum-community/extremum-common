@@ -1,7 +1,8 @@
 package com.extremum.common.dao;
 
-import com.extremum.common.dao.extractor.FromGetResponseExtractor;
-import com.extremum.common.dao.extractor.FromSearchResponseExtracter;
+import com.extremum.common.dao.extractor.AccessorFacade;
+import com.extremum.common.dao.extractor.GetResponseAccessorFacade;
+import com.extremum.common.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.ElasticDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
@@ -37,11 +38,13 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +53,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
@@ -136,7 +140,14 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
             if (HttpStatus.SC_OK == response.status().getStatus()) {
-                return new FromSearchResponseExtracter(response).extractAsList();
+                List<ElasticData> results = new ArrayList<>();
+
+                for (SearchHit hit : response.getHits()) {
+                    ElasticData data = extract(new SearchHitAccessorFacade(hit));
+                    results.add(data);
+                }
+
+                return results;
             } else {
                 log.error("Unable to perform search by query {}: {}", queryString, response.status());
                 throw new RuntimeException("Nothing found by query " + queryString);
@@ -168,7 +179,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                 if (sourceMap.getOrDefault(FIELDS.deleted.name(), Boolean.FALSE).equals(Boolean.TRUE)) {
                     throw new ModelNotFoundException("Not found " + id);
                 } else {
-                    return new FromGetResponseExtractor(response).extract();
+                    return extract(new GetResponseAccessorFacade(response));
                 }
             } else {
                 throw new ModelNotFoundException("Not found " + id);
@@ -326,5 +337,25 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
             log.error("Unable to patch document {}", id, e);
             throw new RuntimeException("Unable to patch document " + id, e);
         }
+    }
+
+    private ElasticData extract(AccessorFacade accessor) {
+        final ElasticData data = ElasticData.builder()
+                .id(accessor.getId())
+                .uuid(accessor.getUuid())
+                .seqNo(accessor.getSeqNo())
+                .primaryTerm(accessor.getPrimaryTerm())
+                .version(accessor.getVersion())
+                .deleted(accessor.getDeleted())
+                .created(accessor.getCreated())
+                .modified(accessor.getModified())
+                .rawDocument(accessor.getRawSource())
+                .build();
+
+        ofNullable(data.getUuid())
+                .map(Descriptor::getModelType)
+                .ifPresent(data::setModelName);
+
+        return data;
     }
 }
