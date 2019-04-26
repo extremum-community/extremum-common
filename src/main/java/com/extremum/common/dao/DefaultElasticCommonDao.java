@@ -346,16 +346,39 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                 .seqNo(accessor.getSeqNo())
                 .primaryTerm(accessor.getPrimaryTerm())
                 .version(accessor.getVersion())
-                .deleted(accessor.getDeleted())
-                .created(accessor.getCreated())
-                .modified(accessor.getModified())
                 .rawDocument(accessor.getRawSource())
                 .build();
+
+        final Map<String, Object> sourceAsMap = accessor.getSourceAsMap();
+
+        final Boolean deleted = ofNullable(sourceAsMap)
+                .map(m -> m.get(FIELDS.deleted.name()))
+                .map(Boolean.class::cast)
+                .orElse(Boolean.FALSE);
+
+        data.setDeleted(deleted);
+
+        ofNullable(sourceAsMap)
+                .map(m -> zonedDateTimeFromMap(m, FIELDS.created.name()))
+                .ifPresent(data::setCreated);
+
+        ofNullable(sourceAsMap)
+                .map(m -> zonedDateTimeFromMap(m, FIELDS.modified.name()))
+                .ifPresent(data::setModified);
 
         ofNullable(data.getUuid())
                 .map(Descriptor::getModelType)
                 .ifPresent(data::setModelName);
 
         return data;
+    }
+
+    private ZonedDateTime zonedDateTimeFromMap(Map<String, Object> map, String fieldName) {
+        return ofNullable(map)
+                .map(m -> m.get(fieldName))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(v -> DateUtils.parseZonedDateTime(v, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
+                .orElse(null);
     }
 }
