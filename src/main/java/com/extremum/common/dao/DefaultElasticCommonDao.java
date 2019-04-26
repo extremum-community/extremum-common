@@ -1,5 +1,7 @@
 package com.extremum.common.dao;
 
+import com.extremum.common.dao.extractor.FromGetResponseExtractor;
+import com.extremum.common.dao.extractor.FromSearchResponseExtracter;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.ElasticDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
@@ -35,13 +37,11 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +50,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
@@ -136,25 +135,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
             if (HttpStatus.SC_OK == response.status().getStatus()) {
-                List<ElasticData> foundData = new ArrayList<>();
-                for (SearchHit hit : response.getHits()) {
-                    Descriptor descriptor = DescriptorService.loadByInternalId(hit.getId()).get();
-
-                    ElasticData.ElasticDataBuilder builder = ElasticData.builder()
-                            .id(hit.getId())
-                            .uuid(descriptor)
-                            .modelName(descriptor.getModelType())
-                            .rawDocument(hit.getSourceAsString())
-                            .seqNo(hit.getSeqNo())
-                            .primaryTerm(hit.getPrimaryTerm())
-                            .version(hit.getVersion());
-
-                    populateElasticDataBuilderFromSourceMap(hit.getSourceAsMap(), builder);
-
-                    foundData.add(builder.build());
-                }
-
-                return foundData;
+                return new FromSearchResponseExtracter(response).extractAsList();
             } else {
                 log.error("Unable to perform search by query {}: {}", queryString, response.status());
                 throw new RuntimeException("Nothing found by query " + queryString);
@@ -186,21 +167,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                 if (sourceMap.getOrDefault(FIELDS.deleted.name(), Boolean.FALSE).equals(Boolean.TRUE)) {
                     throw new ModelNotFoundException("Not found " + id);
                 } else {
-                    Descriptor descriptor = elasticDescriptorFactory.fromInternalId(response.getId());
-
-                    ElasticData.ElasticDataBuilder builder = ElasticData.builder()
-                            .id(response.getId())
-                            .uuid(descriptor)
-                            .modelName(descriptor.getModelType())
-                            .version(response.getVersion())
-                            .rawDocument(response.getSourceAsString())
-                            .seqNo(response.getSeqNo())
-                            .primaryTerm(response.getPrimaryTerm());
-
-
-                    populateElasticDataBuilderFromSourceMap(sourceMap, builder);
-
-                    return builder.build();
+                    return new FromGetResponseExtractor(response).extract();
                 }
             } else {
                 throw new ModelNotFoundException("Not found " + id);
@@ -213,20 +180,6 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                     " with type " + indexType,
                     e);
         }
-    }
-
-    private void populateElasticDataBuilderFromSourceMap(Map<String, Object> sourceMap, ElasticData.ElasticDataBuilder builder) {
-        ofNullable(sourceMap.get(FIELDS.created.name()))
-                .map(d -> DateUtils.parseZonedDateTime((String) d, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
-                .ifPresent(builder::created);
-
-        ofNullable(sourceMap.get(FIELDS.modified.name()))
-                .map(d -> DateUtils.parseZonedDateTime((String) d, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
-                .ifPresent(builder::modified);
-
-        ofNullable(sourceMap.get(FIELDS.deleted.name()))
-                .map(Boolean.class::cast)
-                .ifPresent(builder::deleted);
     }
 
     @Override
