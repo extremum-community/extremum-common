@@ -320,22 +320,26 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
 
     @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> params) {
-        final UpdateRequest request = new UpdateRequest(indexName, id);
+        if (isExists(id)) {
+            final UpdateRequest request = new UpdateRequest(indexName, id);
 
-        request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
+            request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
 
-        try (final RestHighLevelClient client = getClient()) {
-            final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
+            try (final RestHighLevelClient client = getClient()) {
+                final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
 
-            if (SC_OK == response.status().getStatus()) {
-                return true;
-            } else {
-                log.warn("Document {} is not patched, status {}", id, response.status());
-                return false;
+                if (SC_OK == response.status().getStatus()) {
+                    return true;
+                } else {
+                    log.warn("Document {} is not patched, status {}", id, response.status());
+                    return false;
+                }
+            } catch (IOException e) {
+                log.error("Unable to patch document {}", id, e);
+                throw new RuntimeException("Unable to patch document " + id, e);
             }
-        } catch (IOException e) {
-            log.error("Unable to patch document {}", id, e);
-            throw new RuntimeException("Unable to patch document " + id, e);
+        } else {
+            throw new ModelNotFoundException("Not found " + id);
         }
     }
 
