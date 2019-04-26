@@ -1,25 +1,50 @@
 package com.extremum.common.dao.extractor;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.common.utils.DateUtils;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 
-public interface AccessorFacade {
-    String getId();
+import static java.util.Optional.ofNullable;
 
-    Descriptor getUuid();
+public abstract class AccessorFacade {
+    public abstract String getId();
 
-    Long getVersion();
+    public abstract Descriptor getUuid();
 
-    Boolean getDeleted();
+    public abstract Long getVersion();
 
-    ZonedDateTime getCreated();
+    public abstract String getRawSource();
 
-    ZonedDateTime getModified();
+    public abstract Long getSeqNo();
 
-    String getRawSource();
+    public abstract Long getPrimaryTerm();
 
-    Long getSeqNo();
+    public abstract Map<String, Object> getSourceAsMap();
 
-    Long getPrimaryTerm();
+    public Boolean getDeleted() {
+        return ofNullable(getSourceAsMap())
+                .map(m -> m.get(PersistableCommonModel.FIELDS.deleted.name()))
+                .map(Boolean.class::cast)
+                .orElse(Boolean.FALSE);
+    }
+
+    public ZonedDateTime getCreated() {
+        return stringToZonedDateTime(PersistableCommonModel.FIELDS.created);
+    }
+
+    public ZonedDateTime getModified() {
+        return stringToZonedDateTime(PersistableCommonModel.FIELDS.modified);
+    }
+
+    protected ZonedDateTime stringToZonedDateTime(PersistableCommonModel.FIELDS field) {
+        return ofNullable(getSourceAsMap())
+                .map(m -> m.get(field.name()))
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(v -> DateUtils.parseZonedDateTime(v, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
+                .orElse(null);
+    }
 }
