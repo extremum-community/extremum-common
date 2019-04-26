@@ -58,11 +58,11 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
     private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted; ctx._source.modified = params.modified";
 
     private RestClientBuilder restClientBuilder;
-    private ElasticDescriptorFactory elasticDescriptorFactory;
+    private final ElasticDescriptorFactory elasticDescriptorFactory;
 
-    private ElasticProperties elasticProps;
-    private String indexName;
-    private String indexType;
+    private final ElasticProperties elasticProps;
+    private final String indexName;
+    private final String indexType;
 
     public DefaultElasticCommonDao(ElasticProperties elasticProperties, ElasticDescriptorFactory descriptorFactory,
                                    String indexName, String indexType) {
