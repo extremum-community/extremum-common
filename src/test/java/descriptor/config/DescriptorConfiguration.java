@@ -38,12 +38,12 @@ public class DescriptorConfiguration {
     @Bean
     @DependsOn("redisContainer")
     public RedissonClient redissonClient() {
-        Config config =  new Config();
+        Config config = new Config();
         config.useSingleServer().setAddress(redisProps.getUri());
         return Redisson.create(config);
     }
 
-    @Bean(name="redisContainer")
+    @Bean(name = "redisContainer")
     public GenericContainer redisContainer() {
         GenericContainer redis = new GenericContainer("redis:5.0.4").withExposedPorts(6379);
         redis.start();
@@ -53,9 +53,9 @@ public class DescriptorConfiguration {
 
     @Bean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        Codec codec=new TypedJsonJacksonCodec(String.class,Descriptor.class, JsonObjectMapper.createdWithoutDescriptorTransfiguration());
+        Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class, JsonObjectMapper.createdWithoutDescriptorTransfiguration());
         return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
-                descriptorsProperties.getInternalIdsMapName(),codec, redisProps.getCacheSize(), redisProps.getIdleTime());
+                descriptorsProperties.getInternalIdsMapName(), codec, redisProps.getCacheSize(), redisProps.getIdleTime());
     }
 
     @Bean
