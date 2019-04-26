@@ -191,8 +191,12 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
     @Override
     public boolean isExists(String id) {
         if (isDocumentExists(id)) {
-            final ElasticData data = findById(id);
-            return !data.getDeleted();
+            try {
+                final ElasticData data = findById(id);
+                return !data.getDeleted();
+            } catch (ModelNotFoundException e) {
+                return false;
+            }
         } else {
             return false;
         }
