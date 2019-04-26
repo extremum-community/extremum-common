@@ -9,7 +9,7 @@ import java.util.List;
  */
 @Getter
 public class CollectionReference<T> {
-    private CollectionDescriptor descriptor;
+    private CollectionDescriptor id;
 
     private String uri;
     private Integer count;
@@ -24,7 +24,7 @@ public class CollectionReference<T> {
         this.top = top;
     }
 
-    public void setDescriptor(CollectionDescriptor descriptor) {
-        this.descriptor = descriptor;
+    public void setId(CollectionDescriptor id) {
+        this.id = id;
     }
 }
