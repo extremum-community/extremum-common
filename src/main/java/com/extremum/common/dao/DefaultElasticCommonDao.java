@@ -123,6 +123,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         }
     }
 
+    @Override
     public List<ElasticData> search(String queryString) {
         final SearchRequest request = new SearchRequest(indexName);
 
@@ -239,6 +240,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         return persist(model);
     }
 
+    @Override
     public ElasticData persist(ElasticData model, Long seqNo, Long primaryTerm) {
         if (model.getId() == null) {
             final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
@@ -300,10 +302,12 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         return patch(id, DELETE_DOCUMENT_PAINLESS_SCRIPT, parameters);
     }
 
+    @Override
     public boolean patch(String id, String painlessQuery) {
         return patch(id, painlessQuery, null);
     }
 
+    @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> params) {
         final UpdateRequest request = new UpdateRequest(indexName, id);
 
