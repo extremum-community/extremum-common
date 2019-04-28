@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
  * @author rpuch
  */
 public class JsonObjectMapperTest {
-    private JsonObjectMapper mapper = JsonObjectMapper.createdMapper();
+    private JsonObjectMapper mapper = JsonObjectMapper.createMapper();
 
     @Test
     public void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {

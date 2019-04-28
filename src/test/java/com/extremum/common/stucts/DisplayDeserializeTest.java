@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DisplayDeserializeTest {
-    JsonObjectMapper mapper = JsonObjectMapper.createdMapper();
+    JsonObjectMapper mapper = JsonObjectMapper.createMapper();
 
     @Test
     public void deserializeFromSimpleStringTest() throws IOException {

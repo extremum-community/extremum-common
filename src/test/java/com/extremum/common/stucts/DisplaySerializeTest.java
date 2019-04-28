@@ -13,7 +13,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 public class DisplaySerializeTest {
-    ObjectMapper mapper = JsonObjectMapper.createdMapper();
+    ObjectMapper mapper = JsonObjectMapper.createMapper();
 
     @Test
     public void serializeToSimpleStringTest() throws JsonProcessingException {
