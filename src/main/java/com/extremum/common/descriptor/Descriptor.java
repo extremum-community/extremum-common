@@ -125,7 +125,7 @@ public class Descriptor implements Serializable {
 
     private void fillByInternalId() {
         DescriptorService.loadByInternalId(internalId)
-                .map(this::copy)
+                .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.externalId != null)
                 .orElseThrow(() -> new IllegalStateException(
                                 String.format("Internal id %s without corresponding descriptor", internalId)
@@ -135,13 +135,13 @@ public class Descriptor implements Serializable {
 
     private void fillByExternalId() {
         DescriptorService.loadByExternalId(this.externalId)
-                .map(this::copy)
+                .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.internalId != null)
                 .orElseThrow(() -> new DescriptorNotFoundException("Internal ID was not found for external ID " + this.externalId));
     }
 
 
-    private Descriptor copy(Descriptor d) {
+    private Descriptor copyFieldsFromAnotherDescriptor(Descriptor d) {
         this.externalId = d.externalId;
         this.internalId = d.internalId;
         this.modelType = d.modelType;
