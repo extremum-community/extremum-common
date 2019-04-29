@@ -85,9 +85,7 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        Codec codec = new TypedJsonJacksonCodec(Descriptor.class, Descriptor.class,
-                JsonObjectMapper.createdWithoutDescriptorTransfiguration());
-
+        Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class, JsonObjectMapper.createdWithoutDescriptorTransfiguration());
         if (noRedis()) {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore,
                     descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
