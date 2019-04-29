@@ -20,6 +20,7 @@ import com.extremum.common.stucts.IdListOrObjectListStruct;
 import com.extremum.common.stucts.IntegerOrString;
 import com.extremum.common.stucts.IntegerRangeOrValue;
 import com.extremum.common.stucts.MultilingualObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
@@ -47,6 +48,10 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         return mapper;
     }
 
+    @Override
+    public ObjectMapper copy() {
+        return JsonObjectMapper.createdWithoutDescriptorTransfiguration();
+    }
 
     /**
      * Masking descriptor details as if it were a plain string

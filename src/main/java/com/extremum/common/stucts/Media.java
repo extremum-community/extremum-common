@@ -18,6 +18,6 @@ public class Media implements Serializable {
     public List<Media> thumbnails;
 
     public enum FIELDS {
-        url, type, width, height, depth, duration, previews
+        url, type, width, height, depth, duration, thumbnails
     }
 }

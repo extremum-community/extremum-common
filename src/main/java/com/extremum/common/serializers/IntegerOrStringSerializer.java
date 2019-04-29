@@ -3,6 +3,7 @@ package com.extremum.common.serializers;
 import com.extremum.common.stucts.IntegerOrString;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,5 +29,10 @@ public class IntegerOrStringSerializer extends StdSerializer<IntegerOrString> {
                 gen.writeNull();
             }
         }
+    }
+
+    @Override
+    public void serializeWithType(IntegerOrString value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+        serialize(value, gen, serializers);
     }
 }

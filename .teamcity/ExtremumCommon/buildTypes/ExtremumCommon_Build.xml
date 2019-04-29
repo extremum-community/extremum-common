@@ -3,8 +3,17 @@
   <name>Build</name>
   <description />
   <settings>
+    <disabled-settings>
+      <setting-ref ref="RUNNER_2" />
+    </disabled-settings>
     <parameters />
     <build-runners>
+      <runner id="RUNNER_2" name="Docker init" type="DockerCompose">
+        <parameters>
+          <param name="dockerCompose.file" value="teamcity-services.yml" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
       <runner id="RUNNER_1" name="" type="Maven2">
         <parameters>
           <param name="goals" value="clean test" />
@@ -35,7 +44,7 @@
       <extension id="DockerSupport" type="DockerSupport">
         <parameters>
           <param name="cleanupPushed" value="true" />
-          <param name="login2registry" value="PROJECT_EXT_4" />
+          <param name="login2registry" value="PROJECT_EXT_9" />
           <param name="loginCheckbox" value="on" />
         </parameters>
       </extension>
