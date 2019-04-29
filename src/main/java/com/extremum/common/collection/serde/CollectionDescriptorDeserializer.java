@@ -1,4 +1,4 @@
-package com.extremum.common.descriptor.serde;
+package com.extremum.common.collection.serde;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.service.CollectionDescriptorService;

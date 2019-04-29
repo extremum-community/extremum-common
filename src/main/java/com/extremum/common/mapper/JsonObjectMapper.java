@@ -2,7 +2,7 @@ package com.extremum.common.mapper;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.serde.CollectionDescriptorDeserializer;
+import com.extremum.common.collection.serde.CollectionDescriptorDeserializer;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
 import com.extremum.common.deserializers.DisplayDeserializer;
 import com.extremum.common.deserializers.DurationVariativeValueDeserializer;
