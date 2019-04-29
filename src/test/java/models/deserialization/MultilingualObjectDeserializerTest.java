@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class MultilingualObjectDeserializerTest {
     public static final String PATH_TO_JSON = "json-files/";
-    private ObjectMapper mapper = JsonObjectMapper.createdMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createMapper();
 
     @Test
     public void deserializeSimpleTextTest() throws IOException {

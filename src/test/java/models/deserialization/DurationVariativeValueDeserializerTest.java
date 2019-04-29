@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DurationVariativeValueDeserializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createdMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createMapper();
 
     @Test
     public void simpleIntDeserializeTest() throws IOException {
