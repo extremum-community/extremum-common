@@ -52,7 +52,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
     @Override
     public ObjectMapper copy() {
-        return JsonObjectMapper.createdWithoutDescriptorTransfiguration();
+        return JsonObjectMapper.createWithoutDescriptorTransfiguration();
     }
 
     /**
