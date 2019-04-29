@@ -1,6 +1,7 @@
 package models.serialization;
 
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class DurationVariativeValueSerializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
 
     @Test
     public void simpleIntSerializeTest() throws JsonProcessingException, JSONException {

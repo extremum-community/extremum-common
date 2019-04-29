@@ -31,27 +31,29 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Public object mapper for clients.
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
-    private boolean descriptorTransfigurationEnabled;
+    private final boolean descriptorTransfigurationEnabled;
+    private final MapperDependencies dependencies;
 
-    private JsonObjectMapper(boolean enableDescriptorTransfiguration) {
+    private JsonObjectMapper(boolean enableDescriptorTransfiguration, MapperDependencies dependencies) {
         descriptorTransfigurationEnabled = enableDescriptorTransfiguration;
+        this.dependencies = dependencies;
     }
 
-    public static JsonObjectMapper createWithoutDescriptorTransfiguration() {
-        JsonObjectMapper mapper = new JsonObjectMapper(false);
+    public static JsonObjectMapper createWithoutDescriptorTransfiguration(MapperDependencies dependencies) {
+        JsonObjectMapper mapper = new JsonObjectMapper(false, dependencies);
         mapper.configure();
         return mapper;
     }
 
-    public static JsonObjectMapper createMapper() {
-        JsonObjectMapper mapper = new JsonObjectMapper(true);
+    public static JsonObjectMapper createMapper(MapperDependencies dependencies) {
+        JsonObjectMapper mapper = new JsonObjectMapper(true, dependencies);
         mapper.configure();
         return mapper;
     }
 
     @Override
     public ObjectMapper copy() {
-        return JsonObjectMapper.createWithoutDescriptorTransfiguration();
+        return JsonObjectMapper.createWithoutDescriptorTransfiguration(dependencies);
     }
 
     /**
@@ -85,7 +87,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
         module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
 
-        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer());
+        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(dependencies));
 
         return module;
     }

@@ -1,6 +1,7 @@
 package com.extremum.common.serializers;
 
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -13,8 +14,12 @@ import java.io.IOException;
 public class IdOrObjectStructSerializer extends StdSerializer<IdOrObjectStruct> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IdOrObjectStructSerializer.class);
 
-    public IdOrObjectStructSerializer() {
+    private final MapperDependencies mapperDependencies;
+
+    public IdOrObjectStructSerializer(MapperDependencies mapperDependencies) {
         super(IdOrObjectStruct.class);
+
+        this.mapperDependencies = mapperDependencies;
     }
 
     @Override
@@ -23,7 +28,7 @@ public class IdOrObjectStructSerializer extends StdSerializer<IdOrObjectStruct> 
             LOGGER.debug("Nothing to serialize, serialization value is null");
             gen.writeNull();
         } else if (value.isComplex()) {
-            JsonObjectMapper.createMapper().writeValue(gen, value.object);
+            JsonObjectMapper.createMapper(mapperDependencies).writeValue(gen, value.object);
         } else {
             if (value.id != null) {
                 gen.writeString(value.id.toString());

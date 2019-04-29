@@ -1,6 +1,7 @@
 package com.extremum.common.stucts;
 
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.MockedMapperDependencies;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
@@ -13,7 +14,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 public class DisplaySerializeTest {
-    ObjectMapper mapper = JsonObjectMapper.createMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleStringTest() throws JsonProcessingException {
