@@ -68,7 +68,8 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
             module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
 
             module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
-            module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer());
+            module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer(
+                    dependencies.collectionDescriptorService()));
         }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
@@ -87,7 +88,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
         module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
 
-        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(dependencies));
+        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(this));
 
         return module;
     }
