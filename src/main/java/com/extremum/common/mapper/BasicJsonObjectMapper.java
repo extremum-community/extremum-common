@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -91,10 +92,21 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         }
 
         @Override
-        public void serialize(Enum value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(Enum value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+                throws IOException {
+            actuallySerialize(value, jsonGenerator);
+        }
+
+        private void actuallySerialize(Enum value, JsonGenerator jsonGenerator) throws IOException {
             if (value != null) {
                 jsonGenerator.writeString(value.name().toLowerCase());
             }
+        }
+
+        @Override
+        public void serializeWithType(Enum value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider,
+                TypeSerializer typeSer) throws IOException {
+            actuallySerialize(value, jsonGenerator);
         }
     }
 
