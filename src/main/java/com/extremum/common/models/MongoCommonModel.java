@@ -21,10 +21,6 @@ import java.time.ZonedDateTime;
 @Setter
 @Converters({MongoZonedDateTimeConverter.class})
 public abstract class MongoCommonModel implements PersistableCommonModel<ObjectId> {
-
-    public static final int VERSION_INITIAL_VALUE = 0;
-    public static final boolean DELETED_INITIAL_VALUE = false;
-
     @Transient
     private Descriptor uuid;
 

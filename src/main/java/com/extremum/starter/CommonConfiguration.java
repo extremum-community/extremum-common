@@ -11,6 +11,7 @@ import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.starter.properties.DescriptorsProperties;
+import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +40,8 @@ import java.io.InputStream;
 @Configuration
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
-@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, DescriptorsProperties.class})
+@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, ElasticProperties.class,
+        DescriptorsProperties.class})
 public class CommonConfiguration {
     private final RedisProperties redisProperties;
     private final MongoProperties mongoProperties;
@@ -83,12 +85,16 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        Codec codec = new TypedJsonJacksonCodec(Descriptor.class, Descriptor.class, JsonObjectMapper.createdWithoutDescriptorTransfiguration());
+        Codec codec = new TypedJsonJacksonCodec(Descriptor.class, Descriptor.class,
+                JsonObjectMapper.createdWithoutDescriptorTransfiguration());
+
         if (noRedis()) {
-            return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
+            return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore,
+                    descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
         } else {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
-                    descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(), redisProperties.getIdleTime());
+                    descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(),
+                    redisProperties.getIdleTime());
         }
     }
 

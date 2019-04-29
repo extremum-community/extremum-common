@@ -210,6 +210,10 @@ public class Descriptor implements Serializable {
             return null;
         }
     }
+
+    public enum FIELDS {
+        externalId, internalId, modelType, storageType, created, modified, version, deleted, display
+    }
 }
 
 

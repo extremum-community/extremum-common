@@ -5,6 +5,7 @@ import com.extremum.common.stucts.Media;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,5 +48,10 @@ public class DisplaySerializer extends StdSerializer<Display> {
                 gen.writeNull();
             }
         }
+    }
+
+    @Override
+    public void serializeWithType(Display value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+        serialize(value, gen, serializers);
     }
 }
