@@ -57,7 +57,7 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
-    public RedissonClient redissonClient(MapperDependencies mapperDependencies) {
+    public RedissonClient redissonClient() {
         InputStream redisStream = CommonConfiguration.class.getClassLoader().getResourceAsStream("redis.json");
         Config config;
         try {
@@ -67,7 +67,7 @@ public class CommonConfiguration {
         }
 
         config.setCodec(new JsonJacksonCodec(
-                JsonObjectMapper.createWithoutDescriptorTransfiguration(mapperDependencies)));
+                JsonObjectMapper.createWithoutDescriptorTransfiguration()));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
@@ -85,17 +85,16 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(RedissonClient.class)
-    public RedisConnectionFactory redisConnectionFactory(MapperDependencies mapperDependencies) {
-        return new RedissonConnectionFactory(redissonClient(mapperDependencies));
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new RedissonConnectionFactory(redissonClient());
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
-    public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore,
-            MapperDependencies mapperDependencies) {
+    public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
         Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
-                JsonObjectMapper.createWithoutDescriptorTransfiguration(mapperDependencies));
+                JsonObjectMapper.createWithoutDescriptorTransfiguration());
         if (noRedis()) {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore,
                     descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);

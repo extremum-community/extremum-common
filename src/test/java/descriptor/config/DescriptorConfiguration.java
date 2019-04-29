@@ -8,7 +8,6 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.mapper.JsonObjectMapper;
-import com.extremum.common.mapper.MapperDependencies;
 import config.AppConfiguration;
 import config.DescriptorsProperties;
 import config.RedisProperties;
@@ -53,10 +52,9 @@ public class DescriptorConfiguration {
     }
 
     @Bean
-    public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore,
-            MapperDependencies mapperDependencies) {
+    public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
         Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
-                JsonObjectMapper.createWithoutDescriptorTransfiguration(mapperDependencies));
+                JsonObjectMapper.createWithoutDescriptorTransfiguration());
         return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(), codec, redisProps.getCacheSize(), redisProps.getIdleTime());
     }

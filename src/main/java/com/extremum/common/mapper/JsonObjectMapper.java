@@ -32,15 +32,25 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
     private final boolean descriptorTransfigurationEnabled;
-    private final MapperDependencies dependencies;
+    private final MapperDependencies descriptorTransfigurationDependencies;
 
-    private JsonObjectMapper(boolean enableDescriptorTransfiguration, MapperDependencies dependencies) {
+    private JsonObjectMapper(boolean enableDescriptorTransfiguration,
+            MapperDependencies descriptorTransfigurationDependencies) {
+        if (enableDescriptorTransfiguration) {
+            makeSureDependenciesArePresent(descriptorTransfigurationDependencies);
+        }
         descriptorTransfigurationEnabled = enableDescriptorTransfiguration;
-        this.dependencies = dependencies;
+        this.descriptorTransfigurationDependencies = descriptorTransfigurationDependencies;
     }
 
-    public static JsonObjectMapper createWithoutDescriptorTransfiguration(MapperDependencies dependencies) {
-        JsonObjectMapper mapper = new JsonObjectMapper(false, dependencies);
+    private void makeSureDependenciesArePresent(MapperDependencies dependenciesToCheck) {
+        if (dependenciesToCheck == null) {
+            throw new IllegalStateException("Descriptor transfiguration is enabled but dependencies are null");
+        }
+    }
+
+    public static JsonObjectMapper createWithoutDescriptorTransfiguration() {
+        JsonObjectMapper mapper = new JsonObjectMapper(false, null);
         mapper.configure();
         return mapper;
     }
@@ -53,7 +63,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
     @Override
     public ObjectMapper copy() {
-        return JsonObjectMapper.createWithoutDescriptorTransfiguration(dependencies);
+        return JsonObjectMapper.createWithoutDescriptorTransfiguration();
     }
 
     /**
@@ -64,12 +74,13 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         SimpleModule module = super.createCustomModule();
 
         if (descriptorTransfigurationEnabled) {
+            makeSureDependenciesArePresent(descriptorTransfigurationDependencies);
             module.addSerializer(Descriptor.class, new ToStringSerializer());
             module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
 
             module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
             module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer(
-                    dependencies.collectionDescriptorService()));
+                    descriptorTransfigurationDependencies.collectionDescriptorService()));
         }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
