@@ -1,4 +1,4 @@
-package com.extremum.common.collection.conversion;
+package com.extremum.common.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -10,14 +10,14 @@ import java.util.stream.Stream;
 /**
  * @author rpuch
  */
-class InstanceFields {
+public class InstanceFields {
     private final Class<?> targetClass;
 
-    InstanceFields(Class<?> targetClass) {
+    public InstanceFields(Class<?> targetClass) {
         this.targetClass = targetClass;
     }
 
-    Stream<Field> stream() {
+    public Stream<Field> stream() {
         List<Field> fields = findInstanceFields();
         return fields.stream();
     }

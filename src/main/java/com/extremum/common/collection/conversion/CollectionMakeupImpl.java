@@ -4,6 +4,7 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
+import com.extremum.common.utils.InstanceFields;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
