@@ -11,7 +11,7 @@ import java.util.List;
 public class CollectionReference<T> {
     private CollectionDescriptor id;
 
-    private String uri;
+    private String url;
     private Integer count;
     private List<T> top;
 
@@ -26,5 +26,9 @@ public class CollectionReference<T> {
 
     public void setId(CollectionDescriptor id) {
         this.id = id;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

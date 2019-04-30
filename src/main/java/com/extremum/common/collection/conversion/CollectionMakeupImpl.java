@@ -4,6 +4,7 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
+import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.utils.InstanceFields;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,12 @@ import java.util.Optional;
 @Service
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
+    private final ApplicationUrls applicationUrls;
 
-    public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService) {
+    public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
+            ApplicationUrls applicationUrls) {
         this.collectionDescriptorService = collectionDescriptorService;
+        this.applicationUrls = applicationUrls;
     }
 
     @Override
@@ -52,6 +56,9 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             collectionDescriptorService.store(newDescriptor);
             reference.setId(newDescriptor);
         }
+
+        String externalUrl = applicationUrls.createExternalUrl("/collection/" + reference.getId());
+        reference.setUrl(externalUrl);
     }
 
     private String getHostFieldName(Field field) {
