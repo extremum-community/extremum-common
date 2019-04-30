@@ -60,7 +60,7 @@ public class CollectionMakeupImplTest {
     public void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = streetDto.buildings.getDescriptor();
+        CollectionDescriptor descriptor = streetDto.buildings.getId();
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
 
         verify(collectionDescriptorService).store(descriptor);
@@ -82,7 +82,7 @@ public class CollectionMakeupImplTest {
 
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = streetDto.buildings.getDescriptor();
+        CollectionDescriptor descriptor = streetDto.buildings.getId();
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
 
         verify(collectionDescriptorService, never()).store(any());
@@ -92,7 +92,7 @@ public class CollectionMakeupImplTest {
     public void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = streetDto.privateBuildings.getDescriptor();
+        CollectionDescriptor descriptor = streetDto.privateBuildings.getId();
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-private-buildings");
 
         verify(collectionDescriptorService).store(descriptor);
@@ -104,7 +104,7 @@ public class CollectionMakeupImplTest {
 
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        assertThat(streetDto.buildings.getDescriptor(), is(nullValue()));
+        assertThat(streetDto.buildings.getId(), is(nullValue()));
         verify(collectionDescriptorService, never()).store(any());
     }
 
@@ -119,7 +119,7 @@ public class CollectionMakeupImplTest {
     public void givenHostFieldNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostFieldNameIsDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getDescriptor();
+        CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "buildingsWithDefaultName");
 
         verify(collectionDescriptorService).store(descriptor);

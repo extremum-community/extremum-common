@@ -11,12 +11,14 @@ import com.extremum.common.deserializers.MultilingualObjectDeserializer;
 import com.extremum.common.serializers.DisplaySerializer;
 import com.extremum.common.serializers.DurationVariativeValueSerializer;
 import com.extremum.common.serializers.IdListOrObjectListStructSerializer;
+import com.extremum.common.serializers.IdOrObjectStructSerializer;
 import com.extremum.common.serializers.IntegerOrStringSerializer;
 import com.extremum.common.serializers.IntegerRangeOrValueSerializer;
 import com.extremum.common.serializers.MultilingualObjectSerializer;
 import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.extremum.common.stucts.IdListOrObjectListStruct;
+import com.extremum.common.stucts.IdOrObjectStruct;
 import com.extremum.common.stucts.IntegerOrString;
 import com.extremum.common.stucts.IntegerRangeOrValue;
 import com.extremum.common.stucts.MultilingualObject;
@@ -36,13 +38,13 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         descriptorTransfigurationDisabled = disableDescriptorTransfiguration;
     }
 
-    public static JsonObjectMapper createdWithoutDescriptorTransfiguration() {
+    public static JsonObjectMapper createWithoutDescriptorTransfiguration() {
         JsonObjectMapper mapper = new JsonObjectMapper(true);
         mapper.configure();
         return mapper;
     }
 
-    public static JsonObjectMapper createdMapper() {
+    public static JsonObjectMapper createMapper() {
         JsonObjectMapper mapper = new JsonObjectMapper(false);
         mapper.configure();
         return mapper;
@@ -50,7 +52,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
     @Override
     public ObjectMapper copy() {
-        return JsonObjectMapper.createdWithoutDescriptorTransfiguration();
+        return JsonObjectMapper.createWithoutDescriptorTransfiguration();
     }
 
     /**
@@ -83,6 +85,8 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         module.addSerializer(Display.class, new DisplaySerializer());
 
         module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
+
+        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer());
 
         return module;
     }

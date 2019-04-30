@@ -46,10 +46,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                 newDescriptor.toCoordinatesString());
 
         if (existingDescriptor.isPresent()) {
-            reference.setDescriptor(existingDescriptor.get());
+            reference.setId(existingDescriptor.get());
         } else {
             collectionDescriptorService.store(newDescriptor);
-            reference.setDescriptor(newDescriptor);
+            reference.setId(newDescriptor);
         }
     }
 
