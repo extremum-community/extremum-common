@@ -16,6 +16,11 @@ public class CollectionDescriptorServiceImpl implements CollectionDescriptorServ
     }
 
     @Override
+    public Optional<CollectionDescriptor> retrieveByExternalId(String externalId) {
+        return collectionDescriptorDao.retrieveByExternalId(externalId);
+    }
+
+    @Override
     public Optional<CollectionDescriptor> retrieveByCoordinates(String coordinatesString) {
         return collectionDescriptorDao.retrieveByCoordinates(coordinatesString);
     }

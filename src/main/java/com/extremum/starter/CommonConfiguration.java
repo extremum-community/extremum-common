@@ -10,6 +10,8 @@ import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.MapperDependencies;
+import com.extremum.common.mapper.MapperDependenciesImpl;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -48,6 +50,11 @@ public class CommonConfiguration {
     private final DescriptorsProperties descriptorsProperties;
 
     @Bean
+    public MapperDependencies mapperDependencies(CollectionDescriptorService collectionDescriptorService) {
+        return new MapperDependenciesImpl(collectionDescriptorService);
+    }
+
+    @Bean
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
     public RedissonClient redissonClient() {
@@ -59,7 +66,8 @@ public class CommonConfiguration {
             config = new Config();
         }
 
-        config.setCodec(new JsonJacksonCodec(JsonObjectMapper.createWithoutDescriptorTransfiguration()));
+        config.setCodec(new JsonJacksonCodec(
+                JsonObjectMapper.createWithoutDescriptorTransfiguration()));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
@@ -85,7 +93,8 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class, JsonObjectMapper.createWithoutDescriptorTransfiguration());
+        Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
+                JsonObjectMapper.createWithoutDescriptorTransfiguration());
         if (noRedis()) {
             return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore,
                     descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
@@ -134,7 +143,7 @@ public class CommonConfiguration {
 
     @Bean
     @Primary
-    public ObjectMapper jacksonObjectMapper() {
-        return JsonObjectMapper.createMapper();
+    public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies) {
+        return JsonObjectMapper.createMapper(mapperDependencies);
     }
 }

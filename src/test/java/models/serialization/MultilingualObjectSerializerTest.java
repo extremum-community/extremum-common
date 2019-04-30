@@ -1,6 +1,7 @@
 package models.serialization;
 
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.Multilingual;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MultilingualObjectSerializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createMapper();
+    private ObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleTextTest() throws JsonProcessingException {

@@ -2,7 +2,7 @@ package com.extremum.common.mapper;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.serde.CollectionDescriptorDeserializer;
+import com.extremum.common.collection.serde.CollectionDescriptorDeserializer;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
 import com.extremum.common.deserializers.DisplayDeserializer;
 import com.extremum.common.deserializers.DurationVariativeValueDeserializer;
@@ -31,21 +31,32 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Public object mapper for clients.
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
-    private boolean descriptorTransfigurationDisabled;
+    private final boolean descriptorTransfigurationEnabled;
+    private final MapperDependencies descriptorTransfigurationDependencies;
 
-    public JsonObjectMapper(boolean disableDescriptorTransfiguration) {
-        super();
-        descriptorTransfigurationDisabled = disableDescriptorTransfiguration;
+    private JsonObjectMapper(boolean enableDescriptorTransfiguration,
+            MapperDependencies descriptorTransfigurationDependencies) {
+        if (enableDescriptorTransfiguration) {
+            makeSureDependenciesArePresent(descriptorTransfigurationDependencies);
+        }
+        descriptorTransfigurationEnabled = enableDescriptorTransfiguration;
+        this.descriptorTransfigurationDependencies = descriptorTransfigurationDependencies;
+    }
+
+    private void makeSureDependenciesArePresent(MapperDependencies dependenciesToCheck) {
+        if (dependenciesToCheck == null) {
+            throw new IllegalStateException("Descriptor transfiguration is enabled but dependencies are null");
+        }
     }
 
     public static JsonObjectMapper createWithoutDescriptorTransfiguration() {
-        JsonObjectMapper mapper = new JsonObjectMapper(true);
+        JsonObjectMapper mapper = new JsonObjectMapper(false, null);
         mapper.configure();
         return mapper;
     }
 
-    public static JsonObjectMapper createMapper() {
-        JsonObjectMapper mapper = new JsonObjectMapper(false);
+    public static JsonObjectMapper createMapper(MapperDependencies dependencies) {
+        JsonObjectMapper mapper = new JsonObjectMapper(true, dependencies);
         mapper.configure();
         return mapper;
     }
@@ -62,12 +73,14 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
     protected SimpleModule createCustomModule() {
         SimpleModule module = super.createCustomModule();
 
-        if (!descriptorTransfigurationDisabled) {
+        if (descriptorTransfigurationEnabled) {
+            makeSureDependenciesArePresent(descriptorTransfigurationDependencies);
             module.addSerializer(Descriptor.class, new ToStringSerializer());
             module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
 
             module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
-            module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer());
+            module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer(
+                    descriptorTransfigurationDependencies.collectionDescriptorService()));
         }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
@@ -86,7 +99,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
         module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
 
-        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer());
+        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(this));
 
         return module;
     }

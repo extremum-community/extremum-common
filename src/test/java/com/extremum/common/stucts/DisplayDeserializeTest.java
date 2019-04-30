@@ -1,6 +1,7 @@
 package com.extremum.common.stucts;
 
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.MockedMapperDependencies;
 import models.TestUtils;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DisplayDeserializeTest {
-    JsonObjectMapper mapper = JsonObjectMapper.createMapper();
+    private JsonObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
 
     @Test
     public void deserializeFromSimpleStringTest() throws IOException {

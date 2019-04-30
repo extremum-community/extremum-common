@@ -29,12 +29,23 @@ public class CollectionDescriptorServiceImplTest {
     private final CollectionDescriptor collectionDescriptor = new CollectionDescriptor("test");
 
     @Test
-    public void whenRetrievingByCoordinates_thenRetriveFromDaoShouldBeCalled() {
+    public void whenRetrievingByExternalId_thenRetrieveFromDaoShouldBeCalled() {
+        when(collectionDescriptorDao.retrieveByExternalId("externalId"))
+                .thenReturn(Optional.of(collectionDescriptor));
+
+        Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByExternalId("externalId");
+        
+        assertThat(result.isPresent(), is(true));
+        assertThat(result.get(), is(collectionDescriptor));
+    }
+
+    @Test
+    public void whenRetrievingByCoordinates_thenRetrieveFromDaoShouldBeCalled() {
         when(collectionDescriptorDao.retrieveByCoordinates("coords"))
                 .thenReturn(Optional.of(collectionDescriptor));
 
         Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
-        
+
         assertThat(result.isPresent(), is(true));
         assertThat(result.get(), is(collectionDescriptor));
     }
