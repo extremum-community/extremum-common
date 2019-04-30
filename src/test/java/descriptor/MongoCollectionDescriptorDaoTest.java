@@ -1,4 +1,4 @@
-package descriptor.dao;
+package descriptor;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.EmbeddedCoordinates;
@@ -6,6 +6,7 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = DescriptorConfiguration.class)
 public class MongoCollectionDescriptorDaoTest {
     @Autowired
     private CollectionDescriptorDao collectionDescriptorDao;

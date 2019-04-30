@@ -2,7 +2,7 @@ package common.dao;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import config.AppConfiguration;
+import config.DescriptorConfiguration;
 import models.TestModel;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -10,8 +10,7 @@ import org.junit.runner.RunWith;
 import org.mongodb.morphia.query.UpdateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
 
 import java.time.ZonedDateTime;
@@ -26,9 +25,8 @@ import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.junit.Assert.*;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
-@ContextConfiguration(classes = AppConfiguration.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = DescriptorConfiguration.class)
 public class MongoCommonDaoTest {
     @Autowired
     private TestModelDao dao;

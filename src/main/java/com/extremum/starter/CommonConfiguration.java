@@ -104,9 +104,7 @@ public class CommonConfiguration {
     @ConditionalOnBean(DescriptorDao.class)
     @ConditionalOnMissingBean
     public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao) {
-        DescriptorServiceConfigurator descriptorServiceConfigurator = new DescriptorServiceConfigurator(descriptorDao);
-        descriptorServiceConfigurator.init();
-        return descriptorServiceConfigurator;
+        return new DescriptorServiceConfigurator(descriptorDao);
     }
 
     @Bean

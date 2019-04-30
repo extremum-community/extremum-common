@@ -1,14 +1,11 @@
-package descriptor.dao;
+package descriptor;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.stucts.Display;
-import com.extremum.common.stucts.IntegerOrString;
-import com.extremum.common.stucts.Media;
-import com.extremum.common.stucts.MediaType;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.common.stucts.*;
+import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
 import org.codehaus.jettison.json.JSONException;
 import org.junit.Test;
@@ -26,7 +23,7 @@ import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = DescriptorConfiguration.class)
 public class MongoDescriptorDaoTest {
     @Autowired
     private DescriptorDao descriptorDao;
