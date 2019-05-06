@@ -1,11 +1,7 @@
 package com.extremum.common.models;
 
 import com.extremum.common.descriptor.Descriptor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 
@@ -33,10 +29,5 @@ public class ElasticData extends ElasticCommonModel {
         this.modelName = modelName;
         this.seqNo = seqNo;
         this.primaryTerm = primaryTerm;
-    }
-
-    @Override
-    public String getModelName() {
-        return modelName;
     }
 }
