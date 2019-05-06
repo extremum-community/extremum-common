@@ -7,11 +7,14 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
+import com.extremum.common.urls.ApplicationUrls;
+import com.extremum.common.urls.TestApplicationUrls;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -38,6 +41,8 @@ public class CollectionMakeupImplTest {
 
     @Mock
     private CollectionDescriptorService collectionDescriptorService;
+    @Spy
+    private ApplicationUrls applicationUrls = new TestApplicationUrls();
 
     private StreetResponseDto streetDto;
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forEmbedded(
@@ -123,6 +128,14 @@ public class CollectionMakeupImplTest {
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "buildingsWithDefaultName");
 
         verify(collectionDescriptorService).store(descriptor);
+    }
+
+    @Test
+    public void whenMakeupIsApplied_thenUrlShouldBeFilled() {
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        String collectionId = streetDto.buildings.getId().getExternalId();
+        assertThat(streetDto.buildings.getUrl(), is("https://example.com/collection/" + collectionId));
     }
 
     private static class BuildingResponseDto extends AbstractResponseDto {
