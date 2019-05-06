@@ -2,7 +2,7 @@ package com.extremum.common.collection.conversion;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.CollectionReference;
-import com.extremum.common.collection.EmbeddedCoordinates;
+import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.AbstractResponseDto;
@@ -45,7 +45,7 @@ public class CollectionMakeupImplTest {
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
 
     private StreetResponseDto streetDto;
-    private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forEmbedded(
+    private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
             new Descriptor("the-street"), "the-buildings");
 
     @Before
@@ -75,10 +75,10 @@ public class CollectionMakeupImplTest {
             String expectedHostFieldName) {
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
-        EmbeddedCoordinates embeddedCoordinates = descriptor.getCoordinates().getEmbeddedCoordinates();
-        assertThat(embeddedCoordinates, is(notNullValue()));
-        assertThat(embeddedCoordinates.getHostId().getExternalId(), is("the-street"));
-        assertThat(embeddedCoordinates.getHostFieldName(), is(expectedHostFieldName));
+        OwnedCoordinates ownedCoordinates = descriptor.getCoordinates().getOwnedCoordinates();
+        assertThat(ownedCoordinates, is(notNullValue()));
+        assertThat(ownedCoordinates.getHostId().getExternalId(), is("the-street"));
+        assertThat(ownedCoordinates.getHostFieldName(), is(expectedHostFieldName));
     }
 
     @Test
@@ -148,11 +148,11 @@ public class CollectionMakeupImplTest {
     }
 
     private static class StreetResponseDto extends AbstractResponseDto {
-        @MongoEmbeddedCollection(hostFieldName = "the-buildings")
+        @MongoOwnedCollection(hostFieldName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
-        @MongoEmbeddedCollection(hostFieldName = "the-private-buildings")
+        @MongoOwnedCollection(hostFieldName = "the-private-buildings")
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
-        @MongoEmbeddedCollection
+        @MongoOwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
 
         StreetResponseDto(String externalId,
