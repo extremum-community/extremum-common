@@ -34,7 +34,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         new InstanceFields(dto.getClass()).stream()
                 .filter(this::isOfTypeCollectionReference)
-                .filter(this::isAnnotatedWithEmbeddedCollection)
+                .filter(this::isAnnotatedWithOwnedCollection)
                 .forEach(field -> applyMakeupToField(field, dto));
     }
 
@@ -46,7 +46,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) value;
 
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forEmbedded(dto.getId(), getHostFieldName(field));
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostFieldName(field));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
@@ -62,7 +62,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private String getHostFieldName(Field field) {
-        MongoEmbeddedCollection annotation = field.getAnnotation(MongoEmbeddedCollection.class);
+        MongoOwnedCollection annotation = field.getAnnotation(MongoOwnedCollection.class);
         if (StringUtils.isNotBlank(annotation.hostFieldName())) {
             return annotation.hostFieldName();
         }
@@ -73,8 +73,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return field.getType() == CollectionReference.class;
     }
 
-    private boolean isAnnotatedWithEmbeddedCollection(Field field) {
-        return field.getAnnotation(MongoEmbeddedCollection.class) != null;
+    private boolean isAnnotatedWithOwnedCollection(Field field) {
+        return field.getAnnotation(MongoOwnedCollection.class) != null;
     }
 
     private Object getFieldValue(ResponseDto dto, Field field) {

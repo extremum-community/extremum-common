@@ -37,9 +37,9 @@ public final class CollectionDescriptor implements Serializable {
         this.coordinates = coordinates;
     }
 
-    public static CollectionDescriptor forEmbedded(Descriptor hostId, String hostFieldName) {
-        return new CollectionDescriptor(Type.EMBEDDED,
-                new CollectionCoordinates(new EmbeddedCoordinates(hostId, hostFieldName)));
+    public static CollectionDescriptor forOwned(Descriptor hostId, String hostFieldName) {
+        return new CollectionDescriptor(Type.OWNED,
+                new CollectionCoordinates(new OwnedCoordinates(hostId, hostFieldName)));
     }
 
     @Override
@@ -95,12 +95,12 @@ public final class CollectionDescriptor implements Serializable {
 
     public enum Type {
         /**
-         * Collection is identified by host (embedding) entity and host field name.
+         * Collection is identified by host (owning) entity and host field name.
          */
-        EMBEDDED {
+        OWNED {
             @Override
             String toCoordinatesString(CollectionCoordinates coordinates) {
-                return coordinates.getEmbeddedCoordinates().toCoordinatesString();
+                return coordinates.getOwnedCoordinates().toCoordinatesString();
             }
         };
 

@@ -12,15 +12,15 @@ import java.util.Objects;
  */
 @AllArgsConstructor
 @Getter
-public class EmbeddedCoordinates implements Serializable {
+public class OwnedCoordinates implements Serializable {
     private Descriptor hostId;
     private String hostFieldName;
 
-    private EmbeddedCoordinates() {
+    private OwnedCoordinates() {
     }
 
     public String toCoordinatesString() {
-        return "EMBEDDED/" + hostId.getExternalId() + "/" + hostFieldName;
+        return "OWNED/" + hostId.getExternalId() + "/" + hostFieldName;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class EmbeddedCoordinates implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        EmbeddedCoordinates that = (EmbeddedCoordinates) o;
+        OwnedCoordinates that = (OwnedCoordinates) o;
         return Objects.equals(hostId, that.hostId) &&
                 Objects.equals(hostFieldName, that.hostFieldName);
     }

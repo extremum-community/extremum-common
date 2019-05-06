@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  * The field must be defined in a subclass of {@link ResponseDto}.
  * Infrastructure will generate the ID and URL automatically.
  *
- * This annotation is used to define 'embedded' collecitons.
+ * This annotation is used to define 'owned' collecitons.
  * As collection coordinates, they have <host entity descriptor, host field name>
  * pair. Host entity descriptor is just a {@link Descriptor} of the {@link ResponseDto}
  * to which the annotated collection instance belongs.
@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface MongoEmbeddedCollection {
+public @interface MongoOwnedCollection {
     String hostFieldName() default "";
 }

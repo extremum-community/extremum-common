@@ -12,7 +12,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public class CollectionCoordinates implements Serializable {
-    private EmbeddedCoordinates embeddedCoordinates;
+    private OwnedCoordinates ownedCoordinates;
 
     private CollectionCoordinates() {
     }
@@ -26,11 +26,11 @@ public class CollectionCoordinates implements Serializable {
             return false;
         }
         CollectionCoordinates that = (CollectionCoordinates) o;
-        return Objects.equals(embeddedCoordinates, that.embeddedCoordinates);
+        return Objects.equals(ownedCoordinates, that.ownedCoordinates);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(embeddedCoordinates);
+        return Objects.hash(ownedCoordinates);
     }
 }

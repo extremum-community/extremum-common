@@ -1,7 +1,7 @@
 package descriptor;
 
 import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.collection.EmbeddedCoordinates;
+import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
@@ -54,15 +54,15 @@ public class MongoCollectionDescriptorDaoTest {
             CollectionDescriptor collectionDescriptor, Optional<CollectionDescriptor> retrievedDescriptor) {
         assertTrue(retrievedDescriptor.isPresent());
         assertThat(retrievedDescriptor.get().getExternalId(), is(collectionDescriptor.getExternalId()));
-        assertThat(retrievedDescriptor.get().getType(), is(CollectionDescriptor.Type.EMBEDDED));
-        EmbeddedCoordinates embeddedCoordinates = retrievedDescriptor.get().getCoordinates().getEmbeddedCoordinates();
-        assertThat(embeddedCoordinates.getHostId().getExternalId(), is(hostExternalId));
-        assertThat(embeddedCoordinates.getHostFieldName(), is("items"));
+        assertThat(retrievedDescriptor.get().getType(), is(CollectionDescriptor.Type.OWNED));
+        OwnedCoordinates ownedCoordinates = retrievedDescriptor.get().getCoordinates().getOwnedCoordinates();
+        assertThat(ownedCoordinates.getHostId().getExternalId(), is(hostExternalId));
+        assertThat(ownedCoordinates.getHostFieldName(), is("items"));
     }
 
     @NotNull
     private CollectionDescriptor createACollectionDescriptor(String hostExternalId) {
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forEmbedded(
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(
                 new Descriptor(hostExternalId), "items");
 
         collectionDescriptorService.store(collectionDescriptor);
@@ -91,7 +91,7 @@ public class MongoCollectionDescriptorDaoTest {
     @Test
     public void testRetrieveFromMongo() {
         String hostExternalId = createADescriptor();
-        CollectionDescriptor descriptor = CollectionDescriptor.forEmbedded(new Descriptor(hostExternalId), "items");
+        CollectionDescriptor descriptor = CollectionDescriptor.forOwned(new Descriptor(hostExternalId), "items");
         String coordinatesString = descriptor.toCoordinatesString();
 
         Optional<CollectionDescriptor> retrievedDescriptor = collectionDescriptorDao.retrieveByCoordinates(
