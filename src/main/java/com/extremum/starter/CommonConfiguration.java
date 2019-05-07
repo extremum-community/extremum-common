@@ -14,6 +14,7 @@ import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
+import com.extremum.common.service.MongoCommonModelLifecycleListener;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -154,5 +155,10 @@ public class CommonConfiguration {
     @Primary
     public ObjectMapper jacksonObjectMapper() {
         return JsonObjectMapper.createWithDescriptors();
+    }
+
+    @Bean
+    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener() {
+        return new MongoCommonModelLifecycleListener();
     }
 }

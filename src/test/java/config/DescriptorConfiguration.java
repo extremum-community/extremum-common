@@ -12,6 +12,7 @@ import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.service.MongoCommonModelLifecycleListener;
 import com.extremum.starter.DescriptorMongoConfiguration;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -100,7 +101,12 @@ public class DescriptorConfiguration {
     }
 
     @Bean
-    public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao){
+    public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao) {
         return new DescriptorServiceConfigurator(descriptorDao);
+    }
+
+    @Bean
+    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener() {
+        return new MongoCommonModelLifecycleListener();
     }
 }
