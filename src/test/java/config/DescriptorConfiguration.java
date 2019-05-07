@@ -1,15 +1,18 @@
 package config;
 
-import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
+import com.extremum.common.collection.dao.impl.BaseCollectionDescriptorDaoImpl;
+import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
+import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.starter.DescriptorMongoConfiguration;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
@@ -25,10 +28,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Import;
 import org.testcontainers.containers.GenericContainer;
 
 
 @Configuration
+@Import(DescriptorMongoConfiguration.class)
 @EnableConfigurationProperties({MongoProperties.class, RedisProperties.class, DescriptorsProperties.class})
 @RequiredArgsConstructor
 public class DescriptorConfiguration {
@@ -72,16 +77,18 @@ public class DescriptorConfiguration {
     }
 
     @Bean
-    public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+    public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
         Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
                 JsonObjectMapper.createWithoutDescriptorTransfiguration());
-        return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
-                descriptorsProperties.getInternalIdsMapName(), codec, redisProps.getCacheSize(), redisProps.getIdleTime());
+        return new BaseDescriptorDaoImpl(redissonClient, descriptorRepository,
+                descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(),
+                codec, redisProps.getCacheSize(), redisProps.getIdleTime());
     }
 
     @Bean
-    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
-        return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
+    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
+            CollectionDescriptorRepository collectionDescriptorRepository) {
+        return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository,
                 descriptorsProperties.getCollectionDescriptorsMapName(),
                 descriptorsProperties.getCollectionCoordinatesMapName(),
                 redisProps.getCacheSize(), redisProps.getIdleTime());

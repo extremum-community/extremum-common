@@ -1,43 +1,37 @@
 package com.extremum.common.models;
 
-import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Converters;
-import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.PostLoad;
 import org.mongodb.morphia.annotations.PostPersist;
 import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Property;
-import org.mongodb.morphia.annotations.Transient;
-import org.mongodb.morphia.annotations.Version;
+import org.springframework.data.annotation.*;
 
 import java.time.ZonedDateTime;
 
 @Getter
 @Setter
-@Converters({MongoZonedDateTimeConverter.class})
 public abstract class MongoCommonModel implements PersistableCommonModel<ObjectId> {
     @Transient
     private Descriptor uuid;
 
     @Id
+    @org.mongodb.morphia.annotations.Id
     private ObjectId id;
 
-    @Property
+    @CreatedDate
     private ZonedDateTime created;
 
-    @Property
+    @LastModifiedDate
     private ZonedDateTime modified;
 
-    @Property
     @Version
+    @org.mongodb.morphia.annotations.Version
     private Long version;
 
-    @Property
     private Boolean deleted = false;
 
 

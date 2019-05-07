@@ -2,15 +2,14 @@ package descriptor;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
+import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.*;
 import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
-import org.codehaus.jettison.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mongodb.morphia.Datastore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -19,7 +18,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
@@ -28,7 +31,7 @@ public class MongoDescriptorDaoTest {
     @Autowired
     private DescriptorDao descriptorDao;
     @Autowired
-    private Datastore descriptorsStore;
+    private DescriptorRepository descriptorRepository;
 
     @Test
     public void testRetrieveByExternalId() {
@@ -95,7 +98,7 @@ public class MongoDescriptorDaoTest {
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
         assertFalse(retrievedDescriptor.isPresent());
 
-        descriptorsStore.save(descriptor);
+        descriptorRepository.save(descriptor);
         retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
@@ -140,7 +143,7 @@ public class MongoDescriptorDaoTest {
     }
 
     @Test
-    public void testSaveDisplayFieldAsSerializedString() throws JSONException {
+    public void testSaveDisplayFieldAsSerializedString() {
         Media iconObj = new Media();
         iconObj.setUrl("/url/to/resource");
         iconObj.setType(MediaType.IMAGE);

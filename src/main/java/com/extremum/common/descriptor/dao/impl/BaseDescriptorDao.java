@@ -3,7 +3,6 @@ package com.extremum.common.descriptor.dao.impl;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import lombok.extern.slf4j.Slf4j;
-import org.mongodb.morphia.Datastore;
 import org.redisson.api.RMap;
 
 import java.util.Collection;
@@ -16,13 +15,14 @@ import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 public abstract class BaseDescriptorDao implements DescriptorDao {
-    private final Datastore mongoDatastore;
+    private final DescriptorRepository descriptorRepository;
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
     private static final int RETRY_ATTEMPTS = 3;
 
-    BaseDescriptorDao(Datastore mongoDatastore, RMap<String, Descriptor> descriptors, RMap<String, String> internalIdIndex) {
-        this.mongoDatastore = mongoDatastore;
+    BaseDescriptorDao(DescriptorRepository descriptorRepository, RMap<String, Descriptor> descriptors,
+            RMap<String, String> internalIdIndex) {
+        this.descriptorRepository = descriptorRepository;
         this.descriptors = descriptors;
         this.internalIdIndex = internalIdIndex;
     }
@@ -30,10 +30,6 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     @Override
     public Optional<Descriptor> retrieveByExternalId(String externalId) {
         return Optional.ofNullable(descriptors.get(externalId));
-    }
-
-    public Datastore getMongoDatastore() {
-        return mongoDatastore;
     }
 
     @Override
@@ -58,13 +54,9 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public Descriptor store(Descriptor descriptor) {
-        Optional<Descriptor> optionalDesc = Optional.ofNullable(mongoDatastore
-                .find(Descriptor.class)
-                .field("externalId")
-                .equal(descriptor.getExternalId())
-                .get());
+        Optional<Descriptor> optionalDesc = descriptorRepository.findByExternalId(descriptor.getExternalId());
 
-        mongoDatastore.save(descriptor);
+        descriptorRepository.save(descriptor);
 
         if (optionalDesc.isPresent()) {
             try {
@@ -74,7 +66,7 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 Descriptor oldDescriptor = optionalDesc.get();
                 for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
                     try {
-                        mongoDatastore.save(oldDescriptor);
+                        descriptorRepository.save(oldDescriptor);
                         break;
                     } catch (Exception ex) {
                         if (i == 3) {

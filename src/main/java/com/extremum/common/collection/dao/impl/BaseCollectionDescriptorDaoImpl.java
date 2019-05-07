@@ -1,8 +1,6 @@
-package com.extremum.common.collection.dao;
+package com.extremum.common.collection.dao.impl;
 
 import com.extremum.common.collection.CollectionDescriptor;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Key;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;
@@ -14,20 +12,21 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
     private static final int DEFAULT_CACHE_SIZE = 500000;
     private static final long DEFAULT_IDLE_TIME_DAYS = 30;
 
-    public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
+    public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient,
+            CollectionDescriptorRepository repository,
             String descriptorsMapName, String coordinatesMapName) {
-        this(redissonClient, mongoDatastore, descriptorsMapName, coordinatesMapName,
+        this(redissonClient, repository, descriptorsMapName, coordinatesMapName,
                 DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
     }
 
-    public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, Datastore mongoDatastore,
+    public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, CollectionDescriptorRepository repository,
             String descriptorsMapName, String coordinatesMapName, int cacheSize, long idleTime) {
-        super(mongoDatastore,
+        super(repository,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
                         LocalCachedMapOptions
                                 .<String, CollectionDescriptor>defaults()
-                                .loader(descriptorIdMapLoader(mongoDatastore))
+                                .loader(descriptorIdMapLoader(repository))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
@@ -36,7 +35,7 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                         coordinatesMapName,
                         LocalCachedMapOptions
                                 .<String, String>defaults()
-                                .loader(descriptorCoordinatesMapLoader(mongoDatastore))
+                                .loader(descriptorCoordinatesMapLoader(repository))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
@@ -44,38 +43,36 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
         );
     }
 
-    private static MapLoader<String, CollectionDescriptor> descriptorIdMapLoader(Datastore descriptorsStore) {
+    private static MapLoader<String, CollectionDescriptor> descriptorIdMapLoader(
+            CollectionDescriptorRepository repository) {
         return new MapLoader<String, CollectionDescriptor>() {
             @Override
             public CollectionDescriptor load(String key) {
-                return descriptorsStore.get(CollectionDescriptor.class, key);
+                return repository.findByExternalId(key).orElse(null);
             }
 
             @Override
             public Iterable<String> loadAllKeys() {
-                return descriptorsStore.find(CollectionDescriptor.class).asKeyList().stream()
-                        .map(Key::getId)
-                        .map(String.class::cast)
+                return repository.findAllExternalIds().stream()
+                        .map(CollectionDescriptor::getExternalId)
                         .collect(Collectors.toList());
             }
         };
     }
 
-    private static MapLoader<String, String> descriptorCoordinatesMapLoader(Datastore descriptorsStore) {
+    private static MapLoader<String, String> descriptorCoordinatesMapLoader(CollectionDescriptorRepository repository) {
         return new MapLoader<String, String>() {
             @Override
             public String load(String key) {
-                CollectionDescriptor descriptor = descriptorsStore.find(CollectionDescriptor.class)
-                        .field(CollectionDescriptor.FIELDS.coordinatesString.name()).equal(key).get();
-                return descriptor != null
-                        ? descriptor.getExternalId()
-                        : null;
+                return repository.findByCoordinatesString(key)
+                        .map(CollectionDescriptor::getExternalId)
+                        .orElse(null);
             }
 
             @Override
             public Iterable<String> loadAllKeys() {
-                return descriptorsStore.find(CollectionDescriptor.class).asList().stream()
-                        .map(CollectionDescriptor::toCoordinatesString)
+                return repository.findAllCoordinatesStrings().stream()
+                        .map(CollectionDescriptor::getCoordinatesString)
                         .collect(Collectors.toList());
             }
         };

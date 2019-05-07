@@ -2,10 +2,10 @@ package com.extremum.common.collection;
 
 import com.extremum.common.descriptor.Descriptor;
 import lombok.Getter;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Indexed;
-import org.mongodb.morphia.annotations.PrePersist;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-@Entity(value = "collection-descriptors", noClassnameStored = true)
+@Document("collection-descriptors")
 public final class CollectionDescriptor implements Serializable {
     @Id
     private String externalId;
@@ -22,6 +22,7 @@ public final class CollectionDescriptor implements Serializable {
     @Indexed
     private String coordinatesString;
 
+    @CreatedDate
     private ZonedDateTime created;
     private boolean deleted;
 
@@ -74,23 +75,14 @@ public final class CollectionDescriptor implements Serializable {
         return type.toCoordinatesString(coordinates);
     }
 
-    @PrePersist
     public void generateExternalIdIfNeeded() {
         if (externalId == null) {
             externalId = UUID.randomUUID().toString();
         }
     }
 
-    @PrePersist
     public void refreshCoordinatesString() {
         coordinatesString = toCoordinatesString();
-    }
-
-    @PrePersist
-    public void initCreatedIfNeeded() {
-        if (created == null) {
-            created = ZonedDateTime.now();
-        }
     }
 
     public enum Type {
