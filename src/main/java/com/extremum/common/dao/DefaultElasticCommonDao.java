@@ -131,6 +131,10 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
                         .query(
                                 QueryBuilders.queryStringQuery(queryString)));
 
+        return doSearch(queryString, request);
+    }
+
+    protected List<Model> doSearch(String queryString, SearchRequest request) {
         try (RestHighLevelClient client = getClient()) {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
