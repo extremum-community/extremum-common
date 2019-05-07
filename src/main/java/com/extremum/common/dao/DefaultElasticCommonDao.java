@@ -254,12 +254,12 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     public Model persist(Model model) {
         prePersist(model);
 
-        String rawData = serializeModel(model);
-
-        return save(model, rawData);
+        return save(model);
     }
 
-    protected Model save(Model model, String rawData) {
+    protected Model save(Model model) {
+        String rawData = serializeModel(model);
+
         try (RestHighLevelClient client = getClient()) {
             final IndexRequest request = new IndexRequest();
             request.index(indexName);
