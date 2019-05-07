@@ -15,4 +15,6 @@ public abstract class ElasticCommonModel implements PersistableCommonModel<Strin
     private ZonedDateTime modified;
     private Long version;
     private Boolean deleted;
+    private Long seqNo;
+    private Long primaryTerm;
 }
