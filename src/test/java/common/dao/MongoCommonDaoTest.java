@@ -2,6 +2,7 @@ package common.dao;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.models.annotation.ModelName;
 import config.DescriptorConfiguration;
 import models.TestModel;
 import org.bson.types.ObjectId;
@@ -235,7 +236,7 @@ public class MongoCommonDaoTest {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
-                .modelType(model.getModelName())
+                .modelType(model.getClass().getAnnotation(ModelName.class).name())
                 .storageType(Descriptor.StorageType.MONGO)
                 .build();
 

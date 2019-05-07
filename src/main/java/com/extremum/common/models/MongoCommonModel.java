@@ -3,17 +3,11 @@ package com.extremum.common.models;
 import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Converters;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.PostLoad;
-import org.mongodb.morphia.annotations.PostPersist;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Property;
-import org.mongodb.morphia.annotations.Transient;
-import org.mongodb.morphia.annotations.Version;
+import org.mongodb.morphia.annotations.*;
 
 import java.time.ZonedDateTime;
 
@@ -69,8 +63,9 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
 
     @PostPersist
     public void createDescriptorIfNeeded() {
+        String name = this.getClass().getAnnotation(ModelName.class).name();
         if (this.uuid == null) {
-            this.uuid = MongoDescriptorFactory.create(id, getModelName());
+            this.uuid = MongoDescriptorFactory.create(id, name);
         }
     }
 }
