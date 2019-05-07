@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DisplayDeserializeTest {
-    private JsonObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
+    private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
 
     @Test
     public void deserializeFromSimpleStringTest() throws IOException {

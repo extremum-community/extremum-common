@@ -31,32 +31,39 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Public object mapper for clients.
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
-    private final boolean descriptorTransfigurationEnabled;
-    private final MapperDependencies descriptorTransfigurationDependencies;
+    private final Level level;
+    private final MapperDependencies collectionDescriptorTransfigurationDependencies;
 
-    private JsonObjectMapper(boolean enableDescriptorTransfiguration,
-            MapperDependencies descriptorTransfigurationDependencies) {
-        if (enableDescriptorTransfiguration) {
-            makeSureDependenciesArePresent(descriptorTransfigurationDependencies);
+    private JsonObjectMapper(Level level,
+            MapperDependencies collectionDescriptorsTransfigurationDependencies) {
+        if (level.hasCollectionDescriptors()) {
+            makeSureDependenciesArePresent(collectionDescriptorsTransfigurationDependencies);
         }
-        descriptorTransfigurationEnabled = enableDescriptorTransfiguration;
-        this.descriptorTransfigurationDependencies = descriptorTransfigurationDependencies;
+        this.level = level;
+        this.collectionDescriptorTransfigurationDependencies = collectionDescriptorsTransfigurationDependencies;
     }
 
     private void makeSureDependenciesArePresent(MapperDependencies dependenciesToCheck) {
         if (dependenciesToCheck == null) {
-            throw new IllegalStateException("Descriptor transfiguration is enabled but dependencies are null");
+            throw new IllegalStateException(
+                    "Descriptor collections transfiguration is enabled but dependencies are null");
         }
     }
 
     public static JsonObjectMapper createWithoutDescriptorTransfiguration() {
-        JsonObjectMapper mapper = new JsonObjectMapper(false, null);
+        JsonObjectMapper mapper = new JsonObjectMapper(Level.BASIC, null);
         mapper.configure();
         return mapper;
     }
 
-    public static JsonObjectMapper createMapper(MapperDependencies dependencies) {
-        JsonObjectMapper mapper = new JsonObjectMapper(true, dependencies);
+    public static JsonObjectMapper createWithDescriptors() {
+        JsonObjectMapper mapper = new JsonObjectMapper(Level.DESCRIPTORS, null);
+        mapper.configure();
+        return mapper;
+    }
+
+    public static JsonObjectMapper createWithCollectionDescriptors(MapperDependencies dependencies) {
+        JsonObjectMapper mapper = new JsonObjectMapper(Level.COLLECTION_DESCRIPTORS, dependencies);
         mapper.configure();
         return mapper;
     }
@@ -73,14 +80,15 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
     protected SimpleModule createCustomModule() {
         SimpleModule module = super.createCustomModule();
 
-        if (descriptorTransfigurationEnabled) {
-            makeSureDependenciesArePresent(descriptorTransfigurationDependencies);
+        if (level.hasDescriptors()) {
             module.addSerializer(Descriptor.class, new ToStringSerializer());
             module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
-
+        }
+        if (level.hasCollectionDescriptors()) {
+            makeSureDependenciesArePresent(collectionDescriptorTransfigurationDependencies);
             module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
             module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer(
-                    descriptorTransfigurationDependencies.collectionDescriptorService()));
+                    collectionDescriptorTransfigurationDependencies.collectionDescriptorService()));
         }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
@@ -102,5 +110,19 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(this));
 
         return module;
+    }
+
+    private enum Level {
+        BASIC,
+        DESCRIPTORS,
+        COLLECTION_DESCRIPTORS;
+
+        boolean hasDescriptors() {
+            return this == DESCRIPTORS || this == COLLECTION_DESCRIPTORS;
+        }
+
+        boolean hasCollectionDescriptors() {
+            return this == COLLECTION_DESCRIPTORS;
+        }
     }
 }
