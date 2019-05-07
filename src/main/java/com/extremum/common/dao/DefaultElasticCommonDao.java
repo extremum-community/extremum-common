@@ -6,13 +6,14 @@ import com.extremum.common.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.ElasticDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.common.models.ElasticData;
+import com.extremum.common.models.ElasticCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.starter.properties.ElasticProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -20,8 +21,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -43,13 +42,9 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -58,24 +53,46 @@ import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
-public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
+public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implements ElasticCommonDao<Model> {
     private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted; ctx._source.modified = params.modified";
 
     private RestClientBuilder restClientBuilder;
-    private final ElasticDescriptorFactory elasticDescriptorFactory;
+    private ElasticDescriptorFactory elasticDescriptorFactory;
 
-    private final ElasticProperties elasticProps;
-    private final String indexName;
-    private final String indexType;
+    private ElasticProperties elasticProps;
+    private ObjectMapper mapper;
+    private String indexName;
+    private String indexType;
 
-    public DefaultElasticCommonDao(ElasticProperties elasticProperties, ElasticDescriptorFactory descriptorFactory,
-                                   String indexName, String indexType) {
+    private Class<? extends Model> modelClass;
+
+    public DefaultElasticCommonDao(Class<Model> modelClass, ElasticProperties elasticProperties,
+                                   ElasticDescriptorFactory descriptorFactory, ObjectMapper mapper, String indexName,
+                                   String indexType) {
+        this.modelClass = modelClass;
         this.elasticProps = elasticProperties;
         this.elasticDescriptorFactory = descriptorFactory;
+        this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
 
         initRest();
+    }
+
+    protected DefaultElasticCommonDao(ElasticProperties elasticProperties, ElasticDescriptorFactory descriptorFactory,
+                                      ObjectMapper mapper, String indexName, String indexType) {
+        this.elasticProps = elasticProperties;
+        this.elasticDescriptorFactory = descriptorFactory;
+        this.mapper = mapper;
+        this.indexName = indexName;
+        this.indexType = indexType;
+
+        initRest();
+        initModelClass();
+    }
+
+    protected void initModelClass() {
+        modelClass = (Class<Model>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
     protected void initRest() {
@@ -105,30 +122,8 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         return new RestHighLevelClient(restClientBuilder);
     }
 
-    private synchronized ElasticData updateServiceFields(ElasticData model) {
-        try {
-            if (model.getModified() == null) {
-                model.setModified(model.getCreated());
-            }
-
-            JSONObject json = new JSONObject(model.getRawDocument());
-
-            json.put(FIELDS.id.name(), model.getId());
-            json.put(FIELDS.created.name(), DateUtils.formatZonedDateTimeISO_8601(model.getCreated()));
-            json.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(model.getModified()));
-            json.put(FIELDS.deleted.name(), model.getDeleted());
-
-            model.setRawDocument(json.toString());
-
-            return model;
-        } catch (JSONException e) {
-            log.error("Can't update model {}", model, e);
-            throw new CommonException(e, "Can't update model " + model, HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @Override
-    public List<ElasticData> search(String queryString) {
+    public List<Model> search(String queryString) {
         final SearchRequest request = new SearchRequest(indexName);
 
         request.source(
@@ -136,14 +131,18 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                         .query(
                                 QueryBuilders.queryStringQuery(queryString)));
 
+        return doSearch(queryString, request);
+    }
+
+    protected List<Model> doSearch(String queryString, SearchRequest request) {
         try (RestHighLevelClient client = getClient()) {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
             if (HttpStatus.SC_OK == response.status().getStatus()) {
-                List<ElasticData> results = new ArrayList<>();
+                List<Model> results = new ArrayList<>();
 
                 for (SearchHit hit : response.getHits()) {
-                    ElasticData data = extract(new SearchHitAccessorFacade(hit));
+                    Model data = extract(new SearchHitAccessorFacade(hit));
                     results.add(data);
                 }
 
@@ -159,14 +158,14 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
     }
 
     @Override
-    public List<ElasticData> findAll() {
+    public List<Model> findAll() {
         log.warn("Please use the findById() method or search() method. " +
                 "Method findAll() may produce very large data response");
         return Collections.emptyList();
     }
 
     @Override
-    public ElasticData findById(String id) {
+    public Model findById(String id) {
         try (RestHighLevelClient client = getClient()) {
             GetResponse response = client.get(
                     new GetRequest(indexName, id),
@@ -195,7 +194,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
     }
 
     @Override
-    public ElasticData findById(String id, String... includeFields) {
+    public Model findById(String id, String... includeFields) {
         log.warn("The search will be performed only by ID without taking into account the includeFields parameter");
         return findById(id);
     }
@@ -204,7 +203,7 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
     public boolean isExists(String id) {
         if (isDocumentExists(id)) {
             try {
-                final ElasticData data = findById(id);
+                final Model data = findById(id);
                 return !data.getDeleted();
             } catch (ModelNotFoundException e) {
                 return false;
@@ -247,12 +246,49 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
     }
 
     @Override
-    public ElasticData create(ElasticData model) {
+    public Model create(Model model) {
         return persist(model);
     }
 
     @Override
-    public ElasticData persist(ElasticData model, Long seqNo, Long primaryTerm) {
+    public Model persist(Model model) {
+        prePersist(model);
+
+        return save(model);
+    }
+
+    protected Model save(Model model) {
+        String rawData = serializeModel(model);
+
+        try (RestHighLevelClient client = getClient()) {
+            final IndexRequest request = new IndexRequest();
+            request.index(indexName);
+            request.id(model.getId());
+
+            request.source(rawData, XContentType.JSON);
+
+            if (model.getSeqNo() != null && model.getPrimaryTerm() != null) {
+                request.setIfSeqNo(model.getSeqNo());
+                request.setIfPrimaryTerm(model.getPrimaryTerm());
+            }
+
+            final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+
+            if (asList(SC_OK, SC_CREATED).contains(response.status().getStatus())) {
+                model.setSeqNo(response.getSeqNo());
+                model.setPrimaryTerm(response.getPrimaryTerm());
+                return model;
+            } else {
+                log.error("Document don't be indexed, status {}", response.status());
+                throw new RuntimeException("Document don't be indexed");
+            }
+        } catch (IOException e) {
+            log.error("Unable to add data to index", e);
+            throw new RuntimeException("Unable to add data to index", e);
+        }
+    }
+
+    protected void prePersist(Model model) {
         if (model.getId() == null) {
             final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
             final Descriptor stored = DescriptorService.store(descriptor);
@@ -268,40 +304,24 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                 model.setModified(ZonedDateTime.now());
             }
         }
+    }
 
-        final ElasticData updatedModel = updateServiceFields(model);
-
-        try (RestHighLevelClient client = getClient()) {
-            final IndexRequest request = new IndexRequest();
-            request.index(indexName);
-            request.id(model.getId());
-
-            request.source(updatedModel.getRawDocument(), XContentType.JSON);
-
-            if (seqNo != null && primaryTerm != null) {
-                request.setIfSeqNo(seqNo);
-                request.setIfPrimaryTerm(primaryTerm);
-            }
-
-            final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-
-            if (asList(SC_OK, SC_CREATED).contains(response.status().getStatus())) {
-                model.setSeqNo(response.getSeqNo());
-                model.setPrimaryTerm(response.getPrimaryTerm());
-                return updatedModel;
-            } else {
-                log.error("Document don't be indexed, status {}", response.status());
-                throw new RuntimeException("Document don't be indexed");
-            }
-        } catch (IOException e) {
-            log.error("Unable to add data to index", e);
-            throw new RuntimeException("Unable to add data to index", e);
+    private String serializeModel(Model model) {
+        try {
+            return mapper.writeValueAsString(model);
+        } catch (JsonProcessingException e) {
+            log.error("Unable to serialize model {}", model, e);
+            throw new RuntimeException("Unable to serialize model " + model, e);
         }
     }
 
-    @Override
-    public ElasticData persist(ElasticData model) {
-        return persist(model, null, null);
+    private Model deserializeModel(String rawSource) {
+        try {
+            return mapper.readValue(rawSource, modelClass);
+        } catch (IOException e) {
+            log.error("Unable to deserialize {} to {}", rawSource, modelClass, e);
+            throw new RuntimeException("Unable to deserialize " + rawSource + " to " + modelClass, e);
+        }
     }
 
     @Override
@@ -343,15 +363,13 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
         }
     }
 
-    private ElasticData extract(AccessorFacade accessor) {
-        final ElasticData data = ElasticData.builder()
-                .id(accessor.getId())
-                .uuid(accessor.getUuid())
-                .seqNo(accessor.getSeqNo())
-                .primaryTerm(accessor.getPrimaryTerm())
-                .version(accessor.getVersion())
-                .rawDocument(accessor.getRawSource())
-                .build();
+    private Model extract(AccessorFacade accessor) {
+        Model model = deserializeModel(accessor.getRawSource());
+        model.setId(accessor.getId());
+        model.setUuid(accessor.getUuid());
+        model.setVersion(accessor.getVersion());
+        model.setSeqNo(accessor.getSeqNo());
+        model.setPrimaryTerm(accessor.getPrimaryTerm());
 
         final Map<String, Object> sourceAsMap = accessor.getSourceAsMap();
 
@@ -360,22 +378,19 @@ public class DefaultElasticCommonDao implements ElasticCommonDao<ElasticData> {
                 .map(Boolean.class::cast)
                 .orElse(Boolean.FALSE);
 
-        data.setDeleted(deleted);
+        model.setDeleted(deleted);
 
         ofNullable(sourceAsMap)
                 .map(m -> zonedDateTimeFromMap(m, FIELDS.created.name()))
-                .ifPresent(data::setCreated);
+                .ifPresent(model::setCreated);
 
         ofNullable(sourceAsMap)
                 .map(m -> zonedDateTimeFromMap(m, FIELDS.modified.name()))
-                .ifPresent(data::setModified);
+                .ifPresent(model::setModified);
 
-        ofNullable(data.getUuid())
-                .map(Descriptor::getModelType)
-                .ifPresent(data::setModelName);
-
-        return data;
+        return model;
     }
+
 
     private ZonedDateTime zonedDateTimeFromMap(Map<String, Object> map, String fieldName) {
         return ofNullable(map)
