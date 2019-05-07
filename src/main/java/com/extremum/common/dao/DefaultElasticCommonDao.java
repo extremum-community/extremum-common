@@ -248,24 +248,14 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
 
     @Override
     public Model persist(Model model) {
-        if (model.getId() == null) {
-            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
-            final Descriptor stored = DescriptorService.store(descriptor);
-            model.setUuid(stored);
-            model.setId(stored.getInternalId());
-            model.setCreated(ZonedDateTime.now());
-            model.setVersion(0L);
-            model.setDeleted(Boolean.FALSE);
-        } else {
-            if (isDeleted(model.getId())) {
-                throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
-            } else {
-                model.setModified(ZonedDateTime.now());
-            }
-        }
+        prePersist(model);
 
         String rawData = serializeModel(model);
 
+        return save(model, rawData);
+    }
+
+    protected Model save(Model model, String rawData) {
         try (RestHighLevelClient client = getClient()) {
             final IndexRequest request = new IndexRequest();
             request.index(indexName);
@@ -291,6 +281,24 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
         } catch (IOException e) {
             log.error("Unable to add data to index", e);
             throw new RuntimeException("Unable to add data to index", e);
+        }
+    }
+
+    protected void prePersist(Model model) {
+        if (model.getId() == null) {
+            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
+            final Descriptor stored = DescriptorService.store(descriptor);
+            model.setUuid(stored);
+            model.setId(stored.getInternalId());
+            model.setCreated(ZonedDateTime.now());
+            model.setVersion(0L);
+            model.setDeleted(Boolean.FALSE);
+        } else {
+            if (isDeleted(model.getId())) {
+                throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
+            } else {
+                model.setModified(ZonedDateTime.now());
+            }
         }
     }
 
