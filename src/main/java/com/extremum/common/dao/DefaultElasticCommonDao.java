@@ -9,6 +9,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.ElasticCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
+import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.starter.properties.ElasticProperties;
@@ -290,7 +291,8 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
 
     protected void prePersist(Model model) {
         if (model.getId() == null) {
-            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
+            String name = model.getClass().getAnnotation(ModelName.class).name();
+            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), name);
             final Descriptor stored = DescriptorService.store(descriptor);
             model.setUuid(stored);
             model.setId(stored.getInternalId());
