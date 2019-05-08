@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -189,12 +190,12 @@ public class MongoCommonDaoTest {
         int offset = RandomUtils.nextInt(modelsToCreate);
         int idsSize = RandomUtils.nextInt(modelsToCreate);
 
-        ZonedDateTime createTime = ZonedDateTime.now();
+        String name = UUID.randomUUID().toString();
         List<ObjectId> createdIds = new ArrayList<>();
 
         for (int i = 0; i < modelsToCreate; i++) {
             TestModel testModel = getTestModel();
-            testModel.setCreated(createTime);
+            testModel.name = name;
             dao.save(testModel);
             createdIds.add(testModel.getId());
         }
@@ -217,7 +218,7 @@ public class MongoCommonDaoTest {
         count = dao.listByParameters(Collections.singletonMap("ids", createdIds.subList(0, idsSize))).size();
         assertEquals(idsSize, count);
 
-        count = dao.listByParameters(Collections.singletonMap(created.name(), createTime)).size();
+        count = dao.listByParameters(Collections.singletonMap(TestModel.FIELDS.name.name(), name)).size();
         assertEquals(modelsToCreate, count);
     }
 

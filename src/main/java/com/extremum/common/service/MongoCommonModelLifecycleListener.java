@@ -1,10 +1,10 @@
 package com.extremum.common.service;
 
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.models.MongoCommonModel;
-import org.springframework.data.mongodb.core.mapping.event.*;
-
-import java.time.ZonedDateTime;
+import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
+import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
+import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 
 /**
  * @author rpuch

@@ -10,8 +10,14 @@ public class TestModel extends MongoCommonModel {
 
     static final String COLLECTION = "testEntities";
 
+    public String name;
+
     @Override
     public String getModelName() {
         return COLLECTION;
+    }
+
+    public enum FIELDS {
+        name
     }
 }

@@ -5,10 +5,7 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
 
 import java.time.ZonedDateTime;
 
@@ -21,7 +18,7 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     @Id
     private ObjectId id;
 
-//    @CreatedDate
+    @CreatedDate
     private ZonedDateTime created;
 
     @LastModifiedDate
@@ -34,24 +31,10 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
 
 
     public void fillRequiredFields() {
-        initCreated();
-//        initModified();
-
         if (this.id == null && this.uuid != null) {
             this.id = MongoDescriptorFactory.resolve(uuid);
         }
     }
-
-    private void initCreated() {
-        if (this.id == null && this.created == null) {
-            this.created = ZonedDateTime.now();
-        }
-    }
-
-    private void initModified() {
-        this.modified = ZonedDateTime.now();
-    }
-
 
     public void resolveDescriptor() {
         this.uuid = MongoDescriptorFactory.fromInternalId(id);
