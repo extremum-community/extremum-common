@@ -193,12 +193,6 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
         }
     }
 
-//    @Override
-//    public Model findById(String id, String... includeFields) {
-//        log.warn("The search will be performed only by ID without taking into account the includeFields parameter");
-//        return findById(id);
-//    }
-
     @Override
     public boolean existsById(String id) {
         if (isDocumentExists(id)) {

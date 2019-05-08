@@ -8,9 +8,6 @@ public interface CommonDao<M, ID> {
 
     Optional<M> findById(ID id);
 
-    // TODO: can we implement this method using a spring-data @Repository?
-//    M findById(ID id, String... includeFields);
-
     boolean existsById(ID id);
 
     // TODO: restore
