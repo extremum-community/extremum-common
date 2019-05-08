@@ -16,13 +16,7 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
 
         MongoCommonModel model = event.getSource();
 
-        if (model.getId() == null && model.getUuid() != null) {
-            model.setId(MongoDescriptorFactory.resolve(model.getUuid()));
-        }
-
-        if (model.getCreated() == null) {
-            model.setCreated(ZonedDateTime.now());
-        }
+        model.fillRequiredFields();
     }
 
     @Override
@@ -30,10 +24,8 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
         super.onAfterSave(event);
         
         MongoCommonModel model = event.getSource();
-        
-        if (model.getUuid() == null) {
-            model.setUuid(MongoDescriptorFactory.create(model.getId(), model.getModelName()));
-        }
+
+        model.createDescriptorIfNeeded();
     }
 
     @Override
@@ -42,6 +34,6 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
 
         MongoCommonModel model = event.getSource();
 
-        model.setUuid(MongoDescriptorFactory.fromInternalId(model.getId()));
+        model.resolveDescriptor();
     }
 }

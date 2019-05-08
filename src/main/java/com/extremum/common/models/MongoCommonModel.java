@@ -5,10 +5,10 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.PostLoad;
-import org.mongodb.morphia.annotations.PostPersist;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.springframework.data.annotation.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.Version;
 
 import java.time.ZonedDateTime;
 
@@ -19,7 +19,6 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     private Descriptor uuid;
 
     @Id
-    @org.mongodb.morphia.annotations.Id
     private ObjectId id;
 
 //    @CreatedDate
@@ -29,16 +28,14 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     private ZonedDateTime modified;
 
     @Version
-    @org.mongodb.morphia.annotations.Version
     private Long version;
 
     private Boolean deleted = false;
 
 
-    @PrePersist
     public void fillRequiredFields() {
         initCreated();
-        initModified();
+//        initModified();
 
         if (this.id == null && this.uuid != null) {
             this.id = MongoDescriptorFactory.resolve(uuid);
@@ -56,12 +53,10 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     }
 
 
-    @PostLoad
     public void resolveDescriptor() {
         this.uuid = MongoDescriptorFactory.fromInternalId(id);
     }
 
-    @PostPersist
     public void createDescriptorIfNeeded() {
         if (this.uuid == null) {
             this.uuid = MongoDescriptorFactory.create(id, getModelName());

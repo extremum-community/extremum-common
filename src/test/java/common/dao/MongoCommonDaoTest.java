@@ -7,7 +7,6 @@ import org.bson.types.ObjectId;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mongodb.morphia.query.UpdateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -89,7 +88,7 @@ public class MongoCommonDaoTest {
         assertTrue(mergedModel.getModified().isAfter(initModified));
     }
 
-    @Test(expected = UpdateException.class)
+//    @Test(expected = UpdateException.class)
     // TODO: do not ignore?
     @Ignore
     public void testMergeNotCreatedModel() {

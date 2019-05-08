@@ -6,7 +6,6 @@ import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
@@ -17,9 +16,7 @@ import com.extremum.starter.DescriptorMongoConfiguration;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
-import common.dao.TestModelDao;
 import lombok.RequiredArgsConstructor;
-import org.mongodb.morphia.Datastore;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
@@ -41,17 +38,6 @@ public class DescriptorConfiguration {
     private final MongoProperties mongoProps;
     private final RedisProperties redisProps;
     private final DescriptorsProperties descriptorsProperties;
-
-    @Bean
-    @DependsOn("mongoContainer")
-    public Datastore datastore() {
-        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProps);
-    }
-
-//    @Bean
-//    public TestModelDao testModelDao(Datastore datastore) {
-//        return new TestModelDao(datastore);
-//    }
 
     @Bean(name = "mongoContainer")
     public GenericContainer mongoContainer() {

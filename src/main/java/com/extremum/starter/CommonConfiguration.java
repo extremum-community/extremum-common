@@ -6,7 +6,6 @@ import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
@@ -21,7 +20,6 @@ import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.mongodb.morphia.Datastore;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
@@ -69,13 +67,6 @@ public class CommonConfiguration {
             config.useSingleServer().setPassword(redisProperties.getPassword());
         }
         return Redisson.create(config);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "mongo", value = {"uri", "dbName"})
-    @ConditionalOnMissingBean
-    public Datastore descriptorsStore() {
-        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProperties);
     }
 
     @Bean
