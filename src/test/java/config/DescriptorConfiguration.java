@@ -48,10 +48,10 @@ public class DescriptorConfiguration {
         return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProps);
     }
 
-    @Bean
-    public TestModelDao testModelDao(Datastore datastore) {
-        return new TestModelDao(datastore);
-    }
+//    @Bean
+//    public TestModelDao testModelDao(Datastore datastore) {
+//        return new TestModelDao(datastore);
+//    }
 
     @Bean(name = "mongoContainer")
     public GenericContainer mongoContainer() {

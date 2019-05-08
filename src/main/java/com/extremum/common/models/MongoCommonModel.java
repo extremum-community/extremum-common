@@ -22,7 +22,7 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     @org.mongodb.morphia.annotations.Id
     private ObjectId id;
 
-    @CreatedDate
+//    @CreatedDate
     private ZonedDateTime created;
 
     @LastModifiedDate

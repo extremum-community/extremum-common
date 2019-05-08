@@ -1,12 +1,11 @@
 package common.dao;
 
-import com.extremum.common.dao.MorphiaMongoCommonDao;
+import com.extremum.common.dao.MongoCommonDao;
 import models.TestModel;
-import org.mongodb.morphia.Datastore;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-
-public class TestModelDao extends MorphiaMongoCommonDao<TestModel> {
-    public TestModelDao(Datastore datastore) {
-        super(datastore);
-    }
+@Repository
+public interface TestModelDao extends MongoCommonDao<TestModel>, MongoRepository<TestModel, ObjectId> {
 }

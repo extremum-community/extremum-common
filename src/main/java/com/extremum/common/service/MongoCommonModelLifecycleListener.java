@@ -4,6 +4,8 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.models.MongoCommonModel;
 import org.springframework.data.mongodb.core.mapping.event.*;
 
+import java.time.ZonedDateTime;
+
 /**
  * @author rpuch
  */
@@ -16,6 +18,10 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
 
         if (model.getId() == null && model.getUuid() != null) {
             model.setId(MongoDescriptorFactory.resolve(model.getUuid()));
+        }
+
+        if (model.getCreated() == null) {
+            model.setCreated(ZonedDateTime.now());
         }
     }
 

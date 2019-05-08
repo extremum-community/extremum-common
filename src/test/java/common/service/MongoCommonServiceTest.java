@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
 import static org.junit.Assert.assertEquals;
@@ -30,15 +31,12 @@ import static org.junit.Assert.assertTrue;
 public class MongoCommonServiceTest {
 
     private TestModelDao dao = Mockito.mock(TestModelDao.class);
-    {
-        Mockito.when(dao.getEntityClass()).thenReturn(TestModel.class);
-    }
-    private MongoCommonService<TestModel> service = new MongoCommonServiceImpl<>(dao);
+    private TestModelService service = new TestModelService(dao);
 
     @Test
     public void testGet() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.get(createdModel.getId())).thenReturn(createdModel);
+        Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
         TestModel resultModel = service.get(createdModel.getId().toString());
         assertEquals(createdModel, resultModel);
@@ -58,7 +56,7 @@ public class MongoCommonServiceTest {
     public void testGetWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.get(createdModel.getId())).thenReturn(createdModel);
+        Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
         TestModel resultModel = service.get(createdModel.getId().toString(), alertList);
         assertEquals(createdModel, resultModel);
@@ -244,7 +242,8 @@ public class MongoCommonServiceTest {
     @Test
     public void testGetSelectedFieldsById() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.getSelectedFieldsById(createdModel.getId(), new String[]{version.name()})).thenReturn(createdModel);
+        Mockito.when(dao.getSelectedFieldsById(createdModel.getId(), version.name())).thenReturn(
+                Optional.of(createdModel));
 
         TestModel resultModel = service.getSelectedFieldsById(createdModel.getId().toString(), version.name());
         assertEquals(createdModel, resultModel);
@@ -289,7 +288,7 @@ public class MongoCommonServiceTest {
     @Test
     public void testCreate() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.create(ArgumentMatchers.any(TestModel.class))).thenReturn(createdModel);
+        Mockito.when(dao.save(ArgumentMatchers.any(TestModel.class))).thenReturn(createdModel);
 
         TestModel resultModel = service.create(new TestModel());
         assertEquals(createdModel, resultModel);
@@ -304,7 +303,7 @@ public class MongoCommonServiceTest {
     public void testCreateWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.create(ArgumentMatchers.any(TestModel.class))).thenReturn(createdModel);
+        Mockito.when(dao.save(ArgumentMatchers.any(TestModel.class))).thenReturn(createdModel);
 
         TestModel resultModel = service.create(new TestModel(), alertList);
         assertTrue(alertList.isEmpty());
@@ -321,7 +320,7 @@ public class MongoCommonServiceTest {
     @Test
     public void testCreateList() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.create(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
+        Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
         List<TestModel> resultModels = service.create(Collections.singletonList(new TestModel()));
         assertNotNull(resultModels);
@@ -338,7 +337,7 @@ public class MongoCommonServiceTest {
     public void testCreateListWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.create(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
+        Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
         List<TestModel> resultModels = service.create(Collections.singletonList(new TestModel()), alertList);
 
@@ -358,7 +357,7 @@ public class MongoCommonServiceTest {
     @Test
     public void testSaveNewModel() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.create(ArgumentMatchers.any(TestModel.class))).thenReturn(createdModel);
+        Mockito.when(dao.save(ArgumentMatchers.any(TestModel.class))).thenReturn(createdModel);
 
         TestModel resultModel = service.save(new TestModel());
         assertEquals(createdModel, resultModel);
@@ -370,12 +369,13 @@ public class MongoCommonServiceTest {
     @Test
     public void testSaveUpdatedModel() {
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.get(createdModel.getId())).thenReturn(createdModel);
+        Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
         TestModel updatedModel = getTestModel();
         updatedModel.setId(createdModel.getId());
         updatedModel.setUuid(null);
-        Mockito.when(dao.merge(updatedModel)).thenReturn(updatedModel);
+        // TODO: it was merge()
+        Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
         TestModel resultModel = service.save(updatedModel);
         assertEquals(updatedModel, resultModel);
@@ -391,11 +391,12 @@ public class MongoCommonServiceTest {
     public void testSaveModelWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestModel createdModel = getTestModel();
-        Mockito.when(dao.get(createdModel.getId())).thenReturn(createdModel);
+        Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
         TestModel updatedModel = getTestModel();
         updatedModel.setId(createdModel.getId());
-        Mockito.when(dao.merge(updatedModel)).thenReturn(updatedModel);
+        // TODO: it was merge()
+        Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
         TestModel resultModel = service.save(updatedModel, alertList);
         assertTrue(alertList.isEmpty());
