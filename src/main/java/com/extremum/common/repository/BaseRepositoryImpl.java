@@ -45,6 +45,11 @@ public class BaseRepositoryImpl<T extends MongoCommonModel> extends SimpleMongoR
         return findOneByQuery(query);
     }
 
+    @Override
+    public boolean isDeleted(ObjectId objectId) {
+        return !existsById(objectId);
+    }
+
     private Optional<T> findOneByQuery(Query query) {
         T result = mongoOperations.findOne(query,
                 entityInformation.getJavaType(), entityInformation.getCollectionName());

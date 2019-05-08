@@ -10,8 +10,7 @@ public interface CommonDao<M, ID> {
 
     boolean existsById(ID id);
 
-    // TODO: restore
-//    boolean isDeleted(ID id);
+    boolean isDeleted(ID id);
 
 //    M create(M model);
 

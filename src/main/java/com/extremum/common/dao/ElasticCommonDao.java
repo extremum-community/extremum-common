@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface ElasticCommonDao<Model extends ElasticCommonModel> extends CommonDao<Model, String> {
-    // TODO: move back to CommonDao
-    boolean isDeleted(String id);
 
     List<Model> search(String queryString);
 
