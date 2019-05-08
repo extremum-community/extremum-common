@@ -136,6 +136,7 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnBean(CollectionDescriptorService.class)
+    @ConditionalOnMissingBean
     public MapperDependencies mapperDependencies(CollectionDescriptorService collectionDescriptorService) {
         return new MapperDependenciesImpl(collectionDescriptorService);
     }
