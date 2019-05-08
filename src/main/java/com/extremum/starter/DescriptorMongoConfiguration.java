@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
@@ -30,12 +29,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
     private final MongoProperties mongoProps;
+    private final MongoClientURI databaseUri;
 
     @Override
     @Bean
-    @DependsOn("mongoContainer")
     public MongoClient mongoClient() {
-        MongoClientURI databaseUri = new MongoClientURI(mongoProps.getUri());
         return new MongoClient(databaseUri);
     }
 

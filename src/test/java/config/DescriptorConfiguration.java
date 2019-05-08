@@ -16,6 +16,7 @@ import com.extremum.starter.DescriptorMongoConfiguration;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
+import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -61,6 +62,12 @@ public class DescriptorConfiguration {
         redis.start();
         redisProps.setUri("redis://" + redis.getContainerIpAddress() + ":" + redis.getFirstMappedPort());
         return redis;
+    }
+
+    @Bean
+    @DependsOn("mongoContainer")
+    public MongoClientURI mongoDatabaseUri() {
+        return new MongoClientURI(mongoProps.getUri());
     }
 
     @Bean

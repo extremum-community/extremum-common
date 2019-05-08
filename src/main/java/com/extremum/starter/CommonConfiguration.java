@@ -19,6 +19,7 @@ import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -74,6 +75,11 @@ public class CommonConfiguration {
     @ConditionalOnBean(RedissonClient.class)
     public RedisConnectionFactory redisConnectionFactory() {
         return new RedissonConnectionFactory(redissonClient());
+    }
+
+    @Bean
+    public MongoClientURI mongoDatabaseUri() {
+        return new MongoClientURI(mongoProperties.getUri());
     }
 
     @Bean
