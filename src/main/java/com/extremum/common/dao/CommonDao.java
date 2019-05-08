@@ -12,8 +12,6 @@ public interface CommonDao<M, ID> {
 
     boolean isDeleted(ID id);
 
-//    M create(M model);
-
     <N extends M> N save(N model);
 
     <N extends M> Iterable<N> saveAll(Iterable<N> entities);

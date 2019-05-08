@@ -240,11 +240,6 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
         }
     }
 
-//    @Override
-//    public Model create(Model model) {
-//        return save(model);
-//    }
-
     @Override
     public <N extends Model> N save(N model) {
         preSave(model);
