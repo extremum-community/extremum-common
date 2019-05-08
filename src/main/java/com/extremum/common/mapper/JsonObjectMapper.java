@@ -85,7 +85,6 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
             module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
         }
         if (level.hasCollectionDescriptors()) {
-            makeSureDependenciesArePresent(collectionDescriptorTransfigurationDependencies);
             module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
             module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer(
                     collectionDescriptorTransfigurationDependencies.collectionDescriptorService()));
