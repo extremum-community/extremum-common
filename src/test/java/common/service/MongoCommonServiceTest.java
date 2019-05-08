@@ -5,8 +5,6 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
-import com.extremum.common.service.MongoCommonService;
-import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import common.dao.TestModelDao;
 import models.TestModel;
 import org.bson.types.ObjectId;
@@ -15,12 +13,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
 import static org.junit.Assert.assertEquals;
@@ -374,7 +367,6 @@ public class MongoCommonServiceTest {
         TestModel updatedModel = getTestModel();
         updatedModel.setId(createdModel.getId());
         updatedModel.setUuid(null);
-        // TODO: it was merge()
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
         TestModel resultModel = service.save(updatedModel);
@@ -395,7 +387,6 @@ public class MongoCommonServiceTest {
 
         TestModel updatedModel = getTestModel();
         updatedModel.setId(createdModel.getId());
-        // TODO: it was merge()
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
         TestModel resultModel = service.save(updatedModel, alertList);

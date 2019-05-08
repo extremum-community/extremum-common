@@ -208,7 +208,6 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
                 if (data.getUuid() == null) {
                     data.setUuid(existed.getUuid());
                 }
-                // TODO: it was merge here, but in Spring Data we only have save(). Check that it is ok
                 returned = dao.save(data);
             }
         }

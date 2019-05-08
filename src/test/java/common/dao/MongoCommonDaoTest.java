@@ -4,7 +4,6 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import models.TestModel;
 import org.bson.types.ObjectId;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,26 +74,6 @@ public class MongoCommonDaoTest {
                         && model.getVersion() != null && model.getId() != null)
                 .count();
         assertEquals(modelsToCreate, validCreated);
-    }
-
-    @Test
-    public void testMerge() {
-        // TODO: it was merge() instead of save() all over this method, is it ok to change to save()?
-
-        TestModel model = getTestModel();
-        dao.save(model);
-
-        ZonedDateTime initModified = model.getModified();
-        TestModel mergedModel = dao.save(model);
-        assertTrue(mergedModel.getModified().isAfter(initModified));
-    }
-
-//    @Test(expected = UpdateException.class)
-    // TODO: do not ignore?
-    @Ignore
-    public void testMergeNotCreatedModel() {
-        // TODO: it was merge() instead of save() all over this method, is it ok to change to save()?
-        dao.save(getTestModel());
     }
 
     @Test
