@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DurationVariativeValueDeserializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
 
     @Test
     public void simpleIntDeserializeTest() throws IOException {

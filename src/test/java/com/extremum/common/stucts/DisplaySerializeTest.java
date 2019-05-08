@@ -14,7 +14,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 public class DisplaySerializeTest {
-    private ObjectMapper mapper = JsonObjectMapper.createMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleStringTest() throws JsonProcessingException {
