@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
  */
 public class JsonObjectMapperTest {
     private MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
-    private JsonObjectMapper mapper = JsonObjectMapper.createMapper(mapperDependencies);
+    private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

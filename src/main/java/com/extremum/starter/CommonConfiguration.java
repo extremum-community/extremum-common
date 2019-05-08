@@ -49,11 +49,6 @@ public class CommonConfiguration {
     private final ModelProperties modelProperties;
 
     @Bean
-    public MapperDependencies mapperDependencies(CollectionDescriptorService collectionDescriptorService) {
-        return new MapperDependenciesImpl(collectionDescriptorService);
-    }
-
-    @Bean
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
     public RedissonClient redissonClient() {
@@ -139,9 +134,24 @@ public class CommonConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(CollectionDescriptorService.class)
+    @ConditionalOnMissingBean
+    public MapperDependencies mapperDependencies(CollectionDescriptorService collectionDescriptorService) {
+        return new MapperDependenciesImpl(collectionDescriptorService);
+    }
+
+    @Bean
+    @ConditionalOnBean(MapperDependencies.class)
     @Primary
     public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies) {
-        return JsonObjectMapper.createMapper(mapperDependencies);
+        return JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(MapperDependencies.class)
+    @Primary
+    public ObjectMapper jacksonObjectMapper() {
+        return JsonObjectMapper.createWithDescriptors();
     }
 
     @Bean
