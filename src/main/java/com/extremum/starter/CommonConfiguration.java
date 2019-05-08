@@ -12,7 +12,7 @@ import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
-import com.extremum.starter.listener.ModelNameToClassInitializer;
+import com.extremum.starter.listener.ModelClassesInitializer;
 import com.extremum.starter.properties.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -156,7 +156,7 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
-    public ModelNameToClassInitializer modelNameToClassInitializer() {
-        return new ModelNameToClassInitializer(modelProperties.getPackageNames());
+    public ModelClassesInitializer modelNameToClassInitializer() {
+        return new ModelClassesInitializer(modelProperties.getPackageNames());
     }
 }

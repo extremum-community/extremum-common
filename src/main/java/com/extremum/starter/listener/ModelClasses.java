@@ -5,7 +5,7 @@ import com.extremum.common.models.Model;
 import java.util.Map;
 import java.util.Optional;
 
-public class ModelNameToClass {
+public class ModelClasses {
     private static Map<String, Class<? extends Model>> modelNameToClassMap;
 
     static void setModelNameToClassMap(Map<String, Class<? extends Model>> modelNameToClassMapIn) {
