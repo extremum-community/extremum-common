@@ -7,6 +7,7 @@ import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
+import com.extremum.common.utils.StreamUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -180,9 +181,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         }
         Iterable<Model> savedModelsIterable = dao.saveAll(data);
 
-        List<Model> savedModels = new ArrayList<>();
-        savedModelsIterable.forEach(savedModels::add);
-        return savedModels;
+        return StreamUtils.fromIterable(savedModelsIterable).collect(Collectors.toList());
     }
 
     @Override
