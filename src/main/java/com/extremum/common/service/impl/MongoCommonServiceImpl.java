@@ -125,7 +125,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     }
 
     @Override
-    public Model getSelectedFieldsById(String id, String ... fieldNames) {
+    public Model getSelectedFieldsById(String id, String... fieldNames) {
         return getSelectedFieldsById(id, null, fieldNames);
     }
 

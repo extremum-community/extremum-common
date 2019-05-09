@@ -12,5 +12,5 @@ public interface MongoCommonDao<M extends MongoCommonModel> extends CommonDao<M,
 
     List<M> listByFieldValue(String fieldName, Object fieldValue);
 
-    Optional<M> getSelectedFieldsById(ObjectId id, String ... fieldNames);
+    Optional<M> getSelectedFieldsById(ObjectId id, String... fieldNames);
 }
