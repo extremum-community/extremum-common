@@ -53,7 +53,7 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
         return new MongoCustomConversions(converters);
     }
 
-    @Bean(name = "dateTimeProvider")
+    @Bean
     public DateTimeProvider dateTimeProvider() {
         return new AuditingDateTimeProvider();
     }
