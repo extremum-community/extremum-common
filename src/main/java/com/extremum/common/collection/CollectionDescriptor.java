@@ -4,6 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,6 +25,8 @@ public final class CollectionDescriptor implements Serializable {
 
     @CreatedDate
     private ZonedDateTime created;
+    @LastModifiedDate
+    private ZonedDateTime modified;
     private boolean deleted;
 
     private CollectionDescriptor() {
