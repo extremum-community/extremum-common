@@ -4,10 +4,10 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
-import com.extremum.common.collection.service.CollectionDescriptorService;
+import com.extremum.common.container.MongoAndRedis;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
-import config.DescriptorConfiguration;
+import com.extremum.starter.CommonConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -27,13 +27,12 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = DescriptorConfiguration.class)
+@SpringBootTest(classes = CommonConfiguration.class)
 public class MongoCollectionDescriptorDaoTest {
-    @Autowired
-    private CollectionDescriptorDao collectionDescriptorDao;
+    private static final MongoAndRedis services = new MongoAndRedis();
 
     @Autowired
-    private CollectionDescriptorService collectionDescriptorService;
+    private CollectionDescriptorDao collectionDescriptorDao;
 
     @Autowired
     private CollectionDescriptorRepository collectionDescriptorRepository;
@@ -65,7 +64,7 @@ public class MongoCollectionDescriptorDaoTest {
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(
                 new Descriptor(hostExternalId), "items");
 
-        collectionDescriptorService.store(collectionDescriptor);
+        collectionDescriptorDao.store(collectionDescriptor);
 
         assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
         return collectionDescriptor;

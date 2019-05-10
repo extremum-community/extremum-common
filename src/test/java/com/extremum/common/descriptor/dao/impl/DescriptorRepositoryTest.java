@@ -1,11 +1,12 @@
 package com.extremum.common.descriptor.dao.impl;
 
+import com.extremum.common.container.MongoAndRedis;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.starter.CommonConfiguration;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Updates;
-import config.DescriptorConfiguration;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -32,8 +33,10 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(SpringRunner.class)
 @DataMongoTest
-@ContextConfiguration(classes = DescriptorConfiguration.class)
+@ContextConfiguration(classes = CommonConfiguration.class)
 public class DescriptorRepositoryTest {
+    private static final MongoAndRedis services = new MongoAndRedis();
+
     @Autowired
     private DescriptorRepository descriptorRepository;
 

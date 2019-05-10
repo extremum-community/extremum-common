@@ -1,12 +1,13 @@
 package descriptor;
 
+import com.extremum.common.container.MongoAndRedis;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.*;
-import config.DescriptorConfiguration;
+import com.extremum.starter.CommonConfiguration;
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,8 +27,10 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = DescriptorConfiguration.class)
+@SpringBootTest(classes = CommonConfiguration.class)
 public class MongoDescriptorDaoTest {
+    private static final MongoAndRedis services = new MongoAndRedis();
+
     @Autowired
     private DescriptorDao descriptorDao;
     @Autowired

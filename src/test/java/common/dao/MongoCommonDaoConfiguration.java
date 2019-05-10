@@ -1,7 +1,7 @@
 package common.dao;
 
 import com.extremum.common.repository.BaseRepositoryImpl;
-import config.DescriptorConfiguration;
+import com.extremum.starter.CommonConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * @author rpuch
  */
 @Configuration
-@Import(DescriptorConfiguration.class)
+@Import(CommonConfiguration.class)
 @EnableMongoRepositories(repositoryBaseClass = BaseRepositoryImpl.class)
 public class MongoCommonDaoConfiguration {
 }

@@ -1,5 +1,6 @@
 package common.dao;
 
+import com.extremum.common.container.MongoAndRedis;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import models.TestModel;
@@ -31,6 +32,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 public class MongoCommonDaoTest {
+    private static final MongoAndRedis services = new MongoAndRedis();
+
     @Autowired
     private TestModelDao dao;
 
