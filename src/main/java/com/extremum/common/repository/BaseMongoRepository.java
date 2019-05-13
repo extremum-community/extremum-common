@@ -24,6 +24,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongoRepository<T, ObjectId>
         implements MongoCommonDao<T> {
+    private static final String ID = "_id";
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
     private final MongoEntityInformation<T, ObjectId> entityInformation;
@@ -41,7 +42,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     public Optional<T> findById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
-        Query query = queryForNotDeletedAnd(where("_id").is(id));
+        Query query = queryForNotDeletedAnd(where(ID).is(id));
 
         return findOneByQuery(query);
     }
@@ -87,7 +88,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
 
     @Override
     public boolean softDeleteById(ObjectId id) {
-        Query query = new Query(where("_id").is(id));
+        Query query = new Query(where(ID).is(id));
         Update update = new Update();
         update.set(DELETED, true);
         T modified = mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
@@ -122,7 +123,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
                     for (Object id : ids) {
                         objectIds.add(new ObjectId(id.toString()));
                     }
-                    leafCriteria.add(where("_id").in(objectIds));
+                    leafCriteria.add(where(ID).in(objectIds));
                     break;
                 default:
                     leafCriteria.add(where(key).is(entry.getValue()));
@@ -152,7 +153,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     public Optional<T> getSelectedFieldsById(ObjectId id, String... fieldNames) {
         Assert.notNull(id, "The given id must not be null!");
 
-        Query query = queryForNotDeletedAnd(where("_id").is(id));
+        Query query = queryForNotDeletedAnd(where(ID).is(id));
         Arrays.stream(fieldNames).forEach(fieldName -> query.fields().include(fieldName));
 
         return findOneByQuery(query);
