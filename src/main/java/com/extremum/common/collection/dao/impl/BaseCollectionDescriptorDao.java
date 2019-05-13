@@ -1,8 +1,8 @@
-package com.extremum.common.collection.dao;
+package com.extremum.common.collection.dao.impl;
 
 import com.extremum.common.collection.CollectionDescriptor;
+import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import lombok.extern.slf4j.Slf4j;
-import org.mongodb.morphia.Datastore;
 import org.redisson.api.RMap;
 
 import java.util.Optional;
@@ -10,14 +10,15 @@ import java.util.Optional;
 
 @Slf4j
 public abstract class BaseCollectionDescriptorDao implements CollectionDescriptorDao {
-    private final Datastore mongoDatastore;
+    private final CollectionDescriptorRepository repository;
     private final RMap<String, CollectionDescriptor> descriptors;
     private final RMap<String, String> coordinatesToExternalIds;
     private static final int RETRY_ATTEMPTS = 3;
 
-    BaseCollectionDescriptorDao(Datastore mongoDatastore, RMap<String, CollectionDescriptor> descriptors,
+    BaseCollectionDescriptorDao(CollectionDescriptorRepository repository,
+            RMap<String, CollectionDescriptor> descriptors,
             RMap<String, String> coordinatesToExternalIds) {
-        this.mongoDatastore = mongoDatastore;
+        this.repository = repository;
         this.descriptors = descriptors;
         this.coordinatesToExternalIds = coordinatesToExternalIds;
     }
@@ -35,13 +36,9 @@ public abstract class BaseCollectionDescriptorDao implements CollectionDescripto
 
     @Override
     public CollectionDescriptor store(CollectionDescriptor descriptor) {
-        Optional<CollectionDescriptor> optionalDesc = Optional.ofNullable(mongoDatastore
-                .find(CollectionDescriptor.class)
-                .field(CollectionDescriptor.FIELDS.externalId.name())
-                .equal(descriptor.getExternalId())
-                .get());
+        Optional<CollectionDescriptor> optionalDesc = repository.findByExternalId(descriptor.getExternalId());
 
-        mongoDatastore.save(descriptor);
+        repository.save(descriptor);
 
         if (optionalDesc.isPresent()) {
             try {
@@ -51,7 +48,7 @@ public abstract class BaseCollectionDescriptorDao implements CollectionDescripto
                 CollectionDescriptor oldDescriptor = optionalDesc.get();
                 for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
                     try {
-                        mongoDatastore.save(oldDescriptor);
+                        repository.save(oldDescriptor);
                         break;
                     } catch (Exception ex) {
                         if (i == 3) {
