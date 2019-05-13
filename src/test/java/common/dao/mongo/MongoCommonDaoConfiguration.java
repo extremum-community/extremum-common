@@ -1,4 +1,4 @@
-package common.dao;
+package common.dao.mongo;
 
 import com.extremum.common.repository.BaseMongoRepository;
 import com.extremum.common.repository.SoftDeleteMongoRepositoryFactoryBean;
