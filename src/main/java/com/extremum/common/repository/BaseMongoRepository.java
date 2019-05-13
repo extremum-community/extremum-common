@@ -5,6 +5,7 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.QueryFields;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -46,6 +47,19 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
         Query query = queryForNotDeletedAnd(where(ID).is(id));
 
         return findOneByQuery(query);
+    }
+
+    @Override
+    public long count() {
+        return mongoOperations.count(new Query(notDeleted()), entityInformation.getCollectionName());
+    }
+
+    @Override
+    public <S extends T> long count(Example<S> example) {
+        Assert.notNull(example, "Sample must not be null!");
+
+        Query q = queryForNotDeletedAnd(new Criteria().alike(example));
+        return mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName());
     }
 
     @Override
