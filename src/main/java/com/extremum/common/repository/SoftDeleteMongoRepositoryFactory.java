@@ -9,9 +9,11 @@ import java.util.Optional;
 
 /**
  * {@link MongoRepositoryFactory} extension that makes all automagical
- * queries generated from
+ * queries generated from query methods like <code>Person findByEmail(String email)</code>
+ * respect the 'deleted' flag (unless annotated with @{@link SeesSoftlyDeletedRecords)}.
  *
  * @author rpuch
+ * @see SeesSoftlyDeletedRecords
  */
 public class SoftDeleteMongoRepositoryFactory extends MongoRepositoryFactory {
     private final MongoOperations mongoOperations;
