@@ -4,6 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import models.TestModel;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +14,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
@@ -199,6 +200,56 @@ public class MongoCommonDaoTest {
 
         count = dao.listByParameters(Collections.singletonMap(TestModel.FIELDS.name.name(), name)).size();
         assertEquals(modelsToCreate, count);
+    }
+
+    @Test
+    public void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        List<TestModel> results = dao.findByName(uniqueName);
+        assertThat(results, hasSize(1));
+    }
+
+    @Test
+    public void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        List<TestModel> results = dao.findEvenDeletedByName(uniqueName);
+        assertThat(results, hasSize(2));
+    }
+
+    @Test
+    public void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countByName(uniqueName), is(1L));
+    }
+
+    @Test
+    public void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
+    }
+
+    @NotNull
+    private List<TestModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
+        TestModel notDeleted = new TestModel();
+        notDeleted.name = uniqueName;
+
+        TestModel deleted = new TestModel();
+        deleted.name = uniqueName;
+        deleted.setDeleted(true);
+
+        return Arrays.asList(notDeleted, deleted);
     }
 
     private static TestModel getDeletedTestModel() {

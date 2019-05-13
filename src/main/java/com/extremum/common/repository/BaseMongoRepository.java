@@ -5,6 +5,7 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.QueryFields;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,6 +30,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
 
     private final MongoEntityInformation<T, ObjectId> entityInformation;
     private final MongoOperations mongoOperations;
+    private final SoftDeletion softDeletion = new SoftDeletion();
 
     public BaseMongoRepository(MongoEntityInformation<T, ObjectId> metadata,
             MongoOperations mongoOperations) {
@@ -48,8 +50,16 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     }
 
     @Override
-    public boolean isDeleted(ObjectId objectId) {
-        return !existsById(objectId);
+    public long count() {
+        return mongoOperations.count(new Query(notDeleted()), entityInformation.getCollectionName());
+    }
+
+    @Override
+    public <S extends T> long count(Example<S> example) {
+        Assert.notNull(example, "Sample must not be null!");
+
+        Query q = queryForNotDeletedAnd(new Criteria().alike(example));
+        return mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName());
     }
 
     private Optional<T> findOneByQuery(Query query) {
@@ -67,10 +77,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     }
 
     private Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where(DELETED).exists(false),
-                where(DELETED).is(false)
-        );
+        return softDeletion.notDeleted();
     }
 
     @Override
