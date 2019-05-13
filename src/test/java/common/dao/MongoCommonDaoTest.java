@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -219,6 +220,24 @@ public class MongoCommonDaoTest {
 
         List<TestModel> results = dao.findEvenDeletedByName(uniqueName);
         assertThat(results, hasSize(2));
+    }
+
+    @Test
+    public void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countByName(uniqueName), is(1L));
+    }
+
+    @Test
+    public void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
     }
 
     @NotNull

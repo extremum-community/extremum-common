@@ -13,4 +13,9 @@ public interface TestModelDao extends SpringDataMongoCommonDao<TestModel> {
 
     @SeesSoftlyDeletedRecords
     List<TestModel> findEvenDeletedByName(String name);
+
+    long countByName(String name);
+
+    @SeesSoftlyDeletedRecords
+    long countEvenDeletedByName(String name);
 }
