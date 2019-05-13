@@ -17,6 +17,6 @@ public class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTi
         if (source == null) {
             return null;
         }
-        return ZonedDateTime.ofInstant(source.toInstant(), ZoneId.systemDefault());
+        return ZonedDateTime.ofInstant(source.toInstant(), ZoneId.of("UTC"));
     }
 }
