@@ -21,14 +21,14 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 /**
  * @author rpuch
  */
-public class BaseRepositoryImpl<T extends MongoCommonModel> extends SimpleMongoRepository<T, ObjectId>
+public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongoRepository<T, ObjectId>
         implements MongoCommonDao<T> {
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
     private final MongoEntityInformation<T, ObjectId> entityInformation;
     private final MongoOperations mongoOperations;
 
-    public BaseRepositoryImpl(MongoEntityInformation<T, ObjectId> metadata,
+    public BaseMongoRepository(MongoEntityInformation<T, ObjectId> metadata,
             MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
 
