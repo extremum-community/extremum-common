@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface ElasticCommonDao<Model extends ElasticCommonModel> extends CommonDao<Model, String> {
+
     List<Model> search(String queryString);
 
-    Model persist(Model model);
+    <N extends Model> N save(N model);
 
     boolean patch(String id, String painlessQuery);
 

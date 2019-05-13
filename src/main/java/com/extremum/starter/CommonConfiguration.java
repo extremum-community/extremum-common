@@ -1,22 +1,28 @@
 package com.extremum.starter;
 
-import com.extremum.common.collection.dao.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
+import com.extremum.common.collection.dao.impl.BaseCollectionDescriptorDaoImpl;
+import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.config.DescriptorDatastoreFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
+import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
+import com.extremum.common.service.MongoCommonModelLifecycleListener;
+import com.extremum.starter.properties.DescriptorsProperties;
+import com.extremum.starter.properties.ElasticProperties;
+import com.extremum.starter.properties.MongoProperties;
+import com.extremum.starter.properties.RedisProperties;
 import com.extremum.starter.listener.ModelClassesInitializer;
 import com.extremum.starter.properties.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
-import org.mongodb.morphia.Datastore;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
@@ -28,16 +34,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 @Configuration
+@Import(DescriptorMongoConfiguration.class)
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, ElasticProperties.class,
@@ -70,13 +74,6 @@ public class CommonConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "mongo", value = {"uri", "dbName"})
-    @ConditionalOnMissingBean
-    public Datastore descriptorsStore() {
-        return new DescriptorDatastoreFactory().createDescriptorDatastore(mongoProperties);
-    }
-
-    @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(RedissonClient.class)
     public RedisConnectionFactory redisConnectionFactory() {
@@ -84,16 +81,21 @@ public class CommonConfiguration {
     }
 
     @Bean
+    public MongoClientURI mongoDatabaseUri() {
+        return new MongoClientURI(mongoProperties.getUri());
+    }
+
+    @Bean
     @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
-    public DescriptorDao descriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+    public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
         Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
                 JsonObjectMapper.createWithoutDescriptorTransfiguration());
         if (noRedis()) {
-            return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore,
+            return new BaseDescriptorDaoImpl(redissonClient, descriptorRepository,
                     descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
         } else {
-            return new BaseDescriptorDaoImpl(redissonClient, descriptorsStore, descriptorsProperties.getDescriptorsMapName(),
+            return new BaseDescriptorDaoImpl(redissonClient, descriptorRepository, descriptorsProperties.getDescriptorsMapName(),
                     descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(),
                     redisProperties.getIdleTime());
         }
@@ -113,13 +115,14 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "descriptors", value = {"collectionDescriptorsMapName", "collectionCoordinatesMapName"})
     @ConditionalOnMissingBean
-    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient, Datastore descriptorsStore) {
+    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
+            CollectionDescriptorRepository collectionDescriptorRepository) {
         if (noRedis()) {
-            return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
+            return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository,
                     descriptorsProperties.getCollectionDescriptorsMapName(),
                     descriptorsProperties.getCollectionCoordinatesMapName());
         } else {
-            return new BaseCollectionDescriptorDaoImpl(redissonClient, descriptorsStore,
+            return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository,
                     descriptorsProperties.getCollectionDescriptorsMapName(),
                     descriptorsProperties.getCollectionCoordinatesMapName(),
                     redisProperties.getCacheSize(), redisProperties.getIdleTime());
@@ -158,5 +161,10 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
     public ModelClassesInitializer modelNameToClassInitializer() {
         return new ModelClassesInitializer(modelProperties.getPackageNames());
+    }
+
+    @Bean
+    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener() {
+        return new MongoCommonModelLifecycleListener();
     }
 }

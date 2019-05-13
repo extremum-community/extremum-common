@@ -1,36 +1,36 @@
 package com.extremum.common.service.impl;
 
-import com.extremum.common.dao.MorphiaMongoCommonDao;
+import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
+import com.extremum.common.utils.StreamUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.ParameterizedType;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements MongoCommonService<Model> {
     
-    protected final MorphiaMongoCommonDao<Model> dao;
+    protected final MongoCommonDao<Model> dao;
+    private final Class<Model> modelClass;
     private final String modelTypeName;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MongoCommonServiceImpl.class);
 
-    public MongoCommonServiceImpl(MorphiaMongoCommonDao<Model> dao) {
+    public MongoCommonServiceImpl(MongoCommonDao<Model> dao) {
         this.dao = dao;
-        modelTypeName = dao.getEntityClass().getSimpleName();
+        modelClass = (Class<Model>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        modelTypeName = modelClass.getSimpleName();
     }
 
     @Override
@@ -40,12 +40,12 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
 
     @Override
     public Model get(String id, Collection<Alert> alerts){
-        LOGGER.debug("Get mode {} with id {}", modelTypeName, id);
+        LOGGER.debug("Get model {} with id {}", modelTypeName, id);
 
-        if(!checkId(id, alerts)) {
+        if (!checkId(id, alerts)) {
             return null;
         }
-        Model found = dao.get(new ObjectId(id));
+        Model found = dao.findById(new ObjectId(id)).orElse(null);
         return getResultWithNullabilityCheck(found, id, alerts);
     }
 
@@ -126,7 +126,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     }
 
     @Override
-    public Model getSelectedFieldsById(String id, String[] fieldNames) {
+    public Model getSelectedFieldsById(String id, String... fieldNames) {
         return getSelectedFieldsById(id, null, fieldNames);
     }
 
@@ -144,7 +144,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
         if(!valid) {
             return null;
         }
-        Model found = dao.getSelectedFieldsById(new ObjectId(id), fieldNames);
+        Model found = dao.getSelectedFieldsById(new ObjectId(id), fieldNames).orElse(null);
         return getResultWithNullabilityCheck(found, id, alerts);
     }
 
@@ -161,7 +161,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
             return null;
         }
-        return dao.create(data);
+        return dao.save(data);
     }
 
     @Override
@@ -179,7 +179,9 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Models can't be null"));
             return null;
         }
-        return dao.create(data);
+        Iterable<Model> savedModelsIterable = dao.saveAll(data);
+
+        return StreamUtils.fromIterable(savedModelsIterable).collect(Collectors.toList());
     }
 
     @Override
@@ -188,29 +190,30 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     }
 
     @Override
-    public Model save(Model data, Collection<Alert> alerts){
+    public Model save(Model data, Collection<Alert> alerts) {
         LOGGER.debug("Save model {}", modelTypeName);
 
-        if(data == null) {
+        if (data == null) {
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
             return null;
         }
         Model returned = null;
 
         if (data.getId() != null) {
-            Model existed = dao.get(data.getId());
-            if (existed != null) {
+            Optional<Model> existedOpt = dao.findById(data.getId());
+            if (existedOpt.isPresent()) {
+                Model existed = existedOpt.get();
                 copyServiceFields(existed, data);
                 if (data.getUuid() == null) {
-                        data.setUuid(existed.getUuid());
-                    }
-                returned = dao.merge(data);
+                    data.setUuid(existed.getUuid());
+                }
+                returned = dao.save(data);
             }
         }
         if (returned == null) {
             // Если у модели deleted=true, то get ничего не вернет. Но реально документ в БД есть.
             // Он будет здесь перезаписан
-            returned = dao.create(data);
+            returned = dao.save(data);
         }
         return returned;
     }
@@ -232,20 +235,21 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     public Model delete(String id, Collection<Alert> alerts){
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
-        if(!checkId(id, alerts)) {
+        if (!checkId(id, alerts)) {
             return null;
         }
-        if (dao.remove(new ObjectId(id))) {
-            Model found = dao.findById(new ObjectId(id));
+
+        if (dao.softDeleteById(new ObjectId(id))) {
+            Model found = dao.findById(new ObjectId(id)).orElse(null);
             return getResultWithNullabilityCheck(found, id, alerts);
         } else {
-            throw new ModelNotFoundException(dao.getEntityClass(), id);
+            throw new ModelNotFoundException(modelClass, id);
         }
     }
 
     private boolean checkId(String id, Collection<Alert> alerts) {
         boolean valid = true;
-        if(StringUtils.isBlank(id)) {
+        if (StringUtils.isBlank(id)) {
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model id can't be null"));
             valid = false;
         }
@@ -255,7 +259,7 @@ public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements M
     private Model getResultWithNullabilityCheck(Model result, String id, Collection<Alert> alerts) {
         if(result == null) {
             LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, id);
-            fillAlertsOrThrowException(alerts, new ModelNotFoundException(dao.getEntityClass(), id));
+            fillAlertsOrThrowException(alerts, new ModelNotFoundException(modelClass, id));
         }
         return result;
     }

@@ -166,7 +166,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public Model findById(String id) {
+    public Optional<Model> findById(String id) {
         try (RestHighLevelClient client = getClient()) {
             GetResponse response = client.get(
                     new GetRequest(indexName, id),
@@ -179,7 +179,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
                 if (sourceMap.getOrDefault(FIELDS.deleted.name(), Boolean.FALSE).equals(Boolean.TRUE)) {
                     throw new ModelNotFoundException("Not found " + id);
                 } else {
-                    return extract(new GetResponseAccessorFacade(response));
+                    return Optional.ofNullable(extract(new GetResponseAccessorFacade(response)));
                 }
             } else {
                 throw new ModelNotFoundException("Not found " + id);
@@ -195,17 +195,12 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public Model findById(String id, String... includeFields) {
-        log.warn("The search will be performed only by ID without taking into account the includeFields parameter");
-        return findById(id);
-    }
-
-    @Override
-    public boolean isExists(String id) {
+    public boolean existsById(String id) {
         if (isDocumentExists(id)) {
             try {
-                final Model data = findById(id);
-                return !data.getDeleted();
+                final Optional<Model> data = findById(id);
+                boolean doesNotExist = data.map(ElasticCommonModel::getDeleted).orElse(true);
+                return !doesNotExist;
             } catch (ModelNotFoundException e) {
                 return false;
             }
@@ -247,18 +242,13 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public Model create(Model model) {
-        return persist(model);
+    public <N extends Model> N save(N model) {
+        preSave(model);
+
+        return doSave(model);
     }
 
-    @Override
-    public Model persist(Model model) {
-        prePersist(model);
-
-        return save(model);
-    }
-
-    protected Model save(Model model) {
+    protected <N extends Model> N doSave(N model) {
         String rawData = serializeModel(model);
 
         try (RestHighLevelClient client = getClient()) {
@@ -289,7 +279,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
         }
     }
 
-    protected void prePersist(Model model) {
+    protected void preSave(Model model) {
         if (model.getId() == null) {
             String name = model.getClass().getAnnotation(ModelName.class).name();
             final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), name);
@@ -327,7 +317,13 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public boolean remove(String id) {
+    public <N extends Model> Iterable<N> saveAll(Iterable<N> entities) {
+        entities.forEach(this::save);
+        return entities;
+    }
+
+    @Override
+    public boolean softDeleteById(String id) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(FIELDS.deleted.name(), Boolean.TRUE);
         parameters.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
@@ -342,7 +338,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
 
     @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> params) {
-        if (isExists(id)) {
+        if (existsById(id)) {
             final UpdateRequest request = new UpdateRequest(indexName, id);
 
             request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));

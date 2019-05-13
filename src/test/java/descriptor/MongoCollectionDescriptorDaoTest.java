@@ -3,6 +3,7 @@ package descriptor;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
+import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
@@ -11,7 +12,6 @@ import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mongodb.morphia.Datastore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -36,7 +36,7 @@ public class MongoCollectionDescriptorDaoTest {
     private CollectionDescriptorService collectionDescriptorService;
 
     @Autowired
-    private Datastore descriptorsStore;
+    private CollectionDescriptorRepository collectionDescriptorRepository;
 
     @Test
     public void testRetrieveByExternalId() {
@@ -98,7 +98,7 @@ public class MongoCollectionDescriptorDaoTest {
                 coordinatesString);
         assertFalse(retrievedDescriptor.isPresent());
 
-        descriptorsStore.save(descriptor);
+        collectionDescriptorRepository.save(descriptor);
         retrievedDescriptor = collectionDescriptorDao.retrieveByCoordinates(coordinatesString);
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());

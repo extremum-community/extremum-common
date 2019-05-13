@@ -1,24 +1,18 @@
 package com.extremum.common.descriptor;
 
-import com.extremum.common.converters.MongoZonedDateTimeConverter;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.mongodb.morphia.annotations.Converters;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Indexed;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Property;
-import org.mongodb.morphia.annotations.Version;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -28,8 +22,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Entity(value = "descriptor-identifiers", noClassnameStored = true)
-@Converters({MongoZonedDateTimeConverter.class})
+@Document("descriptor-identifiers")
 public class Descriptor implements Serializable {
     @Id
     @JsonProperty("externalId")
@@ -42,11 +35,11 @@ public class Descriptor implements Serializable {
     @JsonProperty("storageType")
     private StorageType storageType;
 
-    @Property
     @JsonProperty("created")
+    @CreatedDate
     private ZonedDateTime created;
-    @Property
     @JsonProperty("modified")
+    @LastModifiedDate
     private ZonedDateTime modified;
     @Version
     @JsonProperty("version")
@@ -63,22 +56,6 @@ public class Descriptor implements Serializable {
 
     public Descriptor(String externalId) {
         this.externalId = externalId;
-    }
-
-    @PrePersist
-    public void fillRequiredFields() {
-        initCreated();
-        initModified();
-    }
-
-    private void initCreated() {
-        if (this.created == null) {
-            this.created = ZonedDateTime.now();
-        }
-    }
-
-    private void initModified() {
-        this.modified = ZonedDateTime.now();
     }
 
     public String getExternalId() {
