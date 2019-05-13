@@ -3,6 +3,7 @@ package com.extremum.common.repository;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.common.models.QueryFields;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -105,17 +106,17 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             String key = entry.getKey();
             switch (key) {
-                case "limit":
+                case QueryFields.LIMIT:
                     String limitStr = String.valueOf(entry.getValue());
                     int limit = Integer.valueOf(limitStr);
                     optionalLimit = OptionalInt.of(limit);
                     break;
-                case "offset":
+                case QueryFields.OFFSET:
                     String offsetStr = String.valueOf(entry.getValue());
                     int offset = Integer.valueOf(offsetStr);
                     optionalOffset = OptionalInt.of(offset);
                     break;
-                case "ids":
+                case QueryFields.IDS:
                     Collection ids = (Collection) entry.getValue();
                     List<ObjectId> objectIds = new ArrayList<>();
                     for (Object id : ids) {
