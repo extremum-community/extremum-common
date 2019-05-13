@@ -5,7 +5,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Updates;
-import config.DescriptorConfiguration;
+import common.dao.MongoCommonDaoConfiguration;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -32,7 +30,7 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(SpringRunner.class)
 @DataMongoTest
-@ContextConfiguration(classes = DescriptorConfiguration.class)
+@ContextConfiguration(classes = MongoCommonDaoConfiguration.class)
 public class DescriptorRepositoryTest {
     @Autowired
     private DescriptorRepository descriptorRepository;
@@ -67,7 +65,7 @@ public class DescriptorRepositoryTest {
     }
 
     private void assertThatDocumentWith1DescriptorWasReturned(List<Document> documents,
-            Descriptor expectedDescriptor) {
+                                                              Descriptor expectedDescriptor) {
         assertThat(documents, hasSize(1));
 
         Document document = documents.get(0);
@@ -103,7 +101,7 @@ public class DescriptorRepositoryTest {
 
     @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalGetWithoutIsPresent"})
     private void assertThatADescriptorWasFound(Optional<Descriptor> retrievedDescriptorOpt,
-            Descriptor expectedDescriptor) {
+                                               Descriptor expectedDescriptor) {
         assertThat(retrievedDescriptorOpt.isPresent(), is(true));
 
         Descriptor retrievedDescriptor = retrievedDescriptorOpt.get();

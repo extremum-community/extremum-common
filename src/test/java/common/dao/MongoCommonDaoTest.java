@@ -3,7 +3,6 @@ package common.dao;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.annotation.ModelName;
-import config.DescriptorConfiguration;
 import models.TestModel;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -23,11 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
