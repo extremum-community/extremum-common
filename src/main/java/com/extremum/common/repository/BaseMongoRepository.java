@@ -29,6 +29,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
 
     private final MongoEntityInformation<T, ObjectId> entityInformation;
     private final MongoOperations mongoOperations;
+    private final SoftDeletion softDeletion = new SoftDeletion();
 
     public BaseMongoRepository(MongoEntityInformation<T, ObjectId> metadata,
             MongoOperations mongoOperations) {
@@ -67,10 +68,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     }
 
     private Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where(DELETED).exists(false),
-                where(DELETED).is(false)
-        );
+        return softDeletion.notDeleted();
     }
 
     @Override
