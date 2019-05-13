@@ -14,6 +14,6 @@ public class DescriptorToStringConverter implements Converter<Descriptor, String
         if (source == null) {
             return null;
         }
-        return source.getInternalId();
+        return source.getExternalId();
     }
 }
