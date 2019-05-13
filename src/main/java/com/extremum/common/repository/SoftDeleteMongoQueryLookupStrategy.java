@@ -44,15 +44,24 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
     }
 
     private class SoftDeletePartTreeMongoQuery extends PartTreeMongoQuery {
-        public SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeMongoQuery) {
+        SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeMongoQuery) {
             super(partTreeMongoQuery.getQueryMethod(), SoftDeleteMongoQueryLookupStrategy.this.mongoOperations);
         }
 
         @Override
         protected Query createQuery(ConvertingParameterAccessor accessor) {
             Query query = super.createQuery(accessor);
-            query.addCriteria(softDeletion.notDeleted());
-            return query;
+            return withNotDeleted(query);
+        }
+
+        @Override
+        protected Query createCountQuery(ConvertingParameterAccessor accessor) {
+            Query query = super.createCountQuery(accessor);
+            return withNotDeleted(query);
+        }
+        
+        private Query withNotDeleted(Query query) {
+            return query.addCriteria(softDeletion.notDeleted());
         }
     }
 }
