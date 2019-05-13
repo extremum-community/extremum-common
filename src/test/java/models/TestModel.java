@@ -10,6 +10,7 @@ import static models.TestModel.COLLECTION;
 @Document(COLLECTION)
 public class TestModel extends MongoCommonModel {
     static final String COLLECTION = "testEntities";
+    public String name;
 
     public enum FIELDS {
         name
