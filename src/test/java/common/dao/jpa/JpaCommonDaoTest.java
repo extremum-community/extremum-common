@@ -35,7 +35,7 @@ public class JpaCommonDaoTest {
 
     @Test
     public void testCreateModel() {
-        TestJpaModel model = getTestModel();
+        TestJpaModel model = new TestJpaModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());

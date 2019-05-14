@@ -21,6 +21,7 @@ public abstract class PostgresCommonModel implements PersistableCommonModel<UUID
     private Descriptor uuid;
 
     @Id
+    @GeneratedValue
     @Column(name = "id")
     private UUID id;
 
