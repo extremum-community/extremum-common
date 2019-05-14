@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * {@link MongoRepositoryFactory} extension that makes all automagical
  * queries generated from query methods like <code>Person findByEmail(String email)</code>
- * respect the 'deleted' flag (unless annotated with @{@link SeesSoftlyDeletedRecords )}.
+ * respect the 'deleted' flag (unless annotated with &#064;{@link SeesSoftlyDeletedRecords}).
  *
  * @author rpuch
  * @see SeesSoftlyDeletedRecords

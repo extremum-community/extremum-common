@@ -39,14 +39,14 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
         if (!(repositoryQuery instanceof PartTreeMongoQuery)) {
             return repositoryQuery;
         }
-        PartTreeMongoQuery partTreeMongoQuery = (PartTreeMongoQuery) repositoryQuery;
+        PartTreeMongoQuery partTreeQuery = (PartTreeMongoQuery) repositoryQuery;
 
-        return new SoftDeletePartTreeMongoQuery(partTreeMongoQuery);
+        return new SoftDeletePartTreeMongoQuery(partTreeQuery);
     }
 
     private class SoftDeletePartTreeMongoQuery extends PartTreeMongoQuery {
-        SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeMongoQuery) {
-            super(partTreeMongoQuery.getQueryMethod(), SoftDeleteMongoQueryLookupStrategy.this.mongoOperations);
+        SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeQuery) {
+            super(partTreeQuery.getQueryMethod(), mongoOperations);
         }
 
         @Override
