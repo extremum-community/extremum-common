@@ -18,8 +18,6 @@ import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
-import com.extremum.starter.listener.ModelClassesInitializer;
-import com.extremum.starter.properties.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
@@ -45,12 +43,11 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, ElasticProperties.class,
-        DescriptorsProperties.class, ModelProperties.class})
+        DescriptorsProperties.class})
 public class CommonConfiguration {
     private final RedisProperties redisProperties;
     private final MongoProperties mongoProperties;
     private final DescriptorsProperties descriptorsProperties;
-    private final ModelProperties modelProperties;
 
     @Bean
     @ConditionalOnProperty(value = "redis.uri")
@@ -155,12 +152,6 @@ public class CommonConfiguration {
     @Primary
     public ObjectMapper jacksonObjectMapper() {
         return JsonObjectMapper.createWithDescriptors();
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
-    public ModelClassesInitializer modelNameToClassInitializer() {
-        return new ModelClassesInitializer(modelProperties.getPackageNames());
     }
 
     @Bean
