@@ -3,7 +3,6 @@ package common.dao.jpa;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import models.TestJpaModel;
-import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 
 @RunWith(SpringRunner.class)
@@ -48,12 +48,22 @@ public class JpaCommonDaoTest {
         assertFalse(model.getDeleted());
     }
 
-    @Test(expected = OptimisticLockingFailureException.class)
+    @Test
     public void testCreateModelWithWrongVersion() {
         TestJpaModel model = getTestModel();
-        model.setId(UUID.fromString(model.getUuid().getInternalId()));
-        model.setVersion(123L);
-        dao.save(model);
+        model = dao.save(model);
+        model.name = UUID.randomUUID().toString();
+        model = dao.save(model);
+
+        assertThat(model.getVersion(), is(1L));
+
+        model.setVersion(0L);
+        try {
+            dao.save(model);
+            fail("An optimistick locking failure should have occured");
+        } catch (OptimisticLockingFailureException e) {
+            // expected
+        }
     }
 
     @Test
