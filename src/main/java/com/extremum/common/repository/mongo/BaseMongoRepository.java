@@ -1,4 +1,4 @@
-package com.extremum.common.repository;
+package com.extremum.common.repository.mongo;
 
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.models.MongoCommonModel;

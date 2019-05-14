@@ -1,4 +1,4 @@
-package com.extremum.common.service;
+package com.extremum.common.service.lifecycle;
 
 import com.extremum.common.models.MongoCommonModel;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;

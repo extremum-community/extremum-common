@@ -1,5 +1,6 @@
-package com.extremum.common.repository;
+package com.extremum.common.repository.mongo;
 
+import com.extremum.common.repository.SeesSoftlyDeletedRecords;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
@@ -12,7 +13,7 @@ import java.io.Serializable;
 /**
  * Factory bean for {@link MongoRepositoryFactory} extension that makes all automagical
  * queries generated from query methods like <code>Person findByEmail(String email)</code>
- * respect the 'deleted' flag (unless annotated with @{@link SeesSoftlyDeletedRecords)}.
+ * respect the 'deleted' flag (unless annotated with @{@link SeesSoftlyDeletedRecords )}.
  *
  * It is to be referenced in &#064;{@link EnableMongoRepositories}
  * like this:

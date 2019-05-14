@@ -1,5 +1,6 @@
-package com.extremum.common.repository;
+package com.extremum.common.repository.mongo;
 
+import com.extremum.common.repository.SeesSoftlyDeletedRecords;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.ConvertingParameterAccessor;

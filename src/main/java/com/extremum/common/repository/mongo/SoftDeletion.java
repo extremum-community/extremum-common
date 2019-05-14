@@ -1,4 +1,4 @@
-package com.extremum.common.repository;
+package com.extremum.common.repository.mongo;
 
 import com.extremum.common.models.PersistableCommonModel;
 import org.springframework.data.mongodb.core.query.Criteria;
