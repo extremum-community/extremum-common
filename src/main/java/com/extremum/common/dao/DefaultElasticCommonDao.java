@@ -224,24 +224,6 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public boolean isDeleted(String id) {
-        try (RestHighLevelClient client = getClient()) {
-            GetRequest getRequest = new GetRequest(indexName, id);
-            getRequest.storedFields("_none_");
-            GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-
-            if (response.isExists()) {
-                return (boolean) response.getSourceAsMap().getOrDefault(FIELDS.deleted.name(), Boolean.TRUE);
-            } else {
-                return true;
-            }
-        } catch (IOException e) {
-            log.error("Unable to check deleted data by id {}", id, e);
-            throw new RuntimeException("Unable to check deleted data by id " + id, e);
-        }
-    }
-
-    @Override
     public <N extends Model> N save(N model) {
         preSave(model);
 
@@ -290,10 +272,10 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
             model.setVersion(0L);
             model.setDeleted(Boolean.FALSE);
         } else {
-            if (isDeleted(model.getId())) {
-                throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
-            } else {
+            if (existsById(model.getId())) {
                 model.setModified(ZonedDateTime.now());
+            } else {
+                throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
             }
         }
     }
