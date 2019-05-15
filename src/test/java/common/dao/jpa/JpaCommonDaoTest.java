@@ -53,7 +53,7 @@ public class JpaCommonDaoTest {
     public void testCreateModelWithWrongVersion() {
         TestJpaModel model = getTestModel();
         model = dao.save(model);
-        model.name = UUID.randomUUID().toString();
+        model.setName(UUID.randomUUID().toString());
         model = dao.save(model);
 
         assertThat(model.getVersion(), is(1L));
@@ -257,10 +257,10 @@ public class JpaCommonDaoTest {
     @NotNull
     private List<TestJpaModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
         TestJpaModel notDeleted = new TestJpaModel();
-        notDeleted.name = uniqueName;
+        notDeleted.setName(uniqueName);
 
         TestJpaModel deleted = new TestJpaModel();
-        deleted.name = uniqueName;
+        deleted.setName(uniqueName);
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);

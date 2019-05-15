@@ -12,31 +12,25 @@ import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-@Getter
 @Setter
 @EntityListeners({JpaCommonModelLifecycleListener.class, AuditingEntityListener.class})
 @MappedSuperclass
 public abstract class PostgresCommonModel implements PersistableCommonModel<UUID> {
-    @Transient
+    @Getter(onMethod_ = {@Transient})
     private Descriptor uuid;
 
-    @Id
-    @GeneratedValue
-    @Column(name = "id")
+    @Getter(onMethod_ = {@Id, @GeneratedValue, @Column(name = "id")})
     private UUID id;
 
-    @CreatedDate
-    @Column(name = "created")
+    @Getter(onMethod_ = {@CreatedDate, @Column(name = "created")})
     private ZonedDateTime created;
 
-    @LastModifiedDate
-    @Column(name = "modified")
+    @Getter(onMethod_ = {@LastModifiedDate, @Column(name = "modified")})
     private ZonedDateTime modified;
 
-    @Version
-    @Column(name = "version")
+    @Getter(onMethod_ = {@Version, @Column(name = "version")})
     private Long version;
 
-    @Column(name = "deleted")
+    @Getter(onMethod_ = {@Column(name = "deleted")})
     private Boolean deleted = false;
 }
