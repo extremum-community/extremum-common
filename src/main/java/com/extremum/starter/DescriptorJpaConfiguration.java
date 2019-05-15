@@ -25,7 +25,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableConfigurationProperties(JpaProperties.class)
 @EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
-@ConditionalOnProperty("jpa.packageNames")
+@ConditionalOnProperty("jpa.package-names")
 @RequiredArgsConstructor
 public class DescriptorJpaConfiguration {
     private final JpaProperties jpaProperties;
