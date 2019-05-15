@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
@@ -235,6 +236,29 @@ public class MongoCommonDaoTest extends TestWithServices {
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
         assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
+    }
+
+    @Test
+    public void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
+        TestMongoModel model = new TestMongoModel();
+        model.name = "Test";
+        model = dao.save(model);
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(true));
+
+        dao.softDeleteById(model.getId());
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
+    public void givenADocumentExists_whenItIsSoftDeleted_thenTrueShouldBeReturned() {
+        TestMongoModel model = new TestMongoModel();
+        model.name = "Test";
+        model = dao.save(model);
+
+        boolean deleted = dao.softDeleteById(model.getId());
+        assertThat(deleted, is(true));
     }
 
     @NotNull
