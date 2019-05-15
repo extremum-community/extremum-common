@@ -11,6 +11,7 @@ import com.extremum.common.models.ElasticCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
+import com.extremum.common.utils.ModelUtils;
 import com.extremum.starter.properties.ElasticProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -262,7 +263,8 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
 
     protected void preSave(Model model) {
         if (model.getId() == null) {
-            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), model.getModelName());
+            String name = ModelUtils.getModelName(model.getClass());
+            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), name);
             final Descriptor stored = DescriptorService.store(descriptor);
             model.setUuid(stored);
             model.setId(stored.getInternalId());

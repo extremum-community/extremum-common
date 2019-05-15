@@ -9,7 +9,7 @@ import com.extremum.common.models.Model;
 import java.util.function.Supplier;
 
 public interface DtoConversionService {
-    DtoConverter determineConverter(Model model);
+    DtoConverter determineConverter(Class<? extends Model> model);
 
     DtoConverter determineConverterOrElseThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier);
 

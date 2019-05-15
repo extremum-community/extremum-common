@@ -7,7 +7,7 @@ import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
-import config.DescriptorConfiguration;
+import common.dao.MongoCommonDaoConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -20,14 +20,11 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = DescriptorConfiguration.class)
+@SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 public class MongoCollectionDescriptorDaoTest {
     @Autowired
     private CollectionDescriptorDao collectionDescriptorDao;
@@ -51,7 +48,7 @@ public class MongoCollectionDescriptorDaoTest {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private void assertThatCollectionDescriptorRetrievalWasOk(String hostExternalId,
-            CollectionDescriptor collectionDescriptor, Optional<CollectionDescriptor> retrievedDescriptor) {
+                                                              CollectionDescriptor collectionDescriptor, Optional<CollectionDescriptor> retrievedDescriptor) {
         assertTrue(retrievedDescriptor.isPresent());
         assertThat(retrievedDescriptor.get().getExternalId(), is(collectionDescriptor.getExternalId()));
         assertThat(retrievedDescriptor.get().getType(), is(CollectionDescriptor.Type.OWNED));

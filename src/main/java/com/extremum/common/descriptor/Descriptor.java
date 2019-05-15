@@ -104,7 +104,7 @@ public class Descriptor implements Serializable {
         DescriptorService.loadByInternalId(internalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.externalId != null)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new DescriptorNotFoundException(
                                 String.format("Internal id %s without corresponding descriptor", internalId)
                         )
                 );
