@@ -63,7 +63,7 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
 
         if (entityInformation.hasCompositeId()) {
 
-            List<T> results = new ArrayList<T>();
+            List<T> results = new ArrayList<>();
 
             for (UUID id : ids) {
                 findById(id).ifPresent(results::add);
@@ -72,7 +72,7 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
             return results;
         }
 
-        ByIdsSpecification<T> specification = new ByIdsSpecification<T>(entityInformation);
+        ByIdsSpecification<T> specification = new ByIdsSpecification<>(entityInformation);
         TypedQuery<T> query = getQuery(specification.and(notDeleted()), Sort.unsorted());
 
         return query.setParameter(specification.parameter, ids).getResultList();
