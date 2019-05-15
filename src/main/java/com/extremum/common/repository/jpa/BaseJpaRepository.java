@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,11 +23,14 @@ import java.util.UUID;
  */
 public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaRepository<T, UUID>
         implements PostgresCommonDao<T> {
+    private final EntityManager entityManager;
+
     private static final String ID = PersistableCommonModel.FIELDS.id.name();
 
     public BaseJpaRepository(JpaEntityInformation<T, ?> entityInformation,
             EntityManager entityManager) {
         super(entityInformation, entityManager);
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -41,8 +45,17 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
     }
 
     @Override
+    @Transactional
     public boolean softDeleteById(UUID id) {
-        throw new UnsupportedOperationException();
+        Optional<T> optionalEntity = findById(id);
+        if (optionalEntity.isPresent()) {
+            T entity = optionalEntity.get();
+            entity.setDeleted(true);
+            entityManager.merge(entity);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private static class NotDeleted<T extends PostgresCommonModel> implements Specification<T> {
