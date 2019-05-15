@@ -15,6 +15,9 @@ import java.util.List;
 @ConfigurationProperties("jpa")
 public class JpaProperties {
 
+    private String uri;
+    private String username;
+    private String password;
     private boolean generateDdl;
     private boolean showSql;
     private List<String> packageNames;

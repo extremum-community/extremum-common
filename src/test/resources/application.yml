@@ -6,6 +6,8 @@ mongo:
   dbName: test
 
 jpa:
+  #uri: jdbc:postgresql://localhost:5432/postgres
+  username: postgres
   generateDdl: true
   showSql: true
   packageNames: models

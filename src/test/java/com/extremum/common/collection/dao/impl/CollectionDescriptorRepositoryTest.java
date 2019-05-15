@@ -3,10 +3,11 @@ package com.extremum.common.collection.dao.impl;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Filters;
-import common.dao.MongoCommonDaoConfiguration;
+import common.dao.mongo.MongoCommonDaoConfiguration;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -20,7 +21,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -30,7 +34,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringRunner.class)
 @DataMongoTest
 @ContextConfiguration(classes = MongoCommonDaoConfiguration.class)
-public class CollectionDescriptorRepositoryTest {
+public class CollectionDescriptorRepositoryTest extends TestWithServices {
     @Autowired
     private CollectionDescriptorRepository repository;
 

@@ -5,6 +5,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
+import com.extremum.common.utils.ModelUtils;
 import common.dao.jpa.TestJpaModelDao;
 import models.TestJpaModel;
 import org.junit.Test;
@@ -422,7 +423,7 @@ public class JpaCommonServiceTest {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
                 .internalId(model.getId().toString())
-                .modelType(model.getModelName())
+                .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)
                 .build();
 

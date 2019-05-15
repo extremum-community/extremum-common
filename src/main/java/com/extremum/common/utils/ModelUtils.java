@@ -8,4 +8,8 @@ public class ModelUtils {
     public static String getModelName(Class<? extends Model> modelClass) {
         return modelClass.getAnnotation(ModelName.class).value();
     }
+
+    public static <M extends Model> String getModelName(M model) {
+        return getModelName(model.getClass());
+    }
 }

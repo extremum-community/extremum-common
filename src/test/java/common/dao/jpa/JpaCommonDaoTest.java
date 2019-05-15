@@ -1,7 +1,9 @@
 package common.dao.jpa;
 
+import com.extremum.common.containers.Services;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.utils.ModelUtils;
 import models.TestJpaModel;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Ignore;
@@ -31,6 +33,8 @@ import static org.junit.Assert.fail;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
 public class JpaCommonDaoTest {
+    private static final Services services = new Services();
+
     @Autowired
     private TestJpaModelDao dao;
 
@@ -277,7 +281,7 @@ public class JpaCommonDaoTest {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
-                .modelType(model.getModelName())
+                .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)
                 .build();
 
