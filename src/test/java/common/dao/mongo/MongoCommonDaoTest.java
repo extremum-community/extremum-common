@@ -2,6 +2,7 @@ package common.dao.mongo;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
@@ -27,7 +28,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-public class MongoCommonDaoTest {
+public class MongoCommonDaoTest extends TestWithServices {
     @Autowired
     private TestMongoModelDao dao;
 
