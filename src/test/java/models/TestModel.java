@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import static models.TestModel.COLLECTION;
 
-@ModelName(name = COLLECTION)
+@ModelName(COLLECTION)
 @Document(COLLECTION)
 public class TestModel extends MongoCommonModel {
     static final String COLLECTION = "testEntities";

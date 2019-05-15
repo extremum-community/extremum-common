@@ -6,6 +6,7 @@ import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.response.Alert;
+import com.extremum.common.utils.ModelUtils;
 import common.dao.TestModelDao;
 import models.TestModel;
 import org.bson.types.ObjectId;
@@ -421,7 +422,7 @@ public class MongoCommonServiceTest {
         model.setVersion(1L);
         model.setId(new ObjectId());
 
-        String modelName = model.getClass().getAnnotation(ModelName.class).name();
+        String modelName = ModelUtils.getModelName(model.getClass());
 
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())

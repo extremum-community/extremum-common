@@ -2,7 +2,7 @@ package com.extremum.common.models;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
-import com.extremum.common.models.annotation.ModelName;
+import com.extremum.common.utils.ModelUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
@@ -42,7 +42,7 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     }
 
     public void createDescriptorIfNeeded() {
-        String name = this.getClass().getAnnotation(ModelName.class).name();
+        String name = ModelUtils.getModelName(this.getClass());
         if (this.uuid == null) {
             this.uuid = MongoDescriptorFactory.create(id, name);
         }
