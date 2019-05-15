@@ -13,14 +13,8 @@ import java.util.List;
 
 @Slf4j
 public class FindUtils {
-    private static ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-
-    private static void resetProvider() {
-        provider.resetFilters(false);
-    }
-
     @SuppressWarnings("unchecked")
-    private static <M extends Class> Collection<M> findCandidates(String scanPackage, M resultClass) {
+    private static <M extends Class> Collection<M> findCandidates(ClassPathScanningCandidateComponentProvider provider, String scanPackage, M resultClass) {
         List<M> resultList = new ArrayList<>();
         for (BeanDefinition definition : provider.findCandidateComponents(scanPackage)) {
             try {
@@ -34,14 +28,14 @@ public class FindUtils {
     }
 
     public static <M extends Class> Collection<M> findClassesByInterface(M interfaceClass, String scanPackage) {
-        resetProvider();
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AssignableTypeFilter(interfaceClass));
-        return findCandidates(scanPackage, interfaceClass);
+        return findCandidates(provider, scanPackage, interfaceClass);
     }
 
     public static <M extends Class> Collection<M> findClassesByAnnotation(M resultSuperClass, Class<? extends Annotation> annotationClass, String scanPackage) {
-        resetProvider();
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AnnotationTypeFilter(annotationClass));
-        return findCandidates(scanPackage, resultSuperClass);
+        return findCandidates(provider, scanPackage, resultSuperClass);
     }
 }

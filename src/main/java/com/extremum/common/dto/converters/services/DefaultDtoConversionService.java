@@ -5,6 +5,7 @@ import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.*;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.annotation.ModelName;
+import com.extremum.common.utils.ModelUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -37,12 +38,12 @@ public class DefaultDtoConversionService implements DtoConversionService {
     }
 
     @Override
-    public DtoConverter determineConverter(Model model) {
-        requireNonNull(model, "Model can't be null");
+    public DtoConverter determineConverter(Class<? extends Model> modelClass) {
+        requireNonNull(modelClass, "Model can't be null");
 
         for (DtoConverter converter : converters) {
-            if (model.getClass().isAnnotationPresent(ModelName.class)) {
-                if (model.getClass().getAnnotation(ModelName.class).name().equalsIgnoreCase(converter.getSupportedModel())) {
+            if (modelClass.isAnnotationPresent(ModelName.class)) {
+                if (ModelUtils.getModelName(modelClass).equalsIgnoreCase(converter.getSupportedModel())) {
                     return converter;
                 }
             }
@@ -52,7 +53,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public DtoConverter determineConverterOrElseThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier) {
-        DtoConverter converter = determineConverter(model);
+        DtoConverter converter = determineConverter(model.getClass());
         if (converter == null) {
             LOGGER.error("Unable to determine a converter for model {}", model.getClass().getSimpleName());
             throw exceptionSupplier.get();
@@ -63,7 +64,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config) {
-        DtoConverter converter = determineConverter(model);
+        DtoConverter converter = determineConverter(model.getClass());
 
         if (converter == null) {
             LOGGER.error("Unable to determine converter for model {}: {}", model.getClass().getSimpleName(), model);
@@ -82,7 +83,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public RequestDto convertUnknownToRequestDto(Model model, ConversionConfig config) {
-        DtoConverter converter = determineConverter(model);
+        DtoConverter converter = determineConverter(model.getClass());
 
         if (converter == null) {
             String message = format("Unable to determine converter for model %s: %s", model.getClass().getSimpleName(), model);
