@@ -39,7 +39,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public DtoConverter determineConverter(Class<? extends Model> modelClass) {
-        requireNonNull(modelClass, "Model can't be null");
+        requireNonNull(modelClass, "Model class can't be null");
 
         for (DtoConverter converter : converters) {
             if (modelClass.isAnnotationPresent(ModelName.class)) {

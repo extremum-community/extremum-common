@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 
 public class MongoCommonServiceImpl<Model extends MongoCommonModel> implements MongoCommonService<Model> {
-    
     protected final MongoCommonDao<Model> dao;
     private final Class<Model> modelClass;
     private final String modelTypeName;
