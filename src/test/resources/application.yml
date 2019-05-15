@@ -5,6 +5,11 @@ redis:
 mongo:
   dbName: test
 
+jpa:
+  generateDdl: true
+  showSql: true
+  packageNames: models
+
 descriptors:
   descriptorsMapName: descriptors
   internalIdsMapName: descriptors_internalId_idx
