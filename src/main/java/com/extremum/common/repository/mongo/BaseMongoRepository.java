@@ -21,6 +21,11 @@ import java.util.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
+ * Differs from the standard {@link SimpleMongoRepository} in two aspects:
+ * 1. has implementations for our extension methods
+ * 2. implements soft-deletion logic; that is, all deletions are replached with setting 'deleted' flag to true,
+ * and all find operations filter out documents with 'deleted' set to true.
+ *
  * @author rpuch
  */
 public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongoRepository<T, ObjectId>
@@ -96,9 +101,33 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     @Override
     public void deleteById(ObjectId id) {
         Query query = new Query(where(ID).is(id));
+        Update update = updateDeletedToTrue();
+        mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
+    }
+
+    private Update updateDeletedToTrue() {
         Update update = new Update();
         update.set(DELETED, true);
-        mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
+        return update;
+    }
+
+    @Override
+    public void delete(T entity) {
+        entity.setDeleted(true);
+        save(entity);
+    }
+
+    @Override
+    public void deleteAll() {
+        Update update = updateDeletedToTrue();
+        mongoOperations.updateMulti(new Query(), update, entityInformation.getJavaType());
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends T> entities) {
+        Assert.notNull(entities, "The given Iterable of entities not be null!");
+
+        entities.forEach(this::delete);
     }
 
     @Override
