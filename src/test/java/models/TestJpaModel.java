@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @ModelName("TestJpaModel")
 public class TestJpaModel extends PostgresCommonModel {
 
-    @Getter(onMethod_ = {@Column(name = "name")})
+    @Getter(onMethod_ = {@Column})
     private String name;
 
     public enum FIELDS {

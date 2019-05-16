@@ -19,18 +19,18 @@ public abstract class PostgresCommonModel implements PersistableCommonModel<UUID
     @Getter(onMethod_ = {@Transient})
     private Descriptor uuid;
 
-    @Getter(onMethod_ = {@Id, @GeneratedValue, @Column(name = "id")})
+    @Getter(onMethod_ = {@Id, @GeneratedValue, @Column})
     private UUID id;
 
-    @Getter(onMethod_ = {@CreatedDate, @Column(name = "created")})
+    @Getter(onMethod_ = {@CreatedDate, @Column})
     private ZonedDateTime created;
 
-    @Getter(onMethod_ = {@LastModifiedDate, @Column(name = "modified")})
+    @Getter(onMethod_ = {@LastModifiedDate, @Column})
     private ZonedDateTime modified;
 
-    @Getter(onMethod_ = {@Version, @Column(name = "version")})
+    @Getter(onMethod_ = {@Version, @Column})
     private Long version;
 
-    @Getter(onMethod_ = {@Column(name = "deleted")})
+    @Getter(onMethod_ = {@Column})
     private Boolean deleted = false;
 }
