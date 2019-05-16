@@ -3,6 +3,7 @@ package com.extremum.common.repository.jpa;
 import com.extremum.common.dao.PostgresCommonDao;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.PostgresCommonModel;
+import com.extremum.common.utils.StreamUtils;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.convert.QueryByExamplePredicateBuilder;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,12 +18,21 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
 
 /**
+ * Differs from the standard {@link SimpleJpaRepository} in one aspect:
+ * it implements soft-deletion logic; that is, all deletions are replached with setting 'deleted' flag to true,
+ * and all find operations filter out documents with 'deleted' set to true.
+ *
  * @author rpuch
  */
 public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaRepository<T, UUID>
         implements PostgresCommonDao<T> {
+    private static final String SOFT_DELETE_ALL_QUERY_STRING = "update %s set deleted = true";
+
     private final JpaEntityInformation<T, ?> entityInformation;
     private final EntityManager entityManager;
 
@@ -114,6 +124,58 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
             T entity = optionalEntity.get();
             entity.setDeleted(true);
             entityManager.merge(entity);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delete(T entity) {
+        entity.setDeleted(true);
+        entityManager.merge(entity);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAll() {
+        for (T element : findAll()) {
+            delete(element);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllInBatch() {
+        entityManager.createQuery(getSoftDeleteAllQueryString()).executeUpdate();
+    }
+
+    private String getSoftDeleteAllQueryString() {
+        return getQueryString(SOFT_DELETE_ALL_QUERY_STRING, entityInformation.getEntityName());
+    }
+
+    @Override
+    @Transactional
+    public void deleteInBatch(Iterable<T> entities) {
+        if (!entities.iterator().hasNext()) {
+            return;
+        }
+
+        String queryString = getQueryString(SOFT_DELETE_ALL_QUERY_STRING, entityInformation.getEntityName());
+        String joinedIds = StreamUtils.fromIterable(entities)
+                .map(PostgresCommonModel::getId)
+                .map(Object::toString)
+                .map(id -> "'" + id + "'")
+                .collect(Collectors.joining(","));
+        queryString += (" where id in (" + joinedIds + ")");
+        entityManager.createQuery(queryString).executeUpdate();
+    }
+
+    @Override
+    @Transactional
+    public void deleteAll(Iterable<? extends T> entities) {
+        Assert.notNull(entities, "The given Iterable of entities not be null!");
+
+        for (T entity : entities) {
+            delete(entity);
         }
     }
 

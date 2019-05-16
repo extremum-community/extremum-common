@@ -15,6 +15,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -267,6 +268,19 @@ public class JpaCommonDaoTest extends TestWithServices {
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
+    }
+
+    @Test
+    public void testAllInBatchDeletion() {
+        dao.deleteAllInBatch();
+    }
+
+    @Test
+    public void testDeletionOfAListInBatch() {
+        TestJpaModel model1 = dao.save(new TestJpaModel());
+        TestJpaModel model2 = dao.save(new TestJpaModel());
+
+        dao.deleteInBatch(Arrays.asList(model1, model2));
     }
 
     private static TestJpaModel getDeletedTestModel() {

@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.RepositoryMetadata;
 
 import javax.persistence.EntityManager;
-import java.lang.reflect.Method;
 
 /**
  * @author rpuch
@@ -26,6 +25,6 @@ public class ExtremumJpaRepositoryFactory extends JpaRepositoryFactory {
     }
 
     private boolean supportsSoftDeletion(Class<?> domainType) {
-        return domainType.isAssignableFrom(SoftDeletablePostgresCommonModel.class);
+        return SoftDeletablePostgresCommonModel.class.isAssignableFrom(domainType);
     }
 }
