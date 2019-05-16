@@ -1,8 +1,8 @@
 package common.dao.jpa;
 
-import com.extremum.common.containers.Services;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
 import models.TestJpaModel;
 import org.jetbrains.annotations.NotNull;
@@ -32,9 +32,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
-public class JpaCommonDaoTest {
-    private static final Services services = new Services();
-
+public class JpaCommonDaoTest extends TestWithServices {
     @Autowired
     private TestJpaModelDao dao;
 
