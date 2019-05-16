@@ -1,9 +1,10 @@
-package common.dao;
+package common.dao.mongo;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
-import models.TestModel;
+import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -21,24 +22,25 @@ import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-public class MongoCommonDaoTest {
+public class MongoCommonDaoTest extends TestWithServices {
     @Autowired
-    private TestModelDao dao;
+    private TestMongoModelDao dao;
 
     @Test
     public void testCreateModel() {
-        TestModel model = getTestModel();
+        TestMongoModel model = getTestModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
 
-        TestModel createdModel = dao.save(model);
+        TestMongoModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
@@ -48,7 +50,7 @@ public class MongoCommonDaoTest {
 
     @Test(expected = OptimisticLockingFailureException.class)
     public void testCreateModelWithWrongVersion() {
-        TestModel model = getTestModel();
+        TestMongoModel model = getTestModel();
         model.setId(new ObjectId(model.getUuid().getInternalId()));
         model.setVersion(123L);
         dao.save(model);
@@ -57,12 +59,12 @@ public class MongoCommonDaoTest {
     @Test
     public void testCreateModelList() {
         int modelsToCreate = 10;
-        List<TestModel> modelList = Stream
+        List<TestMongoModel> modelList = Stream
                 .generate(MongoCommonDaoTest::getTestModel)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
 
-        List<TestModel> createdModelList = dao.saveAll(modelList);
+        List<TestMongoModel> createdModelList = dao.saveAll(modelList);
         assertNotNull(createdModelList);
         assertEquals(modelsToCreate, createdModelList.size());
 
@@ -75,10 +77,10 @@ public class MongoCommonDaoTest {
 
     @Test
     public void testGet() {
-        TestModel model = getTestModel();
+        TestMongoModel model = getTestModel();
         dao.save(model);
 
-        TestModel resultModel = dao.findById(model.getId()).get();
+        TestMongoModel resultModel = dao.findById(model.getId()).get();
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
@@ -88,7 +90,7 @@ public class MongoCommonDaoTest {
         resultModel = dao.findById(new ObjectId()).orElse(null);
         assertNull(resultModel);
 
-        TestModel deletedModel = getDeletedTestModel();
+        TestMongoModel deletedModel = getDeletedTestModel();
         dao.save(deletedModel);
 
         resultModel = dao.findById(deletedModel.getId()).orElse(null);
@@ -97,10 +99,10 @@ public class MongoCommonDaoTest {
 
     @Test
     public void testGetByFieldValue() {
-        TestModel model = getTestModel();
+        TestMongoModel model = getTestModel();
         dao.save(model);
 
-        List<TestModel> resultModels = dao.listByFieldValue(created.name(), model.getCreated());
+        List<TestMongoModel> resultModels = dao.listByFieldValue(created.name(), model.getCreated());
         assertEquals(1, resultModels.size());
         assertEquals(model.getId(), resultModels.get(0).getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModels.get(0).getCreated().toEpochSecond());
@@ -111,7 +113,7 @@ public class MongoCommonDaoTest {
         resultModels = dao.listByFieldValue(created.name(), ZonedDateTime.now());
         assertTrue(resultModels.isEmpty());
 
-        TestModel deletedModel = getDeletedTestModel();
+        TestMongoModel deletedModel = getDeletedTestModel();
         dao.save(deletedModel);
 
         resultModels = dao.listByFieldValue(created.name(), deletedModel.getCreated());
@@ -120,18 +122,18 @@ public class MongoCommonDaoTest {
 
     @Test
     public void testGetSelectedFieldsById() {
-        TestModel model = getTestModel();
+        TestMongoModel model = getTestModel();
         dao.save(model);
 
         String[] fields = {created.name()};
-        TestModel resultModel = dao.getSelectedFieldsById(model.getId(), fields).orElse(null);
+        TestMongoModel resultModel = dao.getSelectedFieldsById(model.getId(), fields).orElse(null);
         assertNotNull(resultModel);
         assertNotNull(resultModel.getId());
         assertNotNull(resultModel.getCreated());
         assertNull(resultModel.getModified());
         assertNull(resultModel.getVersion());
 
-        TestModel deletedModel = getDeletedTestModel();
+        TestMongoModel deletedModel = getDeletedTestModel();
         dao.save(deletedModel);
 
         resultModel = dao.getSelectedFieldsById(deletedModel.getId(), fields).orElse(null);
@@ -170,7 +172,7 @@ public class MongoCommonDaoTest {
         List<ObjectId> createdIds = new ArrayList<>();
 
         for (int i = 0; i < modelsToCreate; i++) {
-            TestModel testModel = getTestModel();
+            TestMongoModel testModel = getTestModel();
             testModel.name = name;
             dao.save(testModel);
             createdIds.add(testModel.getId());
@@ -194,7 +196,7 @@ public class MongoCommonDaoTest {
         count = dao.listByParameters(Collections.singletonMap("ids", createdIds.subList(0, idsSize))).size();
         assertEquals(idsSize, count);
 
-        count = dao.listByParameters(Collections.singletonMap(TestModel.FIELDS.name.name(), name)).size();
+        count = dao.listByParameters(Collections.singletonMap(TestMongoModel.FIELDS.name.name(), name)).size();
         assertEquals(modelsToCreate, count);
     }
 
@@ -204,7 +206,7 @@ public class MongoCommonDaoTest {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        List<TestModel> results = dao.findByName(uniqueName);
+        List<TestMongoModel> results = dao.findByName(uniqueName);
         assertThat(results, hasSize(1));
     }
 
@@ -214,7 +216,7 @@ public class MongoCommonDaoTest {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        List<TestModel> results = dao.findEvenDeletedByName(uniqueName);
+        List<TestMongoModel> results = dao.findEvenDeletedByName(uniqueName);
         assertThat(results, hasSize(2));
     }
 
@@ -236,26 +238,49 @@ public class MongoCommonDaoTest {
         assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
     }
 
+    @Test
+    public void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
+        TestMongoModel model = new TestMongoModel();
+        model.name = "Test";
+        model = dao.save(model);
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(true));
+
+        dao.softDeleteById(model.getId());
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
+    public void givenADocumentExists_whenItIsSoftDeleted_thenTrueShouldBeReturned() {
+        TestMongoModel model = new TestMongoModel();
+        model.name = "Test";
+        model = dao.save(model);
+
+        boolean deleted = dao.softDeleteById(model.getId());
+        assertThat(deleted, is(true));
+    }
+
     @NotNull
-    private List<TestModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
-        TestModel notDeleted = new TestModel();
+    private List<TestMongoModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
+        TestMongoModel notDeleted = new TestMongoModel();
         notDeleted.name = uniqueName;
 
-        TestModel deleted = new TestModel();
+        TestMongoModel deleted = new TestMongoModel();
         deleted.name = uniqueName;
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
     }
 
-    private static TestModel getDeletedTestModel() {
-        TestModel model = getTestModel();
+    private static TestMongoModel getDeletedTestModel() {
+        TestMongoModel model = getTestModel();
         model.setDeleted(true);
         return model;
     }
 
-    private static TestModel getTestModel() {
-        TestModel model = new TestModel();
+    private static TestMongoModel getTestModel() {
+        TestMongoModel model = new TestMongoModel();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
                 .internalId(new ObjectId().toString())

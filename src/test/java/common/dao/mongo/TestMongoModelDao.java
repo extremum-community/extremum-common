@@ -1,18 +1,18 @@
-package common.dao;
+package common.dao.mongo;
 
 import com.extremum.common.dao.impl.SpringDataMongoCommonDao;
 import com.extremum.common.repository.SeesSoftlyDeletedRecords;
-import models.TestModel;
+import models.TestMongoModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface TestModelDao extends SpringDataMongoCommonDao<TestModel> {
-    List<TestModel> findByName(String name);
+public interface TestMongoModelDao extends SpringDataMongoCommonDao<TestMongoModel> {
+    List<TestMongoModel> findByName(String name);
 
     @SeesSoftlyDeletedRecords
-    List<TestModel> findEvenDeletedByName(String name);
+    List<TestMongoModel> findEvenDeletedByName(String name);
 
     long countByName(String name);
 

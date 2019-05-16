@@ -1,7 +1,7 @@
-package common.dao;
+package common.dao.mongo;
 
-import com.extremum.common.repository.BaseMongoRepository;
-import com.extremum.common.repository.SoftDeleteMongoRepositoryFactoryBean;
+import com.extremum.common.repository.mongo.BaseMongoRepository;
+import com.extremum.common.repository.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import config.DescriptorConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
