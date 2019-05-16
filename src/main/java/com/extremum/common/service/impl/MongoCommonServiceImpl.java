@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonServiceImpl<ObjectId, M>
         implements MongoCommonService<M> {
-    
+
     private final MongoCommonDao<M> dao;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MongoCommonServiceImpl.class);
