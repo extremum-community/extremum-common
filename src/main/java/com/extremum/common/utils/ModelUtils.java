@@ -6,7 +6,11 @@ import com.extremum.common.models.annotation.ModelName;
 public class ModelUtils {
 
     public static String getModelName(Class<? extends Model> modelClass) {
-        return modelClass.getAnnotation(ModelName.class).value();
+        ModelName annotation = modelClass.getAnnotation(ModelName.class);
+        if (annotation == null) {
+            throw new IllegalStateException(modelClass + " is not annotated with @ModelName");
+        }
+        return annotation.value();
     }
 
     public static <M extends Model> String getModelName(M model) {
