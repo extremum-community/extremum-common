@@ -155,9 +155,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
             return;
         }
 
-        if (!dao.softDeleteById(stringToId(id))) {
-            throw new ModelNotFoundException(modelClass, id);
-        }
+        dao.deleteById(stringToId(id));
     }
 
     protected final boolean checkId(String id, Collection<Alert> alerts) {

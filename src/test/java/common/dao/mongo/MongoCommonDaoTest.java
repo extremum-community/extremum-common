@@ -22,9 +22,13 @@ import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
@@ -246,19 +250,9 @@ public class MongoCommonDaoTest extends TestWithServices {
 
         assertThat(dao.findById(model.getId()).isPresent(), is(true));
 
-        dao.softDeleteById(model.getId());
+        dao.deleteById(model.getId());
 
         assertThat(dao.findById(model.getId()).isPresent(), is(false));
-    }
-
-    @Test
-    public void givenADocumentExists_whenItIsSoftDeleted_thenTrueShouldBeReturned() {
-        TestMongoModel model = new TestMongoModel();
-        model.name = "Test";
-        model = dao.save(model);
-
-        boolean deleted = dao.softDeleteById(model.getId());
-        assertThat(deleted, is(true));
     }
 
     @NotNull

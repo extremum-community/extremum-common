@@ -14,5 +14,5 @@ public interface CommonDao<M, ID> {
 
     <N extends M> Iterable<N> saveAll(Iterable<N> entities);
 
-    boolean softDeleteById(ID id);
+    void deleteById(ID id);
 }

@@ -108,15 +108,12 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
 
     @Override
     @Transactional
-    public boolean softDeleteById(UUID id) {
+    public void deleteById(UUID id) {
         Optional<T> optionalEntity = findById(id);
         if (optionalEntity.isPresent()) {
             T entity = optionalEntity.get();
             entity.setDeleted(true);
             entityManager.merge(entity);
-            return true;
-        } else {
-            return false;
         }
     }
 

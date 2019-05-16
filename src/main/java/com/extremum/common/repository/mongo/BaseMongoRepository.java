@@ -94,12 +94,11 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
    	}
 
     @Override
-    public boolean softDeleteById(ObjectId id) {
+    public void deleteById(ObjectId id) {
         Query query = new Query(where(ID).is(id));
         Update update = new Update();
         update.set(DELETED, true);
-        T modified = mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
-        return modified != null;
+        mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
     }
 
     @Override
