@@ -1,5 +1,6 @@
-package com.extremum.common.repository;
+package com.extremum.common.repository.mongo;
 
+import com.extremum.common.repository.SeesSoftlyDeletedRecords;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.ConvertingParameterAccessor;
@@ -38,14 +39,14 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
         if (!(repositoryQuery instanceof PartTreeMongoQuery)) {
             return repositoryQuery;
         }
-        PartTreeMongoQuery partTreeMongoQuery = (PartTreeMongoQuery) repositoryQuery;
+        PartTreeMongoQuery partTreeQuery = (PartTreeMongoQuery) repositoryQuery;
 
-        return new SoftDeletePartTreeMongoQuery(partTreeMongoQuery);
+        return new SoftDeletePartTreeMongoQuery(partTreeQuery);
     }
 
     private class SoftDeletePartTreeMongoQuery extends PartTreeMongoQuery {
-        SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeMongoQuery) {
-            super(partTreeMongoQuery.getQueryMethod(), SoftDeleteMongoQueryLookupStrategy.this.mongoOperations);
+        SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeQuery) {
+            super(partTreeQuery.getQueryMethod(), mongoOperations);
         }
 
         @Override

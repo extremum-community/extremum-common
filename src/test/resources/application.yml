@@ -5,8 +5,24 @@ redis:
 mongo:
   dbName: test
 
+jpa:
+  #uri: jdbc:postgresql://localhost:5432/postgres
+  username: postgres
+  generateDdl: true
+  showSql: true
+  package-names: models
+
 descriptors:
   descriptorsMapName: descriptors
   internalIdsMapName: descriptors_internalId_idx
   collectionDescriptorsMapName: collection_descriptors
   collectionCoordinatesMapName: collection_descriptors_coordinates_idx
+
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true

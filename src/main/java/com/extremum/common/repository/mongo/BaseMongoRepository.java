@@ -1,4 +1,4 @@
-package com.extremum.common.repository;
+package com.extremum.common.repository.mongo;
 
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.models.MongoCommonModel;
@@ -99,7 +99,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
         Update update = new Update();
         update.set(DELETED, true);
         T modified = mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
-        return modified != null && modified.getDeleted();
+        return modified != null;
     }
 
     @Override

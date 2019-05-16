@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public final class DescriptorService {
 
-    private static DescriptorDao descriptorDao;
+    private static volatile DescriptorDao descriptorDao;
 
     public static void setDescriptorDao(DescriptorDao descriptorDao) {
         DescriptorService.descriptorDao = descriptorDao;

@@ -4,11 +4,12 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import static models.TestModel.COLLECTION;
+import static models.TestMongoModel.COLLECTION;
 
 @ModelName(COLLECTION)
 @Document(COLLECTION)
-public class TestModel extends MongoCommonModel {
+public class TestMongoModel extends MongoCommonModel {
+
     static final String COLLECTION = "testEntities";
     public String name;
 
