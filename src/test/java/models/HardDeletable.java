@@ -1,21 +1,19 @@
 package models;
 
-import com.extremum.common.models.SoftDeletablePostgresCommonModel;
+import com.extremum.common.models.HardDeletablePostgresCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "test_model")
-@Where(clause = "deleted = false")
+@Table(name = "hard_deletable")
 @Setter
-@ModelName("TestJpaModel")
-public class TestJpaModel extends SoftDeletablePostgresCommonModel {
+@ModelName("HardDeletable")
+public class HardDeletable extends HardDeletablePostgresCommonModel {
 
     @Getter(onMethod_ = {@Column})
     private String name;
