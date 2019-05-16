@@ -7,7 +7,7 @@
       <parameters>
         <param name="displayName" value="Docker Registry" />
         <param name="providerType" value="Docker" />
-        <param name="repositoryUrl" value="https://docker.com" />
+        <param name="repositoryUrl" value="https://docker.io" />
         <param name="secure:userPass" value="credentialsJSON:b8a14d0a-3411-4b45-941b-0148cabba301" />
         <param name="userName" value="aemulus" />
       </parameters>
