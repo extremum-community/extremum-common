@@ -143,22 +143,19 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
     }
 
     @Override
-    public M delete(String id){
-        return delete(id, null);
+    public void delete(String id){
+        delete(id, null);
     }
 
     @Override
-    public M delete(String id, Collection<Alert> alerts){
+    public void delete(String id, Collection<Alert> alerts){
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, alerts)) {
-            return null;
+            return;
         }
 
-        if (dao.softDeleteById(stringToId(id))) {
-            M found = dao.findById(stringToId(id)).orElse(null);
-            return getResultWithNullabilityCheck(found, id, alerts);
-        } else {
+        if (!dao.softDeleteById(stringToId(id))) {
             throw new ModelNotFoundException(modelClass, id);
         }
     }
