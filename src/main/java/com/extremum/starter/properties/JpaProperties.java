@@ -14,12 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @ConfigurationProperties("jpa")
 public class JpaProperties {
+    public static final String REPOSITORY_PACKAGES_PROPERTY = "jpa.repository-packages";
 
     private String uri;
     private String username;
     private String password;
     private boolean generateDdl;
     private boolean showSql;
-    private List<String> packageNames;
+    private List<String> entityPackages;
+    private List<String> repositoryPackages;
 
 }

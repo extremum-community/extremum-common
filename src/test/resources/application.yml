@@ -10,7 +10,8 @@ jpa:
   username: postgres
   generateDdl: true
   showSql: true
-  package-names: models
+  entity-packages: models
+  repository-packages: common.dao.jpa
 
 descriptors:
   descriptorsMapName: descriptors
