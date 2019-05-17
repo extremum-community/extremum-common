@@ -51,6 +51,10 @@ public class CommonException extends RuntimeException {
         return alerts;
     }
 
+    public Alert getFirstAlert() {
+        return getAlerts().get(0);
+    }
+
     private Response toFailResponse(String locale) {
         return Response.builder()
                 .withFailStatus()

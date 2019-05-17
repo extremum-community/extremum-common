@@ -33,12 +33,22 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     }
 
     @Override
-    public List<M> listByParameters(Map<String, Object> parameters){
-        return listByParameters(parameters, null);
+    public List<M> listByParameters(Map<String, Object> parameters) {
+        return listByParameters(parameters, new ThrowOnAlert());
     }
 
     @Override
     public List<M> listByParameters(Map<String, Object> parameters, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
+        return listByParameters(parameters, new AddAlert(alerts));
+    }
+
+    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
+        Objects.requireNonNull(alerts, "Alerts collection must not be null");
+    }
+
+    private List<M> listByParameters(Map<String, Object> parameters, Alerts alerts) {
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Getting list of models of type {} by parameters {}", modelTypeName,
                     parameters != null ? parameters.entrySet().stream()
@@ -49,12 +59,17 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     }
 
     @Override
-    public List<M> listByFieldValue(String fieldName, Object fieldValue){
-        return listByFieldValue(fieldName, fieldValue, null);
+    public List<M> listByFieldValue(String fieldName, Object fieldValue) {
+        return listByFieldValue(fieldName, fieldValue, new ThrowOnAlert());
     }
 
     @Override
-    public List<M> listByFieldValue(String fieldName, Object fieldValue, Collection<Alert> alerts){
+    public List<M> listByFieldValue(String fieldName, Object fieldValue, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
+        return listByFieldValue(fieldName, fieldValue, new AddAlert(alerts));
+    }
+
+    private List<M> listByFieldValue(String fieldName, Object fieldValue, Alerts alerts) {
         LOGGER.debug("Get list of models of type {} by field {} with value {}", modelTypeName, fieldName, fieldValue);
 
         if(!checkFieldNameAndValue(fieldName, fieldValue, alerts)) {
@@ -64,12 +79,18 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     }
 
     @Override
-    public List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit){
-        return listByFieldValue(fieldName, fieldValue, offset, limit, null);
+    public List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit) {
+        return listByFieldValue(fieldName, fieldValue, offset, limit, new ThrowOnAlert());
     }
 
     @Override
-    public List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Collection<Alert> alerts) {
+    public List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit,
+            Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
+        return listByFieldValue(fieldName, fieldValue, offset, limit, new AddAlert(alerts));
+    }
+
+    private List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Alerts alerts) {
         LOGGER.debug("Get list of models of type {} by field {} with value {} using offset {} and limit {}",
                 modelTypeName, fieldName, fieldValue, offset, limit);
 
@@ -84,7 +105,7 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
         return listByParameters(params, alerts);
     }
 
-    private boolean checkFieldNameAndValue(String fieldName, Object fieldValue, Collection<Alert> alerts) {
+    private boolean checkFieldNameAndValue(String fieldName, Object fieldValue, Alerts alerts) {
         boolean valid = true;
         if(StringUtils.isBlank(fieldName)) {
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Field name can't be blank"));
@@ -99,11 +120,16 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
 
     @Override
     public M getSelectedFieldsById(String id, String... fieldNames) {
-        return getSelectedFieldsById(id, null, fieldNames);
+        return getSelectedFieldsById(id, new ThrowOnAlert(), fieldNames);
     }
 
     @Override
     public M getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames) {
+        checkThatAlertsIsNotNull(alerts);
+        return getSelectedFieldsById(id, new AddAlert(alerts), fieldNames);
+    }
+
+    private M getSelectedFieldsById(String id, Alerts alerts, String... fieldNames) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Get fields {} by id {} of model {}", Stream.of(fieldNames).map(Object::toString)
                             .collect(Collectors.joining(", ")), id, modelTypeName);

@@ -449,6 +449,30 @@ public class MongoCommonServiceTest {
                 () -> service.delete("id", null));
     }
 
+    @Test
+    public void whenNullCollectionAlertsIsPassedToListByParameters_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.listByParameters(Collections.emptyMap(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToListByFieldValue_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.listByFieldValue("key", "value", null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToListByFieldValueWithPading_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.listByFieldValue("key", "value", 0, 10, null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToGetSelectedFieldsById_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.getSelectedFieldsById("id", (Collection<Alert>) null));
+    }
+
     private void makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(Runnable runnable) {
         try {
             runnable.run();

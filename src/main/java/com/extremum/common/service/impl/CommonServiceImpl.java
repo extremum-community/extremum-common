@@ -40,12 +40,20 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
 
     @Override
     public M get(String id) {
-        return get(id, null);
+        return get(id, new ThrowOnAlert());
     }
 
     @Override
     public M get(String id, Collection<Alert> alerts) {
         checkThatAlertsIsNotNull(alerts);
+        return get(id, new AddAlert(alerts));
+    }
+
+    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
+        Objects.requireNonNull(alerts, "Alerts collection must not be null");
+    }
+
+    private M get(String id, Alerts alerts) {
         LOGGER.debug("Get model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, alerts)) {
@@ -55,30 +63,34 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return getResultWithNullabilityCheck(found, id, alerts);
     }
 
-    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
-        Objects.requireNonNull(alerts, "Alerts collection must not be null");
-    }
-
     @Override
     public List<M> list() {
-        return list(null);
+        return list(new ThrowOnAlert());
     }
 
     @Override
     public List<M> list(Collection<Alert> alerts) {
         checkThatAlertsIsNotNull(alerts);
+        return list(new AddAlert(alerts));
+    }
+
+    private List<M> list(Alerts alerts) {
         LOGGER.debug("Get list of models of type {}", modelTypeName);
         return dao.findAll();
     }
 
     @Override
     public M create(M data) {
-        return create(data, null);
+        return create(data, new ThrowOnAlert());
     }
 
     @Override
     public M create(M data, Collection<Alert> alerts) {
         checkThatAlertsIsNotNull(alerts);
+        return create(data, new AddAlert(alerts));
+    }
+
+    private M create(M data, Alerts alerts) {
         LOGGER.debug("Create model {}", data);
 
         if(data == null) {
@@ -90,12 +102,16 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
 
     @Override
     public List<M> create(List<M> data) {
-        return create(data, null);
+        return create(data, new ThrowOnAlert());
     }
 
     @Override
     public List<M> create(List<M> data, Collection<Alert> alerts) {
         checkThatAlertsIsNotNull(alerts);
+        return create(data, new AddAlert(alerts));
+    }
+    
+    private List<M> create(List<M> data, Alerts alerts) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
@@ -111,12 +127,16 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
 
     @Override
     public M save(M data) {
-        return save(data, null);
+        return save(data, new ThrowOnAlert());
     }
 
     @Override
     public M save(M data, Collection<Alert> alerts) {
         checkThatAlertsIsNotNull(alerts);
+        return save(data, new AddAlert(alerts));
+    }
+
+    private M save(M data, Alerts alerts) {
         LOGGER.debug("Save model {}", modelTypeName);
 
         if (data == null) {
@@ -154,12 +174,16 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
 
     @Override
     public M delete(String id) {
-        return delete(id, null);
+        return delete(id, new ThrowOnAlert());
     }
 
     @Override
     public M delete(String id, Collection<Alert> alerts) {
         checkThatAlertsIsNotNull(alerts);
+        return delete(id, new AddAlert(alerts));
+    }
+    
+    private M delete(String id, Alerts alerts) {
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, alerts)) {
@@ -174,7 +198,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         }
     }
 
-    protected final boolean checkId(String id, Collection<Alert> alerts) {
+    protected final boolean checkId(String id, Alerts alerts) {
         boolean valid = true;
         if (StringUtils.isBlank(id)) {
             fillAlertsOrThrowException(alerts, new WrongArgumentException("Model id can't be null"));
@@ -183,7 +207,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return valid;
     }
 
-    protected final M getResultWithNullabilityCheck(M result, String id, Collection<Alert> alerts) {
+    protected final M getResultWithNullabilityCheck(M result, String id, Alerts alerts) {
         if(result == null) {
             LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, id);
             fillAlertsOrThrowException(alerts, new ModelNotFoundException(modelClass, id));
@@ -191,11 +215,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return result;
     }
 
-    protected final void fillAlertsOrThrowException(Collection<Alert> alerts, CommonException ex) {
-        if (alerts == null) {
-            throw ex;
-        } else {
-            alerts.add(ex.getAlerts().get(0));
-        }
+    protected final void fillAlertsOrThrowException(Alerts alerts, CommonException ex) {
+        alerts.accept(ex);
     }
 }
