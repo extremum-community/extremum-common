@@ -133,9 +133,7 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
     @Override
     @Transactional
     public void deleteAll() {
-        for (T element : findAll()) {
-            delete(element);
-        }
+        deleteAll(findAll());
     }
 
     @Override
