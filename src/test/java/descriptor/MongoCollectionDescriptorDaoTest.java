@@ -7,6 +7,7 @@ import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.test.TestWithServices;
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-public class MongoCollectionDescriptorDaoTest {
+public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     @Autowired
     private CollectionDescriptorDao collectionDescriptorDao;
 
