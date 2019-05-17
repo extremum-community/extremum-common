@@ -12,13 +12,13 @@ import static org.junit.Assert.fail;
  * @author rpuch
  */
 public class ThrowOnAlertTest {
-    private final Alerts alerts = new ThrowOnAlert();
+    private final Problems problems = new ThrowOnAlert();
     private final CommonException exception = new CommonException("test", 200);
 
     @Test
     public void whenAnExceptionIsConsumed_thenItShouldBeThrown() {
         try {
-            alerts.accept(exception);
+            problems.accept(exception);
             fail("An exception should be thrown");
         } catch (CommonException e) {
             assertThat(e, is(sameInstance(exception)));

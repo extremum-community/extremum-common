@@ -7,5 +7,5 @@ import java.util.function.Consumer;
 /**
  * @author rpuch
  */
-public interface Alerts extends Consumer<CommonException> {
+public interface Problems extends Consumer<CommonException> {
 }

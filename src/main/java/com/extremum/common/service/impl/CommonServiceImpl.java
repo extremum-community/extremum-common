@@ -53,14 +53,14 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         Objects.requireNonNull(alerts, "Alerts collection must not be null");
     }
 
-    private M get(String id, Alerts alerts) {
+    private M get(String id, Problems problems) {
         LOGGER.debug("Get model {} with id {}", modelTypeName, id);
 
-        if (!checkId(id, alerts)) {
+        if (!checkId(id, problems)) {
             return null;
         }
         M found = dao.findById(stringToId(id)).orElse(null);
-        return getResultWithNullabilityCheck(found, id, alerts);
+        return getResultWithNullabilityCheck(found, id, problems);
     }
 
     @Override
@@ -74,7 +74,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return list(new AddAlert(alerts));
     }
 
-    private List<M> list(Alerts alerts) {
+    private List<M> list(Problems problems) {
         LOGGER.debug("Get list of models of type {}", modelTypeName);
         return dao.findAll();
     }
@@ -90,11 +90,11 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return create(data, new AddAlert(alerts));
     }
 
-    private M create(M data, Alerts alerts) {
+    private M create(M data, Problems problems) {
         LOGGER.debug("Create model {}", data);
 
         if(data == null) {
-            fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
+            fillAlertsOrThrowException(problems, new WrongArgumentException("Model can't be null"));
             return null;
         }
         return dao.save(data);
@@ -111,13 +111,13 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return create(data, new AddAlert(alerts));
     }
     
-    private List<M> create(List<M> data, Alerts alerts) {
+    private List<M> create(List<M> data, Problems problems) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
         }
         if(data == null) {
-            fillAlertsOrThrowException(alerts, new WrongArgumentException("Models can't be null"));
+            fillAlertsOrThrowException(problems, new WrongArgumentException("Models can't be null"));
             return null;
         }
         Iterable<M> savedModelsIterable = dao.saveAll(data);
@@ -136,11 +136,11 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return save(data, new AddAlert(alerts));
     }
 
-    private M save(M data, Alerts alerts) {
+    private M save(M data, Problems problems) {
         LOGGER.debug("Save model {}", modelTypeName);
 
         if (data == null) {
-            fillAlertsOrThrowException(alerts, new WrongArgumentException("Model can't be null"));
+            fillAlertsOrThrowException(problems, new WrongArgumentException("Model can't be null"));
             return null;
         }
         M returned = null;
@@ -183,39 +183,39 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return delete(id, new AddAlert(alerts));
     }
     
-    private M delete(String id, Alerts alerts) {
+    private M delete(String id, Problems problems) {
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
-        if (!checkId(id, alerts)) {
+        if (!checkId(id, problems)) {
             return null;
         }
 
         if (dao.softDeleteById(stringToId(id))) {
             M found = dao.findById(stringToId(id)).orElse(null);
-            return getResultWithNullabilityCheck(found, id, alerts);
+            return getResultWithNullabilityCheck(found, id, problems);
         } else {
             throw new ModelNotFoundException(modelClass, id);
         }
     }
 
-    protected final boolean checkId(String id, Alerts alerts) {
+    protected final boolean checkId(String id, Problems problems) {
         boolean valid = true;
         if (StringUtils.isBlank(id)) {
-            fillAlertsOrThrowException(alerts, new WrongArgumentException("Model id can't be null"));
+            fillAlertsOrThrowException(problems, new WrongArgumentException("Model id can't be null"));
             valid = false;
         }
         return valid;
     }
 
-    protected final M getResultWithNullabilityCheck(M result, String id, Alerts alerts) {
+    protected final M getResultWithNullabilityCheck(M result, String id, Problems problems) {
         if(result == null) {
             LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, id);
-            fillAlertsOrThrowException(alerts, new ModelNotFoundException(modelClass, id));
+            fillAlertsOrThrowException(problems, new ModelNotFoundException(modelClass, id));
         }
         return result;
     }
 
-    protected final void fillAlertsOrThrowException(Alerts alerts, CommonException ex) {
-        alerts.accept(ex);
+    protected final void fillAlertsOrThrowException(Problems problems, CommonException ex) {
+        problems.accept(ex);
     }
 }

@@ -10,7 +10,7 @@ import java.util.Collection;
  * @author rpuch
  */
 @RequiredArgsConstructor
-public final class AddAlert implements Alerts {
+public final class AddAlert implements Problems {
     private final Collection<Alert> alerts;
 
     @Override
