@@ -4,6 +4,7 @@ redis:
 
 mongo:
   dbName: test
+  repository-packages: common.dao.mongo
 
 jpa:
   #uri: jdbc:postgresql://localhost:5432/postgres

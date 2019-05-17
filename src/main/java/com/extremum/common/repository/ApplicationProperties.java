@@ -1,4 +1,4 @@
-package com.extremum.common.repository.jpa;
+package com.extremum.common.repository;
 
 import org.springframework.boot.env.PropertiesPropertySourceLoader;
 import org.springframework.boot.env.PropertySourceLoader;

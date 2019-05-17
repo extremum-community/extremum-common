@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Configuration
-@Import({DescriptorMongoConfiguration.class, JpaRepositoriesConfiguration.class})
+@Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class, JpaRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, ElasticProperties.class,

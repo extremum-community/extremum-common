@@ -1,4 +1,4 @@
-package com.extremum.common.repository.jpa;
+package com.extremum.common.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.type.AnnotationMetadata;
@@ -14,7 +14,7 @@ import java.util.Set;
  * @author rpuch
  */
 @RequiredArgsConstructor
-class BasePackagesOverride implements AnnotationMetadata {
+public class BasePackagesOverride implements AnnotationMetadata {
     private final AnnotationMetadata annotationMetadata;
     private final Class<? extends Annotation> annotationClass;
     private final String repositoryPackagesPropertyKey;
