@@ -21,6 +21,8 @@ import java.lang.annotation.*;
  * this cannot be achieved with standard Spring Boot means.
  *
  * NB: value() is overwriten at runtime!
+ * XXX: repositoryFactoryBeanClass attribute MUST always be specified!
+ * Otherwise, this will not work.
  *
  * @author rpuch
  */
