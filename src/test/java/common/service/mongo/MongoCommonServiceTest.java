@@ -17,10 +17,13 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MongoCommonServiceTest {
 
@@ -405,6 +408,73 @@ public class MongoCommonServiceTest {
     @Test(expected = WrongArgumentException.class)
     public void testDeleteWithNullId() {
         service.delete(null);
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToGet_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.get("id", null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToList_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.list(null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToCreate_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.create(new TestMongoModel(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToCreateList_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.create(Collections.emptyList(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToSave_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.save(new TestMongoModel(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToDelete_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.delete("id", null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToListByParameters_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.listByParameters(Collections.emptyMap(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToListByFieldValue_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.listByFieldValue("key", "value", null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToListByFieldValueWithPaging_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.listByFieldValue("key", "value", 0, 10, null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToGetSelectedFieldsById_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.getSelectedFieldsById("id", (Collection<Alert>) null));
+    }
+
+    private void makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(Runnable runnable) {
+        try {
+            runnable.run();
+            fail("An exception should be thrown");
+        } catch (NullPointerException e) {
+            assertThat(e.getMessage(), is("Alerts collection must not be null"));
+        }
     }
 
     private static TestMongoModel getTestModel() {
