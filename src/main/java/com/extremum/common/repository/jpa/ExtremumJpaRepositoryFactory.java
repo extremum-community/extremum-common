@@ -1,7 +1,6 @@
 package com.extremum.common.repository.jpa;
 
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.RepositoryMetadata;
 
 import javax.persistence.EntityManager;
@@ -19,9 +18,9 @@ public class ExtremumJpaRepositoryFactory extends JpaRepositoryFactory {
     @Override
     protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
         if (jpaSoftDeletion.supportsSoftDeletion(metadata.getDomainType())) {
-            return BaseJpaRepository.class;
+            return SoftDeleteJpaRepository.class;
         } else {
-            return SimpleJpaRepository.class;
+            return HardDeleteJpaRepository.class;
         }
     }
 }

@@ -24,12 +24,12 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryS
 
 /**
  * Differs from the standard {@link SimpleJpaRepository} in one aspect:
- * it implements soft-deletion logic; that is, all deletions are replached with setting 'deleted' flag to true,
+ * it implements soft-deletion logic; that is, all deletions are replaced with setting 'deleted' flag to true,
  * and all find operations filter out documents with 'deleted' set to true.
  *
  * @author rpuch
  */
-public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaRepository<T, UUID>
+public class SoftDeleteJpaRepository<T extends PostgresCommonModel> extends SimpleJpaRepository<T, UUID>
         implements PostgresCommonDao<T> {
     private static final String SOFT_DELETE_ALL_QUERY_STRING = "update %s set deleted = true";
 
@@ -38,7 +38,7 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
 
     private static final String ID = PersistableCommonModel.FIELDS.id.name();
 
-    public BaseJpaRepository(JpaEntityInformation<T, ?> entityInformation,
+    public SoftDeleteJpaRepository(JpaEntityInformation<T, ?> entityInformation,
             EntityManager entityManager) {
         super(entityInformation, entityManager);
         this.entityInformation = entityInformation;
@@ -133,17 +133,13 @@ public class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaR
     @Override
     @Transactional
     public void deleteAll() {
-        deleteAll(findAll());
+        throw new UnsupportedOperationException("We don't allow to delete all the records in one go");
     }
 
     @Override
     @Transactional
     public void deleteAllInBatch() {
-        entityManager.createQuery(getSoftDeleteAllQueryString()).executeUpdate();
-    }
-
-    private String getSoftDeleteAllQueryString() {
-        return getQueryString(SOFT_DELETE_ALL_QUERY_STRING, entityInformation.getEntityName());
+        throw new UnsupportedOperationException("We don't allow to delete all the records in one go");
     }
 
     @Override
