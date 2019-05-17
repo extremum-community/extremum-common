@@ -17,10 +17,13 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MongoCommonServiceTest {
 
@@ -412,6 +415,48 @@ public class MongoCommonServiceTest {
         service.delete(new ObjectId().toString());
     }
 
+    @Test
+    public void whenNullCollectionAlertsIsPassedToGet_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.get("id", null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToList_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.list(null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToCreate_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.create(new TestMongoModel(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToCreateList_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.create(Collections.emptyList(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToSave_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.save(new TestMongoModel(), null));
+    }
+
+    @Test
+    public void whenNullCollectionAlertsIsPassedToDelete_thenAnExceptionShouldBeThrown() {
+        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
+                () -> service.delete("id", null));
+    }
+
+    private void makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(Runnable runnable) {
+        try {
+            runnable.run();
+            fail("An exception should be thrown");
+        } catch (NullPointerException e) {
+            assertThat(e.getMessage(), is("Alerts collection must not be null"));
+        }
+    }
 
     private static TestMongoModel getTestModel() {
         TestMongoModel model = new TestMongoModel();

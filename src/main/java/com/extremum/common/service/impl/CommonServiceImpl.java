@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,12 +39,13 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
     protected abstract ID stringToId(String id);
 
     @Override
-    public M get(String id){
+    public M get(String id) {
         return get(id, null);
     }
 
     @Override
-    public M get(String id, Collection<Alert> alerts){
+    public M get(String id, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
         LOGGER.debug("Get model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, alerts)) {
@@ -53,24 +55,30 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
         return getResultWithNullabilityCheck(found, id, alerts);
     }
 
+    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
+        Objects.requireNonNull(alerts, "Alerts collection must not be null");
+    }
+
     @Override
-    public List<M> list(){
+    public List<M> list() {
         return list(null);
     }
 
     @Override
-    public List<M> list(Collection<Alert> alerts){
+    public List<M> list(Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
         LOGGER.debug("Get list of models of type {}", modelTypeName);
         return dao.findAll();
     }
 
     @Override
-    public M create(M data){
+    public M create(M data) {
         return create(data, null);
     }
 
     @Override
-    public M create(M data, Collection<Alert> alerts){
+    public M create(M data, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
         LOGGER.debug("Create model {}", data);
 
         if(data == null) {
@@ -81,12 +89,13 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
     }
 
     @Override
-    public List<M> create(List<M> data){
+    public List<M> create(List<M> data) {
         return create(data, null);
     }
 
     @Override
-    public List<M> create(List<M> data, Collection<Alert> alerts){
+    public List<M> create(List<M> data, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
@@ -101,12 +110,13 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
     }
 
     @Override
-    public M save(M data){
+    public M save(M data) {
         return save(data, null);
     }
 
     @Override
     public M save(M data, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
         LOGGER.debug("Save model {}", modelTypeName);
 
         if (data == null) {
@@ -143,12 +153,13 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
     }
 
     @Override
-    public M delete(String id){
+    public M delete(String id) {
         return delete(id, null);
     }
 
     @Override
-    public M delete(String id, Collection<Alert> alerts){
+    public M delete(String id, Collection<Alert> alerts) {
+        checkThatAlertsIsNotNull(alerts);
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, alerts)) {
