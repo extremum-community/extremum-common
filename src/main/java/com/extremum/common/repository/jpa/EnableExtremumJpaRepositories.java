@@ -88,10 +88,14 @@ public @interface EnableExtremumJpaRepositories {
    	/**
    	 * Returns the {@link FactoryBean} class to be used for each repository instance. Defaults to
    	 * {@link JpaRepositoryFactoryBean}.
+     *
+     * XXX: this has been changed to Object.class to avoid annotation parsing error in
+     * case the application does not have spring-data-jpa in classpath. Hence, the default
+     * is USELESS: repositoryFactoryBeanClass MUST be ALWAYS specified!!!
    	 *
    	 * @return
    	 */
-   	Class<?> repositoryFactoryBeanClass() default ExtremumJpaRepositoryFactoryBean.class;
+   	Class<?> repositoryFactoryBeanClass() default Object.class;
 
    	/**
    	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
