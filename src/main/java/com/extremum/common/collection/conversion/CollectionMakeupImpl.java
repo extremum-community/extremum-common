@@ -62,7 +62,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private String getHostFieldName(Field field) {
-        MongoOwnedCollection annotation = field.getAnnotation(MongoOwnedCollection.class);
+        OwnedCollection annotation = field.getAnnotation(OwnedCollection.class);
         if (StringUtils.isNotBlank(annotation.hostFieldName())) {
             return annotation.hostFieldName();
         }
@@ -74,7 +74,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private boolean isAnnotatedWithOwnedCollection(Field field) {
-        return field.getAnnotation(MongoOwnedCollection.class) != null;
+        return field.getAnnotation(OwnedCollection.class) != null;
     }
 
     private Object getFieldValue(ResponseDto dto, Field field) {

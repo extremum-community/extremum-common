@@ -148,11 +148,11 @@ public class CollectionMakeupImplTest {
     }
 
     private static class StreetResponseDto extends AbstractResponseDto {
-        @MongoOwnedCollection(hostFieldName = "the-buildings")
+        @OwnedCollection(hostFieldName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
-        @MongoOwnedCollection(hostFieldName = "the-private-buildings")
+        @OwnedCollection(hostFieldName = "the-private-buildings")
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
-        @MongoOwnedCollection
+        @OwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
 
         StreetResponseDto(String externalId,
