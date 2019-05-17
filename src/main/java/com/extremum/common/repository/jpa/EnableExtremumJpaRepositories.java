@@ -1,5 +1,6 @@
 package com.extremum.common.repository.jpa;
 
+import com.extremum.common.annotation.InfrastructureElement;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -31,6 +32,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Import(ExtremumJpaRepositoriesRegistrar.class)
+@InfrastructureElement
 public @interface EnableExtremumJpaRepositories {
     /**
    	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:

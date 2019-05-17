@@ -1,5 +1,6 @@
 package com.extremum.common.repository.mongo;
 
+import com.extremum.common.annotation.InfrastructureElement;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -26,6 +27,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Import(ExtremumMongoRepositoriesRegistrar.class)
+@InfrastructureElement
 public @interface EnableExtremumMongoRepositories {
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
