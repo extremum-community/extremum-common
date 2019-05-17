@@ -47,6 +47,7 @@ public class JpaCommonDaoTest extends TestWithServices {
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
+        assertNotNull(model.getModified());
         assertNotNull(model.getVersion());
         assertFalse(model.getDeleted());
     }

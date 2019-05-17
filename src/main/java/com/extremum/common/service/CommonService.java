@@ -13,9 +13,9 @@ public interface CommonService<ID extends Serializable, M extends PersistableCom
 
     M get(String id, Collection<Alert> alerts);
 
-    M delete(String id);
+    void delete(String id);
 
-    M delete(String id, Collection<Alert> alerts);
+    void delete(String id, Collection<Alert> alerts);
 
     List<M> list();
 
