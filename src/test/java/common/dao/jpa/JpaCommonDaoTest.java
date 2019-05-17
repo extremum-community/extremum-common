@@ -15,7 +15,6 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -271,8 +270,12 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testAllInBatchDeletion() {
-        dao.deleteAllInBatch();
+    public void testAllInBatchDeletionIsDisabled() {
+        try {
+            dao.deleteAllInBatch();
+        } catch (UnsupportedOperationException e) {
+            assertThat(e.getMessage(), is("We don't allow to delete all the records in one go"));
+        }
     }
 
     @Test
