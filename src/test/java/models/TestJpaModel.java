@@ -1,6 +1,6 @@
 package models;
 
-import com.extremum.common.models.SoftDeletablePostgresCommonModel;
+import com.extremum.common.models.SoftDeletePostgresModel;
 import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Where(clause = "deleted = false")
 @Setter
 @ModelName("TestJpaModel")
-public class TestJpaModel extends SoftDeletablePostgresCommonModel {
+public class TestJpaModel extends SoftDeletePostgresModel {
 
     @Getter(onMethod_ = {@Column})
     private String name;

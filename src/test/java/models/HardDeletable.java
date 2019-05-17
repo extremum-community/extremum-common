@@ -1,6 +1,6 @@
 package models;
 
-import com.extremum.common.models.HardDeletablePostgresCommonModel;
+import com.extremum.common.models.PostgresCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name = "hard_deletable")
 @Setter
 @ModelName("HardDeletable")
-public class HardDeletable extends HardDeletablePostgresCommonModel {
+public class HardDeletable extends PostgresCommonModel {
 
     @Getter(onMethod_ = {@Column})
     private String name;

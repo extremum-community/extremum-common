@@ -7,7 +7,7 @@ import javax.persistence.MappedSuperclass;
 
 @Setter
 @MappedSuperclass
-public abstract class SoftDeletablePostgresCommonModel extends PostgresCommonModel {
+public abstract class SoftDeletePostgresModel extends PostgresCommonModel {
     @Override
     @Column
     public Boolean getDeleted() {
