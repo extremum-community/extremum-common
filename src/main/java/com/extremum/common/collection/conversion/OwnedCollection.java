@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Infrastructure will generate the ID and URL automatically.
  *
  * This annotation is used to define 'owned' collecitons.
- * As collection coordinates, they have <host entity descriptor, host field name>
+ * As collection coordinates, they have &lt;host entity descriptor, host field name&gt;
  * pair. Host entity descriptor is just a {@link Descriptor} of the {@link ResponseDto}
  * to which the annotated collection instance belongs.
  * Host field name is either specified in this annotation or, if omitted, it
@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface MongoOwnedCollection {
+public @interface OwnedCollection {
     String hostFieldName() default "";
 }
