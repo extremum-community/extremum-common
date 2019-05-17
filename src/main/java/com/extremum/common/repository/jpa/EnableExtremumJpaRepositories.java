@@ -91,7 +91,7 @@ public @interface EnableExtremumJpaRepositories {
    	 *
    	 * @return
    	 */
-   	Class<?> repositoryFactoryBeanClass() default JpaRepositoryFactoryBean.class;
+   	Class<?> repositoryFactoryBeanClass() default ExtremumJpaRepositoryFactoryBean.class;
 
    	/**
    	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
