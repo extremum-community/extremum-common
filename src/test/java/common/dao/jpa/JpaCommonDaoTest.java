@@ -269,6 +269,23 @@ public class JpaCommonDaoTest extends TestWithServices {
         return Arrays.asList(notDeleted, deleted);
     }
 
+    @Test
+    public void testAllInBatchDeletionIsDisabled() {
+        try {
+            dao.deleteAllInBatch();
+        } catch (UnsupportedOperationException e) {
+            assertThat(e.getMessage(), is("We don't allow to delete all the records in one go"));
+        }
+    }
+
+    @Test
+    public void testDeletionOfAListInBatch() {
+        TestJpaModel model1 = dao.save(new TestJpaModel());
+        TestJpaModel model2 = dao.save(new TestJpaModel());
+
+        dao.deleteInBatch(Arrays.asList(model1, model2));
+    }
+
     private static TestJpaModel getDeletedTestModel() {
         TestJpaModel model = getTestModel();
         model.setDeleted(true);

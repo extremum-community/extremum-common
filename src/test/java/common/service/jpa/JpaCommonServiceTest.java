@@ -406,12 +406,6 @@ public class JpaCommonServiceTest {
         service.delete(null);
     }
 
-    @Test(expected = ModelNotFoundException.class)
-    public void testDeleteWithException() {
-        service.delete(UUID.randomUUID().toString());
-    }
-
-
     private static TestJpaModel getTestModel() {
         TestJpaModel model = new TestJpaModel();
 

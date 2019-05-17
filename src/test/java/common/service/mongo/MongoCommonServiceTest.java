@@ -407,12 +407,6 @@ public class MongoCommonServiceTest {
         service.delete(null);
     }
 
-    @Test(expected = ModelNotFoundException.class)
-    public void testDeleteWithException() {
-        service.delete(new ObjectId().toString());
-    }
-
-
     private static TestMongoModel getTestModel() {
         TestMongoModel model = new TestMongoModel();
 

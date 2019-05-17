@@ -305,12 +305,12 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public boolean softDeleteById(String id) {
+    public void deleteById(String id) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(FIELDS.deleted.name(), Boolean.TRUE);
         parameters.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
 
-        return patch(id, DELETE_DOCUMENT_PAINLESS_SCRIPT, parameters);
+        patch(id, DELETE_DOCUMENT_PAINLESS_SCRIPT, parameters);
     }
 
     @Override
