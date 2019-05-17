@@ -119,8 +119,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
 
     @Override
     public void deleteAll() {
-        Update update = updateDeletedToTrue();
-        mongoOperations.updateMulti(new Query(), update, entityInformation.getJavaType());
+        throw new UnsupportedOperationException("We don't allow to delete all the records in one go");
     }
 
     @Override
