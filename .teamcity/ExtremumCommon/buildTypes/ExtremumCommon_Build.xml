@@ -3,6 +3,9 @@
   <name>Build</name>
   <description />
   <settings>
+    <disabled-settings>
+      <setting-ref ref="RUNNER_2" />
+    </disabled-settings>
     <parameters />
     <build-runners>
       <runner id="RUNNER_2" name="Docker init" type="DockerCompose">
@@ -41,7 +44,7 @@
       <extension id="DockerSupport" type="DockerSupport">
         <parameters>
           <param name="cleanupPushed" value="true" />
-          <param name="login2registry" value="PROJECT_EXT_11" />
+          <param name="login2registry" value="PROJECT_EXT_9" />
           <param name="loginCheckbox" value="on" />
         </parameters>
       </extension>

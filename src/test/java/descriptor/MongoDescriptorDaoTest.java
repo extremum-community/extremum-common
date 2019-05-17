@@ -6,6 +6,7 @@ import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.*;
+import com.extremum.common.test.TestWithServices;
 import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DescriptorConfiguration.class)
-public class MongoDescriptorDaoTest {
+public class MongoDescriptorDaoTest extends TestWithServices {
     @Autowired
     private DescriptorDao descriptorDao;
     @Autowired

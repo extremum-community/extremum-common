@@ -410,11 +410,6 @@ public class MongoCommonServiceTest {
         service.delete(null);
     }
 
-    @Test(expected = ModelNotFoundException.class)
-    public void testDeleteWithException() {
-        service.delete(new ObjectId().toString());
-    }
-
     @Test
     public void whenNullCollectionAlertsIsPassedToGet_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.get("id", null));
@@ -462,7 +457,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToListByFieldValueWithPading_thenAnExceptionShouldBeThrown() {
+    public void whenNullCollectionAlertsIsPassedToListByFieldValueWithPaging_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.listByFieldValue("key", "value", 0, 10, null));
     }
