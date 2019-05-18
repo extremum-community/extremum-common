@@ -4,7 +4,7 @@ redis:
 
 mongo:
   dbName: test
-  repository-packages: common.dao.mongo
+  repository-packages: abc,common.dao.mongo
 
 jpa:
   #uri: jdbc:postgresql://localhost:5432/postgres
@@ -12,7 +12,7 @@ jpa:
   generateDdl: true
   showSql: true
   entity-packages: models
-  repository-packages: common.dao.jpa
+  repository-packages: abc,common.dao.jpa
 
 descriptors:
   descriptorsMapName: descriptors
