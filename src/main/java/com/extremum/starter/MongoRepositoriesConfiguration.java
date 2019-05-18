@@ -12,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
  * @author rpuch
  */
 @Configuration
-@EnableExtremumMongoRepositories(repositoryBaseClass = BaseMongoRepository.class,
+@EnableExtremumMongoRepositories(basePackages = "${mongo.repository-packages}",
+        repositoryBaseClass = BaseMongoRepository.class,
         repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class)
 @ConditionalOnProperty(MongoProperties.REPOSITORY_PACKAGES_PROPERTY)
 @RequiredArgsConstructor

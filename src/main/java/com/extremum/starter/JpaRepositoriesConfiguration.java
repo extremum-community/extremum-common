@@ -26,7 +26,8 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableConfigurationProperties(JpaProperties.class)
-@EnableExtremumJpaRepositories(repositoryFactoryBeanClass = ExtremumJpaRepositoryFactoryBean.class)
+@EnableExtremumJpaRepositories(basePackages = "${jpa.repository-packages}",
+        repositoryFactoryBeanClass = ExtremumJpaRepositoryFactoryBean.class)
 @EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
 @ConditionalOnProperty(JpaProperties.REPOSITORY_PACKAGES_PROPERTY)
 @RequiredArgsConstructor
