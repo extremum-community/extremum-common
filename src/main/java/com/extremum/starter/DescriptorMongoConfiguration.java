@@ -3,6 +3,7 @@ package com.extremum.starter;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.spring.CollectionDescriptorLifecycleListener;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import com.extremum.common.repository.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -24,7 +25,8 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(MongoProperties.class)
-@EnableMongoRepositories(basePackageClasses = {DescriptorRepository.class, CollectionDescriptorRepository.class})
+@EnableMongoRepositories(basePackageClasses = {DescriptorRepository.class, CollectionDescriptorRepository.class},
+        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class)
 @EnableMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
 public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {

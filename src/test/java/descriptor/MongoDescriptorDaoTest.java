@@ -19,10 +19,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
@@ -36,8 +38,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
 
     @Test
     public void testRetrieveByExternalId() {
-        ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = createADescriptor();
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -45,6 +46,11 @@ public class MongoDescriptorDaoTest extends TestWithServices {
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByExternalId(externalId);
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
+    }
+
+    private Descriptor createADescriptor() {
+        ObjectId objectId = new ObjectId();
+        return MongoDescriptorFactory.create(objectId, "test_model");
     }
 
     @Test
@@ -202,5 +208,24 @@ public class MongoDescriptorDaoTest extends TestWithServices {
         assertNotNull(splash.getDuration());
         assertTrue(splash.getDuration().isInteger());
         assertEquals(20, (int) splash.getDuration().getIntegerValue());
+    }
+
+    @Test
+    public void givenADescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
+        Descriptor descriptor = createADescriptor();
+
+        Optional<Descriptor> optDescriptor = descriptorRepository.findByExternalId(descriptor.getExternalId());
+        assertThat(optDescriptor.isPresent(), is(true));
+    }
+
+    @Test
+    public void givenADescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
+        Descriptor descriptor = createADescriptor();
+
+        descriptor.setDeleted(true);
+        descriptorRepository.save(descriptor);
+
+        Optional<Descriptor> optDescriptor = descriptorRepository.findByExternalId(descriptor.getExternalId());
+        assertThat(optDescriptor.isPresent(), is(false));
     }
 }

@@ -20,6 +20,6 @@ public interface DescriptorRepository extends MongoRepository<Descriptor, String
     @Query(value="{}", fields="{_id : 1}")
     List<Descriptor> findAllExternalIds();
 
-    @Query(value="{}", fields="{_id : 0, internalId: 1}")
+    @Query(value="{}", fields="{_id : 0, internalId : 1}")
     List<Descriptor> findAllInternalIds();
 }
