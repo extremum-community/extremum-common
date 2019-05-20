@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
 
@@ -145,7 +146,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testListAll() {
+    public void testFindAll() {
         int initCount = dao.findAll().size();
         int modelsToCreate = 10;
 
@@ -161,6 +162,8 @@ public class MongoCommonDaoTest extends TestWithServices {
         }
         count = dao.findAll().size();
         assertEquals(initCount, count);
+
+        assertThat(dao.findAll(new Sort(Sort.Order.by("id"))), hasSize(count));
     }
 
     @Test

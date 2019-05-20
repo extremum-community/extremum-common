@@ -6,6 +6,7 @@ import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.QueryFields;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -97,6 +98,11 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
 
    		return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
    	}
+
+    @Override
+    public List<T> findAll(Sort sort) {
+        return findAll(new Query(notDeleted()).with(sort));
+    }
 
     @Override
     public void deleteById(ObjectId id) {
