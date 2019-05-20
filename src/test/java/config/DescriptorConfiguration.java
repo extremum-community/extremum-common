@@ -12,8 +12,9 @@ import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
-import com.extremum.starter.DescriptorJpaConfiguration;
 import com.extremum.starter.DescriptorMongoConfiguration;
+import com.extremum.starter.JpaRepositoriesConfiguration;
+import com.extremum.starter.MongoRepositoriesConfiguration;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
@@ -33,7 +34,7 @@ import org.testcontainers.containers.GenericContainer;
 
 
 @Configuration
-@Import({DescriptorMongoConfiguration.class, DescriptorJpaConfiguration.class})
+@Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class, JpaRepositoriesConfiguration.class})
 @EnableConfigurationProperties({MongoProperties.class, RedisProperties.class, DescriptorsProperties.class})
 @RequiredArgsConstructor
 public class DescriptorConfiguration {

@@ -4,13 +4,15 @@ redis:
 
 mongo:
   dbName: test
+  repository-packages: abc,common.dao.mongo
 
 jpa:
   #uri: jdbc:postgresql://localhost:5432/postgres
   username: postgres
   generateDdl: true
   showSql: true
-  package-names: models
+  entity-packages: models
+  repository-packages: abc,common.dao.jpa
 
 descriptors:
   descriptorsMapName: descriptors

@@ -2,6 +2,8 @@ package com.extremum.starter;
 
 import com.extremum.common.descriptor.factory.impl.PostgresqlDescriptorFactory;
 import com.extremum.common.descriptor.service.PostgresqlDescriptorFactoryAccessorConfigurator;
+import com.extremum.common.repository.jpa.EnableExtremumJpaRepositories;
+import com.extremum.common.repository.jpa.ExtremumJpaRepositoryFactoryBean;
 import com.extremum.starter.properties.JpaProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,10 +26,12 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableConfigurationProperties(JpaProperties.class)
+@EnableExtremumJpaRepositories(basePackages = "${jpa.repository-packages}",
+        repositoryFactoryBeanClass = ExtremumJpaRepositoryFactoryBean.class)
 @EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
-@ConditionalOnProperty("jpa.package-names")
+@ConditionalOnProperty(JpaProperties.REPOSITORY_PACKAGES_PROPERTY)
 @RequiredArgsConstructor
-public class DescriptorJpaConfiguration {
+public class JpaRepositoriesConfiguration {
     private final JpaProperties jpaProperties;
 
     @Bean
@@ -61,7 +65,7 @@ public class DescriptorJpaConfiguration {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan(jpaProperties.getPackageNames().toArray(new String[0]));
+        factory.setPackagesToScan(jpaProperties.getEntityPackages().toArray(new String[0]));
         factory.setDataSource(dataSource);
         return factory;
     }
