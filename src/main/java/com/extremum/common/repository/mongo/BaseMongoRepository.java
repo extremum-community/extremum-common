@@ -6,6 +6,8 @@ import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.QueryFields;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -112,6 +115,18 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
         Query q = queryForNotDeletedAnd(new Criteria().alike(example)).with(sort);
 
         return mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
+    }
+
+    @Override
+    public <S extends T> Page<S> findAll(Example<S> example, Pageable pageable) {
+        Assert.notNull(example, "Sample must not be null!");
+        Assert.notNull(pageable, "Pageable must not be null!");
+
+        Query q = queryForNotDeletedAnd(new Criteria().alike(example)).with(pageable);
+        List<S> list = mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
+
+        return PageableExecutionUtils.getPage(list, pageable,
+                () -> mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName()));
     }
 
     @Override

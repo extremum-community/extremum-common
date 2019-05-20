@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
@@ -206,6 +208,15 @@ public class MongoCommonDaoTest extends TestWithServices {
         List<TestMongoModel> all = dao.findAll(Example.of(model), Sort.by("id"));
 
         assertThat(all, hasSize(0));
+    }
+
+    @Test
+    public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithPageable_thenNothingShouldBeReturned() {
+        TestMongoModel model = dao.save(getDeletedTestModel());
+
+        Page<TestMongoModel> page = dao.findAll(Example.of(model), Pageable.unpaged());
+
+        assertThat(page.getTotalElements(), is(0L));
     }
 
     @Test
