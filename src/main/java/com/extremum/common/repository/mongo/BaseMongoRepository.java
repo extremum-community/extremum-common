@@ -67,7 +67,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     public <S extends T> long count(Example<S> example) {
         Assert.notNull(example, "Sample must not be null!");
 
-        Query q = queryForNotDeletedAnd(new Criteria().alike(example));
+        Query q = queryForNotDeletedAndAlike(example);
         return mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName());
     }
 
@@ -112,7 +112,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(sort, "Sort must not be null!");
 
-        Query q = queryForNotDeletedAnd(new Criteria().alike(example)).with(sort);
+        Query q = queryForNotDeletedAndAlike(example).with(sort);
 
         return mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
     }
@@ -122,7 +122,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(pageable, "Pageable must not be null!");
 
-        Query q = queryForNotDeletedAnd(new Criteria().alike(example)).with(pageable);
+        Query q = queryForNotDeletedAndAlike(example).with(pageable);
         List<S> list = mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
 
         return PageableExecutionUtils.getPage(list, pageable,
@@ -133,9 +133,21 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     public <S extends T> Optional<S> findOne(Example<S> example) {
         Assert.notNull(example, "Sample must not be null!");
 
-        Query q = queryForNotDeletedAnd(new Criteria().alike(example));
+        Query q = queryForNotDeletedAndAlike(example);
         return Optional
                 .ofNullable(mongoOperations.findOne(q, example.getProbeType(), entityInformation.getCollectionName()));
+    }
+
+    @Override
+    public <S extends T> boolean exists(Example<S> example) {
+        Assert.notNull(example, "Sample must not be null!");
+
+        Query q = queryForNotDeletedAndAlike(example);
+        return mongoOperations.exists(q, example.getProbeType(), entityInformation.getCollectionName());
+    }
+
+    private <S extends T> Query queryForNotDeletedAndAlike(Example<S> example) {
+        return queryForNotDeletedAnd(new Criteria().alike(example));
     }
 
     @Override
