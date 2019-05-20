@@ -167,7 +167,9 @@ public class MongoCommonDaoTest extends TestWithServices {
         count = dao.findAll().size();
         assertEquals(initCount, count);
 
-        assertThat(dao.findAll(new Sort(Sort.Order.by("id"))), hasSize(count));
+        assertThat(dao.findAll(Sort.by("id")), hasSize(count));
+
+        assertThat(dao.findAll(Pageable.unpaged()).getTotalElements(), is((long) count));
     }
 
     @Test
