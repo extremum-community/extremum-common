@@ -139,7 +139,7 @@ public class SoftDeleteJpaRepository<T extends PostgresCommonModel> extends Base
 
         String queryString = getQueryString(SOFT_DELETE_ALL_QUERY_STRING, entityInformation.getEntityName());
         String joinedIds = StreamUtils.fromIterable(entities)
-                .map(PostgresCommonModel::getId)
+                .map(PersistableCommonModel::getId)
                 .map(Object::toString)
                 .map(id -> "'" + id + "'")
                 .collect(Collectors.joining(","));
