@@ -29,7 +29,7 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryS
  *
  * @author rpuch
  */
-public class SoftDeleteJpaRepository<T extends PostgresCommonModel> extends SimpleJpaRepository<T, UUID>
+public class SoftDeleteJpaRepository<T extends PostgresCommonModel> extends BaseJpaRepository<T>
         implements PostgresCommonDao<T> {
     private static final String SOFT_DELETE_ALL_QUERY_STRING = "update %s set deleted = true";
 
@@ -128,18 +128,6 @@ public class SoftDeleteJpaRepository<T extends PostgresCommonModel> extends Simp
     public void delete(T entity) {
         entity.setDeleted(true);
         entityManager.merge(entity);
-    }
-
-    @Override
-    @Transactional
-    public void deleteAll() {
-        throw new UnsupportedOperationException("We don't allow to delete all the records in one go");
-    }
-
-    @Override
-    @Transactional
-    public void deleteAllInBatch() {
-        throw new UnsupportedOperationException("We don't allow to delete all the records in one go");
     }
 
     @Override
