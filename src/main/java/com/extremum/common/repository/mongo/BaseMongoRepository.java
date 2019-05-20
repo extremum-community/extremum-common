@@ -105,6 +105,16 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     }
 
     @Override
+    public <S extends T> List<S> findAll(Example<S> example, Sort sort) {
+        Assert.notNull(example, "Sample must not be null!");
+        Assert.notNull(sort, "Sort must not be null!");
+
+        Query q = queryForNotDeletedAnd(new Criteria().alike(example)).with(sort);
+
+        return mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
+    }
+
+    @Override
     public void deleteById(ObjectId id) {
         Query query = new Query(where(ID).is(id));
         Update update = updateDeletedToTrue();

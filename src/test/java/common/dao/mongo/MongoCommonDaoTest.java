@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
@@ -164,6 +166,48 @@ public class MongoCommonDaoTest extends TestWithServices {
         assertEquals(initCount, count);
 
         assertThat(dao.findAll(new Sort(Sort.Order.by("id"))), hasSize(count));
+    }
+
+    @Test
+    public void givenOneExemplarEntityExists_whenInvokingFindAllByExample_thenOneDocumentShouldBeReturned() {
+        TestMongoModel model = dao.save(new TestMongoModel());
+
+        List<TestMongoModel> all = dao.findAll(Example.of(model));
+
+        assertThat(all, hasSize(1));
+        assertThat(all.get(0).getId(), is(equalTo(model.getId())));
+    }
+
+    @Test
+    public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExample_thenNothingShouldBeReturned() {
+        TestMongoModel model = new TestMongoModel();
+        model.setDeleted(true);
+        dao.save(model);
+
+        List<TestMongoModel> all = dao.findAll(Example.of(model));
+
+        assertThat(all, hasSize(0));
+    }
+
+    @Test
+    public void givenOneExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenOneDocumentShouldBeReturned() {
+        TestMongoModel model = dao.save(new TestMongoModel());
+
+        List<TestMongoModel> all = dao.findAll(Example.of(model), Sort.by("id"));
+
+        assertThat(all, hasSize(1));
+        assertThat(all.get(0).getId(), is(equalTo(model.getId())));
+    }
+
+    @Test
+    public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenNothingShouldBeReturned() {
+        TestMongoModel model = new TestMongoModel();
+        model.setDeleted(true);
+        dao.save(model);
+
+        List<TestMongoModel> all = dao.findAll(Example.of(model), Sort.by("id"));
+
+        assertThat(all, hasSize(0));
     }
 
     @Test
