@@ -2,6 +2,7 @@ package com.extremum.common.collection;
 
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,8 +13,12 @@ public class CollectionReference<T> {
     private CollectionDescriptor id;
 
     private String url;
-    private Integer count;
+    private int count;
     private List<T> top;
+
+    public CollectionReference() {
+        this(Collections.emptyList());
+    }
 
     public CollectionReference(List<T> list) {
         this(list, list.size());
