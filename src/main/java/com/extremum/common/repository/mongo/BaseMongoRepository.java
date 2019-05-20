@@ -34,7 +34,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongoRepository<T, ObjectId>
         implements MongoCommonDao<T> {
-    private static final String ID = "_id";
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
     private final MongoEntityInformation<T, ObjectId> entityInformation;
@@ -53,9 +52,13 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     public Optional<T> findById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
-        Query query = queryForNotDeletedAnd(where(ID).is(id));
+        Query query = queryForNotDeletedAnd(getIdCriteria(id));
 
         return findOneByQuery(query);
+    }
+
+    private Criteria getIdCriteria(Object id) {
+        return where(entityInformation.getIdAttribute()).is(id);
     }
 
     @Override
@@ -151,8 +154,16 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     }
 
     @Override
+    public boolean existsById(ObjectId id) {
+        Assert.notNull(id, "The given id must not be null!");
+
+        return mongoOperations.exists(queryForNotDeletedAnd(where(entityInformation.getIdAttribute()).is(id)),
+                entityInformation.getJavaType(), entityInformation.getCollectionName());
+    }
+
+    @Override
     public void deleteById(ObjectId id) {
-        Query query = new Query(where(ID).is(id));
+        Query query = new Query(getIdCriteria(id));
         Update update = updateDeletedToTrue();
         mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
     }
@@ -209,7 +220,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
                     for (Object id : ids) {
                         objectIds.add(new ObjectId(id.toString()));
                     }
-                    leafCriteria.add(where(ID).in(objectIds));
+                    leafCriteria.add(where(entityInformation.getIdAttribute()).in(objectIds));
                     break;
                 default:
                     leafCriteria.add(where(key).is(entry.getValue()));
@@ -239,7 +250,7 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
     public Optional<T> getSelectedFieldsById(ObjectId id, String... fieldNames) {
         Assert.notNull(id, "The given id must not be null!");
 
-        Query query = queryForNotDeletedAnd(where(ID).is(id));
+        Query query = queryForNotDeletedAnd(getIdCriteria(id));
         Arrays.stream(fieldNames).forEach(fieldName -> query.fields().include(fieldName));
 
         return findOneByQuery(query);
