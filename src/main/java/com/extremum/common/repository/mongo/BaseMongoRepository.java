@@ -16,6 +16,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.util.StreamUtils;
+import org.springframework.data.util.Streamable;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -59,6 +61,13 @@ public class BaseMongoRepository<T extends MongoCommonModel> extends SimpleMongo
 
     private Criteria getIdCriteria(Object id) {
         return where(entityInformation.getIdAttribute()).is(id);
+    }
+
+    @Override
+    public Iterable<T> findAllById(Iterable<ObjectId> ids) {
+        Criteria inCriteria = new Criteria(entityInformation.getIdAttribute())
+                .in(Streamable.of(ids).stream().collect(StreamUtils.toUnmodifiableList()));
+        return findAll(queryForNotDeletedAnd(inCriteria));
     }
 
     @Override

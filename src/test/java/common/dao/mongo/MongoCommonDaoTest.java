@@ -245,6 +245,15 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
+    public void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
+        TestMongoModel model = dao.save(getDeletedTestModel());
+
+        Iterable<TestMongoModel> all = dao.findAllById(Collections.singletonList(model.getId()));
+
+        assertThat(all.iterator().hasNext(), is(false));
+    }
+
+    @Test
     public void testListByParameters() {
         int initCount = dao.listByParameters(null).size();
         int modelsToCreate = 15;
