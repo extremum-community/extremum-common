@@ -201,13 +201,20 @@ public class MongoCommonDaoTest extends TestWithServices {
 
     @Test
     public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenNothingShouldBeReturned() {
-        TestMongoModel model = new TestMongoModel();
-        model.setDeleted(true);
-        dao.save(model);
+        TestMongoModel model = dao.save(getDeletedTestModel());
 
         List<TestMongoModel> all = dao.findAll(Example.of(model), Sort.by("id"));
 
         assertThat(all, hasSize(0));
+    }
+
+    @Test
+    public void givenADeletedExemplarEntityExists_whenInvokingFindOneByExample_thenNothingShouldBeReturned() {
+        TestMongoModel model = dao.save(getDeletedTestModel());
+
+        Optional<TestMongoModel> result = dao.findOne(Example.of(model));
+
+        assertThat(result.isPresent(), is(false));
     }
 
     @Test
@@ -315,7 +322,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     private static TestMongoModel getDeletedTestModel() {
-        TestMongoModel model = getTestModel();
+        TestMongoModel model = new TestMongoModel();
         model.setDeleted(true);
         return model;
     }
