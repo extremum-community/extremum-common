@@ -1,7 +1,7 @@
-package common.dao.jpa;
+package common.dao.mongo;
 
 import com.extremum.common.test.TestWithServices;
-import models.HardDeletable;
+import models.HardDeleteMongoModel;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,19 +24,19 @@ import static org.junit.Assert.assertThat;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = JpaCommonDaoConfiguration.class)
-public class JpaHardDeletableRepositoriesTest extends TestWithServices {
+@SpringBootTest(classes = MongoCommonDaoConfiguration.class)
+public class MongoHardDeleteRepositoriesTest extends TestWithServices {
     @Autowired
-    private HardDeletableDao dao;
+    private HardDeleteMongoDao dao;
 
     @Test
     public void testCreateModel() {
-        HardDeletable model = new HardDeletable();
+        HardDeleteMongoModel model = new HardDeleteMongoModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
 
-        HardDeletable createdModel = dao.save(model);
+        HardDeleteMongoModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
@@ -47,8 +47,8 @@ public class JpaHardDeletableRepositoriesTest extends TestWithServices {
 
     @Test
     public void testThatFindByIdWorksForAnEntityWithoutDeletedColumn() {
-        HardDeletable entity = dao.save(new HardDeletable());
-        Optional<HardDeletable> opt = dao.findById(entity.getId());
+        HardDeleteMongoModel entity = dao.save(new HardDeleteMongoModel());
+        Optional<HardDeleteMongoModel> opt = dao.findById(entity.getId());
         assertThat(opt.isPresent(), is(true));
     }
 
@@ -58,16 +58,16 @@ public class JpaHardDeletableRepositoriesTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        List<HardDeletable> results = dao.findByName(uniqueName);
+        List<HardDeleteMongoModel> results = dao.findByName(uniqueName);
         assertThat(results, hasSize(2));
     }
 
     @NotNull
-    private List<HardDeletable> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
-        HardDeletable notDeleted = new HardDeletable();
+    private List<HardDeleteMongoModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
+        HardDeleteMongoModel notDeleted = new HardDeleteMongoModel();
         notDeleted.setName(uniqueName);
 
-        HardDeletable deleted = new HardDeletable();
+        HardDeleteMongoModel deleted = new HardDeleteMongoModel();
         deleted.setName(uniqueName);
         deleted.setDeleted(true);
 

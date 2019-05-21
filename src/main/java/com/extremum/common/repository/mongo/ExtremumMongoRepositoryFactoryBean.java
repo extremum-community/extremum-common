@@ -11,7 +11,9 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 import java.io.Serializable;
 
 /**
- * Factory bean for {@link MongoRepositoryFactory} extension that makes all automagical
+ * Factory bean for {@link MongoRepositoryFactory} extension that chooses automatically
+ * whether to use the usual 'hard-delete' logic or 'soft-delete' logic.
+ * For 'soft-delete' flavor, the repository makes all automagical
  * queries generated from query methods like <code>Person findByEmail(String email)</code>
  * respect the 'deleted' flag (unless annotated with @{@link SeesSoftlyDeletedRecords )}.
  *
@@ -26,15 +28,17 @@ import java.io.Serializable;
  *
  * @author rpuch
  */
-public class SoftDeleteMongoRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
+public class ExtremumMongoRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
         extends MongoRepositoryFactoryBean<T, S, ID> {
+    private final Class<? extends T> repositoryInterface;
 
-    public SoftDeleteMongoRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
+    public ExtremumMongoRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
+        this.repositoryInterface = repositoryInterface;
     }
 
     @Override
     protected RepositoryFactorySupport getFactoryInstance(MongoOperations operations) {
-        return new SoftDeleteMongoRepositoryFactory(operations);
+        return new ExtremumMongoRepositoryFactory(repositoryInterface, operations);
     }
 }

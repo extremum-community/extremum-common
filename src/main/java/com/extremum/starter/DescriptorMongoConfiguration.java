@@ -3,7 +3,7 @@ package com.extremum.starter;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.spring.CollectionDescriptorLifecycleListener;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.repository.mongo.SoftDeleteMongoRepositoryFactoryBean;
+import com.extremum.common.repository.mongo.ExtremumMongoRepositoryFactoryBean;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,8 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(MongoProperties.class)
 @EnableMongoRepositories(basePackageClasses = {DescriptorRepository.class, CollectionDescriptorRepository.class},
-        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class)
+        repositoryBaseClass = SimpleMongoRepository.class,
+        repositoryFactoryBeanClass = ExtremumMongoRepositoryFactoryBean.class)
 @EnableMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
 public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {

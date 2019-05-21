@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name = "hard_deletable")
 @Setter
 @ModelName("HardDeletable")
-public class HardDeletable extends PostgresCommonModel {
+public class HardDeleteJpaModel extends PostgresCommonModel {
 
     @Getter(onMethod_ = {@Column})
     private String name;

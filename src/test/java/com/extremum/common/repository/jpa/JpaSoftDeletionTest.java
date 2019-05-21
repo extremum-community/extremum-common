@@ -2,7 +2,7 @@ package com.extremum.common.repository.jpa;
 
 import com.extremum.common.models.PostgresCommonModel;
 import com.extremum.common.models.SoftDeletePostgresModel;
-import models.HardDeletable;
+import models.HardDeleteJpaModel;
 import models.TestJpaModel;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class JpaSoftDeletionTest {
     public void testStandardClasses() {
         assertTrue(softDeletion.supportsSoftDeletion(TestJpaModel.class));
         assertTrue(softDeletion.supportsSoftDeletion(SoftDeletePostgresModel.class));
-        assertFalse(softDeletion.supportsSoftDeletion(HardDeletable.class));
+        assertFalse(softDeletion.supportsSoftDeletion(HardDeleteJpaModel.class));
         assertFalse(softDeletion.supportsSoftDeletion(PostgresCommonModel.class));
     }
 
