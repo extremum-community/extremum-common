@@ -6,12 +6,8 @@ import com.extremum.common.collection.conversion.CollectionMakeupImpl;
 import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
-import com.extremum.common.dto.RequestDto;
-import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.service.MongoCommonService;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
@@ -31,13 +27,8 @@ import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
 import com.extremum.everything.services.management.EverythingEverythingManagementService;
-import com.extremum.everything.services.mongo.DefaultMongoGetterService;
-import com.extremum.everything.services.mongo.DefaultMongoPatcherService;
-import com.extremum.everything.services.mongo.DefaultMongoRemovalService;
 import com.extremum.starter.CommonConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -53,8 +44,7 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties({DestroyerProperties.class, ModelProperties.class})
-@AutoConfigureAfter(CommonConfiguration.class)
-@Import(DefaultServicesConfiguration.class)
+@Import({CommonConfiguration.class, DefaultServicesConfiguration.class})
 public class EverythingEverythingConfiguration {
     private final ModelProperties modelProperties;
     private final DestroyerProperties destroyerProperties;
