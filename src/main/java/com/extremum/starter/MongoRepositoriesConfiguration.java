@@ -1,8 +1,7 @@
 package com.extremum.starter;
 
-import com.extremum.common.repository.mongo.BaseMongoRepository;
 import com.extremum.common.repository.mongo.EnableExtremumMongoRepositories;
-import com.extremum.common.repository.mongo.SoftDeleteMongoRepositoryFactoryBean;
+import com.extremum.common.repository.mongo.ExtremumMongoRepositoryFactoryBean;
 import com.extremum.starter.properties.MongoProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,8 +12,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableExtremumMongoRepositories(basePackages = "${mongo.repository-packages}",
-        repositoryBaseClass = BaseMongoRepository.class,
-        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class)
+        repositoryFactoryBeanClass = ExtremumMongoRepositoryFactoryBean.class)
 @ConditionalOnProperty(MongoProperties.REPOSITORY_PACKAGES_PROPERTY)
 @RequiredArgsConstructor
 public class MongoRepositoriesConfiguration {

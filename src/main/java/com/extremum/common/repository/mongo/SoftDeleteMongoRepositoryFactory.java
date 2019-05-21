@@ -17,22 +17,18 @@ import java.util.Optional;
  * @see SeesSoftlyDeletedRecords
  */
 public class SoftDeleteMongoRepositoryFactory extends MongoRepositoryFactory {
-    private final MongoOperations mongoOperations;
+    private final LookupStrategies lookupStrategies;
 
     public SoftDeleteMongoRepositoryFactory(MongoOperations mongoOperations) {
         super(mongoOperations);
-        this.mongoOperations = mongoOperations;
+        lookupStrategies = new LookupStrategies(mongoOperations);
     }
 
     @Override
     protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
             QueryMethodEvaluationContextProvider evaluationContextProvider) {
-        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key,
-                evaluationContextProvider);
-        return optStrategy.map(this::createSoftDeleteQueryLookupStrategy);
+        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
+        return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy);
     }
 
-    private SoftDeleteMongoQueryLookupStrategy createSoftDeleteQueryLookupStrategy(QueryLookupStrategy strategy) {
-        return new SoftDeleteMongoQueryLookupStrategy(strategy, mongoOperations);
-    }
 }

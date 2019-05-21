@@ -267,7 +267,7 @@ public class MongoCommonDaoTest extends TestWithServices {
 
         for (int i = 0; i < modelsToCreate; i++) {
             TestMongoModel testModel = getTestModel();
-            testModel.name = name;
+            testModel.setName(name);
             dao.save(testModel);
             createdIds.add(testModel.getId());
         }
@@ -335,7 +335,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     @Test
     public void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
         TestMongoModel model = new TestMongoModel();
-        model.name = "Test";
+        model.setName("Test");
         model = dao.save(model);
 
         assertThat(dao.findById(model.getId()).isPresent(), is(true));
@@ -348,10 +348,10 @@ public class MongoCommonDaoTest extends TestWithServices {
     @NotNull
     private List<TestMongoModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
         TestMongoModel notDeleted = new TestMongoModel();
-        notDeleted.name = uniqueName;
+        notDeleted.setName(uniqueName);
 
         TestMongoModel deleted = new TestMongoModel();
-        deleted.name = uniqueName;
+        deleted.setName(uniqueName);
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);

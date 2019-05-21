@@ -104,4 +104,27 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
     }
+
+    @Test
+    public void givenACollectionDescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
+        String hostExternalId = createADescriptor();
+        CollectionDescriptor descriptor = createACollectionDescriptor(hostExternalId);
+
+        Optional<CollectionDescriptor> optDescriptor = collectionDescriptorRepository.findByExternalId(
+                descriptor.getExternalId());
+        assertThat(optDescriptor.isPresent(), is(true));
+    }
+
+    @Test
+    public void givenACollectionDescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
+        String hostExternalId = createADescriptor();
+        CollectionDescriptor descriptor = createACollectionDescriptor(hostExternalId);
+
+        descriptor.setDeleted(true);
+        collectionDescriptorRepository.save(descriptor);
+
+        Optional<CollectionDescriptor> optDescriptor = collectionDescriptorRepository.findByExternalId(
+                descriptor.getExternalId());
+        assertThat(optDescriptor.isPresent(), is(false));
+    }
 }
