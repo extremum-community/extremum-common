@@ -3,7 +3,6 @@ package com.extremum.common.repository.mongo;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PersistableCommonModel;
-import com.extremum.common.models.QueryFields;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -18,11 +17,10 @@ import org.springframework.data.mongodb.repository.support.SimpleMongoRepository
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.data.util.Streamable;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -52,50 +50,46 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
+    Query notDeletedQueryWith(Criteria criteria) {
+        Criteria finalCriteria = new Criteria().andOperator(
+                notDeleted(),
+                criteria
+        );
+        return new Query(finalCriteria);
+    }
+
+    @Override
+    Query notDeletedQuery() {
+        return new Query(notDeleted());
+    }
+
+    @Override
     public Optional<T> findById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
-        Query query = queryForNotDeletedAnd(getIdCriteria(id));
+        Query query = notDeletedQueryWith(getIdCriteria(id));
 
         return findOneByQuery(query);
-    }
-
-    private Criteria getIdCriteria(Object id) {
-        return where(entityInformation.getIdAttribute()).is(id);
     }
 
     @Override
     public Iterable<T> findAllById(Iterable<ObjectId> ids) {
         Criteria inCriteria = new Criteria(entityInformation.getIdAttribute())
                 .in(Streamable.of(ids).stream().collect(StreamUtils.toUnmodifiableList()));
-        return findAll(queryForNotDeletedAnd(inCriteria));
+        return findAllByQuery(notDeletedQueryWith(inCriteria));
     }
 
     @Override
     public long count() {
-        return mongoOperations.count(new Query(notDeleted()), entityInformation.getCollectionName());
+        return mongoOperations.count(notDeletedQuery(), entityInformation.getCollectionName());
     }
 
     @Override
     public <S extends T> long count(Example<S> example) {
         Assert.notNull(example, "Sample must not be null!");
 
-        Query q = queryForNotDeletedAnd(new Criteria().alike(example));
+        Query q = notDeletedQueryWith(new Criteria().alike(example));
         return mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName());
-    }
-
-    private Optional<T> findOneByQuery(Query query) {
-        T result = mongoOperations.findOne(query,
-                entityInformation.getJavaType(), entityInformation.getCollectionName());
-        return Optional.ofNullable(result);
-    }
-
-    private Query queryForNotDeletedAnd(Criteria criteria) {
-        Criteria finalCriteria = new Criteria().andOperator(
-                notDeleted(),
-                criteria
-        );
-        return new Query(finalCriteria);
     }
 
     private Criteria notDeleted() {
@@ -104,20 +98,12 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
 
     @Override
     public List<T> findAll() {
-        return findAll(new Query(notDeleted()));
+        return findAllByQuery(notDeletedQuery());
     }
-
-    private List<T> findAll(@Nullable Query query) {
-   		if (query == null) {
-   			return Collections.emptyList();
-   		}
-
-   		return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
-   	}
 
     @Override
     public List<T> findAll(Sort sort) {
-        return findAll(new Query(notDeleted()).with(sort));
+        return findAllByQuery(notDeletedQuery().with(sort));
     }
 
     @Override
@@ -160,14 +146,14 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     private <S extends T> Query queryForNotDeletedAndAlike(Example<S> example) {
-        return queryForNotDeletedAnd(new Criteria().alike(example));
+        return notDeletedQueryWith(new Criteria().alike(example));
     }
 
     @Override
     public boolean existsById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
-        return mongoOperations.exists(queryForNotDeletedAnd(where(entityInformation.getIdAttribute()).is(id)),
+        return mongoOperations.exists(notDeletedQueryWith(where(entityInformation.getIdAttribute()).is(id)),
                 entityInformation.getJavaType(), entityInformation.getCollectionName());
     }
 
@@ -192,72 +178,8 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
 
     @Override
     public void deleteAll(Iterable<? extends T> entities) {
-        Assert.notNull(entities, "The given Iterable of entities not be null!");
+        Assert.notNull(entities, "The given Iterable of entities must not be null!");
 
         entities.forEach(this::delete);
-    }
-
-    @Override
-    public List<T> listByParameters(Map<String, Object> parameters) {
-        if (CollectionUtils.isEmpty(parameters)) {
-            return findAll();
-        }
-
-        OptionalInt optionalLimit = OptionalInt.empty();
-        OptionalInt optionalOffset = OptionalInt.empty();
-        final List<Criteria> leafCriteria = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            String key = entry.getKey();
-            switch (key) {
-                case QueryFields.LIMIT:
-                    String limitStr = String.valueOf(entry.getValue());
-                    int limit = Integer.valueOf(limitStr);
-                    optionalLimit = OptionalInt.of(limit);
-                    break;
-                case QueryFields.OFFSET:
-                    String offsetStr = String.valueOf(entry.getValue());
-                    int offset = Integer.valueOf(offsetStr);
-                    optionalOffset = OptionalInt.of(offset);
-                    break;
-                case QueryFields.IDS:
-                    Collection ids = (Collection) entry.getValue();
-                    List<ObjectId> objectIds = new ArrayList<>();
-                    for (Object id : ids) {
-                        objectIds.add(new ObjectId(id.toString()));
-                    }
-                    leafCriteria.add(where(ID).in(objectIds));
-                    break;
-                default:
-                    leafCriteria.add(where(key).is(entry.getValue()));
-                    break;
-            }
-        }
-
-        final Query query;
-        if (leafCriteria.isEmpty()) {
-            query = new Query(notDeleted());
-        } else {
-            query = queryForNotDeletedAnd(new Criteria().andOperator(leafCriteria.toArray(new Criteria[0])));
-        }
-
-        optionalOffset.ifPresent(query::skip);
-        optionalLimit.ifPresent(query::limit);
-
-        return findAll(query);
-    }
-
-    @Override
-    public List<T> listByFieldValue(String fieldName, Object fieldValue) {
-        return findAll(queryForNotDeletedAnd(where(fieldName).is(fieldValue)));
-    }
-
-    @Override
-    public Optional<T> getSelectedFieldsById(ObjectId id, String... fieldNames) {
-        Assert.notNull(id, "The given id must not be null!");
-
-        Query query = queryForNotDeletedAnd(where(ID).is(id));
-        Arrays.stream(fieldNames).forEach(fieldName -> query.fields().include(fieldName));
-
-        return findOneByQuery(query);
     }
 }
