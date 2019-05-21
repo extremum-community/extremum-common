@@ -2,16 +2,14 @@ package com.extremum.common.service.impl;
 
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.response.Alert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 
 /**
  * @author rpuch
