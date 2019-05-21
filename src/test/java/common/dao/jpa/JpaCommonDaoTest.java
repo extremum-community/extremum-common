@@ -22,12 +22,7 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
@@ -276,6 +271,17 @@ public class JpaCommonDaoTest extends TestWithServices {
         } catch (UnsupportedOperationException e) {
             assertThat(e.getMessage(), is("We don't allow to delete all the records in one go"));
         }
+    }
+
+    @Test
+    public void testGetModelNameAnnotation_OnHibernateProxy_AndOriginalClass() {
+        TestJpaModel testModel = getTestModel();
+        testModel.setName("test");
+        dao.save(testModel);
+        TestJpaModel one = dao.getOne(testModel.getId());
+        TestJpaModel model = dao.findById(testModel.getId()).get();
+        assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(one),is("TestJpaModel"));
     }
 
     @Test
