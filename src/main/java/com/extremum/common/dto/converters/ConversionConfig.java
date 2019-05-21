@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ConversionConfig {
-    private boolean expand = false;
+    private boolean expand;
 }

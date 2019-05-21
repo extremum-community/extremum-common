@@ -113,7 +113,7 @@ public class CommonConfiguration {
     @ConditionalOnProperty(prefix = "descriptors", value = {"collectionDescriptorsMapName", "collectionCoordinatesMapName"})
     @ConditionalOnMissingBean
     public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
-            CollectionDescriptorRepository collectionDescriptorRepository) {
+                                                           CollectionDescriptorRepository collectionDescriptorRepository) {
         if (noRedis()) {
             return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository,
                     descriptorsProperties.getCollectionDescriptorsMapName(),
