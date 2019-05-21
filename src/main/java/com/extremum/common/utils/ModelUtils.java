@@ -6,7 +6,7 @@ import com.extremum.common.models.annotation.ModelName;
 import java.util.Arrays;
 
 public class ModelUtils {
-    private static String[] checkList = {"HibernateProxy"};
+    private static final String[] checkList = {"HibernateProxy"};
 
     @SuppressWarnings("unchecked")
     public static String getModelName(Class<? extends Model> modelClass) {
