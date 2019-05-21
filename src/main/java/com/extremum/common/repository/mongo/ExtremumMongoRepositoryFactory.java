@@ -22,28 +22,23 @@ import java.util.Optional;
  */
 public class ExtremumMongoRepositoryFactory extends MongoRepositoryFactory {
     private final Class<?> repositoryInterface;
-    private final MongoOperations mongoOperations;
+    private final LookupStrategies lookupStrategies;
 
     public ExtremumMongoRepositoryFactory(Class<?> repositoryInterface, MongoOperations mongoOperations) {
         super(mongoOperations);
         this.repositoryInterface = repositoryInterface;
-        this.mongoOperations = mongoOperations;
+        lookupStrategies = new LookupStrategies(mongoOperations);
     }
 
     @Override
     protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
             QueryMethodEvaluationContextProvider evaluationContextProvider) {
         if (isSoftDelete()) {
-            Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key,
-                    evaluationContextProvider);
-            return optStrategy.map(this::createSoftDeleteQueryLookupStrategy);
+            Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
+            return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy);
         } else {
             return super.getQueryLookupStrategy(key, evaluationContextProvider);
         }
-    }
-
-    private SoftDeleteMongoQueryLookupStrategy createSoftDeleteQueryLookupStrategy(QueryLookupStrategy strategy) {
-        return new SoftDeleteMongoQueryLookupStrategy(strategy, mongoOperations);
     }
 
     @Override
