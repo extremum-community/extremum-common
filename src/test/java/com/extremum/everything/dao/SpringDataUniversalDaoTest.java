@@ -1,5 +1,6 @@
 package com.extremum.everything.dao;
 
+import com.extremum.common.test.TestWithServices;
 import com.extremum.everything.collection.Projection;
 import com.extremum.starter.CommonConfiguration;
 import org.bson.types.ObjectId;
@@ -24,7 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = CommonConfiguration.class)
-class SpringDataUniversalDaoTest {
+class SpringDataUniversalDaoTest extends TestWithServices {
     private static final GenericContainer mongo = new GenericContainer("mongo:3.4-xenial")
             .withExposedPorts(27017);
     private static final GenericContainer redis = new GenericContainer("redis:5.0.4")
