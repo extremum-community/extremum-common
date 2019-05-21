@@ -28,3 +28,13 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.web : DEBUG
+
+custom:
+  field-destroyer:
+    analyzable-package-prefix: com.cybernation.testservice
