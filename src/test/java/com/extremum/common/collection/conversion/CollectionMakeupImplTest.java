@@ -57,8 +57,6 @@ public class CollectionMakeupImplTest {
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building2)
         );
         streetDto = new StreetResponseDto("the-street", buildings);
-
-        when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.empty());
     }
 
     @Test
