@@ -9,7 +9,7 @@ import com.extremum.common.utils.ModelUtils;
 import common.dao.mongo.TestMongoModelDao;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -21,9 +21,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MongoCommonServiceTest {
 
@@ -39,14 +40,14 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel, resultModel);
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testGetWithNullId() {
-        service.get(null);
+        assertThrows(WrongArgumentException.class, () -> service.get(null));
     }
 
-    @Test(expected = ModelNotFoundException.class)
+    @Test
     public void testGetWithException() {
-        service.get(new ObjectId().toString());
+        assertThrows(ModelNotFoundException.class, () -> service.get(new ObjectId().toString()));
     }
 
     @Test
@@ -148,14 +149,14 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel, resultModelList.get(0));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testListByFieldValueWithNullName() {
-        service.listByFieldValue(null, "");
+        assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(null, ""));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testListByFieldValueWithNullValue() {
-        service.listByFieldValue(version.name(), null);
+        assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(version.name(), null));
     }
 
     @Test
@@ -196,14 +197,14 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel, resultModelList.get(0));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testListByFieldValueWithLimitOffsetWithNullName() {
-        service.listByFieldValue(null, "", 0, 0);
+        assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(null, "", 0, 0));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testListByFieldValueWithLimitOffsetWithNullValue() {
-        service.listByFieldValue(version.name(), null, 0, 0);
+        assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(version.name(), null, 0, 0));
     }
 
     @Test
@@ -246,19 +247,19 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel, resultModel);
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testGetSelectedFieldsByIdWithNullId() {
-        service.getSelectedFieldsById(null, version.name());
+        assertThrows(WrongArgumentException.class, () -> service.getSelectedFieldsById(null, version.name()));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testGetSelectedFieldsByIdWithNullFields() {
-        service.getSelectedFieldsById(new ObjectId().toString());
+        assertThrows(WrongArgumentException.class, () -> service.getSelectedFieldsById(new ObjectId().toString()));
     }
 
-    @Test(expected = ModelNotFoundException.class)
+    @Test
     public void testGetSelectedFieldsByIdWithException() {
-        service.getSelectedFieldsById(new ObjectId().toString(), version.name());
+        assertThrows(ModelNotFoundException.class, () -> service.getSelectedFieldsById(new ObjectId().toString(), version.name()));
     }
 
     @Test
@@ -291,9 +292,9 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel, resultModel);
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testCreateWithNullData() {
-        service.create((TestMongoModel) null);
+        assertThrows(WrongArgumentException.class, () -> service.create((TestMongoModel) null));
     }
 
     @Test
@@ -325,9 +326,9 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel, resultModels.get(0));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testCreateListWithNullData() {
-        service.create((List<TestMongoModel>) null);
+        assertThrows(WrongArgumentException.class, () -> service.create((List<TestMongoModel>) null));
     }
 
     @Test
@@ -378,9 +379,9 @@ public class MongoCommonServiceTest {
         assertEquals(createdModel.getUuid(), resultModel.getUuid());
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testSaveWithNullData() {
-        service.save(null);
+        assertThrows(WrongArgumentException.class, () -> service.save(null));
     }
 
     @Test
@@ -405,9 +406,9 @@ public class MongoCommonServiceTest {
         assertEquals("400", alertList.get(0).getCode());
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testDeleteWithNullId() {
-        service.delete(null);
+        assertThrows(WrongArgumentException.class, () -> service.delete(null));
     }
 
     @Test

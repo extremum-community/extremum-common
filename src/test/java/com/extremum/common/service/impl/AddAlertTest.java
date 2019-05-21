@@ -3,7 +3,7 @@ package com.extremum.common.service.impl;
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.response.Alert;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;

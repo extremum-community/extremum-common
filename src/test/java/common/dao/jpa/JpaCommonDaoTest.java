@@ -6,13 +6,13 @@ import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
 import models.TestJpaModel;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,12 +20,17 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
 public class JpaCommonDaoTest extends TestWithServices {
     @Autowired
@@ -223,7 +228,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    @Ignore("Restore when we have a decent mechanism to ignore softly-deleted records on Spring Data level")
+    @Disabled("Restore when we have a decent mechanism to ignore softly-deleted records on Spring Data level")
     public void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 
@@ -243,7 +248,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    @Ignore("Restore when we have a decent mechanism to ignore softly-deleted records on Spring Data level")
+    @Disabled("Restore when we have a decent mechanism to ignore softly-deleted records on Spring Data level")
     public void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 

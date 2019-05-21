@@ -7,7 +7,7 @@ import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 

@@ -1,13 +1,13 @@
 package com.extremum.common.urls;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author rpuch
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 public class ApplicationUrlsImplTest {
     private ApplicationUrls applicationUrls = new ApplicationUrlsImpl();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/context/some-uri");
 

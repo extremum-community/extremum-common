@@ -9,13 +9,13 @@ import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.TestApplicationUrls;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author rpuch
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CollectionMakeupImplTest {
     @InjectMocks
     private CollectionMakeupImpl collectionMakeup;
@@ -48,7 +48,7 @@ public class CollectionMakeupImplTest {
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
             new Descriptor("the-street"), "the-buildings");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         BuildingResponseDto building1 = new BuildingResponseDto("building1", "address1");
         BuildingResponseDto building2 = new BuildingResponseDto("building2", "address2");

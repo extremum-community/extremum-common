@@ -3,7 +3,7 @@ package com.extremum.common.stucts;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import models.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;

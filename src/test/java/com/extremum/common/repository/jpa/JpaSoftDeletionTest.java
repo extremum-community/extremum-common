@@ -4,7 +4,7 @@ import com.extremum.common.models.PostgresCommonModel;
 import com.extremum.common.models.SoftDeletePostgresModel;
 import models.HardDeleteJpaModel;
 import models.TestJpaModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 

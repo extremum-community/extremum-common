@@ -5,7 +5,7 @@ import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
