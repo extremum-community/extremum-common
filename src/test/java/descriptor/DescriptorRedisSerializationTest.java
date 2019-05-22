@@ -33,11 +33,11 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     @Autowired
     private DescriptorsProperties descriptorsProperties;
 
-    private DescriptorDao anotherDescriptorDao;
+    private DescriptorDao freshDaoToAvoidCachingInMemory;
 
     @BeforeEach
     void init() {
-        anotherDescriptorDao = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
+        freshDaoToAvoidCachingInMemory = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
                 redissonClient, descriptorRepository);
     }
 
@@ -45,7 +45,7 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     void whenLoadingADescriptorFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
         Descriptor descriptor = createADescriptor();
 
-        Optional<Descriptor> retrievedDescriptor = anotherDescriptorDao.retrieveByExternalId(
+        Optional<Descriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByExternalId(
                 descriptor.getExternalId());
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());

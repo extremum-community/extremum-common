@@ -41,11 +41,11 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
     @Autowired
     private DescriptorsProperties descriptorsProperties;
 
-    private CollectionDescriptorDao anotherCollectionDescriptorDao;
+    private CollectionDescriptorDao freshDaoToAvoidCachingInMemory;
 
     @BeforeEach
     void init() {
-        anotherCollectionDescriptorDao = CollectionDescriptorDaoFactory.create(redisProperties, descriptorsProperties,
+        freshDaoToAvoidCachingInMemory = CollectionDescriptorDaoFactory.create(redisProperties, descriptorsProperties,
                 redissonClient, collectionDescriptorRepository);
     }
 
@@ -54,7 +54,7 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
         String hostExternalId = createADescriptor();
         CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
 
-        Optional<CollectionDescriptor> retrievedDescriptor = anotherCollectionDescriptorDao.retrieveByExternalId(
+        Optional<CollectionDescriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByExternalId(
                 collectionDescriptor.getExternalId());
 
         assertThatCollectionDescriptorRetrievalWasOk(hostExternalId, collectionDescriptor, retrievedDescriptor);
