@@ -4,6 +4,7 @@ import com.extremum.common.collection.CollectionDescriptor;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;
+import org.redisson.client.codec.Codec;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -13,17 +14,18 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
     private static final long DEFAULT_IDLE_TIME_DAYS = 30;
 
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient,
-            CollectionDescriptorRepository repository,
+            CollectionDescriptorRepository repository, Codec codec,
             String descriptorsMapName, String coordinatesMapName) {
-        this(redissonClient, repository, descriptorsMapName, coordinatesMapName,
+        this(redissonClient, repository, codec, descriptorsMapName, coordinatesMapName,
                 DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
     }
 
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, CollectionDescriptorRepository repository,
-            String descriptorsMapName, String coordinatesMapName, int cacheSize, long idleTime) {
+            Codec codec, String descriptorsMapName, String coordinatesMapName, int cacheSize, long idleTime) {
         super(repository,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
+                        codec,
                         LocalCachedMapOptions
                                 .<String, CollectionDescriptor>defaults()
                                 .loader(descriptorIdMapLoader(repository))
@@ -33,6 +35,7 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
                 redissonClient.getLocalCachedMap(
                         coordinatesMapName,
+                        codec,
                         LocalCachedMapOptions
                                 .<String, String>defaults()
                                 .loader(descriptorCoordinatesMapLoader(repository))

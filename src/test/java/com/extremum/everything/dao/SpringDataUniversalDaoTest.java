@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.GenericContainer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,19 +25,6 @@ import static org.hamcrest.Matchers.hasSize;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = CommonConfiguration.class)
 class SpringDataUniversalDaoTest extends TestWithServices {
-    private static final GenericContainer mongo = new GenericContainer("mongo:3.4-xenial")
-            .withExposedPorts(27017);
-    private static final GenericContainer redis = new GenericContainer("redis:5.0.4")
-            .withExposedPorts(6379);
-
-    static {
-        Arrays.asList(mongo, redis).forEach(GenericContainer::start);
-
-        System.setProperty("mongo.uri", "mongodb://" + mongo.getContainerIpAddress()
-                + ":" + mongo.getFirstMappedPort());
-        System.setProperty("redis.uri", String.format("redis://%s:%d", redis.getContainerIpAddress(), redis.getFirstMappedPort()));
-    }
-
     @Autowired
     private MongoOperations mongoOperations;
 
