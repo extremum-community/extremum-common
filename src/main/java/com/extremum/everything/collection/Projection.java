@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.beans.ConstructorProperties;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,7 +61,13 @@ public class Projection {
 
     public <T> List<T> cut(List<T> list) {
         int startInclusive = offset == null ? 0 : offset;
+        startInclusive = Math.max(startInclusive, 0);
+        if (startInclusive > list.size()) {
+            return Collections.emptyList();
+        }
+
         int endExclusive = limit == null ? list.size() : startInclusive + limit;
+        endExclusive = Math.min(endExclusive, list.size());
 
         return list.subList(startInclusive, endExclusive);
     }
