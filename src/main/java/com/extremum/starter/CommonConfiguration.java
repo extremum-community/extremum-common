@@ -31,12 +31,17 @@ import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.NoneNestedConditions;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @Configuration
 @Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class, JpaRepositoriesConfiguration.class})
@@ -83,7 +88,6 @@ public class CommonConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "descriptors", value = {"descriptorsMapName", "internalIdsMapName"})
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
         Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
@@ -103,14 +107,13 @@ public class CommonConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(DescriptorDao.class)
     @ConditionalOnMissingBean
     public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao) {
         return new DescriptorServiceConfigurator(descriptorDao);
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "descriptors", value = {"collectionDescriptorsMapName", "collectionCoordinatesMapName"})
+    @CollectionDescriptorsEnabledCondition
     @ConditionalOnMissingBean
     public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
                                                            CollectionDescriptorRepository collectionDescriptorRepository) {
@@ -127,28 +130,28 @@ public class CommonConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(CollectionDescriptorDao.class)
+    @CollectionDescriptorsEnabledCondition
     @ConditionalOnMissingBean
     public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
         return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
     }
 
     @Bean
-    @ConditionalOnBean(CollectionDescriptorService.class)
+    @CollectionDescriptorsEnabledCondition
     @ConditionalOnMissingBean
     public MapperDependencies mapperDependencies(CollectionDescriptorService collectionDescriptorService) {
         return new MapperDependenciesImpl(collectionDescriptorService);
     }
 
     @Bean
-    @ConditionalOnBean(MapperDependencies.class)
+    @CollectionDescriptorsEnabledCondition
     @Primary
     public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies) {
         return JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
     }
 
     @Bean
-    @ConditionalOnMissingBean(MapperDependencies.class)
+    @Conditional(CollectionDescriptorsDisabledCondition.class)
     @Primary
     public ObjectMapper jacksonObjectMapper() {
         return JsonObjectMapper.createWithDescriptors();
@@ -157,5 +160,23 @@ public class CommonConfiguration {
     @Bean
     public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener() {
         return new MongoCommonModelLifecycleListener();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    @ConditionalOnProperty(prefix = "descriptors", value = {"collectionDescriptorsMapName", "collectionCoordinatesMapName"})
+    private @interface CollectionDescriptorsEnabledCondition {
+    }
+
+    private static class CollectionDescriptorsDisabledCondition extends NoneNestedConditions {
+
+        public CollectionDescriptorsDisabledCondition() {
+            super(ConfigurationPhase.PARSE_CONFIGURATION);
+        }
+
+        @CollectionDescriptorsEnabledCondition
+        private class CollectionDescriptorsEnabled {
+
+        }
     }
 }
