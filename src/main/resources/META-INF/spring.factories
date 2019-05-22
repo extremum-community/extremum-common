@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.extremum.starter.CommonConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.extremum.starter.CommonConfiguration,com.extremum.everything.config.EverythingEverythingConfiguration

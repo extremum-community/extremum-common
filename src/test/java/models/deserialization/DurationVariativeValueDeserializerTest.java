@@ -5,13 +5,13 @@ import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DurationVariativeValueDeserializerTest {
     private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());

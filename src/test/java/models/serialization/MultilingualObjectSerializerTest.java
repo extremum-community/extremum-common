@@ -8,11 +8,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultilingualObjectSerializerTest {
     private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
@@ -21,8 +24,8 @@ public class MultilingualObjectSerializerTest {
     public void serializeToSimpleTextTest() throws JsonProcessingException {
         MultilingualObject ml = new MultilingualObject("В лесу родилась ёлочка");
         String json = mapper.writeValueAsString(ml);
-        Assert.assertNotNull(json);
-        Assert.assertEquals("\"В лесу родилась ёлочка\"", json);
+        assertNotNull(json);
+        assertEquals("\"В лесу родилась ёлочка\"", json);
     }
 
     @Test
@@ -40,16 +43,16 @@ public class MultilingualObjectSerializerTest {
         String json = mapper.writeValueAsString(ml);
 
         JSONObject jsonObject = new JSONObject(json);
-        Assert.assertTrue(jsonObject.has(expectedLang_ru));
-        Assert.assertTrue(jsonObject.has(expectedLang_en));
-        Assert.assertEquals(expectedText_ru, jsonObject.getString(expectedLang_ru));
-        Assert.assertEquals(expectedText_en, jsonObject.getString(expectedLang_en));
+        assertTrue(jsonObject.has(expectedLang_ru));
+        assertTrue(jsonObject.has(expectedLang_en));
+        assertEquals(expectedText_ru, jsonObject.getString(expectedLang_ru));
+        assertEquals(expectedText_en, jsonObject.getString(expectedLang_en));
     }
 
     @Test
     public void serializeNullTest() throws JsonProcessingException {
         MultilingualObject ml = new MultilingualObject();
         String json = mapper.writeValueAsString(ml);
-        Assert.assertEquals("null", json);
+        assertEquals("null", json);
     }
 }

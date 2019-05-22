@@ -3,15 +3,14 @@ package com.extremum.common.mapper;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 /**
@@ -20,9 +19,6 @@ import static org.mockito.Mockito.when;
 public class JsonObjectMapperTest {
     private MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
     private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
@@ -71,9 +67,11 @@ public class JsonObjectMapperTest {
         when(mapperDependencies.collectionDescriptorService().retrieveByExternalId("external-id"))
                 .thenReturn(Optional.empty());
 
-        expectedException.expect(CollectionDescriptorNotFoundException.class);
-        expectedException.expectMessage("No collection descriptor was found by external ID 'external-id'");
-
-        mapper.readerFor(CollectionDescriptor.class).readValue("\"external-id\"");
+        try {
+            mapper.readerFor(CollectionDescriptor.class).readValue("\"external-id\"");
+            fail("An exception should be thrown");
+        } catch (CollectionDescriptorNotFoundException e) {
+            assertThat(e.getMessage(), is("No collection descriptor was found by external ID 'external-id'"));
+        }
     }
 }

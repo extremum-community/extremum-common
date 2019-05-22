@@ -11,23 +11,20 @@ import com.extremum.common.test.TestWithServices;
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     @Autowired

@@ -7,8 +7,7 @@ import com.extremum.common.utils.ModelUtils;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.shaded.org.apache.commons.lang.math.RandomUtils;
 
 import java.time.ZonedDateTime;
@@ -27,16 +25,16 @@ import java.util.stream.Stream;
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 public class MongoCommonDaoTest extends TestWithServices {
     @Autowired
@@ -57,12 +55,12 @@ public class MongoCommonDaoTest extends TestWithServices {
         assertFalse(model.getDeleted());
     }
 
-    @Test(expected = OptimisticLockingFailureException.class)
+    @Test
     public void testCreateModelWithWrongVersion() {
         TestMongoModel model = getTestModel();
         model.setId(new ObjectId(model.getUuid().getInternalId()));
         model.setVersion(123L);
-        dao.save(model);
+        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model));
     }
 
     @Test

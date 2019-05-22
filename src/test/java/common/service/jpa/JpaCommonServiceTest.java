@@ -8,22 +8,43 @@ import com.extremum.common.response.Alert;
 import com.extremum.common.utils.ModelUtils;
 import common.dao.jpa.TestJpaModelDao;
 import models.TestJpaModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JpaCommonServiceTest {
 
     private TestJpaModelDao dao = Mockito.mock(TestJpaModelDao.class);
     private TestJpaModelService service = new TestJpaModelService(dao);
+
+    private static TestJpaModel getTestModel() {
+        TestJpaModel model = new TestJpaModel();
+
+        model.setCreated(ZonedDateTime.now());
+        model.setModified(ZonedDateTime.now());
+        model.setVersion(1L);
+        model.setId(UUID.randomUUID());
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId(DescriptorService.createExternalId())
+                .internalId(model.getId().toString())
+                .modelType(ModelUtils.getModelName(model))
+                .storageType(Descriptor.StorageType.POSTGRES)
+                .build();
+
+        model.setUuid(descriptor);
+
+        return model;
+    }
 
     @Test
     public void testGet() {
@@ -34,14 +55,14 @@ public class JpaCommonServiceTest {
         assertEquals(createdModel, resultModel);
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testGetWithNullId() {
-        service.get(null);
+        assertThrows(WrongArgumentException.class, () -> service.get(null));
     }
 
-    @Test(expected = ModelNotFoundException.class)
+    @Test
     public void testGetWithException() {
-        service.get(UUID.randomUUID().toString());
+        assertThrows(ModelNotFoundException.class, () -> service.get(UUID.randomUUID().toString()));
     }
 
     @Test
@@ -76,19 +97,6 @@ public class JpaCommonServiceTest {
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
         List<TestJpaModel> resultModelList = service.list();
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
-    }
-
-    @Test
-    public void testListWithAlerts() {
-        TestJpaModel createdModel = getTestModel();
-        List<Alert> alertList = new ArrayList<>();
-        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestJpaModel> resultModelList = service.list(alertList);
-        assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
         assertEquals(createdModel, resultModelList.get(0));
@@ -279,6 +287,19 @@ public class JpaCommonServiceTest {
 //    }
 
     @Test
+    public void testListWithAlerts() {
+        TestJpaModel createdModel = getTestModel();
+        List<Alert> alertList = new ArrayList<>();
+        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
+
+        List<TestJpaModel> resultModelList = service.list(alertList);
+        assertTrue(alertList.isEmpty());
+        assertNotNull(resultModelList);
+        assertEquals(1, resultModelList.size());
+        assertEquals(createdModel, resultModelList.get(0));
+    }
+
+    @Test
     public void testCreate() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
@@ -287,9 +308,9 @@ public class JpaCommonServiceTest {
         assertEquals(createdModel, resultModel);
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testCreateWithNullData() {
-        service.create((TestJpaModel) null);
+        assertThrows(WrongArgumentException.class, () -> service.create((TestJpaModel) null));
     }
 
     @Test
@@ -321,9 +342,9 @@ public class JpaCommonServiceTest {
         assertEquals(createdModel, resultModels.get(0));
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testCreateListWithNullData() {
-        service.create((List<TestJpaModel>) null);
+        assertThrows(WrongArgumentException.class, () -> service.create((List<TestJpaModel>) null));
     }
 
     @Test
@@ -374,9 +395,9 @@ public class JpaCommonServiceTest {
         assertEquals(createdModel.getUuid(), resultModel.getUuid());
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testSaveWithNullData() {
-        service.save(null);
+        assertThrows(WrongArgumentException.class, () -> service.save(null));
     }
 
     @Test
@@ -401,28 +422,8 @@ public class JpaCommonServiceTest {
         assertEquals("400", alertList.get(0).getCode());
     }
 
-    @Test(expected = WrongArgumentException.class)
+    @Test
     public void testDeleteWithNullId() {
-        service.delete(null);
-    }
-
-    private static TestJpaModel getTestModel() {
-        TestJpaModel model = new TestJpaModel();
-
-        model.setCreated(ZonedDateTime.now());
-        model.setModified(ZonedDateTime.now());
-        model.setVersion(1L);
-        model.setId(UUID.randomUUID());
-
-        Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
-                .internalId(model.getId().toString())
-                .modelType(ModelUtils.getModelName(model))
-                .storageType(Descriptor.StorageType.POSTGRES)
-                .build();
-
-        model.setUuid(descriptor);
-
-        return model;
+        assertThrows(WrongArgumentException.class, () -> service.delete(null));
     }
 }
