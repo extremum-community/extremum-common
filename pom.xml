@@ -34,7 +34,6 @@
         <testcontainer-mongodb.version>0.1.0-RC10</testcontainer-mongodb.version>
         <testcontainer-redis.version>0.1.0-RC9</testcontainer-redis.version>
         <spring-cloud.version>2.1.1.RELEASE</spring-cloud.version>
-        <mockito.version>2.27.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -171,13 +170,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
