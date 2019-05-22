@@ -36,4 +36,6 @@ public class CollectionDescriptorDaoFactory {
     private static boolean noRedis(RedisProperties redisProperties) {
         return RedisInitialization.noRedis(redisProperties);
     }
+
+    private CollectionDescriptorDaoFactory() {}
 }

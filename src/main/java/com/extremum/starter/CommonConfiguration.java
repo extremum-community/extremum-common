@@ -4,9 +4,7 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
-import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
-import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
@@ -22,9 +20,7 @@ import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.Codec;
 import org.redisson.codec.JsonJacksonCodec;
-import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -89,20 +85,8 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
-        Codec codec = new TypedJsonJacksonCodec(String.class, Descriptor.class,
-                JsonObjectMapper.createWithoutDescriptorTransfiguration());
-        if (noRedis()) {
-            return new BaseDescriptorDaoImpl(redissonClient, descriptorRepository,
-                    descriptorsProperties.getDescriptorsMapName(), descriptorsProperties.getInternalIdsMapName(), codec);
-        } else {
-            return new BaseDescriptorDaoImpl(redissonClient, descriptorRepository, descriptorsProperties.getDescriptorsMapName(),
-                    descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(),
-                    redisProperties.getIdleTime());
-        }
-    }
-
-    private boolean noRedis() {
-        return RedisInitialization.noRedis(redisProperties);
+        return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
+                redissonClient, descriptorRepository);
     }
 
     @Bean
