@@ -1,7 +1,6 @@
 package com.extremum.starter;
 
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
-import com.extremum.common.collection.dao.impl.BaseCollectionDescriptorDaoImpl;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
@@ -103,7 +102,7 @@ public class CommonConfiguration {
     }
 
     private boolean noRedis() {
-        return redisProperties.getCacheSize() == 0 && redisProperties.getIdleTime() == 0;
+        return RedisInitialization.noRedis(redisProperties);
     }
 
     @Bean
@@ -117,16 +116,8 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
                                                            CollectionDescriptorRepository collectionDescriptorRepository) {
-        if (noRedis()) {
-            return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository,
-                    descriptorsProperties.getCollectionDescriptorsMapName(),
-                    descriptorsProperties.getCollectionCoordinatesMapName());
-        } else {
-            return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository,
-                    descriptorsProperties.getCollectionDescriptorsMapName(),
-                    descriptorsProperties.getCollectionCoordinatesMapName(),
-                    redisProperties.getCacheSize(), redisProperties.getIdleTime());
-        }
+        return CollectionDescriptorDaoFactory.create(redisProperties, descriptorsProperties, redissonClient,
+                collectionDescriptorRepository);
     }
 
     @Bean
