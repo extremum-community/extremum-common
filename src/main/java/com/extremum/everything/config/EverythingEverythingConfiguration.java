@@ -29,6 +29,7 @@ import com.extremum.everything.services.management.DefaultEverythingEverythingMa
 import com.extremum.everything.services.management.EverythingEverythingManagementService;
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -44,7 +45,8 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties({DestroyerProperties.class, ModelProperties.class})
-@Import({CommonConfiguration.class, DefaultServicesConfiguration.class})
+@Import(DefaultServicesConfiguration.class)
+@AutoConfigureAfter(CommonConfiguration.class)
 public class EverythingEverythingConfiguration {
     private final ModelProperties modelProperties;
     private final DestroyerProperties destroyerProperties;
