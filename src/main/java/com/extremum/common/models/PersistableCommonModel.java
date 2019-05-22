@@ -1,19 +1,9 @@
 package com.extremum.common.models;
 
-import com.extremum.common.descriptor.Descriptor;
-
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-public interface PersistableCommonModel<ID extends Serializable> extends Model {
-    Descriptor getUuid();
-
-    void setUuid(Descriptor uuid);
-
-    ID getId();
-
-    void setId(ID id);
-
+public interface PersistableCommonModel<ID extends Serializable> extends BasicModel<ID> {
     ZonedDateTime getCreated();
 
     void setCreated(ZonedDateTime created);
