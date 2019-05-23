@@ -4,9 +4,9 @@ import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.models.PostgresCommonModel;
+import com.extremum.common.models.PostgresBasicModel;
 import com.extremum.common.service.MongoCommonService;
-import com.extremum.common.service.PostgresCommonService;
+import com.extremum.common.service.PostgresBasicService;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.everything.services.jpa.DefaultJpaGetterService;
@@ -41,19 +41,22 @@ public class DefaultServicesConfiguration {
     }
 
     @Bean
-    public DefaultJpaGetterService<PostgresCommonModel> jpaGetterService(List<PostgresCommonService<? extends PostgresCommonModel>> services) {
+    public DefaultJpaGetterService<PostgresBasicModel> jpaGetterService(List<PostgresBasicService<? extends PostgresBasicModel>> services) {
         return new DefaultJpaGetterService<>(services);
     }
 
     @Bean
-    public DefaultJpaRemovalService<PostgresCommonModel> jpaRemovalService(List<PostgresCommonService<? extends PostgresCommonModel>> services) {
+    public DefaultJpaRemovalService<PostgresBasicModel> jpaRemovalService(List<PostgresBasicService<? extends PostgresBasicModel>> services) {
         return new DefaultJpaRemovalService<>(services);
     }
 
     @Bean
-    public DefaultJpaPatcherService<PostgresCommonModel> jpaPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-                                                                           EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
-                                                                           List<PostgresCommonService<? extends PostgresCommonModel>> services, List<FromRequestDtoConverter<? extends PostgresCommonModel, ? extends RequestDto>> dtoConverters) {
-        return new DefaultJpaPatcherService<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator, services, dtoConverters);
+    public DefaultJpaPatcherService<PostgresBasicModel> jpaPatcherService(DtoConversionService dtoConversionService,
+            ObjectMapper jsonMapper,
+            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
+            List<PostgresBasicService<? extends PostgresBasicModel>> services,
+            List<FromRequestDtoConverter<? extends PostgresBasicModel, ? extends RequestDto>> dtoConverters) {
+        return new DefaultJpaPatcherService<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
+                services, dtoConverters);
     }
 }

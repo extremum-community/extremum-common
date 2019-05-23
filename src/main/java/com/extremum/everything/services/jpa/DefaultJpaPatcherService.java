@@ -4,9 +4,9 @@ import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.PostgresCommonModel;
+import com.extremum.common.models.PostgresBasicModel;
 import com.extremum.common.models.annotation.ModelRequestDto;
-import com.extremum.common.service.PostgresCommonService;
+import com.extremum.common.service.PostgresBasicService;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.AbstractPatcherService;
@@ -15,13 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-public class DefaultJpaPatcherService<M extends PostgresCommonModel> extends AbstractPatcherService<M> implements DefaultJpaService<M> {
-    private final List<PostgresCommonService<? extends M>> services;
+public class DefaultJpaPatcherService<M extends PostgresBasicModel> extends AbstractPatcherService<M>
+        implements DefaultJpaService<M> {
+    private final List<PostgresBasicService<? extends M>> services;
     private final List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters;
 
     public DefaultJpaPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
                                     EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
-                                    List<PostgresCommonService<? extends M>> services,
+                                    List<PostgresBasicService<? extends M>> services,
                                     List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters) {
         super(dtoConversionService, jsonMapper, emptyFieldDestroyer, dtoValidator);
         this.services = services;
@@ -40,14 +41,15 @@ public class DefaultJpaPatcherService<M extends PostgresCommonModel> extends Abs
                 .stream()
                 .filter(dtoConverter -> dtoConverter.getRequestDtoType().equals(requestDtoClass))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(String.format("Cannot find %s for a model %s", FromRequestDtoConverter.class.getSimpleName(), modelClass)));
+                .orElseThrow(() -> new RuntimeException(String.format("Cannot find %s for a model %s",
+                        FromRequestDtoConverter.class.getSimpleName(), modelClass)));
 
 //      We can eliminate this warning because converter cast his second generic parameter to the base wildcard class
         @SuppressWarnings("unchecked") M model = ((FromRequestDtoConverter<? extends M, RequestDto>) converter).convertFromRequest(requestDto);
         mergeServiceFields(context.getOriginModel(), model);
 
 //      We can eliminate this warning because we cast service generic to the base class
-        @SuppressWarnings("unchecked") M result = ((PostgresCommonService<M>) findServiceByModel(services, model.getClass())).save(model);
+        @SuppressWarnings("unchecked") M result = ((PostgresBasicService<M>) findServiceByModel(services, model.getClass())).save(model);
         return result;
     }
 
