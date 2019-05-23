@@ -15,19 +15,27 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author rpuch
  */
 class BasicModelTest {
+    private final Descriptor descriptor = Descriptor.builder()
+            .externalId(UUID.randomUUID().toString())
+            .build();
+    private final TestBasicModel from = new TestBasicModel() {{
+        setUuid(descriptor);
+        setId(UUID.randomUUID());
+    }};
+    private final TestBasicModel to = new TestBasicModel();
+
     @Test
     void testCopyServiceFieldsTo() {
-        Descriptor descriptor = Descriptor.builder()
-                .externalId(UUID.randomUUID().toString())
-                .build();
-        TestBasicModel from = new TestBasicModel();
-        from.setUuid(descriptor);
-        from.setId(UUID.randomUUID());
-
-        TestBasicModel to = new TestBasicModel();
-
         from.copyServiceFieldsTo(to);
 
+        assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
+    }
+
+    @Test
+    void testMergeServiceFieldsTo() {
+        from.mergeServiceFieldsTo(to);
+
+        assertThat(to.getId(), is(sameInstance(from.getId())));
         assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
     }
 

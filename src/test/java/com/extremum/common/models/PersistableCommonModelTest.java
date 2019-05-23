@@ -4,11 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Transient;
-import javax.persistence.Version;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -20,23 +16,35 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author rpuch
  */
 class PersistableCommonModelTest {
+    private final Descriptor descriptor = Descriptor.builder()
+            .externalId(UUID.randomUUID().toString())
+            .build();
+    private final TestPersistableModel from = new TestPersistableModel() {{
+        setUuid(descriptor);
+        setId(UUID.randomUUID());
+        setCreated(ZonedDateTime.now());
+        setModified(ZonedDateTime.now());
+        setVersion(1L);
+        setDeleted(true);
+    }};
+    private final TestPersistableModel to = new TestPersistableModel();
+
     @Test
     void testCopyServiceFieldsTo() {
-        Descriptor descriptor = Descriptor.builder()
-                .externalId(UUID.randomUUID().toString())
-                .build();
-        TestPersistableModel from = new TestPersistableModel();
-        from.setUuid(descriptor);
-        from.setId(UUID.randomUUID());
-        from.setCreated(ZonedDateTime.now());
-        from.setModified(ZonedDateTime.now());
-        from.setVersion(1L);
-        from.setDeleted(true);
-
-        TestPersistableModel to = new TestPersistableModel();
-
         from.copyServiceFieldsTo(to);
 
+        assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
+        assertThat(to.getCreated(), is(sameInstance(from.getCreated())));
+        assertThat(to.getModified(), is(sameInstance(from.getModified())));
+        assertThat(to.getVersion(), is(sameInstance(from.getVersion())));
+        assertThat(to.getDeleted(), is(sameInstance(from.getDeleted())));
+    }
+
+    @Test
+    void testMergeServiceFieldsTo() {
+        from.mergeServiceFieldsTo(to);
+
+        assertThat(to.getId(), is(sameInstance(from.getId())));
         assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
         assertThat(to.getCreated(), is(sameInstance(from.getCreated())));
         assertThat(to.getModified(), is(sameInstance(from.getModified())));

@@ -17,6 +17,11 @@ public interface BasicModel<ID extends Serializable> extends Model {
         to.setUuid(this.getUuid());
     }
 
+    default <SELF extends BasicModel<ID>> void mergeServiceFieldsTo(SELF to) {
+        to.setId(this.getId());
+        to.setUuid(this.getUuid());
+    }
+
     enum FIELDS {
         id, uuid
     }
