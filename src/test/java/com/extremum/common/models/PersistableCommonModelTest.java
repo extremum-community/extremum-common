@@ -33,17 +33,6 @@ class PersistableCommonModelTest {
     void testCopyServiceFieldsTo() {
         from.copyServiceFieldsTo(to);
 
-        assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
-        assertThat(to.getCreated(), is(sameInstance(from.getCreated())));
-        assertThat(to.getModified(), is(sameInstance(from.getModified())));
-        assertThat(to.getVersion(), is(sameInstance(from.getVersion())));
-        assertThat(to.getDeleted(), is(sameInstance(from.getDeleted())));
-    }
-
-    @Test
-    void testMergeServiceFieldsTo() {
-        from.mergeServiceFieldsTo(to);
-
         assertThat(to.getId(), is(sameInstance(from.getId())));
         assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
         assertThat(to.getCreated(), is(sameInstance(from.getCreated())));

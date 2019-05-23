@@ -29,15 +29,6 @@ public interface PersistableCommonModel<ID extends Serializable> extends BasicMo
         to.setModified(this.getModified());
     }
 
-    default <SELF extends PersistableCommonModel<ID>> void mergeServiceFieldsTo(SELF to) {
-        BasicModel.super.mergeServiceFieldsTo(to);
-
-        to.setVersion(this.getVersion());
-        to.setDeleted(this.getDeleted());
-        to.setCreated(this.getCreated());
-        to.setModified(this.getModified());
-    }
-
     enum FIELDS {
         id, uuid, created, modified, version, deleted
     }

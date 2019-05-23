@@ -14,10 +14,6 @@ public interface BasicModel<ID extends Serializable> extends Model {
     void setId(ID id);
 
     default <SELF extends BasicModel<ID>> void copyServiceFieldsTo(SELF to) {
-        to.setUuid(this.getUuid());
-    }
-
-    default <SELF extends BasicModel<ID>> void mergeServiceFieldsTo(SELF to) {
         to.setId(this.getId());
         to.setUuid(this.getUuid());
     }

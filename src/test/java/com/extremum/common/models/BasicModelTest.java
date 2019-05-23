@@ -28,13 +28,6 @@ class BasicModelTest {
     void testCopyServiceFieldsTo() {
         from.copyServiceFieldsTo(to);
 
-        assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
-    }
-
-    @Test
-    void testMergeServiceFieldsTo() {
-        from.mergeServiceFieldsTo(to);
-
         assertThat(to.getId(), is(sameInstance(from.getId())));
         assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
     }
