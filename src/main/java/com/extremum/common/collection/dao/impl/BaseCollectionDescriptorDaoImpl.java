@@ -35,7 +35,6 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
                 redissonClient.getLocalCachedMap(
                         coordinatesMapName,
-                        codec,
                         LocalCachedMapOptions
                                 .<String, String>defaults()
                                 .loader(descriptorCoordinatesMapLoader(repository))

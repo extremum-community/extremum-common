@@ -50,12 +50,23 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
     }
 
     @Test
-    void whenLoadingACollectionDescriptorFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
+    void whenLoadingACollectionDescriptorByExternalIdFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
         String hostExternalId = createADescriptor();
         CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
 
         Optional<CollectionDescriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByExternalId(
                 collectionDescriptor.getExternalId());
+
+        assertThatCollectionDescriptorRetrievalWasOk(hostExternalId, collectionDescriptor, retrievedDescriptor);
+    }
+
+    @Test
+    void whenLoadingACollectionDescriptorByCoordinatesFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
+        String hostExternalId = createADescriptor();
+        CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
+
+        Optional<CollectionDescriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByCoordinates(
+                collectionDescriptor.getCoordinatesString());
 
         assertThatCollectionDescriptorRetrievalWasOk(hostExternalId, collectionDescriptor, retrievedDescriptor);
     }
