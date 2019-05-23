@@ -5,12 +5,15 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
-import com.extremum.common.utils.InstanceFields;
+import com.extremum.common.utils.FieldGraphWalker;
+import com.extremum.common.utils.FieldVisitor;
+import com.extremum.common.utils.ShallowFieldGraphWalker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author rpuch
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
+    private final FieldGraphWalker fieldGraphWalker = new ShallowFieldGraphWalker();
 
     public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
             ApplicationUrls applicationUrls) {
@@ -32,14 +36,11 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
-        new InstanceFields(dto.getClass()).stream()
-                .filter(this::isOfTypeCollectionReference)
-                .filter(this::isAnnotatedWithOwnedCollection)
-                .forEach(field -> applyMakeupToField(field, dto));
+        FieldVisitor visitor = (field, lazyValue) -> applyMakeupToField(field, lazyValue.get(), dto);
+        fieldGraphWalker.walk(dto, new EligibleForMakeup(visitor));
     }
 
-    private void applyMakeupToField(Field field, ResponseDto dto) {
-        Object value = getFieldValue(dto, field);
+    private void applyMakeupToField(Field field, Object value, ResponseDto dto) {
         if (value == null) {
             return;
         }
@@ -85,6 +86,21 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return field.get(dto);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Cannot get field value", e);
+        }
+    }
+
+    private class EligibleForMakeup implements FieldVisitor {
+        private final FieldVisitor visitor;
+
+        private EligibleForMakeup(FieldVisitor visitor) {
+            this.visitor = visitor;
+        }
+
+        @Override
+        public void visitField(Field field, Supplier<Object> lazyValue) {
+            if (isOfTypeCollectionReference(field) && isAnnotatedWithOwnedCollection(field)) {
+                visitor.visitField(field, lazyValue);
+            }
         }
     }
 }
