@@ -5,7 +5,6 @@ import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.BasicModel;
-import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.CommonService;
 import com.extremum.common.utils.StreamUtils;
@@ -166,16 +165,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<I
     }
 
     private void copyServiceFields(M from, M to) {
-        to.setUuid(from.getUuid());
-        // TODO: the following is very ugly, refactor
-        if ((from instanceof PersistableCommonModel) && (to instanceof PersistableCommonModel)) {
-            PersistableCommonModel persistableFrom = (PersistableCommonModel) from;
-            PersistableCommonModel persistableTo = (PersistableCommonModel) to;
-            persistableTo.setVersion(persistableFrom.getVersion());
-            persistableTo.setDeleted(persistableFrom.getDeleted());
-            persistableTo.setCreated(persistableFrom.getCreated());
-            persistableTo.setModified(persistableFrom.getModified());
-        }
+        from.copyServiceFieldsTo(to);
     }
 
     @Override

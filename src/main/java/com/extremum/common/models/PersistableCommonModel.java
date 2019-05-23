@@ -20,6 +20,15 @@ public interface PersistableCommonModel<ID extends Serializable> extends BasicMo
 
     void setDeleted(Boolean deleted);
 
+    default <SELF extends PersistableCommonModel<ID>> void copyServiceFieldsTo(SELF to) {
+        BasicModel.super.copyServiceFieldsTo(to);
+
+        to.setVersion(this.getVersion());
+        to.setDeleted(this.getDeleted());
+        to.setCreated(this.getCreated());
+        to.setModified(this.getModified());
+    }
+
     enum FIELDS {
         id, uuid, created, modified, version, deleted
     }

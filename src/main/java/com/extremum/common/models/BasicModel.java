@@ -13,6 +13,10 @@ public interface BasicModel<ID extends Serializable> extends Model {
 
     void setId(ID id);
 
+    default <SELF extends BasicModel<ID>> void copyServiceFieldsTo(SELF to) {
+        to.setUuid(this.getUuid());
+    }
+
     enum FIELDS {
         id, uuid
     }
