@@ -35,20 +35,36 @@ class DescriptorRedisSerializationTest extends TestWithServices {
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
+    private Descriptor descriptor;
+
     @BeforeEach
     void init() {
+        descriptor = createADescriptor();
+        
         freshDaoToAvoidCachingInMemory = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
                 redissonClient, descriptorRepository);
     }
 
     @Test
-    void whenLoadingADescriptorFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
-        Descriptor descriptor = createADescriptor();
-
+    void whenLoadingADescriptorByExternalIdFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
         Optional<Descriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByExternalId(
                 descriptor.getExternalId());
+        
+        assertThatRetrievedDescriptorIsOk(descriptor, retrievedDescriptor);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void assertThatRetrievedDescriptorIsOk(Descriptor descriptor, Optional<Descriptor> retrievedDescriptor) {
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
+    }
+
+    @Test
+    void whenLoadingADescriptorByInternalIdFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
+        Optional<Descriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByInternalId(
+                descriptor.getInternalId());
+
+        assertThatRetrievedDescriptorIsOk(descriptor, retrievedDescriptor);
     }
 
     private Descriptor createADescriptor() {
