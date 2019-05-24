@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,8 +46,8 @@ class ShallowFieldGraphWalkerTest {
         private final List<Object> values = new ArrayList<>();
 
         @Override
-        public void visitField(Field field, Supplier<Object> lazyValue) {
-            values.add(lazyValue.get());
+        public void visitField(Field field, Object value) {
+            values.add(value);
         }
     }
 }

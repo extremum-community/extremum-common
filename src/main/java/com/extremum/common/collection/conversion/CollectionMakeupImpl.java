@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * @author rpuch
@@ -36,7 +35,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
-        FieldVisitor visitor = (field, lazyValue) -> applyMakeupToField(field, lazyValue.get(), dto);
+        FieldVisitor visitor = (field, value) -> applyMakeupToField(field, value, dto);
         fieldGraphWalker.walk(dto, new EligibleForMakeup(visitor));
     }
 
@@ -97,9 +96,9 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         }
 
         @Override
-        public void visitField(Field field, Supplier<Object> lazyValue) {
+        public void visitField(Field field, Object value) {
             if (isOfTypeCollectionReference(field) && isAnnotatedWithOwnedCollection(field)) {
-                visitor.visitField(field, lazyValue);
+                visitor.visitField(field, value);
             }
         }
     }

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author rpuch
@@ -36,20 +35,19 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
 
     private void introspectField(Object currentTarget, FieldVisitor visitor, Context context,
             int currentDepth, Field field) {
-        Supplier<Object> lazyValue = new GetFieldValue(field, currentTarget);
-        Object nextValue = lazyValue.get();
-        if (nextValue == null) {
+        Object fieldValue = new GetFieldValue(field, currentTarget).get();
+        if (fieldValue == null) {
             return;
         }
 
-        if (context.alreadySeen(nextValue)) {
+        if (context.alreadySeen(fieldValue)) {
             return;
         }
-        context.rememberAsSeen(nextValue);
+        context.rememberAsSeen(fieldValue);
 
-        visitor.visitField(field, lazyValue);
+        visitor.visitField(field, fieldValue);
 
-        goDeeperIfNeeded(nextValue, visitor, context, currentDepth);
+        goDeeperIfNeeded(fieldValue, visitor, context, currentDepth);
     }
 
     private void goDeeperIfNeeded(Object nextValue, FieldVisitor visitor, Context context,

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -119,8 +118,8 @@ class DeepFieldGraphWalkerTest {
         private final List<Object> values = new ArrayList<>();
 
         @Override
-        public void visitField(Field field, Supplier<Object> lazyValue) {
-            values.add(lazyValue.get());
+        public void visitField(Field field, Object value) {
+            values.add(value);
         }
 
         Set<Object> collectedSet() {

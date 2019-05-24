@@ -12,6 +12,6 @@ public final class ShallowFieldGraphWalker implements FieldGraphWalker {
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
         new InstanceFields(root.getClass()).stream()
-                .forEach(field -> visitor.visitField(field, new GetFieldValue(field, root)));
+                .forEach(field -> visitor.visitField(field, new GetFieldValue(field, root).get()));
     }
 }
