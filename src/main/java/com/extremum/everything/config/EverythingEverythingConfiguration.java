@@ -32,9 +32,11 @@ import com.extremum.everything.services.management.EverythingEverythingManagemen
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +51,7 @@ import java.util.List;
 @EnableConfigurationProperties({DestroyerProperties.class, ModelProperties.class})
 @Import(DefaultServicesConfiguration.class)
 @AutoConfigureAfter(CommonConfiguration.class)
+@AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class EverythingEverythingConfiguration {
     private final ModelProperties modelProperties;
     private final DestroyerProperties destroyerProperties;
