@@ -35,7 +35,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
 
     private void introspectField(Object currentTarget, FieldVisitor visitor, Context context,
             int currentDepth, Field field) {
-        Object fieldValue = new GetFieldValue(field, currentTarget).get();
+        Object fieldValue = getFieldValue(currentTarget, field);
         if (fieldValue == null) {
             return;
         }
@@ -48,6 +48,10 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         visitor.visitField(field, fieldValue);
 
         goDeeperIfNeeded(fieldValue, visitor, context, currentDepth);
+    }
+
+    private Object getFieldValue(Object currentTarget, Field field) {
+        return new GetFieldValue(field, currentTarget).get();
     }
 
     private void goDeeperIfNeeded(Object nextValue, FieldVisitor visitor, Context context,
