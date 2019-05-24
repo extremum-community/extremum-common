@@ -1,15 +1,15 @@
 package com.extremum.everything.services.jpa;
 
-import com.extremum.common.models.PostgresCommonModel;
-import com.extremum.common.service.PostgresCommonService;
+import com.extremum.common.models.PostgresBasicModel;
+import com.extremum.common.service.PostgresBasicService;
 import com.extremum.everything.services.RemovalService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @RequiredArgsConstructor
-public class DefaultJpaRemovalService<M extends PostgresCommonModel> implements RemovalService, DefaultJpaService<M> {
-    private final List<PostgresCommonService<? extends M>> services;
+public class DefaultJpaRemovalService<M extends PostgresBasicModel> implements RemovalService, DefaultJpaService<M> {
+    private final List<PostgresBasicService<? extends M>> services;
 
     @Override
     public void remove(String id) {

@@ -1,5 +1,6 @@
 package com.extremum.common.service;
 
+import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.response.Alert;
 
@@ -7,7 +8,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-public interface CommonService<ID extends Serializable, M extends PersistableCommonModel<ID>> {
+public interface CommonService<ID extends Serializable, M extends BasicModel<ID>> {
 
     M get(String id);
 

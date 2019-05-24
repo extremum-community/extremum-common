@@ -1,5 +1,6 @@
 package com.extremum.common.repository.jpa;
 
+import com.extremum.common.models.PostgresBasicModel;
 import com.extremum.common.models.PostgresCommonModel;
 import com.extremum.common.models.SoftDeletePostgresModel;
 import models.HardDeleteJpaModel;
@@ -12,19 +13,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author rpuch
  */
-public class JpaSoftDeletionTest {
+class JpaSoftDeletionTest {
     private final JpaSoftDeletion softDeletion = new JpaSoftDeletion();
 
     @Test
-    public void testStandardClasses() {
+    void testStandardClasses() {
         assertTrue(softDeletion.supportsSoftDeletion(TestJpaModel.class));
         assertTrue(softDeletion.supportsSoftDeletion(SoftDeletePostgresModel.class));
         assertFalse(softDeletion.supportsSoftDeletion(HardDeleteJpaModel.class));
         assertFalse(softDeletion.supportsSoftDeletion(PostgresCommonModel.class));
+        assertFalse(softDeletion.supportsSoftDeletion(PostgresBasicModel.class));
     }
 
     @Test
-    public void givenGetDeletedIsOverridenWithoutAnnotations_whenCheckingSoftDeletionSupport_thenItShouldBeSupported() {
+    void givenGetDeletedIsOverridenWithoutAnnotations_whenCheckingSoftDeletionSupport_thenItShouldBeSupported() {
         assertTrue(softDeletion.supportsSoftDeletion(GetDeletedOverridenWithoutAnnotations.class));
     }
 
