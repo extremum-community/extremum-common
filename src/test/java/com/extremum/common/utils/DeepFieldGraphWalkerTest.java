@@ -114,6 +114,17 @@ class DeepFieldGraphWalkerTest {
         assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(a, b))));
     }
 
+    @Test
+    void givenPredicateDoesNotAllowToVisitAnything_whenThereAreFieldsToVisit_nothingShouldBeVisited() {
+        DeepFieldGraphWalker dontGoDeeper = new DeepFieldGraphWalker(object -> false);
+
+        DeepBean root = new DeepBean();
+        dontGoDeeper.walk(root, collector);
+
+        assertThat(collector.values, hasSize(2));
+        assertThat(collector.values, hasItems("I'm deep", root.shallowBean));
+    }
+
     private static class Collector implements FieldVisitor {
         private final List<Object> values = new ArrayList<>();
 

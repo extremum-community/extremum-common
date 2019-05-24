@@ -5,19 +5,32 @@ import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author rpuch
  */
 public final class DeepFieldGraphWalker implements FieldGraphWalker {
+    private static final int DEFAULT_MAX_DEPTH = 10;
+
     private final int maxDepth;
+    private final Predicate<Object> shoudGoDeeperPredicate;
 
     public DeepFieldGraphWalker() {
-        this(10);
+        this(DEFAULT_MAX_DEPTH);
     }
 
     public DeepFieldGraphWalker(int maxDepth) {
+        this(maxDepth, object -> true);
+    }
+
+    public DeepFieldGraphWalker(Predicate<Object> shoudGoDeeperPredicate) {
+        this(DEFAULT_MAX_DEPTH, shoudGoDeeperPredicate);
+    }
+
+    public DeepFieldGraphWalker(int maxDepth, Predicate<Object> shoudGoDeeperPredicate) {
         this.maxDepth = maxDepth;
+        this.shoudGoDeeperPredicate = shoudGoDeeperPredicate;
     }
 
     @Override
@@ -91,6 +104,10 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         }
         if (nextClass.getPackage().getName().startsWith("java")) {
             // we don't want to visit java system classes
+            return false;
+        }
+
+        if (!shoudGoDeeperPredicate.test(nextValue)) {
             return false;
         }
         
