@@ -2,12 +2,13 @@ package com.extremum.common.service.lifecycle;
 
 import com.extremum.common.descriptor.factory.impl.PostgresqlDescriptorFactory;
 import com.extremum.common.descriptor.factory.impl.StaticPostgresqlDescriptorFactoryAccessor;
-import com.extremum.common.models.PostgresCommonModel;
+import com.extremum.common.models.BasicModel;
 import com.extremum.common.utils.ModelUtils;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PrePersist;
+import java.util.UUID;
 
 /**
  * @author rpuch
@@ -15,7 +16,7 @@ import javax.persistence.PrePersist;
 public class JpaCommonModelLifecycleListener {
 
     @PrePersist
-    public void fillRequiredFields(PostgresCommonModel model) {
+    public void fillRequiredFields(BasicModel<UUID> model) {
         ensureFactoryIsAvailable();
 
         if (model.getId() == null && model.getUuid() != null) {
@@ -34,7 +35,7 @@ public class JpaCommonModelLifecycleListener {
     }
 
     @PostPersist
-    public void createDescriptorIfNeeded(PostgresCommonModel model) {
+    public void createDescriptorIfNeeded(BasicModel<UUID> model) {
         ensureFactoryIsAvailable();
 
         if (model.getUuid() == null) {
@@ -43,7 +44,7 @@ public class JpaCommonModelLifecycleListener {
     }
 
     @PostLoad
-    public void onAfterConvert(PostgresCommonModel model) {
+    public void onAfterConvert(BasicModel<UUID> model) {
         ensureFactoryIsAvailable();
 
         model.setUuid(descriptorFactory().fromInternalId(model.getId()));

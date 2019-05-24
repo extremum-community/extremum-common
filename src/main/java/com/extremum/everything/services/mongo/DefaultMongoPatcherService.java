@@ -39,7 +39,7 @@ public class DefaultMongoPatcherService<M extends MongoCommonModel> extends Abst
 
 //      We can eliminate this warning because converter cast his second generic parameter to the base wildcard class
         @SuppressWarnings("unchecked") M model = ((FromRequestDtoConverter<? extends M, RequestDto>) converter).convertFromRequest(requestDto);
-        mergeServiceFields(context.getOriginModel(), model);
+        context.getOriginModel().copyServiceFieldsTo(model);
 
 //      We can eliminate this warning because we cast service generic to the base class
         @SuppressWarnings("unchecked") M result = ((MongoCommonService<M>) findServiceByModel(services, model.getClass())).save(model);

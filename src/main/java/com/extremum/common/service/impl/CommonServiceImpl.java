@@ -4,7 +4,7 @@ import com.extremum.common.dao.CommonDao;
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
-import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.common.models.BasicModel;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.CommonService;
 import com.extremum.common.utils.StreamUtils;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableCommonModel<ID>>
+abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<ID>>
         implements CommonService<ID, M> {
 
     private final CommonDao<M, ID> dao;
@@ -165,11 +165,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends PersistableC
     }
 
     private void copyServiceFields(M from, M to) {
-        to.setUuid(from.getUuid());
-        to.setVersion(from.getVersion());
-        to.setDeleted(from.getDeleted());
-        to.setCreated(from.getCreated());
-        to.setModified(from.getModified());
+        from.copyServiceFieldsTo(to);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.extremum.common.repository.jpa;
 
 import com.extremum.common.dao.PostgresCommonDao;
-import com.extremum.common.models.PostgresCommonModel;
+import com.extremum.common.models.PostgresBasicModel;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * @author rpuch
  */
-abstract class BaseJpaRepository<T extends PostgresCommonModel> extends SimpleJpaRepository<T, UUID>
+abstract class BaseJpaRepository<T extends PostgresBasicModel> extends SimpleJpaRepository<T, UUID>
         implements PostgresCommonDao<T> {
     BaseJpaRepository(
             JpaEntityInformation<T, ?> entityInformation,

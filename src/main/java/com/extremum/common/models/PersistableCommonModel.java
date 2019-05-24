@@ -1,19 +1,9 @@
 package com.extremum.common.models;
 
-import com.extremum.common.descriptor.Descriptor;
-
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-public interface PersistableCommonModel<ID extends Serializable> extends Model {
-    Descriptor getUuid();
-
-    void setUuid(Descriptor uuid);
-
-    ID getId();
-
-    void setId(ID id);
-
+public interface PersistableCommonModel<ID extends Serializable> extends BasicModel<ID> {
     ZonedDateTime getCreated();
 
     void setCreated(ZonedDateTime created);
@@ -29,6 +19,15 @@ public interface PersistableCommonModel<ID extends Serializable> extends Model {
     Boolean getDeleted();
 
     void setDeleted(Boolean deleted);
+
+    default <SELF extends PersistableCommonModel<ID>> void copyServiceFieldsTo(SELF to) {
+        BasicModel.super.copyServiceFieldsTo(to);
+
+        to.setVersion(this.getVersion());
+        to.setDeleted(this.getDeleted());
+        to.setCreated(this.getCreated());
+        to.setModified(this.getModified());
+    }
 
     enum FIELDS {
         id, uuid, created, modified, version, deleted

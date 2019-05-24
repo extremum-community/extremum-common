@@ -28,7 +28,7 @@ import static java.lang.String.format;
 
 @Getter
 @Setter
-public abstract class AbstractPatcherService<M extends Model> implements PatcherService<M>, MergeServiceFieldMixin {
+public abstract class AbstractPatcherService<M extends Model> implements PatcherService<M> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPatcherService.class);
 
     private DtoConversionService dtoConversionService;
