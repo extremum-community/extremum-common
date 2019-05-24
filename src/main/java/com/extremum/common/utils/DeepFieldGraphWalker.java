@@ -12,7 +12,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
     private final int maxDepth;
 
     public DeepFieldGraphWalker() {
-        this(5);
+        this(10);
     }
 
     public DeepFieldGraphWalker(int maxDepth) {

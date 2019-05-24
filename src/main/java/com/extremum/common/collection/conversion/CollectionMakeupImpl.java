@@ -5,9 +5,9 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
+import com.extremum.common.utils.DeepFieldGraphWalker;
 import com.extremum.common.utils.FieldGraphWalker;
 import com.extremum.common.utils.FieldVisitor;
-import com.extremum.common.utils.ShallowFieldGraphWalker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final FieldGraphWalker fieldGraphWalker = new ShallowFieldGraphWalker();
+    private final FieldGraphWalker fieldGraphWalker = new DeepFieldGraphWalker(5);
 
     public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
             ApplicationUrls applicationUrls) {
