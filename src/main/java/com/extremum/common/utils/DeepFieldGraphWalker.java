@@ -25,15 +25,15 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walkOneLevel(root, visitor, new Context(), 1);
+        walkOneLevel(root, new Context(visitor), 1);
     }
 
-    private void walkOneLevel(Object currentTarget, FieldVisitor visitor, Context context, int currentDepth) {
+    private void walkOneLevel(Object currentTarget, Context context, int currentDepth) {
         new InstanceFields(currentTarget.getClass()).stream()
-                .forEach(field -> introspectField(currentTarget, visitor, context, currentDepth, field));
+                .forEach(field -> introspectField(currentTarget, context, currentDepth, field));
     }
 
-    private void introspectField(Object currentTarget, FieldVisitor visitor, Context context,
+    private void introspectField(Object currentTarget, Context context,
             int currentDepth, Field field) {
         Object fieldValue = getFieldValue(currentTarget, field);
         if (fieldValue == null) {
@@ -45,33 +45,33 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         }
         context.rememberAsSeen(fieldValue);
 
-        visitor.visitField(field, fieldValue);
+        context.visitField(field, fieldValue);
 
-        goDeeperIfNeeded(fieldValue, visitor, context, currentDepth);
+        goDeeperIfNeeded(fieldValue, context, currentDepth);
     }
 
     private Object getFieldValue(Object currentTarget, Field field) {
         return new GetFieldValue(field, currentTarget).get();
     }
 
-    private void goDeeperIfNeeded(Object nextValue, FieldVisitor visitor, Context context,
+    private void goDeeperIfNeeded(Object nextValue, Context context,
             int currentDepth) {
         if (nextValue instanceof Iterable) {
             @SuppressWarnings("unchecked") Iterable<Object> iterable = (Iterable<Object>) nextValue;
-            goDeeperThroughIterable(iterable, visitor, context, currentDepth);
+            goDeeperThroughIterable(iterable, context, currentDepth);
         } else if (nextValue instanceof Object[]) {
             Object[] array = (Object[]) nextValue;
-            goDeeperThroughIterable(Arrays.asList(array), visitor, context, currentDepth);
+            goDeeperThroughIterable(Arrays.asList(array), context, currentDepth);
         } else if (shouldGoDeeper(nextValue, currentDepth)) {
-            walkOneLevel(nextValue, visitor, context, currentDepth + 1);
+            walkOneLevel(nextValue, context, currentDepth + 1);
         }
     }
 
-    private void goDeeperThroughIterable(Iterable<Object> iterable, FieldVisitor visitor,
+    private void goDeeperThroughIterable(Iterable<Object> iterable,
             Context context, int currentDepth) {
         iterable.forEach(element -> {
             if (shouldGoDeeper(element, currentDepth)) {
-                walkOneLevel(element, visitor, context, currentDepth + 1);
+                walkOneLevel(element, context, currentDepth + 1);
             }
         });
     }
@@ -98,7 +98,12 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
     }
 
     private static class Context {
+        private final FieldVisitor visitor;
         private final Map<Object, Object> visitedObjects = new IdentityHashMap<>();
+
+        private Context(FieldVisitor visitor) {
+            this.visitor = visitor;
+        }
 
         boolean alreadySeen(Object object) {
             return visitedObjects.containsKey(object);
@@ -108,6 +113,10 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
             if (object != null) {
                 visitedObjects.put(object, object);
             }
+        }
+
+        void visitField(Field field, Object value) {
+            visitor.visitField(field, value);
         }
     }
 }
