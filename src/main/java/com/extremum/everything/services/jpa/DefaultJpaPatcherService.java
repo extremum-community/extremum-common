@@ -5,7 +5,6 @@ import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.PostgresBasicModel;
-import com.extremum.common.models.annotation.ModelRequestDto;
 import com.extremum.common.service.PostgresBasicService;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
