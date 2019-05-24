@@ -25,10 +25,10 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walk(root, visitor, new Context(), 1);
+        walkOneLevel(root, visitor, new Context(), 1);
     }
 
-    private void walk(Object currentTarget, FieldVisitor visitor, Context context, int currentDepth) {
+    private void walkOneLevel(Object currentTarget, FieldVisitor visitor, Context context, int currentDepth) {
         new InstanceFields(currentTarget.getClass()).stream()
                 .forEach(field -> introspectField(currentTarget, visitor, context, currentDepth, field));
     }
@@ -59,7 +59,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
             Object[] array = (Object[]) nextValue;
             goDeeperThroughIterable(Arrays.asList(array), visitor, context, currentDepth);
         } else if (shouldGoDeeper(nextValue, currentDepth)) {
-            walk(nextValue, visitor, context, currentDepth + 1);
+            walkOneLevel(nextValue, visitor, context, currentDepth + 1);
         }
     }
 
@@ -67,7 +67,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
             Context context, int currentDepth) {
         iterable.forEach(element -> {
             if (shouldGoDeeper(element, currentDepth)) {
-                walk(element, visitor, context, currentDepth + 1);
+                walkOneLevel(element, visitor, context, currentDepth + 1);
             }
         });
     }
