@@ -33,8 +33,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
                 .forEach(field -> introspectField(currentTarget, context, currentDepth, field));
     }
 
-    private void introspectField(Object currentTarget, Context context,
-            int currentDepth, Field field) {
+    private void introspectField(Object currentTarget, Context context, int currentDepth, Field field) {
         Object fieldValue = getFieldValue(currentTarget, field);
         if (fieldValue == null) {
             return;
@@ -54,8 +53,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         return new GetFieldValue(field, currentTarget).get();
     }
 
-    private void goDeeperIfNeeded(Object nextValue, Context context,
-            int currentDepth) {
+    private void goDeeperIfNeeded(Object nextValue, Context context, int currentDepth) {
         if (nextValue instanceof Iterable) {
             @SuppressWarnings("unchecked") Iterable<Object> iterable = (Iterable<Object>) nextValue;
             goDeeperThroughIterable(iterable, context, currentDepth);
@@ -88,9 +86,11 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         Class<?> nextClass = nextValue.getClass();
 
         if (nextClass.getPackage() == null) {
+            // something like an array class
             return false;
         }
         if (nextClass.getPackage().getName().startsWith("java")) {
+            // we don't want to visit java system classes
             return false;
         }
         
