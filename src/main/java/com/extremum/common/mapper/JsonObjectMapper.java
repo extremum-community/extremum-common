@@ -4,10 +4,7 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.collection.serde.CollectionDescriptorDeserializer;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
-import com.extremum.common.deserializers.DisplayDeserializer;
-import com.extremum.common.deserializers.DurationVariativeValueDeserializer;
-import com.extremum.common.deserializers.IntegerRangeOrValueDeserializer;
-import com.extremum.common.deserializers.MultilingualObjectDeserializer;
+import com.extremum.common.deserializers.*;
 import com.extremum.common.serializers.DisplaySerializer;
 import com.extremum.common.serializers.DurationVariativeValueSerializer;
 import com.extremum.common.serializers.IdListOrObjectListStructSerializer;
@@ -105,6 +102,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         module.addSerializer(Display.class, new DisplaySerializer());
 
         module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
+        module.addDeserializer(IntegerOrString.class, new IntegerOrStringDeserializer());
 
         module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(this));
 
