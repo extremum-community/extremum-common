@@ -10,22 +10,13 @@ import java.util.function.Predicate;
  * @author rpuch
  */
 public class DeepFieldGraphWalker implements FieldGraphWalker {
-    private static final int DEFAULT_MAX_LEVELS = 10;
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
 
     private final int maxLevel;
     private final Predicate<Object> shoudGoDeeperPredicate;
 
-    public DeepFieldGraphWalker() {
-        this(DEFAULT_MAX_LEVELS);
-    }
-
     public DeepFieldGraphWalker(int maxLevel) {
         this(maxLevel, object -> true);
-    }
-
-    public DeepFieldGraphWalker(Predicate<Object> shoudGoDeeperPredicate) {
-        this(DEFAULT_MAX_LEVELS, shoudGoDeeperPredicate);
     }
 
     public DeepFieldGraphWalker(int maxLevel, Predicate<Object> shoudGoDeeperPredicate) {

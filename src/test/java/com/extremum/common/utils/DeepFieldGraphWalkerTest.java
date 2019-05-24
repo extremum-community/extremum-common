@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.hasSize;
  * @author rpuch
  */
 class DeepFieldGraphWalkerTest {
-    private final DeepFieldGraphWalker walker = new DeepFieldGraphWalker();
+    private final DeepFieldGraphWalker walker = new DeepFieldGraphWalker(10);
     private final Collector collector = new Collector();
 
     @Test
@@ -116,7 +116,7 @@ class DeepFieldGraphWalkerTest {
 
     @Test
     void givenPredicateDoesNotAllowToVisitAnything_whenThereAreFieldsToVisit_nothingShouldBeVisited() {
-        DeepFieldGraphWalker dontGoDeeper = new DeepFieldGraphWalker(object -> false);
+        DeepFieldGraphWalker dontGoDeeper = new DeepFieldGraphWalker(10, object -> false);
 
         DeepBean root = new DeepBean();
         dontGoDeeper.walk(root, collector);
