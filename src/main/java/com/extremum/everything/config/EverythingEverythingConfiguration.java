@@ -12,6 +12,7 @@ import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.common.utils.DeepFieldGraphWalker;
 import com.extremum.common.utils.FieldGraphWalker;
+import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import com.extremum.everything.config.listener.ModelClassesInitializer;
@@ -89,6 +90,12 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean(EverythingEverythingExceptionHandler.class)
     public EverythingEverythingExceptionHandler everythingEverythingExceptionHandler() {
         return new DefaultEverythingEverythingExceptionHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ConvertNullDescriptorToModelNotFoundAspect.class)
+    public ConvertNullDescriptorToModelNotFoundAspect convertNullDescriptorToModelNotFoundAspect() {
+        return new ConvertNullDescriptorToModelNotFoundAspect();
     }
 
     @Bean
