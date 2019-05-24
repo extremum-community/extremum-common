@@ -1,9 +1,6 @@
 package com.extremum.common.collection;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,7 +10,7 @@ import java.util.Objects;
  */
 @AllArgsConstructor
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class CollectionCoordinates implements Serializable {
     private OwnedCoordinates ownedCoordinates;
