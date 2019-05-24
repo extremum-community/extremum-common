@@ -1,9 +1,11 @@
 package com.extremum.common.utils;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author rpuch
@@ -29,33 +31,47 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
 
     private void walk(Object currentTarget, FieldVisitor visitor, Context context, int currentDepth) {
         new InstanceFields(currentTarget.getClass()).stream()
-                .forEach(field -> {
-                    GetFieldValue lazyValue = new GetFieldValue(field, currentTarget);
-                    Object nextValue = lazyValue.get();
-                    if (context.alreadySeen(nextValue)) {
-                        return;
-                    }
-                    context.rememberAsSeen(nextValue);
-//                    System.out.println(String.format("%s: %s", currentTarget, field.getName()));
-                    visitor.visitField(field, lazyValue);
-                    if (nextValue != null && nextValue instanceof Iterable) {
-                        Iterable<Object> iterable = (Iterable<Object>) nextValue;
-                        iterable.forEach(element -> {
-                            if (shouldGoDeeper(element, currentDepth)) {
-                                walk(element, visitor, context, currentDepth + 1);
-                            }
-                        });
-                    } else if (nextValue != null && nextValue instanceof Object[]) {
-                        Object[] array = (Object[]) nextValue;
-                        Arrays.asList(array).forEach(element -> {
-                            if (shouldGoDeeper(element, currentDepth)) {
-                                walk(element, visitor, context, currentDepth + 1);
-                            }
-                        });
-                    } else if (shouldGoDeeper(nextValue, currentDepth)) {
-                        walk(nextValue, visitor, context, currentDepth + 1);
-                    }
-                });
+                .forEach(field -> introspectField(currentTarget, visitor, context, currentDepth, field));
+    }
+
+    private void introspectField(Object currentTarget, FieldVisitor visitor, Context context,
+            int currentDepth, Field field) {
+        Supplier<Object> lazyValue = new GetFieldValue(field, currentTarget);
+        Object nextValue = lazyValue.get();
+        if (nextValue == null) {
+            return;
+        }
+
+        if (context.alreadySeen(nextValue)) {
+            return;
+        }
+        context.rememberAsSeen(nextValue);
+
+        visitor.visitField(field, lazyValue);
+
+        goDeeperIfNeeded(nextValue, visitor, context, currentDepth);
+    }
+
+    private void goDeeperIfNeeded(Object nextValue, FieldVisitor visitor, Context context,
+            int currentDepth) {
+        if (nextValue instanceof Iterable) {
+            @SuppressWarnings("unchecked") Iterable<Object> iterable = (Iterable<Object>) nextValue;
+            goDeeperThroughIterable(iterable, visitor, context, currentDepth);
+        } else if (nextValue instanceof Object[]) {
+            Object[] array = (Object[]) nextValue;
+            goDeeperThroughIterable(Arrays.asList(array), visitor, context, currentDepth);
+        } else if (shouldGoDeeper(nextValue, currentDepth)) {
+            walk(nextValue, visitor, context, currentDepth + 1);
+        }
+    }
+
+    private void goDeeperThroughIterable(Iterable<Object> iterable, FieldVisitor visitor,
+            Context context, int currentDepth) {
+        iterable.forEach(element -> {
+            if (shouldGoDeeper(element, currentDepth)) {
+                walk(element, visitor, context, currentDepth + 1);
+            }
+        });
     }
 
     private boolean shouldGoDeeper(Object nextValue, int currentDepth) {

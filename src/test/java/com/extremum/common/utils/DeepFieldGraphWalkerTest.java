@@ -31,8 +31,8 @@ class DeepFieldGraphWalkerTest {
     void whenObjectHasInstanceFields_thenAllOfThemShouldBeVisited() {
         walker.walk(new ShallowBean(), collector);
 
-        assertThat(collector.values, hasSize(4));
-        assertThat(collector.values, hasItems("abc", 10L, 20, null));
+        assertThat(collector.values, hasSize(3));
+        assertThat(collector.values, hasItems("abc", 10L, 20));
     }
 
     @Test
@@ -49,8 +49,8 @@ class DeepFieldGraphWalkerTest {
         DeepBean root = new DeepBean();
         walker.walk(root, collector);
 
-        assertThat(collector.values, hasSize(6));
-        assertThat(collector.values, hasItems("I'm deep", root.shallowBean, "abc", 10L, 20, null));
+        assertThat(collector.values, hasSize(5));
+        assertThat(collector.values, hasItems("I'm deep", root.shallowBean, "abc", 10L, 20));
     }
 
     @Test
