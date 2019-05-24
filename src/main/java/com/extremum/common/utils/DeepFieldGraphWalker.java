@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 /**
  * @author rpuch
  */
-public final class DeepFieldGraphWalker implements FieldGraphWalker {
+public class DeepFieldGraphWalker implements FieldGraphWalker {
     private static final int DEFAULT_MAX_LEVELS = 10;
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
 

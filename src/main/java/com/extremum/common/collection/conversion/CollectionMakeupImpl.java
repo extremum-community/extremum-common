@@ -5,7 +5,6 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
-import com.extremum.common.utils.DeepFieldGraphWalker;
 import com.extremum.common.utils.FieldGraphWalker;
 import com.extremum.common.utils.FieldVisitor;
 import org.apache.commons.lang3.StringUtils;
@@ -21,12 +20,13 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final FieldGraphWalker fieldGraphWalker = new DeepFieldGraphWalker(5);
+    private final FieldGraphWalker fieldGraphWalker;
 
     public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
-            ApplicationUrls applicationUrls) {
+            ApplicationUrls applicationUrls, FieldGraphWalker fieldGraphWalker) {
         this.collectionDescriptorService = collectionDescriptorService;
         this.applicationUrls = applicationUrls;
+        this.fieldGraphWalker = fieldGraphWalker;
     }
 
     @Override
