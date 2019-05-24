@@ -1,7 +1,6 @@
 package com.extremum.common.utils;
 
 import com.google.common.collect.ImmutableList;
-import org.omg.PortableInterceptor.NON_EXISTENT;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -11,26 +10,26 @@ import java.util.function.Predicate;
  * @author rpuch
  */
 public final class DeepFieldGraphWalker implements FieldGraphWalker {
-    private static final int DEFAULT_MAX_DEPTH = 10;
+    private static final int DEFAULT_MAX_LEVELS = 10;
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
 
-    private final int maxDepth;
+    private final int maxLevel;
     private final Predicate<Object> shoudGoDeeperPredicate;
 
     public DeepFieldGraphWalker() {
-        this(DEFAULT_MAX_DEPTH);
+        this(DEFAULT_MAX_LEVELS);
     }
 
-    public DeepFieldGraphWalker(int maxDepth) {
-        this(maxDepth, object -> true);
+    public DeepFieldGraphWalker(int maxLevel) {
+        this(maxLevel, object -> true);
     }
 
     public DeepFieldGraphWalker(Predicate<Object> shoudGoDeeperPredicate) {
-        this(DEFAULT_MAX_DEPTH, shoudGoDeeperPredicate);
+        this(DEFAULT_MAX_LEVELS, shoudGoDeeperPredicate);
     }
 
-    public DeepFieldGraphWalker(int maxDepth, Predicate<Object> shoudGoDeeperPredicate) {
-        this.maxDepth = maxDepth;
+    public DeepFieldGraphWalker(int maxLevel, Predicate<Object> shoudGoDeeperPredicate) {
+        this.maxLevel = maxLevel;
         this.shoudGoDeeperPredicate = shoudGoDeeperPredicate;
     }
 
@@ -89,7 +88,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
     }
 
     private boolean shouldGoDeeper(Object nextValue, int currentDepth) {
-        if (currentDepth >= maxDepth) {
+        if (currentDepth >= maxLevel) {
             return false;
         }
 
