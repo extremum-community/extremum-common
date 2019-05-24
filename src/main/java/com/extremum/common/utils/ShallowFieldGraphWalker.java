@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * @author rpuch
  */
-public class ShallowFieldGraphWalker implements FieldGraphWalker {
+public final class ShallowFieldGraphWalker implements FieldGraphWalker {
     @Override
     public void walk(Object root, FieldVisitor visitor) {
         Objects.requireNonNull(root, "Root cannot be null");

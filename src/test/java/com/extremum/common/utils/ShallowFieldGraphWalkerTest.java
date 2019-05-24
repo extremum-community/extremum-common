@@ -28,7 +28,7 @@ class ShallowFieldGraphWalkerTest {
 
     @Test
     void whenObjectHasInstanceFields_thenAllOfThemShouldBeVisited() {
-        walker.walk(new TestBean(), collector);
+        walker.walk(new ShallowBean(), collector);
 
         assertThat(collector.values, hasSize(4));
         assertThat(collector.values, hasItems("abc", 10L, 20, null));
@@ -50,12 +50,5 @@ class ShallowFieldGraphWalkerTest {
         public void visitField(Field field, Supplier<Object> lazyValue) {
             values.add(lazyValue.get());
         }
-    }
-
-    private static class TestBean {
-        private final String str = "abc";
-        private final long primitiveLong = 10;
-        private final Integer integer = 20;
-        private final Object obj = null;
     }
 }
