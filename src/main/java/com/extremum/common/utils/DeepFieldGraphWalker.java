@@ -24,10 +24,10 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walk0(root, visitor, new Context(), 1);
+        walk(root, visitor, new Context(), 1);
     }
 
-    private void walk0(Object currentTarget, FieldVisitor visitor, Context context, int currentDepth) {
+    private void walk(Object currentTarget, FieldVisitor visitor, Context context, int currentDepth) {
         new InstanceFields(currentTarget.getClass()).stream()
                 .forEach(field -> {
                     GetFieldValue lazyValue = new GetFieldValue(field, currentTarget);
@@ -42,18 +42,18 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
                         Iterable<Object> iterable = (Iterable<Object>) nextValue;
                         iterable.forEach(element -> {
                             if (shouldGoDeeper(element, currentDepth)) {
-                                walk0(element, visitor, context, currentDepth + 1);
+                                walk(element, visitor, context, currentDepth + 1);
                             }
                         });
                     } else if (nextValue != null && nextValue instanceof Object[]) {
                         Object[] array = (Object[]) nextValue;
                         Arrays.asList(array).forEach(element -> {
                             if (shouldGoDeeper(element, currentDepth)) {
-                                walk0(element, visitor, context, currentDepth + 1);
+                                walk(element, visitor, context, currentDepth + 1);
                             }
                         });
                     } else if (shouldGoDeeper(nextValue, currentDepth)) {
-                        walk0(nextValue, visitor, context, currentDepth + 1);
+                        walk(nextValue, visitor, context, currentDepth + 1);
                     }
                 });
     }
