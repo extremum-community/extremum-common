@@ -5,7 +5,6 @@ import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.models.annotation.ModelRequestDto;
 import com.extremum.common.service.MongoCommonService;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -31,14 +30,10 @@ public class DefaultMongoPatcherService<M extends MongoCommonModel> extends Abst
     @Override
     protected M persist(PatchPersistenceContext<M> context, String modelName) {
         Class<? extends Model> modelClass = ModelClasses.getClassByModelName(modelName);
-        boolean annotationPresent = modelClass.isAnnotationPresent(ModelRequestDto.class);
-        if (!annotationPresent)
-            throw new RuntimeException("No ModelRequestDto annotation on model with name " + modelName);
-        Class<? extends RequestDto> requestDtoClass = modelClass.getAnnotation(ModelRequestDto.class).value();
         RequestDto requestDto = context.getRequestDto();
         FromRequestDtoConverter<? extends M, ? extends RequestDto> converter = dtoConverters
                 .stream()
-                .filter(dtoConverter -> dtoConverter.getRequestDtoType().equals(requestDtoClass))
+                .filter(dtoConverter -> modelName.equals(dtoConverter.getSupportedModel()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format("Cannot find %s for a model %s", FromRequestDtoConverter.class.getSimpleName(), modelClass)));
 

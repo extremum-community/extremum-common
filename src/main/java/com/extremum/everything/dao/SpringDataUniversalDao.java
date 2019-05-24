@@ -54,7 +54,7 @@ public class SpringDataUniversalDao implements UniversalDao {
             query.skip(projection.getOffset());
         }
 
-        query.with(new Sort(
+        query.with(Sort.by(
                 Order.by(PersistableCommonModel.FIELDS.created.name()),
                 Order.by(PersistableCommonModel.FIELDS.id.name())
         ));
