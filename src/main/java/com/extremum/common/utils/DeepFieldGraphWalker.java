@@ -1,10 +1,10 @@
 package com.extremum.common.utils;
 
+import com.google.common.collect.ImmutableList;
+import org.omg.PortableInterceptor.NON_EXISTENT;
+
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -12,6 +12,7 @@ import java.util.function.Predicate;
  */
 public final class DeepFieldGraphWalker implements FieldGraphWalker {
     private static final int DEFAULT_MAX_DEPTH = 10;
+    private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
 
     private final int maxDepth;
     private final Predicate<Object> shoudGoDeeperPredicate;
@@ -102,8 +103,7 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
             // something like an array class
             return false;
         }
-        if (nextClass.getPackage().getName().startsWith("java")) {
-            // we don't want to visit java system classes
+        if (isJavaSystemClass(nextClass)) {
             return false;
         }
 
@@ -112,6 +112,10 @@ public final class DeepFieldGraphWalker implements FieldGraphWalker {
         }
         
         return true;
+    }
+
+    private boolean isJavaSystemClass(Class<?> nextClass) {
+        return PREFIXES_TO_IGNORE.stream().anyMatch(prefix -> nextClass.getPackage().getName().startsWith(prefix));
     }
 
     private static class Context {
