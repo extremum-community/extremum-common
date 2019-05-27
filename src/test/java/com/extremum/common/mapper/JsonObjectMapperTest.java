@@ -5,11 +5,13 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.response.AlertLevelEnum;
+import com.extremum.common.response.Pagination;
 import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -112,8 +114,32 @@ class JsonObjectMapperTest {
         String json = mapper.writerFor(Alert.class).writeValueAsString(alert);
 
         Alert deserializedAlert = mapper.readerFor(Alert.class).readValue(json);
+
         assertThat(deserializedAlert.isError(), is(true));
         assertThat(deserializedAlert.getMessage(), is("Oops"));
         assertThat(deserializedAlert.getLevel(), is(AlertLevelEnum.ERROR));
+    }
+
+    @Test
+    void givenASerializedPagination_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
+            throws Exception {
+        ZonedDateTime since = ZonedDateTime.now();
+        ZonedDateTime until = since.plusYears(1);
+        Pagination pagination = Pagination.builder()
+                .count(10)
+                .offset(20)
+                .total(100)
+                .since(since)
+                .until(until)
+                .build();
+        String json = mapper.writerFor(Pagination.class).writeValueAsString(pagination);
+
+        Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
+
+        assertThat(deserializedPagination.getCount(), is(10));
+        assertThat(deserializedPagination.getOffset(), is(20));
+        assertThat(deserializedPagination.getTotal(), is(100));
+        assertThat(deserializedPagination.getSince().toInstant(), is(since.toInstant()));
+        assertThat(deserializedPagination.getUntil().toInstant(), is(until.toInstant()));
     }
 }
