@@ -95,7 +95,6 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(ConvertNullDescriptorToModelNotFoundAspect.class)
     public ConvertNullDescriptorToModelNotFoundAspect convertNullDescriptorToModelNotFoundAspect() {
         return new ConvertNullDescriptorToModelNotFoundAspect();
     }
