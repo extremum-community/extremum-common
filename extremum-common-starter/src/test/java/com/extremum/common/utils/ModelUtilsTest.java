@@ -29,7 +29,7 @@ public class ModelUtilsTest {
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is(
-                    "class ModelUtilsTest$NotAnnotated is not annotated with @ModelName"));
+                    "class com.extremum.common.utils.ModelUtilsTest$NotAnnotated is not annotated with @ModelName"));
         }
     }
 
