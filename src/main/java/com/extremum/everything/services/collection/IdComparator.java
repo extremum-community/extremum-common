@@ -11,6 +11,17 @@ final class IdComparator implements Comparator<Serializable> {
 
     @Override
     public int compare(Serializable o1, Serializable o2) {
+        // just in case...
+        if (o1 == o2) {
+            return 0;
+        }
+        if (o1 == null) {
+            return -1;
+        }
+        if (o2 == null) {
+            return 1;
+        }
+
         rememberOrCheckElementClass(o1);
         rememberOrCheckElementClass(o2);
 
