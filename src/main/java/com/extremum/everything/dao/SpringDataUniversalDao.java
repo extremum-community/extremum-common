@@ -1,6 +1,7 @@
 package com.extremum.everything.dao;
 
 import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -28,7 +29,7 @@ public class SpringDataUniversalDao implements UniversalDao {
     }
 
     @Override
-    public <T> List<T> retrieveByIds(List<?> ids, Class<T> classOfElement, Projection projection) {
+    public <T> CollectionFragment<T> retrieveByIds(List<?> ids, Class<T> classOfElement, Projection projection) {
         List<Criteria> criteria = new ArrayList<>();
 
         criteria.add(where(PersistableCommonModel.FIELDS.id.name()).in(ids));
@@ -51,6 +52,9 @@ public class SpringDataUniversalDao implements UniversalDao {
                 Order.by(PersistableCommonModel.FIELDS.id.name())
         ));
 
-        return mongoOperations.find(query, classOfElement);
+        List<T> elements = mongoOperations.find(query, classOfElement);
+        long count = mongoOperations.count(query, classOfElement);
+
+        return CollectionFragment.forFragment(elements, count);
     }
 }

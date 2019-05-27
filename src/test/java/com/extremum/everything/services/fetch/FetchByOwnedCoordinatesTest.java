@@ -57,7 +57,7 @@ class FetchByOwnedCoordinatesTest {
 
     private void whenRetrieveByIdsThenReturn2Houses() {
         when(universalDao.retrieveByIds(any(), any(), any()))
-                .thenReturn(Arrays.asList(new House(), new House()));
+                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
     }
 
     @Test

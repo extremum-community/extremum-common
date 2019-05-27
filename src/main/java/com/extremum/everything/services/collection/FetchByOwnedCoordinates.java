@@ -15,10 +15,10 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -128,10 +128,8 @@ public class FetchByOwnedCoordinates {
 
     private CollectionFragment<Model> loadModelsByIds(List<?> ids, Projection projection, Model host, Field field) {
         Class<? extends Model> classOfElement = detectElementClass(host, field);
-        ArrayList<Model> fragmentElements = new ArrayList<>(universalDao.retrieveByIds(ids,
-                classOfElement, projection));
-        // XXX detect collection size correctly
-        return CollectionFragment.forFragment(fragmentElements, ids.size());
+        return universalDao.retrieveByIds(ids, classOfElement, projection)
+                .map(Function.identity());
     }
 
     private Class<? extends Model> detectElementClass(Model host, Field field) {

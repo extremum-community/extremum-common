@@ -89,7 +89,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     void givenHostExists_whenCollectionIsFetched_thenItShouldBeReturned() {
         returnStreetWhenRequested();
         when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
-                .thenReturn(Arrays.asList(new House(), new House()));
+                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
         convertToResponseDtoWhenRequested();
 
         Descriptor hostId = streetDescriptor();
