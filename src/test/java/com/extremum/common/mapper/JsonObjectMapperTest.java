@@ -3,12 +3,15 @@ package com.extremum.common.mapper;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import com.extremum.common.stucts.Display;
+import com.extremum.common.stucts.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -16,12 +19,12 @@ import static org.mockito.Mockito.when;
 /**
  * @author rpuch
  */
-public class JsonObjectMapperTest {
+class JsonObjectMapperTest {
     private MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
     private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
 
     @Test
-    public void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
+    void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
         Descriptor descriptor = Descriptor.builder()
                 .externalId("external-id")
                 .internalId("internal-id")
@@ -36,13 +39,13 @@ public class JsonObjectMapperTest {
     }
 
     @Test
-    public void whenDescriptorIsDeserializedFromAString_thenDescriptorObjectShouldBeTheResult() throws Exception {
+    void whenDescriptorIsDeserializedFromAString_thenDescriptorObjectShouldBeTheResult() throws Exception {
         Descriptor result = mapper.readerFor(Descriptor.class).readValue("\"external-id\"");
         assertThat(result.getExternalId(), is("external-id"));
     }
 
     @Test
-    public void whenCollectionDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
+    void whenCollectionDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
         CollectionDescriptor descriptor = new CollectionDescriptor("external-id");
 
         StringWriter writer = new StringWriter();
@@ -52,7 +55,7 @@ public class JsonObjectMapperTest {
     }
 
     @Test
-    public void given_collectionDescriptorExists_whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
+    void givenCollectionDescriptorExists_whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
             throws Exception {
         when(mapperDependencies.collectionDescriptorService().retrieveByExternalId("external-id"))
                 .thenReturn(Optional.of(new CollectionDescriptor("external-id")));
@@ -62,7 +65,7 @@ public class JsonObjectMapperTest {
     }
 
     @Test
-    public void whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
+    void whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
             throws Exception {
         when(mapperDependencies.collectionDescriptorService().retrieveByExternalId("external-id"))
                 .thenReturn(Optional.empty());
@@ -73,5 +76,30 @@ public class JsonObjectMapperTest {
         } catch (CollectionDescriptorNotFoundException e) {
             assertThat(e.getMessage(), is("No collection descriptor was found by external ID 'external-id'"));
         }
+    }
+
+    @Test
+    void givenMapperIsConfiguredWithoutDescriptorsTransfiguration_whenDeserializaingDescriptorWithDisplayAndIcon_thenItShouldBeOk()
+            throws Exception {
+        String json = "{\"created\":\"2019-05-24T15:54:59.958+0400\",\"deleted\":false,\"display\":" +
+                "{\"caption\":\"aaa\",\"icon\":{\"depth\":2,\"duration\":20,\"height\":200,\"type\":\"image\",\"url\"" +
+                ":\"/url/to/resource\",\"width\":100},\"splash\":{\"depth\":2,\"duration\":20,\"height\":200,\"type\":" +
+                "\"image\",\"url\":\"/url/to/resource\",\"width\":100}},\"externalId\":" +
+                "\"1e71af1b-16f8-4567-9660-9e4549a0203f\",\"internalId\":\"5ce7db93dde97936c6c4c302\",\"modelType\":" +
+                "\"test_model\",\"modified\":\"2019-05-24T15:54:59.958+0400\",\"storageType\":\"mongo\",\"version\":0}";
+
+        Descriptor descriptor = JsonObjectMapper.createWithoutDescriptorTransfiguration()
+                .readerFor(Descriptor.class).readValue(json);
+        assertThat(descriptor.getDisplay(), is(notNullValue()));
+        assertThat(descriptor.getDisplay().getType(), is(Display.Type.OBJECT));
+        assertThat(descriptor.getDisplay().getIcon(), is(notNullValue()));
+        assertThat(descriptor.getDisplay().getIcon().getType(), is(MediaType.IMAGE));
+        assertThat(descriptor.getDisplay().getIcon().getUrl(), is("/url/to/resource"));
+        assertThat(descriptor.getDisplay().getIcon().getDepth(), is(2));
+        assertThat(descriptor.getDisplay().getIcon().getDuration(), is(notNullValue()));
+        assertThat(descriptor.getDisplay().getIcon().getDuration().isInteger(), is(true));
+        assertThat(descriptor.getDisplay().getIcon().getDuration().getIntegerValue(), is(20));
+        assertThat(descriptor.getDisplay().getIcon().getWidth(), is(100));
+        assertThat(descriptor.getDisplay().getIcon().getHeight(), is(200));
     }
 }

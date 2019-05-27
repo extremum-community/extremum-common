@@ -7,9 +7,14 @@ import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.*;
 import com.extremum.common.test.TestWithServices;
+import com.extremum.starter.DescriptorDaoFactory;
+import com.extremum.starter.properties.DescriptorsProperties;
+import com.extremum.starter.properties.RedisProperties;
 import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -27,14 +32,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
-public class MongoDescriptorDaoTest extends TestWithServices {
+class MongoDescriptorDaoTest extends TestWithServices {
     @Autowired
     private DescriptorDao descriptorDao;
     @Autowired
     private DescriptorRepository descriptorRepository;
 
+    @Autowired
+    private RedissonClient redissonClient;
+    @Autowired
+    private RedisProperties redisProperties;
+    @Autowired
+    private DescriptorsProperties descriptorsProperties;
+
+    private DescriptorDao freshDaoToAvoidCachingInMemory;
+
+    @BeforeEach
+    void init() {
+        freshDaoToAvoidCachingInMemory = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
+                redissonClient, descriptorRepository);
+    }
+
     @Test
-    public void testRetrieveByExternalId() {
+    void testRetrieveByExternalId() {
         Descriptor descriptor = createADescriptor();
 
         String externalId = descriptor.getExternalId();
@@ -51,7 +71,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testRetrieveByInternalId() {
+    void testRetrieveByInternalId() {
         ObjectId objectId = new ObjectId();
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
@@ -64,7 +84,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testRetrieveMapByExternalIds() {
+    void testRetrieveMapByExternalIds() {
         ObjectId objectId = new ObjectId();
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
@@ -77,7 +97,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testRetrieveMapByInternalIds() {
+    void testRetrieveMapByInternalIds() {
         ObjectId objectId = new ObjectId();
         Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
 
@@ -90,7 +110,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testRetrieveFromMongo() {
+    void testRetrieveFromMongo() {
         String internalId = new ObjectId().toString();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
@@ -109,7 +129,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testSaveDisplayFieldAsNull() {
+    void testSaveDisplayFieldAsNull() {
         String internalId = new ObjectId().toString();
         String externalId = DescriptorService.createExternalId();
         Descriptor descriptor = Descriptor.builder()
@@ -121,13 +141,13 @@ public class MongoDescriptorDaoTest extends TestWithServices {
 
         descriptorDao.store(descriptor);
 
-        Optional<Descriptor> retrieved = descriptorDao.retrieveByExternalId(externalId);
+        Optional<Descriptor> retrieved = freshDaoToAvoidCachingInMemory.retrieveByExternalId(externalId);
         assertTrue(retrieved.isPresent());
         assertNull(retrieved.get().getDisplay());
     }
 
     @Test
-    public void testSaveDisplayFieldAsString() {
+    void testSaveDisplayFieldAsString() {
         String internalId = new ObjectId().toString();
         String externalId = DescriptorService.createExternalId();
         Descriptor descriptor = Descriptor.builder()
@@ -140,14 +160,14 @@ public class MongoDescriptorDaoTest extends TestWithServices {
 
         descriptorDao.store(descriptor);
 
-        Optional<Descriptor> retrieved = descriptorDao.retrieveByExternalId(externalId);
+        Optional<Descriptor> retrieved = freshDaoToAvoidCachingInMemory.retrieveByExternalId(externalId);
         assertTrue(retrieved.isPresent());
         assertTrue(retrieved.get().getDisplay().isString());
         assertEquals("abcd", retrieved.get().getDisplay().getStringValue());
     }
 
     @Test
-    public void testSaveDisplayFieldAsSerializedString() {
+    void testDisplayFieldDeserialization() {
         Media iconObj = new Media();
         iconObj.setUrl("/url/to/resource");
         iconObj.setType(MediaType.IMAGE);
@@ -174,7 +194,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
 
         descriptorDao.store(descriptor);
 
-        Optional<Descriptor> retrieved = descriptorDao.retrieveByExternalId(externalId);
+        Optional<Descriptor> retrieved = freshDaoToAvoidCachingInMemory.retrieveByExternalId(externalId);
         assertTrue(retrieved.isPresent());
 
         Descriptor retrievedDescriptor = retrieved.get();
@@ -208,7 +228,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
+    void givenADescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
         Descriptor descriptor = createADescriptor();
 
         Optional<Descriptor> optDescriptor = descriptorRepository.findByExternalId(descriptor.getExternalId());
@@ -216,7 +236,7 @@ public class MongoDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
+    void givenADescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
         Descriptor descriptor = createADescriptor();
 
         descriptor.setDeleted(true);
