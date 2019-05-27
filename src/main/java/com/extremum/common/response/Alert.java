@@ -1,5 +1,6 @@
 package com.extremum.common.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import java.time.ZonedDateTime;
@@ -68,6 +69,7 @@ public class Alert {
                 .build();
     }
 
+    @JsonIgnore
     public boolean isError() {
         return this.level == AlertLevelEnum.ERROR;
     }
