@@ -15,7 +15,7 @@ public class ReflectionUtils {
     public static Class getGenericParameterClass(final Class actualClass, final Class genericClass, final int parameterIndex) {
         if (!genericClass.isAssignableFrom(actualClass.getSuperclass())) {
             throw new IllegalArgumentException("Class " + genericClass.getName() + " is not a superclass of "
-                    + actualClass.getName() + ".");
+                    + actualClass.getName() + "src/main/java");
         }
 
         Stack<ParameterizedType> genericClasses = new Stack<ParameterizedType>();
@@ -47,7 +47,7 @@ public class ReflectionUtils {
         }
 
         if (result instanceof TypeVariable) {
-            throw new IllegalStateException("Unable to resolve type variable " + result + "."
+            throw new IllegalStateException("Unable to resolve type variable " + result + "src/main/java"
                     + " Try to replace instances of parametrized class with its non-parameterized subtype.");
         }
 
@@ -57,7 +57,7 @@ public class ReflectionUtils {
 
         if (result == null) {
             throw new IllegalStateException("Unable to determine actual parameter type for "
-                    + actualClass.getName() + ".");
+                    + actualClass.getName() + "src/main/java");
         }
 
         if (!(result instanceof Class)) {
@@ -82,7 +82,7 @@ public class ReflectionUtils {
             return actualArgumentIndex;
         } else {
             throw new IllegalStateException("Argument " + typeVariable.toString() + " is not found in "
-                    + genericDeclaration.toString() + ".");
+                    + genericDeclaration.toString() + "src/main/java");
         }
     }
 }

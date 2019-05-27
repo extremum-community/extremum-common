@@ -65,7 +65,7 @@ class FetchByOwnedCoordinatesTest {
             fetcher.fetchCollection(new Street(), "noSuchField", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("No field 'noSuchField' was found in class" +
-                    " 'class com.extremum.everything.services.fetch.FetchByOwnedCoordinatesTest$Street'"));
+                    " 'class FetchByOwnedCoordinatesTest$Street'"));
         }
     }
 
@@ -112,7 +112,7 @@ class FetchByOwnedCoordinatesTest {
             fetcher.fetchCollection(new OwnerWithCollectionWith2Ids(), "items", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("'class" +
-                    " com.extremum.everything.services.fetch.FetchByOwnedCoordinatesTest$Has2Ids' defines" +
+                    " FetchByOwnedCoordinatesTest$Has2Ids' defines" +
                     " 2 @Id fields, must be exactly 1"));
         }
     }
