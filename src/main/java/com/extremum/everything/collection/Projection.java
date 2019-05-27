@@ -44,6 +44,10 @@ public class Projection {
         return new Projection(offset, limit, null, null);
     }
 
+    public boolean definesFilteringOnCreationDate() {
+        return since != null || until != null;
+    }
+
     public boolean accepts(PersistableCommonModel<?> model) {
         if (since != null && model.getCreated() != null) {
             if (model.getCreated().isBefore(since)) {

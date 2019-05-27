@@ -3,6 +3,8 @@ package com.extremum.common.mapper;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import com.extremum.common.response.Alert;
+import com.extremum.common.response.AlertLevelEnum;
 import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.MediaType;
 import org.junit.jupiter.api.Test;
@@ -101,5 +103,17 @@ class JsonObjectMapperTest {
         assertThat(descriptor.getDisplay().getIcon().getDuration().getIntegerValue(), is(20));
         assertThat(descriptor.getDisplay().getIcon().getWidth(), is(100));
         assertThat(descriptor.getDisplay().getIcon().getHeight(), is(200));
+    }
+
+    @Test
+    void givenASerializedAlertWithAnError_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
+            throws Exception {
+        Alert alert = Alert.errorAlert("Oops");
+        String json = mapper.writerFor(Alert.class).writeValueAsString(alert);
+
+        Alert deserializedAlert = mapper.readerFor(Alert.class).readValue(json);
+        assertThat(deserializedAlert.isError(), is(true));
+        assertThat(deserializedAlert.getMessage(), is("Oops"));
+        assertThat(deserializedAlert.getLevel(), is(AlertLevelEnum.ERROR));
     }
 }

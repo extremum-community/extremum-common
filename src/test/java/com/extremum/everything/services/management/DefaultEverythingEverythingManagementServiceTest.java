@@ -6,6 +6,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.MongoCommonModel;
+import com.extremum.common.models.PostgresBasicModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionElementType;
 import com.extremum.everything.collection.Projection;
@@ -50,13 +51,15 @@ class DefaultEverythingEverythingManagementServiceTest {
 
     @Spy
     private GetterService<Street> streetGetterService = new StreetGetter();
+    @Spy
+    private GetterService<JpaBasicContainer> jpaBasicContainerGetterService = new JpaBasicContainerGetter();
     @Mock
     private UniversalDao universalDao;
     @Mock
     private DtoConversionService dtoConversionService;
 
-    private static ObjectId id1 = new ObjectId();
-    private static ObjectId id2 = new ObjectId();
+    private static final ObjectId id1 = new ObjectId();
+    private static final ObjectId id2 = new ObjectId();
     private static ConfigurableApplicationContext context;
 
     @BeforeAll
@@ -73,17 +76,17 @@ class DefaultEverythingEverythingManagementServiceTest {
     @BeforeEach
     void setUp() {
         service = new DefaultEverythingEverythingManagementService(
-                Collections.singletonList(streetGetterService),
+                Arrays.asList(streetGetterService, jpaBasicContainerGetterService),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                Collections.singletonList(new ExplicitCollectionFetcher()),
+                Arrays.asList(new ExplicitHouseFetcher(), new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
                 universalDao
         );
     }
 
     @Test
-    void givenHostExists_whenCollectionIsFetched_itShouldBeReturned() {
+    void givenHostExists_whenCollectionIsFetched_thenItShouldBeReturned() {
         returnStreetWhenRequested();
         when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
                 .thenReturn(Arrays.asList(new House(), new House()));
@@ -99,7 +102,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     }
 
     private void convertToResponseDtoWhenRequested() {
-        when(dtoConversionService.convertUnknownToResponseDto(any(House.class), any()))
+        when(dtoConversionService.convertUnknownToResponseDto(any(), any()))
                 .thenReturn(mock(ResponseDto.class));
     }
 
@@ -117,7 +120,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     }
 
     @Test
-    void givenHostDoesNotExist_whenCollectionIsFetched_anExceptionShouldBeThrown() {
+    void givenHostDoesNotExist_whenCollectionIsFetched_thenAnExceptionShouldBeThrown() {
         when(streetGetterService.get("internalHostId")).thenReturn(null);
 
         Descriptor hostId = streetDescriptor();
@@ -132,7 +135,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     }
 
     @Test
-    void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsFetched_itShouldBeProvidedByTheFetcher() {
+    void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsFetched_thenItShouldBeProvidedByTheFetcher() {
         convertToResponseDtoWhenRequested();
 
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
@@ -142,6 +145,41 @@ class DefaultEverythingEverythingManagementServiceTest {
         Collection<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
 
         assertThat(houses, hasSize(1));
+    }
+
+    @Test
+    void givenAJpaBasicContainerExists_whenACollectionIsFetched_thenItShouldBeReturned() {
+        when(jpaBasicContainerGetterService.get("internalHostId")).thenReturn(new JpaBasicContainer());
+
+        Descriptor hostId = jpaBasicContainerDescriptor();
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "elements");
+        Projection projection = Projection.empty();
+
+        Collection<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
+
+        assertThat(dtos, hasSize(2));
+    }
+
+    private Descriptor jpaBasicContainerDescriptor() {
+        return Descriptor.builder()
+                .externalId("hostId")
+                .internalId("internalHostId")
+                .modelType("JpaBasicContainer")
+                .storageType(Descriptor.StorageType.POSTGRES)
+                .build();
+    }
+
+    @Test
+    void givenAnExplicitJpaBasicCollectionFetcherIsDefined_whenCollectionIsFetched_thenItShouldBeProvidedByTheFetcher() {
+        convertToResponseDtoWhenRequested();
+
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(jpaBasicContainerDescriptor(),
+                "explicitElements");
+        Projection projection = Projection.empty();
+
+        Collection<ResponseDto> elements = service.fetchCollection(collectionDescriptor, projection, false);
+
+        assertThat(elements, hasSize(1));
     }
 
     @ModelName("House")
@@ -169,7 +207,7 @@ class DefaultEverythingEverythingManagementServiceTest {
         }
     }
 
-    private static class ExplicitCollectionFetcher implements CollectionFetcher<Street, House> {
+    private static class ExplicitHouseFetcher implements CollectionFetcher<Street, House> {
 
         @Override
         public String getHostFieldName() {
@@ -184,6 +222,49 @@ class DefaultEverythingEverythingManagementServiceTest {
         @Override
         public String getSupportedModel() {
             return "Street";
+        }
+    }
+
+    @ModelName("JpaBasicElement")
+    private static class JpaBasicElement extends PostgresBasicModel {
+    }
+
+    @ModelName("JpaBasicContainer")
+    private static class JpaBasicContainer extends PostgresBasicModel {
+        @OwnedCollection
+        private List<JpaBasicElement> elements = Arrays.asList(new JpaBasicElement(), new JpaBasicElement());
+        @OwnedCollection
+        private List<JpaBasicElement> explicitElements;
+    }
+
+    private static class JpaBasicContainerGetter implements GetterService<JpaBasicContainer> {
+        @Override
+        public JpaBasicContainer get(String id) {
+            return new JpaBasicContainer();
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "JpaBasicContainer";
+        }
+    }
+
+    private static class ExplicitJpaBasicElementFetcher implements CollectionFetcher<JpaBasicContainer,
+            JpaBasicElement> {
+
+        @Override
+        public String getHostFieldName() {
+            return "explicitElements";
+        }
+
+        @Override
+        public List<JpaBasicElement> fetchCollection(JpaBasicContainer container, Projection projection) {
+            return Collections.singletonList(new JpaBasicElement());
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "JpaBasicContainer";
         }
     }
 }

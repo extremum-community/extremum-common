@@ -4,7 +4,6 @@ import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.*;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.utils.ModelUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +41,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
         requireNonNull(modelClass, "Model class can't be null");
 
         for (DtoConverter converter : converters) {
-            if (modelClass.isAnnotationPresent(ModelName.class)) {
+            if (ModelUtils.hasModelName(modelClass)) {
                 if (ModelUtils.getModelName(modelClass).equalsIgnoreCase(converter.getSupportedModel())) {
                     return converter;
                 }
