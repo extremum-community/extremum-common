@@ -29,7 +29,7 @@ public class ModelClassesInitializer implements ApplicationListener<ContextRefre
                                 ModelUtils::getModelName,
                                 aClass -> aClass,
                                 (aClass, aClass2) -> {
-                                    throw new IllegalStateException("Founded model with duplicate ModelName value: " + ModelUtils.getModelName(aClass));
+                                    throw new IllegalStateException("Found a model with duplicate ModelName value: " + ModelUtils.getModelName(aClass));
                                 })));
 
     }

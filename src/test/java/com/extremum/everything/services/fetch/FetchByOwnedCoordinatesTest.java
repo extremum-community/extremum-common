@@ -173,7 +173,7 @@ class FetchByOwnedCoordinatesTest {
             fetcher.fetchCollection(model, "houses", Projection.empty());
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
-            assertThat(e.getMessage(), is("Only Mongo models can use IDs to fetch collecitons, " +
+            assertThat(e.getMessage(), is("Only Mongo models can use IDs to fetch collections, " +
                     "but it was 'ELASTIC' on 'Street', field 'houses'"));
         }
     }

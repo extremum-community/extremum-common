@@ -1,7 +1,7 @@
 package com.extremum.everything.services;
 
+import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.everything.collection.Projection;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author rpuch
  */
-public interface CollectionFetcher<H extends PersistableCommonModel, E extends Model>
+public interface CollectionFetcher<H extends BasicModel, E extends Model>
         extends EverythingEverythingService {
     /**
      * Returns the field name of the host object to which this collection
