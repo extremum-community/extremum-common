@@ -5,8 +5,8 @@ import com.extremum.common.descriptor.factory.DescriptorFactory;
 
 import java.util.UUID;
 
-abstract class UUIDDescriptorFactory extends DescriptorFactory {
-    abstract Descriptor.StorageType storageType();
+public abstract class UUIDDescriptorFactory extends DescriptorFactory {
+    public abstract Descriptor.StorageType storageType();
 
     public Descriptor create(UUID uuid, String modelType) {
         return DescriptorFactory.create(uuid.toString(), modelType, storageType());

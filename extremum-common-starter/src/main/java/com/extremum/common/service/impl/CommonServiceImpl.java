@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<ID>>
+public abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<ID>>
         implements CommonService<ID, M> {
 
     private final CommonDao<M, ID> dao;
@@ -30,7 +30,7 @@ abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<I
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CommonServiceImpl.class);
 
-    CommonServiceImpl(CommonDao<M, ID> dao) {
+    public CommonServiceImpl(CommonDao<M, ID> dao) {
         this.dao = dao;
         modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         modelTypeName = modelClass.getSimpleName();

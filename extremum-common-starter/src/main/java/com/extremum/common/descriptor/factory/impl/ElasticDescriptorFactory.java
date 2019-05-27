@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public final class ElasticDescriptorFactory extends UUIDDescriptorFactory {
     @Override
-    Descriptor.StorageType storageType() {
+    public Descriptor.StorageType storageType() {
         return Descriptor.StorageType.ELASTIC;
     }
 }

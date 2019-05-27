@@ -39,7 +39,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Configuration
-@Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class, JpaRepositoriesConfiguration.class})
+@Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, ElasticProperties.class,
