@@ -1,5 +1,6 @@
 package com.extremum.everything.aop;
 
+import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.response.Alert;
@@ -62,10 +63,22 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
         log.debug("Exception has occurred  and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 
+        return notFound();
+    }
+
+    private Response notFound() {
         return Response.builder()
                 .withFailStatus()
                 .withNowTimestamp()
                 .withCode(404)
                 .build();
+    }
+
+    @ExceptionHandler
+    public Response handleCollectionDescriptorNotFoundException(CollectionDescriptorNotFoundException e) {
+        log.debug("Exception has occurred  and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
+                e.getLocalizedMessage(), e);
+
+        return notFound();
     }
 }

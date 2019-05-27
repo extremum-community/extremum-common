@@ -1,5 +1,6 @@
 package com.extremum.everything.aop;
 
+import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.mapper.JsonObjectMapper;
@@ -89,13 +90,23 @@ class DefaultEverythingEverythingExceptionHandlerTest {
     }
 
     @Test
-    void whenRequestDtoValidationExceptionIsThrown_thenProper404ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+    void whenRequestDtoValidationExceptionIsThrown_thenFail200ResponseShouldBeReturned()
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/validation-failure");
 
         assertThat(root.getString("status"), is("FAIL"));
         assertThat(root.getInt("code"), is(200));
         assertThat(root.getString("result"), is("Unable to complete 'everything-everything' operation"));
+    }
+
+    @Test
+    void whenCollectionDescriptorNotFoundExceptionIsThrown_thenProper404ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+            throws Exception {
+        JSONObject root = getSuccessfullyAndParseResponse("/collection-descriptor-not-found");
+
+        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getInt("code"), is(404));
+        assertThat(root.getString("result"), is(nullValue()));
     }
 
     @RestController
@@ -126,6 +137,11 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             when(violation.getPropertyPath()).thenReturn(path);
 
             throw new RequestDtoValidationException(new TestRequestDto(), Collections.singleton(violation));
+        }
+
+        @RequestMapping("/collection-descriptor-not-found")
+        Response collectionDescriptorNotFound() {
+            throw new CollectionDescriptorNotFoundException("Did not find anything");
         }
     }
 
