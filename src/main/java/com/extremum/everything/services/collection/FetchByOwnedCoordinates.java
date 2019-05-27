@@ -7,6 +7,7 @@ import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.InstanceFields;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.collection.CollectionElementType;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
@@ -14,7 +15,10 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -28,17 +32,17 @@ public class FetchByOwnedCoordinates {
         this.universalDao = universalDao;
     }
 
-    public List<Model> fetchCollection(BasicModel host, String hostFieldName, Projection projection) {
+    public CollectionFragment<Model> fetchCollection(BasicModel host, String hostFieldName, Projection projection) {
         Field field = findField(host, hostFieldName);
 
         Object fieldValue = getFieldValue(host, field);
         if (fieldValue == null) {
-            return Collections.emptyList();
+            return CollectionFragment.emptyWithZeroTotal();
         }
 
         Collection<?> collection = asCollection(fieldValue, host, hostFieldName);
         if (collection.isEmpty()) {
-            return Collections.emptyList();
+            return CollectionFragment.emptyWithZeroTotal();
         }
 
         if (collectionContainsIds(collection)) {
@@ -84,7 +88,7 @@ public class FetchByOwnedCoordinates {
         return firstElement instanceof ObjectId || firstElement instanceof String;
     }
 
-    private List<Model> loadModelsByIdsCollection(Collection<?> collection, Projection projection,
+    private CollectionFragment<Model> loadModelsByIdsCollection(Collection<?> collection, Projection projection,
             BasicModel host, Field field) {
         makeSureStorageTypeIsSupported(host, field);
         List<?> ids = convertIdsToDatabaseTypes(collection, host, field);
@@ -122,9 +126,12 @@ public class FetchByOwnedCoordinates {
         return idField.getType();
     }
 
-    private List<Model> loadModelsByIds(List<?> ids, Projection projection, Model host, Field field) {
+    private CollectionFragment<Model> loadModelsByIds(List<?> ids, Projection projection, Model host, Field field) {
         Class<? extends Model> classOfElement = detectElementClass(host, field);
-        return new ArrayList<>(universalDao.retrieveByIds(ids, classOfElement, projection));
+        ArrayList<Model> fragmentElements = new ArrayList<>(universalDao.retrieveByIds(ids,
+                classOfElement, projection));
+        // XXX detect collection size correctly
+        return CollectionFragment.forFragment(fragmentElements, ids.size());
     }
 
     private Class<? extends Model> detectElementClass(Model host, Field field) {
@@ -140,8 +147,8 @@ public class FetchByOwnedCoordinates {
         return elementTypeAnn.value();
     }
 
-    private List<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection, Projection projection,
-            Model host, String hostFieldName) {
+    private CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
+            Projection projection, Model host, String hostFieldName) {
         PagePicker pagePicker = detectPagePicker(nonEmptyCollection);
         return pagePicker.getModelsFromModelsCollection(nonEmptyCollection, projection, host, hostFieldName);
     }

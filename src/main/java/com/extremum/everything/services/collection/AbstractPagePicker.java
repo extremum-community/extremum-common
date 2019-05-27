@@ -2,6 +2,7 @@ package com.extremum.everything.services.collection;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
  */
 abstract class AbstractPagePicker<T extends BasicModel> implements PagePicker {
     @Override
-    public final List<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
+    public final CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
             Projection projection, Model host, String hostFieldName) {
         List<T> fullList = convertToModels(nonEmptyCollection, host, hostFieldName);
         List<T> sortedFullList = sortModels(fullList);
@@ -31,9 +32,10 @@ abstract class AbstractPagePicker<T extends BasicModel> implements PagePicker {
 
     abstract Comparator<T> createModelsComparator();
 
-    private List<Model> filterAndProject(List<T> nonEmptyFullList, Projection projection) {
+    private CollectionFragment<Model> filterAndProject(List<T> nonEmptyFullList, Projection projection) {
         List<Model> filteredList = filter(nonEmptyFullList, projection);
-        return projection.cut(filteredList);
+        List<Model> fragmentElements = projection.cut(filteredList);
+        return CollectionFragment.forFragment(fragmentElements, filteredList.size());
     }
 
     abstract List<Model> filter(List<T> nonEmptyFullList, Projection projection);

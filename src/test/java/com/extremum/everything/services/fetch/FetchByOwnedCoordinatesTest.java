@@ -5,6 +5,7 @@ import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionElementType;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
@@ -50,8 +51,8 @@ class FetchByOwnedCoordinatesTest {
     void whenEverythingIsOk_thenCollectionShouldBeReturned() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        List<Model> houses = fetcher.fetchCollection(new Street(), "houses", Projection.empty());
-        assertThat(houses, hasSize(2));
+        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(), "houses", Projection.empty());
+        assertThat(houses.elements(), hasSize(2));
     }
 
     private void whenRetrieveByIdsThenReturn2Houses() {
@@ -74,9 +75,9 @@ class FetchByOwnedCoordinatesTest {
         Street host = new Street();
         host.houses = null;
 
-        List<Model> houses = fetcher.fetchCollection(host, "houses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetchCollection(host, "houses", Projection.empty());
 
-        assertThat(houses, hasSize(0));
+        assertThat(houses.elements(), hasSize(0));
     }
 
     @Test
@@ -91,8 +92,8 @@ class FetchByOwnedCoordinatesTest {
 
     @Test
     void whenFieldContentsIsAnEmptyCollection_thenAnEmptyListShouldBeReturned() {
-        List<Model> list = fetcher.fetchCollection(new Street(), "emptyList", Projection.empty());
-        assertThat(list, hasSize(0));
+        CollectionFragment<Model> fragment = fetcher.fetchCollection(new Street(), "emptyList", Projection.empty());
+        assertThat(fragment.elements(), hasSize(0));
     }
 
     @Test
@@ -121,14 +122,14 @@ class FetchByOwnedCoordinatesTest {
     void whenFieldIsOnASuperclass_thenItShouldWorkAsWell() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        List<Model> houses = fetcher.fetchCollection(new SubStreet(), "houses", Projection.empty());
-        assertThat(houses, hasSize(2));
+        CollectionFragment<Model> houses = fetcher.fetchCollection(new SubStreet(), "houses", Projection.empty());
+        assertThat(houses.elements(), hasSize(2));
     }
 
     @Test
     void whenCollectionFieldContainsModels_thenTheyShouldBeReturned() {
-        List<Model> houses = fetcher.fetchCollection(new Street(), "bareHouses", Projection.empty());
-        assertThat(houses, hasSize(2));
+        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(), "bareHouses", Projection.empty());
+        assertThat(houses.elements(), hasSize(2));
     }
 
     @Test
@@ -143,16 +144,16 @@ class FetchByOwnedCoordinatesTest {
         ZonedDateTime somewhereIn2100 = somewhereIn2000.plusYears(100);
         Projection projection = Projection.sinceUntil(somewhereIn2010, somewhereIn2100);
 
-        List<Model> houses = fetcher.fetchCollection(street, "bareHouses", projection);
-        assertThat(houses, hasSize(1));
+        CollectionFragment<Model> houses = fetcher.fetchCollection(street, "bareHouses", projection);
+        assertThat(houses.elements(), hasSize(1));
     }
 
     @Test
     void givenCollectionContainsModelObjects_whenLimitIsSpecified_thenLimitShouldBeRespected() {
         Projection projection = Projection.offsetLimit(0, 1);
 
-        List<Model> houses = fetcher.fetchCollection(new Street(), "bareHouses", projection);
-        assertThat(houses, hasSize(1));
+        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(), "bareHouses", projection);
+        assertThat(houses.elements(), hasSize(1));
     }
 
     @Test
@@ -160,8 +161,8 @@ class FetchByOwnedCoordinatesTest {
         Street street = new Street();
         street.bareHouses.get(0).setDeleted(true);
 
-        List<Model> houses = fetcher.fetchCollection(street, "bareHouses", Projection.empty());
-        assertThat(houses, hasSize(street.bareHouses.size() - 1));
+        CollectionFragment<Model> houses = fetcher.fetchCollection(street, "bareHouses", Projection.empty());
+        assertThat(houses.elements(), hasSize(street.bareHouses.size() - 1));
     }
 
     @Test

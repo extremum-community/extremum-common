@@ -9,6 +9,7 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PostgresBasicModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionElementType;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
@@ -29,7 +30,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,9 +96,9 @@ class DefaultEverythingEverythingManagementServiceTest {
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
         Projection projection = Projection.empty();
 
-        Collection<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
+        CollectionFragment<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
 
-        assertThat(dtos, hasSize(2));
+        assertThat(dtos.elements(), hasSize(2));
     }
 
     private void convertToResponseDtoWhenRequested() {
@@ -142,9 +142,9 @@ class DefaultEverythingEverythingManagementServiceTest {
                 "explicitHouses");
         Projection projection = Projection.empty();
 
-        Collection<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
+        CollectionFragment<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
 
-        assertThat(houses, hasSize(1));
+        assertThat(houses.elements(), hasSize(1));
     }
 
     @Test
@@ -155,9 +155,9 @@ class DefaultEverythingEverythingManagementServiceTest {
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "elements");
         Projection projection = Projection.empty();
 
-        Collection<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
+        CollectionFragment<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
 
-        assertThat(dtos, hasSize(2));
+        assertThat(dtos.elements(), hasSize(2));
     }
 
     private Descriptor jpaBasicContainerDescriptor() {
@@ -177,9 +177,10 @@ class DefaultEverythingEverythingManagementServiceTest {
                 "explicitElements");
         Projection projection = Projection.empty();
 
-        Collection<ResponseDto> elements = service.fetchCollection(collectionDescriptor, projection, false);
+        CollectionFragment<ResponseDto> elements = service.fetchCollection(collectionDescriptor,
+                projection, false);
 
-        assertThat(elements, hasSize(1));
+        assertThat(elements.elements(), hasSize(1));
     }
 
     @ModelName("House")
@@ -215,8 +216,8 @@ class DefaultEverythingEverythingManagementServiceTest {
         }
 
         @Override
-        public List<House> fetchCollection(Street street, Projection projection) {
-            return Collections.singletonList(new House());
+        public CollectionFragment<House> fetchCollection(Street street, Projection projection) {
+            return CollectionFragment.forCompleteCollection(Collections.singletonList(new House()));
         }
 
         @Override
@@ -258,8 +259,8 @@ class DefaultEverythingEverythingManagementServiceTest {
         }
 
         @Override
-        public List<JpaBasicElement> fetchCollection(JpaBasicContainer container, Projection projection) {
-            return Collections.singletonList(new JpaBasicElement());
+        public CollectionFragment<JpaBasicElement> fetchCollection(JpaBasicContainer container, Projection projection) {
+            return CollectionFragment.forCompleteCollection(Collections.singletonList(new JpaBasicElement()));
         }
 
         @Override

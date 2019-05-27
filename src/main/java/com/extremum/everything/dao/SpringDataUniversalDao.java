@@ -19,6 +19,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 @Repository
 public class SpringDataUniversalDao implements UniversalDao {
+    private static final String CREATED = PersistableCommonModel.FIELDS.created.name();
+
     private final MongoOperations mongoOperations;
 
     public SpringDataUniversalDao(MongoOperations mongoOperations) {
@@ -37,25 +39,15 @@ public class SpringDataUniversalDao implements UniversalDao {
                 )
         );
 
-        if (projection.getSince() != null) {
-            Criteria since = where(PersistableCommonModel.FIELDS.created.name()).gte(projection.getSince());
-            criteria.add(since);
-        }
-        if (projection.getUntil() != null) {
-            Criteria until = where(PersistableCommonModel.FIELDS.created.name()).lte(projection.getUntil());
-            criteria.add(until);
-        }
+        projection.getSince().ifPresent(since -> criteria.add(where(CREATED).gte(since)));
+        projection.getUntil().ifPresent(until -> criteria.add(where(CREATED).lte(until)));
 
         Query query = new Query(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
-        if (projection.getLimit() != null) {
-            query.limit(projection.getLimit());
-        }
-        if (projection.getOffset() != null) {
-            query.skip(projection.getOffset());
-        }
+        projection.getLimit().ifPresent(query::limit);
+        projection.getOffset().ifPresent(query::skip);
 
         query.with(Sort.by(
-                Order.by(PersistableCommonModel.FIELDS.created.name()),
+                Order.by(CREATED),
                 Order.by(PersistableCommonModel.FIELDS.id.name())
         ));
 

@@ -2,7 +2,6 @@ package com.extremum.everything.collection;
 
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.DateUtils;
-import lombok.Getter;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -10,11 +9,12 @@ import java.beans.ConstructorProperties;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * @author rpuch
  */
-@Getter
 @ToString
 public class Projection {
     private final Integer offset;
@@ -30,6 +30,26 @@ public class Projection {
         this.limit = limit;
         this.since = since;
         this.until = until;
+    }
+
+    public OptionalInt getOffset() {
+        return ofNullable(offset);
+    }
+
+    private OptionalInt ofNullable(Integer value) {
+        return value == null ? OptionalInt.empty() : OptionalInt.of(value);
+    }
+
+    public OptionalInt getLimit() {
+        return ofNullable(limit);
+    }
+
+    public Optional<ZonedDateTime> getSince() {
+        return Optional.ofNullable(since);
+    }
+
+    public Optional<ZonedDateTime> getUntil() {
+        return Optional.ofNullable(until);
     }
 
     public static Projection empty() {

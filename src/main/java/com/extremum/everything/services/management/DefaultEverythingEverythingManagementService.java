@@ -9,6 +9,7 @@ import com.extremum.common.dto.converters.ConversionConfig;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -162,12 +162,11 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
 
     @Override
-    public Collection<ResponseDto> fetchCollection(CollectionDescriptor id, Projection projection, boolean expand) {
+    public CollectionFragment<ResponseDto> fetchCollection(CollectionDescriptor id,
+            Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
-        List<Model> collection = coordinatesHandler.fetchCollection(id.getCoordinates(), projection);
-        return collection.stream()
-                .map(model -> convertModelToResponseDto(model, expand))
-                .collect(Collectors.toList());
+        CollectionFragment<Model> fragment = coordinatesHandler.fetchCollection(id.getCoordinates(), projection);
+        return fragment.map(model -> convertModelToResponseDto(model, expand));
     }
 
     private CoordinatesHandler findCoordinatesHandler(CollectionDescriptor.Type type) {
@@ -180,7 +179,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     private class OwnedCoordinatesHandler implements CoordinatesHandler {
         @Override
-        public List<Model> fetchCollection(CollectionCoordinates coordinates, Projection projection) {
+        public CollectionFragment<Model> fetchCollection(CollectionCoordinates coordinates, Projection projection) {
             OwnedCoordinates owned = coordinates.getOwnedCoordinates();
             BasicModel host = retrieveHost(owned);
 
@@ -209,7 +208,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
             return (BasicModel) host;
         }
 
-        private List<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
+        private CollectionFragment<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
                 BasicModel host, Projection projection) {
             FetchByOwnedCoordinates fetcher = new FetchByOwnedCoordinates(universalDao);
             return fetcher.fetchCollection(host, owned.getHostFieldName(), projection);

@@ -2,9 +2,8 @@ package com.extremum.everything.services;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
-
-import java.util.List;
 
 /**
  * A component that may be used to override the default 'collection fetching'
@@ -24,5 +23,5 @@ public interface CollectionFetcher<H extends BasicModel, E extends Model>
      */
     String getHostFieldName();
 
-    List<E> fetchCollection(H host, Projection projection);
+    CollectionFragment<E> fetchCollection(H host, Projection projection);
 }
