@@ -3,6 +3,7 @@ package com.extremum.everything.controllers;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.response.Response;
+import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import com.extremum.everything.services.management.EverythingEverythingManagementService;
 import com.github.fge.jsonpatch.JsonPatch;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import static com.extremum.common.response.Response.ok;
 
 @RestController
 @RequestMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+@ConvertNullDescriptorToModelNotFound
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private EverythingEverythingManagementService evrEvrManagementService;
 

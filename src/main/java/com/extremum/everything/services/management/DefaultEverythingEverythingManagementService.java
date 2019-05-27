@@ -162,7 +162,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
 
     @Override
-    public List<ResponseDto> fetchCollection(CollectionDescriptor id, Projection projection, boolean expand) {
+    public Collection<ResponseDto> fetchCollection(CollectionDescriptor id, Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         List<Model> collection = coordinatesHandler.fetchCollection(id.getCoordinates(), projection);
         return collection.stream()

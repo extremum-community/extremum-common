@@ -28,6 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -92,7 +93,7 @@ class DefaultEverythingEverythingManagementServiceTest {
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
         Projection projection = Projection.empty();
 
-        List<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
+        Collection<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
 
         assertThat(dtos, hasSize(2));
     }
@@ -138,7 +139,7 @@ class DefaultEverythingEverythingManagementServiceTest {
                 "explicitHouses");
         Projection projection = Projection.empty();
 
-        List<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
+        Collection<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
 
         assertThat(houses, hasSize(1));
     }

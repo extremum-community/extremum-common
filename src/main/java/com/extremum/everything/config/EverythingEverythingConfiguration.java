@@ -12,6 +12,7 @@ import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.common.utils.DeepFieldGraphWalker;
 import com.extremum.common.utils.FieldGraphWalker;
+import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import com.extremum.everything.config.listener.ModelClassesInitializer;
@@ -27,14 +28,18 @@ import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
+import com.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
+import com.extremum.everything.services.management.EverythingCollectionManagementService;
 import com.extremum.everything.services.management.EverythingEverythingManagementService;
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +54,7 @@ import java.util.List;
 @EnableConfigurationProperties({DestroyerProperties.class, ModelProperties.class})
 @Import(DefaultServicesConfiguration.class)
 @AutoConfigureAfter(CommonConfiguration.class)
+@AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class EverythingEverythingConfiguration {
     private final ModelProperties modelProperties;
     private final DestroyerProperties destroyerProperties;
@@ -78,14 +84,19 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingCollectionRestController.class)
     public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
-            EverythingEverythingManagementService service) {
-        return new DefaultEverythingEverythingCollectionRestController(service);
+            EverythingCollectionManagementService collectionManagementService) {
+        return new DefaultEverythingEverythingCollectionRestController(collectionManagementService);
     }
 
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingExceptionHandler.class)
     public EverythingEverythingExceptionHandler everythingEverythingExceptionHandler() {
         return new DefaultEverythingEverythingExceptionHandler();
+    }
+
+    @Bean
+    public ConvertNullDescriptorToModelNotFoundAspect convertNullDescriptorToModelNotFoundAspect() {
+        return new ConvertNullDescriptorToModelNotFoundAspect();
     }
 
     @Bean
@@ -146,5 +157,15 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
     public ModelClassesInitializer modelNameToClassInitializer() {
         return new ModelClassesInitializer(modelProperties.getPackageNames());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
+    public EverythingCollectionManagementService everythingCollectionManagementService(
+            CollectionDescriptorService collectionDescriptorService,
+            EverythingEverythingManagementService everythingEverythingManagementService
+    ) {
+        return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
+                everythingEverythingManagementService);
     }
 }
