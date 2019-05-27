@@ -28,7 +28,9 @@ import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
+import com.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
+import com.extremum.everything.services.management.EverythingCollectionManagementService;
 import com.extremum.everything.services.management.EverythingEverythingManagementService;
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
@@ -82,8 +84,8 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingCollectionRestController.class)
     public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
-            EverythingEverythingManagementService service) {
-        return new DefaultEverythingEverythingCollectionRestController(service);
+            EverythingCollectionManagementService collectionManagementService) {
+        return new DefaultEverythingEverythingCollectionRestController(collectionManagementService);
     }
 
     @Bean
@@ -156,5 +158,15 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
     public ModelClassesInitializer modelNameToClassInitializer() {
         return new ModelClassesInitializer(modelProperties.getPackageNames());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
+    public EverythingCollectionManagementService everythingCollectionManagementService(
+            CollectionDescriptorService collectionDescriptorService,
+            EverythingEverythingManagementService everythingEverythingManagementService
+    ) {
+        return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
+                everythingEverythingManagementService);
     }
 }

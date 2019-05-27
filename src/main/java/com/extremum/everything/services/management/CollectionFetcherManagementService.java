@@ -4,11 +4,11 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.everything.collection.Projection;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author rpuch
  */
 public interface CollectionFetcherManagementService {
-    List<ResponseDto> fetchCollection(CollectionDescriptor id, Projection projection, boolean expand);
+    Collection<ResponseDto> fetchCollection(CollectionDescriptor id, Projection projection, boolean expand);
 }
