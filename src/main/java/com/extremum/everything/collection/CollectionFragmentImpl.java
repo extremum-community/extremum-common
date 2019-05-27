@@ -2,6 +2,7 @@ package com.extremum.everything.collection;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * @author rpuch
  */
-public class CollectionFragmentImpl<T> implements CollectionFragment<T> {
+final class CollectionFragmentImpl<T> implements CollectionFragment<T> {
     private final Collection<T> elements;
     private final Long total;
 
@@ -18,6 +19,7 @@ public class CollectionFragmentImpl<T> implements CollectionFragment<T> {
     }
 
     private CollectionFragmentImpl(Collection<T> elements, Long total) {
+        Objects.requireNonNull(elements, "Elements is null");
         this.elements = elements;
         this.total = total;
     }
@@ -29,7 +31,7 @@ public class CollectionFragmentImpl<T> implements CollectionFragment<T> {
 
     @Override
     public OptionalLong total() {
-        if (elements == null) {
+        if (total == null) {
             return OptionalLong.empty();
         }
         return OptionalLong.of(total);
