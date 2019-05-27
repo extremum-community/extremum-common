@@ -280,10 +280,10 @@ public class JpaCommonDaoTest extends TestWithServices {
         TestJpaModel testModel = getTestModel();
         testModel.setName("test");
         dao.save(testModel);
-        TestJpaModel one = dao.getOne(testModel.getId());
+        TestJpaModel proxy = dao.getOne(testModel.getId());
         TestJpaModel model = dao.findById(testModel.getId()).get();
         assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
-        assertThat(ModelUtils.getModelName(one),is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(proxy),is("TestJpaModel"));
     }
 
     @Test
