@@ -26,7 +26,6 @@ import javax.sql.DataSource;
  * @author rpuch
  */
 @Configuration
-@Import(DefaultJpaServicesConfiguration.class)
 @EnableConfigurationProperties(JpaProperties.class)
 @EnableExtremumJpaRepositories(basePackages = "${jpa.repository-packages}",
         repositoryFactoryBeanClass = ExtremumJpaRepositoryFactoryBean.class)

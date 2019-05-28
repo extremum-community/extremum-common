@@ -5,10 +5,10 @@ import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.RequestDtoValidator;
+import com.extremum.models.PostgresBasicModel;
 import com.extremum.services.DefaultJpaGetterService;
 import com.extremum.services.DefaultJpaPatcherService;
 import com.extremum.services.DefaultJpaRemovalService;
-import com.extremum.models.PostgresBasicModel;
 import com.extremum.services.PostgresBasicService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +17,11 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-public class DefaultJpaServicesConfiguration {@Bean
-public DefaultJpaGetterService<PostgresBasicModel> jpaGetterService(List<PostgresBasicService<? extends PostgresBasicModel>> services) {
-    return new DefaultJpaGetterService<>(services);
-}
+public class DefaultJpaServicesConfiguration {
+    @Bean
+    public DefaultJpaGetterService<PostgresBasicModel> jpaGetterService(List<PostgresBasicService<? extends PostgresBasicModel>> services) {
+        return new DefaultJpaGetterService<>(services);
+    }
 
     @Bean
     public DefaultJpaRemovalService<PostgresBasicModel> jpaRemovalService(List<PostgresBasicService<? extends PostgresBasicModel>> services) {
