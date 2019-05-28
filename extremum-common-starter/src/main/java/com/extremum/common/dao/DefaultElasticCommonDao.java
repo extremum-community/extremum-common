@@ -177,13 +177,13 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
             if (response.isExists()) {
                 Map<String, Object> sourceMap = response.getSourceAsMap();
 
-                if (sourceMap.getOrDefault(FIELDS.deleted.name(), Boolean.FALSE).equals(Boolean.TRUE)) {
-                    throw new ModelNotFoundException("Not found " + id);
+                if (sourceMap.getOrDefault(FIELDS.deleted.name(), false).equals(true)) {
+                    return Optional.empty();
                 } else {
                     return Optional.ofNullable(extract(new GetResponseAccessorFacade(response)));
                 }
             } else {
-                throw new ModelNotFoundException("Not found " + id);
+                return Optional.empty();
             }
         } catch (IOException e) {
             log.error("Unable to get data by id {} from index {} with type {}",
@@ -251,6 +251,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
             if (asList(SC_OK, SC_CREATED).contains(response.status().getStatus())) {
                 model.setSeqNo(response.getSeqNo());
                 model.setPrimaryTerm(response.getPrimaryTerm());
+                model.setVersion(response.getVersion());
                 return model;
             } else {
                 log.error("Document don't be indexed, status {}", response.status());
@@ -269,9 +270,10 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
             final Descriptor stored = DescriptorService.store(descriptor);
             model.setUuid(stored);
             model.setId(stored.getInternalId());
-            model.setCreated(ZonedDateTime.now());
-            model.setVersion(0L);
-            model.setDeleted(Boolean.FALSE);
+            ZonedDateTime now = ZonedDateTime.now();
+            model.setCreated(now);
+            model.setModified(now);
+            model.setDeleted(false);
         } else {
             if (existsById(model.getId())) {
                 model.setModified(ZonedDateTime.now());
