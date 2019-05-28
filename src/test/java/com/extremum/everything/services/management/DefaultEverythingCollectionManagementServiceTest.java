@@ -97,7 +97,7 @@ class DefaultEverythingCollectionManagementServiceTest {
         assertThat(response.getPagination(), is(notNullValue()));
         assertThat(response.getPagination().getCount(), is(2));
         assertThat(response.getPagination().getOffset(), is(1));
-        assertThat(response.getPagination().getTotal(), is(2));
+        assertThat(response.getPagination().getTotal(), is(2L));
         assertThat(response.getPagination().getSince(), is(since));
         assertThat(response.getPagination().getUntil(), is(until));
     }

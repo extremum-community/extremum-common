@@ -32,7 +32,7 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
         Pagination.PaginationBuilder paginationBuilder = Pagination.builder()
                 .count(fragment.elements().size());
         projection.getOffset().ifPresent(paginationBuilder::offset);
-        fragment.total().ifPresent(total -> paginationBuilder.total((int) total));
+        fragment.total().ifPresent(paginationBuilder::total);
         projection.getSince().ifPresent(paginationBuilder::since);
         projection.getUntil().ifPresent(paginationBuilder::until);
         Pagination pagination = paginationBuilder.build();

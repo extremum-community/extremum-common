@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -128,7 +129,7 @@ class JsonObjectMapperTest {
         Pagination pagination = Pagination.builder()
                 .count(10)
                 .offset(20)
-                .total(100)
+                .total(100L)
                 .since(since)
                 .until(until)
                 .build();
@@ -138,8 +139,26 @@ class JsonObjectMapperTest {
 
         assertThat(deserializedPagination.getCount(), is(10));
         assertThat(deserializedPagination.getOffset(), is(20));
-        assertThat(deserializedPagination.getTotal(), is(100));
+        assertThat(deserializedPagination.getTotal(), is(100L));
         assertThat(deserializedPagination.getSince().toInstant(), is(since.toInstant()));
         assertThat(deserializedPagination.getUntil().toInstant(), is(until.toInstant()));
+    }
+
+    @Test
+    void givenASerializedPaginationWithoutTotal_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
+            throws Exception {
+        ZonedDateTime since = ZonedDateTime.now();
+        ZonedDateTime until = since.plusYears(1);
+        Pagination pagination = Pagination.builder()
+                .count(10)
+                .offset(20)
+                .since(since)
+                .until(until)
+                .build();
+        String json = mapper.writerFor(Pagination.class).writeValueAsString(pagination);
+
+        Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
+
+        assertThat(deserializedPagination.getTotal(), is(nullValue()));
     }
 }

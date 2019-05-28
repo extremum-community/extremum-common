@@ -26,7 +26,7 @@ public class PaginationDeserializer extends StdDeserializer<Pagination> {
 
     @Override
     public Pagination deserialize(JsonParser parser,
-            DeserializationContext context) throws IOException, JsonProcessingException {
+            DeserializationContext context) throws IOException {
         TreeNode node = parser.getCodec().readTree(parser);
 
         if (node == null) {
@@ -35,7 +35,7 @@ public class PaginationDeserializer extends StdDeserializer<Pagination> {
 
         return Pagination.builder()
                 .count(getInt("count", node, parser))
-                .total(getInt("total", node, parser))
+                .total(getOptionalLong("total", node, parser))
                 .offset(getInt("offset", node, parser))
                 .since(getObject("since", ZonedDateTime.class, node))
                 .until(getObject("until", ZonedDateTime.class, node))
@@ -54,6 +54,20 @@ public class PaginationDeserializer extends StdDeserializer<Pagination> {
 
         JsonNode jsonNode = (JsonNode) fieldNode;
         return jsonNode.intValue();
+    }
+
+    private Long getOptionalLong(String fieldName, TreeNode node, JsonParser parser) throws JsonParseException {
+        TreeNode fieldNode = node.get(fieldName);
+        if (fieldNode == null) {
+            return null;
+        }
+
+        if (!(fieldNode instanceof JsonNode)) {
+            throw new JsonParseException(parser, String.format("'%s' must be an integer", fieldName));
+        }
+
+        JsonNode jsonNode = (JsonNode) fieldNode;
+        return jsonNode.longValue();
     }
 
     private <T> T getObject(String fieldName, Class<T> valueClass, TreeNode node) throws JsonProcessingException {
