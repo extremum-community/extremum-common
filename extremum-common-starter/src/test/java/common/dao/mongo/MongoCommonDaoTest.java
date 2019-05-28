@@ -36,12 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-public class MongoCommonDaoTest extends TestWithServices {
+class MongoCommonDaoTest extends TestWithServices {
     @Autowired
     private TestMongoModelDao dao;
 
     @Test
-    public void testCreateModel() {
+    void testCreateModel() {
         TestMongoModel model = getTestModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
@@ -56,7 +56,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testCreateModelWithWrongVersion() {
+    void testCreateModelWithWrongVersion() {
         TestMongoModel model = getTestModel();
         model.setId(new ObjectId(model.getUuid().getInternalId()));
         model.setVersion(123L);
@@ -64,7 +64,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testCreateModelList() {
+    void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestMongoModel> modelList = Stream
                 .generate(MongoCommonDaoTest::getTestModel)
@@ -83,7 +83,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         TestMongoModel model = getTestModel();
         dao.save(model);
 
@@ -105,7 +105,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testGetByFieldValue() {
+    void testGetByFieldValue() {
         TestMongoModel model = getTestModel();
         dao.save(model);
 
@@ -128,7 +128,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testGetSelectedFieldsById() {
+    void testGetSelectedFieldsById() {
         TestMongoModel model = getTestModel();
         dao.save(model);
 
@@ -148,7 +148,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         int initCount = dao.findAll().size();
         int modelsToCreate = 10;
 
@@ -171,7 +171,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenOneExemplarEntityExists_whenInvokingFindAllByExample_thenOneDocumentShouldBeReturned() {
+    void givenOneExemplarEntityExists_whenInvokingFindAllByExample_thenOneDocumentShouldBeReturned() {
         TestMongoModel model = dao.save(new TestMongoModel());
 
         List<TestMongoModel> all = dao.findAll(Example.of(model));
@@ -181,7 +181,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExample_thenNothingShouldBeReturned() {
+    void givenADeletedExemplarEntityExists_whenInvokingFindAllByExample_thenNothingShouldBeReturned() {
         TestMongoModel model = new TestMongoModel();
         model.setDeleted(true);
         dao.save(model);
@@ -192,7 +192,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenOneExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenOneDocumentShouldBeReturned() {
+    void givenOneExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenOneDocumentShouldBeReturned() {
         TestMongoModel model = dao.save(new TestMongoModel());
 
         List<TestMongoModel> all = dao.findAll(Example.of(model), Sort.by("id"));
@@ -202,7 +202,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenNothingShouldBeReturned() {
+    void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenNothingShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel());
 
         List<TestMongoModel> all = dao.findAll(Example.of(model), Sort.by("id"));
@@ -211,7 +211,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithPageable_thenNothingShouldBeReturned() {
+    void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithPageable_thenNothingShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel());
 
         Page<TestMongoModel> page = dao.findAll(Example.of(model), Pageable.unpaged());
@@ -220,7 +220,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADeletedExemplarEntityExists_whenInvokingFindOneByExample_thenNothingShouldBeReturned() {
+    void givenADeletedExemplarEntityExists_whenInvokingFindOneByExample_thenNothingShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel());
 
         Optional<TestMongoModel> result = dao.findOne(Example.of(model));
@@ -229,21 +229,21 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADeletedExemplarEntityExists_whenInvokingExistsByExample_thenFalseShouldBeReturned() {
+    void givenADeletedExemplarEntityExists_whenInvokingExistsByExample_thenFalseShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel());
 
         assertThat(dao.exists(Example.of(model)), is(false));
     }
 
     @Test
-    public void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {
+    void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel());
 
         assertThat(dao.existsById(model.getId()), is(false));
     }
 
     @Test
-    public void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
+    void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel());
 
         Iterable<TestMongoModel> all = dao.findAllById(Collections.singletonList(model.getId()));
@@ -252,7 +252,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testListByParameters() {
+    void testListByParameters() {
         int initCount = dao.listByParameters(null).size();
         int modelsToCreate = 15;
         // limit = 0 означает выбор всего. Такая проверка выполняется отдельно
@@ -293,7 +293,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
+    void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -303,7 +303,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+    void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -313,7 +313,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
+    void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -322,7 +322,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+    void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -331,7 +331,7 @@ public class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
+    void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
         TestMongoModel model = new TestMongoModel();
         model.setName("Test");
         model = dao.save(model);
