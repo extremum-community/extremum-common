@@ -3,15 +3,20 @@ package com.extremum.common.mapper;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import com.extremum.common.response.Alert;
+import com.extremum.common.response.AlertLevelEnum;
+import com.extremum.common.response.Pagination;
 import com.extremum.common.stucts.Display;
 import com.extremum.common.stucts.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -101,5 +106,59 @@ class JsonObjectMapperTest {
         assertThat(descriptor.getDisplay().getIcon().getDuration().getIntegerValue(), is(20));
         assertThat(descriptor.getDisplay().getIcon().getWidth(), is(100));
         assertThat(descriptor.getDisplay().getIcon().getHeight(), is(200));
+    }
+
+    @Test
+    void givenASerializedAlertWithAnError_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
+            throws Exception {
+        Alert alert = Alert.errorAlert("Oops");
+        String json = mapper.writerFor(Alert.class).writeValueAsString(alert);
+
+        Alert deserializedAlert = mapper.readerFor(Alert.class).readValue(json);
+
+        assertThat(deserializedAlert.isError(), is(true));
+        assertThat(deserializedAlert.getMessage(), is("Oops"));
+        assertThat(deserializedAlert.getLevel(), is(AlertLevelEnum.ERROR));
+    }
+
+    @Test
+    void givenASerializedPagination_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
+            throws Exception {
+        ZonedDateTime since = ZonedDateTime.now();
+        ZonedDateTime until = since.plusYears(1);
+        Pagination pagination = Pagination.builder()
+                .count(10)
+                .offset(20)
+                .total(100L)
+                .since(since)
+                .until(until)
+                .build();
+        String json = mapper.writerFor(Pagination.class).writeValueAsString(pagination);
+
+        Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
+
+        assertThat(deserializedPagination.getCount(), is(10));
+        assertThat(deserializedPagination.getOffset(), is(20));
+        assertThat(deserializedPagination.getTotal(), is(100L));
+        assertThat(deserializedPagination.getSince().toInstant(), is(since.toInstant()));
+        assertThat(deserializedPagination.getUntil().toInstant(), is(until.toInstant()));
+    }
+
+    @Test
+    void givenASerializedPaginationWithoutTotal_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
+            throws Exception {
+        ZonedDateTime since = ZonedDateTime.now();
+        ZonedDateTime until = since.plusYears(1);
+        Pagination pagination = Pagination.builder()
+                .count(10)
+                .offset(20)
+                .since(since)
+                .until(until)
+                .build();
+        String json = mapper.writerFor(Pagination.class).writeValueAsString(pagination);
+
+        Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
+
+        assertThat(deserializedPagination.getTotal(), is(nullValue()));
     }
 }

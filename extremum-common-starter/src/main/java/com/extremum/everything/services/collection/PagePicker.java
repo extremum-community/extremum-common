@@ -1,13 +1,15 @@
 package com.extremum.everything.services.collection;
 
-import com.extremum.common.collection.CollectionCoordinates;
 import com.extremum.common.models.Model;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 
+import java.util.Collection;
+
 /**
  * @author rpuch
  */
-public interface CoordinatesHandler {
-    CollectionFragment<Model> fetchCollection(CollectionCoordinates coordinates, Projection projection);
+interface PagePicker {
+    CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection, Projection projection,
+            Model host, String hostFieldName);
 }

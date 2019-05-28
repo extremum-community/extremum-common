@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -54,7 +55,7 @@ public class JpaCommonDaoTest extends TestWithServices {
         model.setName(UUID.randomUUID().toString());
         model = dao.save(model);
 
-        assertThat(model.getVersion(), Matchers.is(1L));
+        assertThat(model.getVersion(), is(1L));
 
         model.setVersion(0L);
         try {
@@ -239,7 +240,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        assertThat(dao.countByName(uniqueName), Matchers.is(1L));
+        assertThat(dao.countByName(uniqueName), is(1L));
     }
 
     @Test
@@ -249,7 +250,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        assertThat(dao.countEvenDeletedByName(uniqueName), Matchers.is(2L));
+        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
     }
 
     @NotNull
@@ -269,7 +270,7 @@ public class JpaCommonDaoTest extends TestWithServices {
         try {
             dao.deleteAllInBatch();
         } catch (UnsupportedOperationException e) {
-            MatcherAssert.assertThat(e.getMessage(), Matchers.is("We don't allow to delete all the records in one go"));
+            MatcherAssert.assertThat(e.getMessage(), is("We don't allow to delete all the records in one go"));
         }
     }
 
@@ -278,10 +279,10 @@ public class JpaCommonDaoTest extends TestWithServices {
         TestJpaModel testModel = getTestModel();
         testModel.setName("test");
         dao.save(testModel);
-        TestJpaModel one = dao.getOne(testModel.getId());
+        TestJpaModel proxy = dao.getOne(testModel.getId());
         TestJpaModel model = dao.findById(testModel.getId()).get();
-        assertThat(ModelUtils.getModelName(model), Matchers.is("TestJpaModel"));
-        assertThat(ModelUtils.getModelName(one), Matchers.is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(proxy), is("TestJpaModel"));
     }
 
     @Test

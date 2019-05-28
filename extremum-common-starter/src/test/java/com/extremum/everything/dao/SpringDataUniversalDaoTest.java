@@ -1,6 +1,7 @@
 package com.extremum.everything.dao;
 
 import com.extremum.common.test.TestWithServices;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.starter.CommonConfiguration;
 import org.bson.types.ObjectId;
@@ -14,10 +15,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author rpuch
@@ -30,25 +31,36 @@ class SpringDataUniversalDaoTest extends TestWithServices {
 
     private SpringDataUniversalDao universalDao;
 
+    private List<ObjectId> houseIds;
+
     @BeforeEach
     void setUp() {
         universalDao = new SpringDataUniversalDao(mongoOperations);
-    }
 
-    @Test
-    void test() {
         House house1 = new House("1");
         House house2 = new House("2a");
         mongoOperations.save(house1);
         mongoOperations.save(house2);
 
-        List<ObjectId> houseIds = Arrays.asList(house1.getId(), house2.getId());
-        Street street = new Street("Test lane",
-                houseIds.stream().map(Object::toString).collect(Collectors.toList()));
-        mongoOperations.save(street);
+        houseIds = Arrays.asList(house1.getId(), house2.getId());
+    }
 
-        List<House> retrievedHouses = universalDao.retrieveByIds(houseIds, House.class, Projection.empty());
-        assertThat(retrievedHouses, hasSize(2));
+    @Test
+    void givenTwoHousesExist_whenRetrievingByTheirIdsWithEmptyProjection_then2HousesShouldBeReturned() {
+        CollectionFragment<House> retrievedHouses = universalDao.retrieveByIds(houseIds,
+                House.class, Projection.empty());
+
+        assertThat(retrievedHouses.elements(), hasSize(2));
+        assertThat(retrievedHouses.total().orElse(1000), is(2L));
+    }
+
+    @Test
+    void givenTwoHousesExist_whenRetrievingByTheirIdsWithOffset1_then1HouseShouldBeReturnedButTotalShouldBe2() {
+        CollectionFragment<House> retrievedHouses = universalDao.retrieveByIds(houseIds,
+                House.class, Projection.offsetLimit(1, 10));
+        
+        assertThat(retrievedHouses.elements(), hasSize(1));
+        assertThat(retrievedHouses.total().orElse(1000), is(2L));
     }
 
 }

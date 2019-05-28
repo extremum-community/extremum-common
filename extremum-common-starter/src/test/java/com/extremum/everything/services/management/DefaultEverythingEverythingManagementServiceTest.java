@@ -8,6 +8,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionElementType;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
@@ -28,7 +29,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,8 +55,8 @@ class DefaultEverythingEverythingManagementServiceTest {
     @Mock
     private DtoConversionService dtoConversionService;
 
-    private static ObjectId id1 = new ObjectId();
-    private static ObjectId id2 = new ObjectId();
+    private static final ObjectId id1 = new ObjectId();
+    private static final ObjectId id2 = new ObjectId();
     private static ConfigurableApplicationContext context;
 
     @BeforeAll
@@ -76,30 +76,30 @@ class DefaultEverythingEverythingManagementServiceTest {
                 Collections.singletonList(streetGetterService),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                Collections.singletonList(new ExplicitCollectionFetcher()),
+                Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,
                 universalDao
         );
     }
 
     @Test
-    void givenHostExists_whenCollectionIsFetched_itShouldBeReturned() {
+    void givenHostExists_whenCollectionIsFetched_thenItShouldBeReturned() {
         returnStreetWhenRequested();
         when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
-                .thenReturn(Arrays.asList(new House(), new House()));
+                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
         convertToResponseDtoWhenRequested();
 
         Descriptor hostId = streetDescriptor();
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
         Projection projection = Projection.empty();
 
-        Collection<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
+        CollectionFragment<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
 
-        assertThat(dtos, hasSize(2));
+        assertThat(dtos.elements(), hasSize(2));
     }
 
     private void convertToResponseDtoWhenRequested() {
-        when(dtoConversionService.convertUnknownToResponseDto(any(House.class), any()))
+        when(dtoConversionService.convertUnknownToResponseDto(any(), any()))
                 .thenReturn(mock(ResponseDto.class));
     }
 
@@ -117,7 +117,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     }
 
     @Test
-    void givenHostDoesNotExist_whenCollectionIsFetched_anExceptionShouldBeThrown() {
+    void givenHostDoesNotExist_whenCollectionIsFetched_thenAnExceptionShouldBeThrown() {
         when(streetGetterService.get("internalHostId")).thenReturn(null);
 
         Descriptor hostId = streetDescriptor();
@@ -132,16 +132,16 @@ class DefaultEverythingEverythingManagementServiceTest {
     }
 
     @Test
-    void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsFetched_itShouldBeProvidedByTheFetcher() {
+    void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsFetched_thenItShouldBeProvidedByTheFetcher() {
         convertToResponseDtoWhenRequested();
 
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
                 "explicitHouses");
         Projection projection = Projection.empty();
 
-        Collection<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
+        CollectionFragment<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
 
-        assertThat(houses, hasSize(1));
+        assertThat(houses.elements(), hasSize(1));
     }
 
     @ModelName("House")
@@ -169,7 +169,7 @@ class DefaultEverythingEverythingManagementServiceTest {
         }
     }
 
-    private static class ExplicitCollectionFetcher implements CollectionFetcher<Street, House> {
+    private static class ExplicitHouseFetcher implements CollectionFetcher<Street, House> {
 
         @Override
         public String getHostFieldName() {
@@ -177,8 +177,8 @@ class DefaultEverythingEverythingManagementServiceTest {
         }
 
         @Override
-        public List<House> fetchCollection(Street street, Projection projection) {
-            return Collections.singletonList(new House());
+        public CollectionFragment<House> fetchCollection(Street street, Projection projection) {
+            return CollectionFragment.forCompleteCollection(Collections.singletonList(new House()));
         }
 
         @Override
