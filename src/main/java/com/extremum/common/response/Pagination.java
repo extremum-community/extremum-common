@@ -12,14 +12,14 @@ import java.time.ZonedDateTime;
 public class Pagination {
     private int offset;
     private int count;
-    private int total;
+    private Long total;
     private ZonedDateTime since;
     private ZonedDateTime until;
 
     static Pagination singlePage(int total) {
         return Pagination.builder()
                 .count(total)
-                .total(total)
+                .total((long) total)
                 .build();
     }
 }

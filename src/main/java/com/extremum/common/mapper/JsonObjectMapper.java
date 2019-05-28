@@ -5,6 +5,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.collection.serde.CollectionDescriptorDeserializer;
 import com.extremum.common.descriptor.serde.DescriptorDeserializer;
 import com.extremum.common.deserializers.*;
+import com.extremum.common.response.Pagination;
 import com.extremum.common.serializers.DisplaySerializer;
 import com.extremum.common.serializers.DurationVariativeValueSerializer;
 import com.extremum.common.serializers.IdListOrObjectListStructSerializer;
@@ -105,6 +106,8 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         module.addDeserializer(IntegerOrString.class, new IntegerOrStringDeserializer());
 
         module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(this));
+
+        module.addDeserializer(Pagination.class, new PaginationDeserializer(this));
 
         return module;
     }

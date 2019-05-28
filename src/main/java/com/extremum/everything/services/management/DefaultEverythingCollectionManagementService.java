@@ -4,11 +4,11 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.dto.ResponseDto;
+import com.extremum.common.response.Pagination;
 import com.extremum.common.response.Response;
+import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Collection;
 
 import static com.extremum.common.response.Response.ok;
 
@@ -26,9 +26,17 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
                 .orElseThrow(() -> new CollectionDescriptorNotFoundException(
                         String.format("Did not find a collection descriptor by externalId '%s'", collectionId)));
 
-        Collection<ResponseDto> result = evrEvrManagementService.fetchCollection(collectionDescriptor,
+        CollectionFragment<ResponseDto> fragment = evrEvrManagementService.fetchCollection(collectionDescriptor,
                 projection, expand);
 
-        return ok(result);
+        Pagination.PaginationBuilder paginationBuilder = Pagination.builder()
+                .count(fragment.elements().size());
+        projection.getOffset().ifPresent(paginationBuilder::offset);
+        fragment.total().ifPresent(paginationBuilder::total);
+        projection.getSince().ifPresent(paginationBuilder::since);
+        projection.getUntil().ifPresent(paginationBuilder::until);
+        Pagination pagination = paginationBuilder.build();
+
+        return ok(fragment.elements(), pagination);
     }
 }
