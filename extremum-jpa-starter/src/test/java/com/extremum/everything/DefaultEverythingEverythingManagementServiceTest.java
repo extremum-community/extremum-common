@@ -6,7 +6,6 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.annotation.ModelName;
-import com.extremum.config.TestConfig;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
@@ -14,7 +13,6 @@ import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
 import com.extremum.models.PostgresBasicModel;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,9 +49,6 @@ class DefaultEverythingEverythingManagementServiceTest {
     private UniversalDao universalDao;
     @Mock
     private DtoConversionService dtoConversionService;
-
-    private static final ObjectId id1 = new ObjectId();
-    private static final ObjectId id2 = new ObjectId();
     private static ConfigurableApplicationContext context;
 
     @BeforeAll

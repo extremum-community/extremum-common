@@ -1,4 +1,4 @@
-package com.extremum.config;
+package com.extremum.everything;
 
 import com.extremum.everything.config.listener.ModelClassesInitializer;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -10,6 +10,6 @@ import java.util.Collections;
 public class TestConfig {
     @Bean
     public ModelClassesInitializer initializer() {
-        return new ModelClassesInitializer(Collections.singletonList("com.extremum.everything.services.management"));
+        return new ModelClassesInitializer(Collections.singletonList("com.extremum.everything"));
     }
 }
