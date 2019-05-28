@@ -12,6 +12,7 @@ import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.common.utils.StreamUtils;
 import com.extremum.starter.properties.ElasticProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -299,9 +300,9 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     }
 
     @Override
-    public <N extends Model> Iterable<N> saveAll(Iterable<N> entities) {
+    public <N extends Model> List<N> saveAll(Iterable<N> entities) {
         entities.forEach(this::save);
-        return entities;
+        return StreamUtils.fromIterable(entities).collect(Collectors.toList());
     }
 
     @Override
