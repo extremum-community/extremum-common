@@ -66,6 +66,14 @@ class ElasticCommonDaoTest extends TestWithServices {
     }
 
     @Test
+    void testCreateModelWithWrongVersion() {
+        TestElasticModel model = getTestModel();
+        model.setId(model.getUuid().getInternalId());
+        model.setVersion(123L);
+        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model));
+    }
+
+    @Test
     void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestElasticModel> modelList = Stream
@@ -206,6 +214,8 @@ class ElasticCommonDaoTest extends TestWithServices {
         TestElasticModel model = new TestElasticModel();
         dao.save(model);
         dao.deleteById(model.getId());
+
+        TestElasticModel model = dao.save(getDeletedTestModel());
 
         assertThat(dao.existsById(model.getId()), is(false));
     }
