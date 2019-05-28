@@ -56,11 +56,6 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
     }
 
     @Bean
-    public DateTimeProvider dateTimeProvider() {
-        return new AuditingDateTimeProvider();
-    }
-
-    @Bean
     public CollectionDescriptorLifecycleListener collectionDescriptorLifecycleListener() {
         return new CollectionDescriptorLifecycleListener();
     }

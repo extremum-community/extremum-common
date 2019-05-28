@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.NoneNestedConditions;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
+import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.io.IOException;
@@ -48,6 +49,11 @@ public class CommonConfiguration {
     private final RedisProperties redisProperties;
     private final MongoProperties mongoProperties;
     private final DescriptorsProperties descriptorsProperties;
+
+    @Bean
+    public DateTimeProvider dateTimeProvider() {
+        return new AuditingDateTimeProvider();
+    }
 
     @Bean
     @ConditionalOnProperty(value = "redis.uri")
