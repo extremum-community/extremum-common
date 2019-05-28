@@ -18,7 +18,7 @@ final class CollectionFragmentImpl<T> implements CollectionFragment<T> {
         this(elements, (Long) total);
     }
 
-    private CollectionFragmentImpl(Collection<T> elements, Long total) {
+    CollectionFragmentImpl(Collection<T> elements, Long total) {
         Objects.requireNonNull(elements, "Elements is null");
         this.elements = elements;
         this.total = total;

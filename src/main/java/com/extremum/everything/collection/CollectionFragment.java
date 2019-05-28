@@ -21,6 +21,10 @@ public interface CollectionFragment<T> {
         return new CollectionFragmentImpl<>(fragmentElements, total);
     }
 
+    static <T> CollectionFragment<T> forUnknownSize(Collection<T> fragmentElements) {
+        return new CollectionFragmentImpl<>(fragmentElements, null);
+    }
+
     Collection<T> elements();
 
     OptionalLong total();
