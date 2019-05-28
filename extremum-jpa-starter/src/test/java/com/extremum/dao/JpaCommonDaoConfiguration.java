@@ -1,6 +1,6 @@
-package common.dao.jpa;
+package com.extremum.dao;
 
-import config.DescriptorConfiguration;
+import com.extremum.config.JpaConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Import;
  * @author rpuch
  */
 @Configuration
-@Import(DescriptorConfiguration.class)
+@Import(JpaConfiguration.class)
 public class JpaCommonDaoConfiguration {
 }

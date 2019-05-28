@@ -1,7 +1,7 @@
-package common.dao.jpa;
+package com.extremum.dao;
 
-import com.extremum.common.dao.impl.SpringDataJpaCommonDao;
-import models.TestBasicJpaModel;
+import com.extremum.dao.impl.SpringDataJpaCommonDao;
+import com.extremum.models.TestBasicJpaModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

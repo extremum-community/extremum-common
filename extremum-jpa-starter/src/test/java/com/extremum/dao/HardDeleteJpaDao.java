@@ -1,7 +1,7 @@
-package common.dao.jpa;
+package com.extremum.dao;
 
-import com.extremum.common.dao.impl.SpringDataJpaCommonDao;
-import models.HardDeleteJpaModel;
+import com.extremum.dao.impl.SpringDataJpaCommonDao;
+import com.extremum.models.HardDeleteJpaModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

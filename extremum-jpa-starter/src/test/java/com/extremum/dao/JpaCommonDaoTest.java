@@ -1,11 +1,14 @@
-package common.dao.jpa;
+package com.extremum.dao;
 
+import com.extremum.TestWithServices;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
-import models.TestJpaModel;
+import com.extremum.models.TestJpaModel;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +22,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
@@ -36,16 +34,16 @@ public class JpaCommonDaoTest extends TestWithServices {
     @Test
     public void testCreateModel() {
         TestJpaModel model = new TestJpaModel();
-        assertNull(model.getId());
-        assertNull(model.getCreated());
-        assertNull(model.getModified());
+        Assertions.assertNull(model.getId());
+        Assertions.assertNull(model.getCreated());
+        Assertions.assertNull(model.getModified());
 
         TestJpaModel createdModel = dao.save(model);
-        assertEquals(model, createdModel);
-        assertNotNull(model.getId());
-        assertNotNull(model.getCreated());
-        assertNotNull(model.getModified());
-        assertNotNull(model.getVersion());
+        Assertions.assertEquals(model, createdModel);
+        Assertions.assertNotNull(model.getId());
+        Assertions.assertNotNull(model.getCreated());
+        Assertions.assertNotNull(model.getModified());
+        Assertions.assertNotNull(model.getVersion());
         assertFalse(model.getDeleted());
     }
 
@@ -56,12 +54,12 @@ public class JpaCommonDaoTest extends TestWithServices {
         model.setName(UUID.randomUUID().toString());
         model = dao.save(model);
 
-        assertThat(model.getVersion(), is(1L));
+        assertThat(model.getVersion(), Matchers.is(1L));
 
         model.setVersion(0L);
         try {
             dao.save(model);
-            fail("An optimistick locking failure should have occured");
+            Assertions.fail("An optimistick locking failure should have occured");
         } catch (OptimisticLockingFailureException e) {
             // expected
         }
@@ -76,14 +74,14 @@ public class JpaCommonDaoTest extends TestWithServices {
                 .collect(Collectors.toList());
 
         List<TestJpaModel> createdModelList = dao.saveAll(modelList);
-        assertNotNull(createdModelList);
-        assertEquals(modelsToCreate, createdModelList.size());
+        Assertions.assertNotNull(createdModelList);
+        Assertions.assertEquals(modelsToCreate, createdModelList.size());
 
         long validCreated = createdModelList.stream()
                 .filter(model -> modelList.contains(model) && model.getCreated() != null
                         && model.getVersion() != null && model.getId() != null)
                 .count();
-        assertEquals(modelsToCreate, validCreated);
+        Assertions.assertEquals(modelsToCreate, validCreated);
     }
 
     @Test
@@ -99,13 +97,13 @@ public class JpaCommonDaoTest extends TestWithServices {
         assertEquals(model.getDeleted(), resultModel.getDeleted());
 
         resultModel = dao.findById(UUID.randomUUID()).orElse(null);
-        assertNull(resultModel);
+        Assertions.assertNull(resultModel);
 
         TestJpaModel deletedModel = getDeletedTestModel();
         dao.save(deletedModel);
 
         resultModel = dao.findById(deletedModel.getId()).orElse(null);
-        assertNull(resultModel);
+        Assertions.assertNull(resultModel);
     }
 
     // TODO: restore?
@@ -162,14 +160,14 @@ public class JpaCommonDaoTest extends TestWithServices {
             dao.save(getTestModel());
         }
         int count = dao.findAll().size();
-        assertEquals(initCount + modelsToCreate, count);
+        Assertions.assertEquals(initCount + modelsToCreate, count);
 
         initCount = count;
         for (int i = 0; i < modelsToCreate; i++) {
             dao.save(getDeletedTestModel());
         }
         count = dao.findAll().size();
-        assertEquals(initCount, count);
+        Assertions.assertEquals(initCount, count);
     }
 
     // TODO: restore?
@@ -221,7 +219,7 @@ public class JpaCommonDaoTest extends TestWithServices {
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
         List<TestJpaModel> results = dao.findByName(uniqueName);
-        assertThat(results, hasSize(1));
+        MatcherAssert.assertThat(results, Matchers.hasSize(1));
     }
 
     @Test
@@ -232,7 +230,7 @@ public class JpaCommonDaoTest extends TestWithServices {
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
         List<TestJpaModel> results = dao.findEvenDeletedByName(uniqueName);
-        assertThat(results, hasSize(2));
+        MatcherAssert.assertThat(results, Matchers.hasSize(2));
     }
 
     @Test
@@ -241,7 +239,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        assertThat(dao.countByName(uniqueName), is(1L));
+        assertThat(dao.countByName(uniqueName), Matchers.is(1L));
     }
 
     @Test
@@ -251,7 +249,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
+        assertThat(dao.countEvenDeletedByName(uniqueName), Matchers.is(2L));
     }
 
     @NotNull
@@ -271,7 +269,7 @@ public class JpaCommonDaoTest extends TestWithServices {
         try {
             dao.deleteAllInBatch();
         } catch (UnsupportedOperationException e) {
-            assertThat(e.getMessage(), is("We don't allow to delete all the records in one go"));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.is("We don't allow to delete all the records in one go"));
         }
     }
 
@@ -282,8 +280,8 @@ public class JpaCommonDaoTest extends TestWithServices {
         dao.save(testModel);
         TestJpaModel one = dao.getOne(testModel.getId());
         TestJpaModel model = dao.findById(testModel.getId()).get();
-        assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
-        assertThat(ModelUtils.getModelName(one),is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(model), Matchers.is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(one), Matchers.is("TestJpaModel"));
     }
 
     @Test

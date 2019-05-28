@@ -1,4 +1,4 @@
-package common.service.jpa;
+package com.extremum.services;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
@@ -6,8 +6,9 @@ import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.utils.ModelUtils;
-import common.dao.jpa.TestJpaModelDao;
-import models.TestJpaModel;
+import com.extremum.dao.TestJpaModelDao;
+import com.extremum.models.TestJpaModel;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -15,11 +16,7 @@ import org.mockito.Mockito;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JpaCommonServiceTest {
 
@@ -52,7 +49,7 @@ public class JpaCommonServiceTest {
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
         TestJpaModel resultModel = service.get(createdModel.getId().toString());
-        assertEquals(createdModel, resultModel);
+        Assertions.assertEquals(createdModel, resultModel);
     }
 
     @Test
@@ -72,7 +69,7 @@ public class JpaCommonServiceTest {
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
         TestJpaModel resultModel = service.get(createdModel.getId().toString(), alertList);
-        assertEquals(createdModel, resultModel);
+        Assertions.assertEquals(createdModel, resultModel);
         assertTrue(alertList.isEmpty());
 
         resultModel = service.get(UUID.randomUUID().toString(), alertList);
@@ -99,7 +96,7 @@ public class JpaCommonServiceTest {
         List<TestJpaModel> resultModelList = service.list();
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
+        Assertions.assertEquals(createdModel, resultModelList.get(0));
     }
 
     // TODO: restore?
@@ -296,7 +293,7 @@ public class JpaCommonServiceTest {
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
+        Assertions.assertEquals(createdModel, resultModelList.get(0));
     }
 
     @Test
@@ -305,7 +302,7 @@ public class JpaCommonServiceTest {
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
 
         TestJpaModel resultModel = service.create(new TestJpaModel());
-        assertEquals(createdModel, resultModel);
+        Assertions.assertEquals(createdModel, resultModel);
     }
 
     @Test
@@ -321,7 +318,7 @@ public class JpaCommonServiceTest {
 
         TestJpaModel resultModel = service.create(new TestJpaModel(), alertList);
         assertTrue(alertList.isEmpty());
-        assertEquals(createdModel, resultModel);
+        Assertions.assertEquals(createdModel, resultModel);
 
         resultModel = service.create((TestJpaModel) null, alertList);
 
@@ -339,7 +336,7 @@ public class JpaCommonServiceTest {
         List<TestJpaModel> resultModels = service.create(Collections.singletonList(new TestJpaModel()));
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
-        assertEquals(createdModel, resultModels.get(0));
+        Assertions.assertEquals(createdModel, resultModels.get(0));
     }
 
     @Test
@@ -358,7 +355,7 @@ public class JpaCommonServiceTest {
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
-        assertEquals(createdModel, resultModels.get(0));
+        Assertions.assertEquals(createdModel, resultModels.get(0));
 
         resultModels = service.create((List<TestJpaModel>) null, alertList);
 
@@ -374,10 +371,10 @@ public class JpaCommonServiceTest {
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
 
         TestJpaModel resultModel = service.save(new TestJpaModel());
-        assertEquals(createdModel, resultModel);
+        Assertions.assertEquals(createdModel, resultModel);
 
         resultModel = service.save(createdModel);
-        assertEquals(createdModel, resultModel);
+        Assertions.assertEquals(createdModel, resultModel);
     }
 
     @Test
@@ -391,7 +388,7 @@ public class JpaCommonServiceTest {
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
         TestJpaModel resultModel = service.save(updatedModel);
-        assertEquals(updatedModel, resultModel);
+        Assertions.assertEquals(updatedModel, resultModel);
         assertEquals(createdModel.getUuid(), resultModel.getUuid());
     }
 
@@ -412,7 +409,7 @@ public class JpaCommonServiceTest {
 
         TestJpaModel resultModel = service.save(updatedModel, alertList);
         assertTrue(alertList.isEmpty());
-        assertEquals(updatedModel, resultModel);
+        Assertions.assertEquals(updatedModel, resultModel);
 
         resultModel = service.save(null, alertList);
 

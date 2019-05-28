@@ -1,8 +1,8 @@
-package common.service.jpa;
+package com.extremum.services;
 
-import com.extremum.common.dao.PostgresCommonDao;
-import com.extremum.common.service.impl.PostgresCommonServiceImpl;
-import models.TestJpaModel;
+import com.extremum.dao.PostgresCommonDao;
+import com.extremum.models.TestJpaModel;
+import com.extremum.services.impl.PostgresCommonServiceImpl;
 
 /**
  * @author rpuch

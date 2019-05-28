@@ -1,4 +1,4 @@
-package com.extremum.common.descriptor.factory.impl;
+package com.extremum.factory;
 
 import org.junit.jupiter.api.Test;
 

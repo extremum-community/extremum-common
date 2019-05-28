@@ -1,7 +1,10 @@
-package common.dao.jpa;
+package com.extremum.dao;
 
-import com.extremum.common.test.TestWithServices;
-import models.TestBasicJpaModel;
+import com.extremum.TestWithServices;
+import com.extremum.models.TestBasicJpaModel;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 @ExtendWith(SpringExtension.class)
@@ -29,11 +28,11 @@ class BasicJpaDaoTest extends TestWithServices {
     @Test
     void testCreateModel() {
         TestBasicJpaModel model = new TestBasicJpaModel();
-        assertNull(model.getId());
+        Assertions.assertNull(model.getId());
 
         TestBasicJpaModel createdModel = dao.save(model);
-        assertEquals(model, createdModel);
-        assertNotNull(model.getId());
+        Assertions.assertEquals(model, createdModel);
+        Assertions.assertNotNull(model.getId());
     }
 
     @Test
@@ -45,13 +44,13 @@ class BasicJpaDaoTest extends TestWithServices {
                 .collect(Collectors.toList());
 
         List<TestBasicJpaModel> createdModelList = dao.saveAll(modelList);
-        assertNotNull(createdModelList);
-        assertEquals(modelsToCreate, createdModelList.size());
+        Assertions.assertNotNull(createdModelList);
+        Assertions.assertEquals(modelsToCreate, createdModelList.size());
 
         long validCreated = createdModelList.stream()
                 .filter(model -> modelList.contains(model) && model.getId() != null)
                 .count();
-        assertEquals(modelsToCreate, validCreated);
+        Assertions.assertEquals(modelsToCreate, validCreated);
     }
 
     @Test
@@ -63,7 +62,7 @@ class BasicJpaDaoTest extends TestWithServices {
         assertEquals(model.getId(), resultModel.getId());
 
         resultModel = dao.findById(UUID.randomUUID()).orElse(null);
-        assertNull(resultModel);
+        Assertions.assertNull(resultModel);
     }
 
     @Test
@@ -75,7 +74,7 @@ class BasicJpaDaoTest extends TestWithServices {
             dao.save(new TestBasicJpaModel());
         }
         int count = dao.findAll().size();
-        assertEquals(initCount + modelsToCreate, count);
+        Assertions.assertEquals(initCount + modelsToCreate, count);
     }
 
     @Test
@@ -85,6 +84,6 @@ class BasicJpaDaoTest extends TestWithServices {
         dao.save(model);
 
         List<TestBasicJpaModel> byName = dao.findByName(model.getName());
-        assertThat(byName, hasSize(1));
+        MatcherAssert.assertThat(byName, Matchers.hasSize(1));
     }
 }

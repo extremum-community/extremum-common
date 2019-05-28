@@ -1,10 +1,6 @@
-package com.extremum.common.repository.jpa;
+package com.extremum.repositories;
 
-import com.extremum.common.models.PostgresBasicModel;
-import com.extremum.common.models.PostgresCommonModel;
-import com.extremum.common.models.SoftDeletePostgresModel;
-import models.HardDeleteJpaModel;
-import models.TestJpaModel;
+import com.extremum.models.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

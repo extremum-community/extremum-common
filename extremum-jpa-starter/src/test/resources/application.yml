@@ -4,13 +4,20 @@ redis:
 
 mongo:
   dbName: test
-  repository-packages: abc,common.dao.mongo
+
+jpa:
+  username: postgres
+  entity-packages: models
+  repository-packages: abc,common.dao.jpa
+  generate-ddl: true
+  show-sql: true
 
 descriptors:
   descriptorsMapName: descriptors
   internalIdsMapName: descriptors_internalId_idx
   collectionDescriptorsMapName: collection_descriptors
   collectionCoordinatesMapName: collection_descriptors_coordinates_idx
+
 
 spring:
   jpa:
@@ -25,7 +32,3 @@ spring:
 logging:
   level:
     org.springframework.web : DEBUG
-
-custom:
-  field-destroyer:
-    analyzable-package-prefix: com.cybernation.testservice

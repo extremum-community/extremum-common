@@ -1,8 +1,8 @@
-package common.dao.jpa;
+package com.extremum.dao;
 
-import com.extremum.common.dao.impl.SpringDataJpaCommonDao;
 import com.extremum.common.repository.SeesSoftlyDeletedRecords;
-import models.TestJpaModel;
+import com.extremum.dao.impl.SpringDataJpaCommonDao;
+import com.extremum.models.TestJpaModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

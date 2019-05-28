@@ -1,6 +1,5 @@
-package models;
+package com.extremum.models;
 
-import com.extremum.common.models.SoftDeletePostgresModel;
 import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
