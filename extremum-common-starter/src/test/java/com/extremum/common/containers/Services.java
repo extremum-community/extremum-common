@@ -1,5 +1,6 @@
 package com.extremum.common.containers;
 
+import com.github.ydespreaux.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ public class Services {
         startMongo();
         startRedis();
         startPostgres();
+        startElasticSearch();
     }
 
     private static void startMongo() {
@@ -39,10 +41,22 @@ public class Services {
         LOGGER.info("Postgres DB url is {}", postgresUrl);
     }
 
+    private static void startElasticSearch() {
+        ElasticsearchContainer elasticSearch = new ElasticsearchContainer("7.1.0");
+        elasticSearch.start();
+
+        System.setProperty("elastic.hosts[0].host", elasticSearch.getContainerIpAddress());
+        System.setProperty("elastic.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
+        System.setProperty("elastic.hosts[0].protocol", "http");
+
+        LOGGER.info("Elasticsearch host:port are {}:{}",
+                elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+    }
+
     @NotNull
     private static GenericContainer startGenericContainer(String dockerImageName, int portToExpose) {
-        GenericContainer postgres = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
-        postgres.start();
-        return postgres;
+        GenericContainer container = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
+        container.start();
+        return container;
     }
 }
