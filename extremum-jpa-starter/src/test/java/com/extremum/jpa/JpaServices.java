@@ -9,8 +9,8 @@ import org.testcontainers.containers.GenericContainer;
 /**
  * @author rpuch
  */
-public class Services {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Services.class);
+public class JpaServices {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JpaServices.class);
 
     static {
         startMongo();

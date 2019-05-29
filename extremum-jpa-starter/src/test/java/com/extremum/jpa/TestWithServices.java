@@ -8,5 +8,5 @@ package com.extremum.jpa;
  */
 public abstract class TestWithServices {
     @SuppressWarnings("unused")
-    private static final Services services = new Services();
+    private static final JpaServices services = new JpaServices();
 }

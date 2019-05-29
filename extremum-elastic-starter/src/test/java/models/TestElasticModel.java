@@ -5,9 +5,7 @@ import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
 
-import static models.TestMongoModel.COLLECTION;
-
-@ModelName(COLLECTION)
+@ModelName(TestElasticModel.INDEX)
 @Getter @Setter
 public class TestElasticModel extends ElasticCommonModel {
 

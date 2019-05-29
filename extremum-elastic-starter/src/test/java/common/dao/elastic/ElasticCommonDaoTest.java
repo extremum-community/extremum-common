@@ -2,8 +2,8 @@ package common.dao.elastic;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.elastic.TestWithServices;
 import models.TestElasticModel;
 import org.bson.types.ObjectId;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -71,14 +71,6 @@ class ElasticCommonDaoTest extends TestWithServices {
         } catch (ElasticsearchStatusException e) {
             assertThat(e.getMessage(), containsString("version conflict"));
         }
-    }
-
-    @Test
-    void testCreateModelWithWrongVersion() {
-        TestElasticModel model = getTestModel();
-        model.setId(model.getUuid().getInternalId());
-        model.setVersion(123L);
-        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model));
     }
 
     @Test
@@ -223,8 +215,6 @@ class ElasticCommonDaoTest extends TestWithServices {
         dao.save(model);
         dao.deleteById(model.getId());
 
-        TestElasticModel model = dao.save(getDeletedTestModel());
-
         assertThat(dao.existsById(model.getId()), is(false));
     }
 
@@ -303,12 +293,6 @@ class ElasticCommonDaoTest extends TestWithServices {
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
-    }
-
-    private static TestElasticModel getDeletedTestModel() {
-        TestElasticModel model = new TestElasticModel();
-        model.setDeleted(true);
-        return model;
     }
 
     private static TestElasticModel getTestModel() {

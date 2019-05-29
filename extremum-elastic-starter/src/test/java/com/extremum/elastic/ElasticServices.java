@@ -1,4 +1,4 @@
-package com.extremum.common.containers;
+package com.extremum.elastic;
 
 import com.github.ydespreaux.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.jetbrains.annotations.NotNull;
@@ -9,13 +9,12 @@ import org.testcontainers.containers.GenericContainer;
 /**
  * @author rpuch
  */
-public class Services {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Services.class);
+class ElasticServices {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticServices.class);
 
     static {
         startMongo();
         startRedis();
-        startPostgres();
         startElasticSearch();
     }
 
@@ -31,14 +30,6 @@ public class Services {
         String redisUri = String.format("redis://%s:%d", redis.getContainerIpAddress(), redis.getFirstMappedPort());
         System.setProperty("redis.uri", redisUri);
         LOGGER.info("Redis uri is {}", redisUri);
-    }
-
-    private static void startPostgres() {
-        GenericContainer postgres = startGenericContainer("postgres:11.3-alpine", 5432);
-        String postgresUrl = String.format("jdbc:postgresql://%s:%d/%s",
-                postgres.getContainerIpAddress(), postgres.getFirstMappedPort(), "postgres");
-        System.setProperty("jpa.uri", postgresUrl);
-        LOGGER.info("Postgres DB url is {}", postgresUrl);
     }
 
     private static void startElasticSearch() {
