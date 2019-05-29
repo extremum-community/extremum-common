@@ -6,12 +6,11 @@ import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
 import models.TestElasticModel;
 import org.bson.types.ObjectId;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,13 +18,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 @SpringBootTest(classes = ElasticCommonDaoConfiguration.class)
@@ -49,20 +49,28 @@ class ElasticCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    // TODO: enable
-    @Disabled("Restore when we have optimistic locking mechanism working")
-    void testCreateModelWithWrongVersion() {
-        TestElasticModel model = getTestModel();
+    void whenAnEntityIsSavedTwice_thenTheVersionShouldBecome2() {
+        TestElasticModel model = new TestElasticModel();
         model = dao.save(model);
         model.setName(UUID.randomUUID().toString());
         model = dao.save(model);
 
         assertThat(model.getVersion(), is(2L));
+    }
 
-        model.setVersion(0L);
+    @Test
+    void testCreateModelWithWrongVersion() {
+        TestElasticModel model = new TestElasticModel();
+        model = dao.save(model);
 
-        TestElasticModel finalModel = model;
-        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(finalModel));
+        model.setSeqNo(0L);
+        model.setName(UUID.randomUUID().toString());
+        try {
+            dao.save(model);
+            fail("An optimistic failure should occur");
+        } catch (ElasticsearchStatusException e) {
+            assertThat(e.getMessage(), containsString("version conflict"));
+        }
     }
 
     @Test
