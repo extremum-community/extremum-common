@@ -15,10 +15,10 @@ public class ReflectionUtils {
     public static Class getGenericParameterClass(final Class actualClass, final Class genericClass, final int parameterIndex) {
         if (!genericClass.isAssignableFrom(actualClass.getSuperclass())) {
             throw new IllegalArgumentException("Class " + genericClass.getName() + " is not a superclass of "
-                    + actualClass.getName() + "src/main/java");
+                    + actualClass.getName());
         }
 
-        Stack<ParameterizedType> genericClasses = new Stack<ParameterizedType>();
+        Stack<ParameterizedType> genericClasses = new Stack<>();
 
         Class clazz = actualClass;
 
@@ -47,8 +47,8 @@ public class ReflectionUtils {
         }
 
         if (result instanceof TypeVariable) {
-            throw new IllegalStateException("Unable to resolve type variable " + result + "src/main/java"
-                    + " Try to replace instances of parametrized class with its non-parameterized subtype.");
+            throw new IllegalStateException("Unable to resolve type variable " + result + "."
+                    + " Try to replace instances of parametrized class with its non-parameterized subtype");
         }
 
         if (result instanceof ParameterizedType) {
@@ -57,11 +57,11 @@ public class ReflectionUtils {
 
         if (result == null) {
             throw new IllegalStateException("Unable to determine actual parameter type for "
-                    + actualClass.getName() + "src/main/java");
+                    + actualClass.getName());
         }
 
         if (!(result instanceof Class)) {
-            throw new IllegalStateException("Actual parameter type for " + actualClass.getName() + " is not a Class.");
+            throw new IllegalStateException("Actual parameter type for " + actualClass.getName() + " is not a Class");
         }
 
         return (Class) result;
@@ -82,7 +82,7 @@ public class ReflectionUtils {
             return actualArgumentIndex;
         } else {
             throw new IllegalStateException("Argument " + typeVariable.toString() + " is not found in "
-                    + genericDeclaration.toString() + "src/main/java");
+                    + genericDeclaration.toString());
         }
     }
 }
