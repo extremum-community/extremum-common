@@ -1,10 +1,10 @@
-package common.dao.elastic;
+package com.extremum.elastic.dao;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.elastic.TestWithServices;
-import models.TestElasticModel;
+import com.extremum.elastic.model.TestElasticModel;
 import org.bson.types.ObjectId;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;

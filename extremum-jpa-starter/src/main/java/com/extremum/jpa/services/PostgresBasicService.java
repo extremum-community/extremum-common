@@ -1,7 +1,7 @@
 package com.extremum.jpa.services;
 
 
-import com.extremum.common.service.CommonService;
+import com.extremum.elastic.service.CommonService;
 import com.extremum.jpa.models.PostgresBasicModel;
 
 import java.util.UUID;

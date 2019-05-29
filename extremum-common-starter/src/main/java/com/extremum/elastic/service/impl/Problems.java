@@ -1,4 +1,4 @@
-package com.extremum.common.service.impl;
+package com.extremum.elastic.service.impl;
 
 import com.extremum.common.exceptions.CommonException;
 

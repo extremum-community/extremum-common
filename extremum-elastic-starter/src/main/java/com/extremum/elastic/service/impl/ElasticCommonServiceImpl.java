@@ -1,8 +1,8 @@
-package com.extremum.common.service.impl;
+package com.extremum.elastic.service.impl;
 
 import com.extremum.common.dao.ElasticCommonDao;
 import com.extremum.common.models.ElasticCommonModel;
-import com.extremum.common.service.ElasticCommonService;
+import com.extremum.elastic.service.ElasticCommonService;
 
 
 public abstract class ElasticCommonServiceImpl<M extends ElasticCommonModel> extends CommonServiceImpl<String, M>

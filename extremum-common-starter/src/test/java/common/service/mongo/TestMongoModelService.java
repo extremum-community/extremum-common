@@ -1,7 +1,7 @@
 package common.service.mongo;
 
 import com.extremum.common.dao.MongoCommonDao;
-import com.extremum.common.service.impl.MongoCommonServiceImpl;
+import com.extremum.elastic.service.impl.MongoCommonServiceImpl;
 import models.TestMongoModel;
 
 /**

@@ -1,4 +1,4 @@
-package com.extremum.common.service;
+package com.extremum.elastic.service;
 
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;

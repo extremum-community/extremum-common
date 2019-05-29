@@ -1,4 +1,4 @@
-package common.dao.elastic;
+package com.extremum.elastic.dao;
 
 import com.extremum.common.descriptor.factory.impl.ElasticDescriptorFactory;
 import com.extremum.starter.CommonConfiguration;

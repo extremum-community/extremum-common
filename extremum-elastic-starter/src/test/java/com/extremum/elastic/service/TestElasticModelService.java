@@ -1,8 +1,8 @@
-package common.service.elastic;
+package com.extremum.elastic.service;
 
 import com.extremum.common.dao.ElasticCommonDao;
-import com.extremum.common.service.impl.ElasticCommonServiceImpl;
-import models.TestElasticModel;
+import com.extremum.elastic.service.impl.ElasticCommonServiceImpl;
+import com.extremum.elastic.model.TestElasticModel;
 
 /**
  * @author rpuch

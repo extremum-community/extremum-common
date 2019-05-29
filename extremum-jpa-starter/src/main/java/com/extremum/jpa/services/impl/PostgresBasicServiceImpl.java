@@ -1,6 +1,6 @@
 package com.extremum.jpa.services.impl;
 
-import com.extremum.common.service.impl.CommonServiceImpl;
+import com.extremum.elastic.service.impl.CommonServiceImpl;
 import com.extremum.jpa.dao.PostgresCommonDao;
 import com.extremum.jpa.models.PostgresBasicModel;
 import com.extremum.jpa.services.PostgresBasicService;

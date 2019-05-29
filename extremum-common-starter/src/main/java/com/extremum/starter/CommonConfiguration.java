@@ -10,7 +10,7 @@ import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
-import com.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
+import com.extremum.elastic.service.lifecycle.MongoCommonModelLifecycleListener;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;

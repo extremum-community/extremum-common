@@ -1,4 +1,4 @@
-package models;
+package com.extremum.elastic.model;
 
 import com.extremum.common.models.ElasticCommonModel;
 import com.extremum.common.models.annotation.ModelName;
