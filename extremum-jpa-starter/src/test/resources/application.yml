@@ -7,8 +7,8 @@ mongo:
 
 jpa:
   username: postgres
-  entity-packages: com.extremum.models
-  repository-packages: com.extremum.dao
+  entity-packages: com.extremum.jpa.models
+  repository-packages: com.extremum.jpa.dao
   generate-ddl: true
   show-sql: true
 
