@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 @EnableExtremumJpaRepositories(basePackages = "${jpa.repository-packages}",
         repositoryFactoryBeanClass = ExtremumJpaRepositoryFactoryBean.class)
 @EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
-@ConditionalOnProperty(JpaProperties.REPOSITORY_PACKAGES_PROPERTY)
 @RequiredArgsConstructor
 public class JpaRepositoriesConfiguration {
     private final JpaProperties jpaProperties;
@@ -58,7 +57,6 @@ public class JpaRepositoriesConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "jpa", value = "entity-packages")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(jpaProperties.isGenerateDdl());
