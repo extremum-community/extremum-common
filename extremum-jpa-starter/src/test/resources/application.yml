@@ -1,0 +1,34 @@
+redis:
+  cacheSize: 5
+  idleTime: 1
+
+mongo:
+  dbName: test
+
+jpa:
+  username: postgres
+  entity-packages: com.extremum.jpa.models
+  repository-packages: com.extremum.jpa.dao
+  generate-ddl: true
+  show-sql: true
+
+descriptors:
+  descriptorsMapName: descriptors
+  internalIdsMapName: descriptors_internalId_idx
+  collectionDescriptorsMapName: collection_descriptors
+  collectionCoordinatesMapName: collection_descriptors_coordinates_idx
+
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.web : DEBUG
