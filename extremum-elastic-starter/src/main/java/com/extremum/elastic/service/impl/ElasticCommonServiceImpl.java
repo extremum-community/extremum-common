@@ -8,11 +8,8 @@ import com.extremum.elastic.service.ElasticCommonService;
 public abstract class ElasticCommonServiceImpl<M extends ElasticCommonModel> extends CommonServiceImpl<String, M>
         implements ElasticCommonService<M> {
 
-    private final ElasticCommonDao<M> dao;
-
     protected ElasticCommonServiceImpl(ElasticCommonDao<M> dao) {
         super(dao);
-        this.dao = dao;
     }
 
     @Override
