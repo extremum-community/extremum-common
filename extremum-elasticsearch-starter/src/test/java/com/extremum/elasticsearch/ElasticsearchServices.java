@@ -1,20 +1,21 @@
-package com.extremum.common.containers;
+package com.extremum.elasticsearch;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 /**
  * @author rpuch
  */
-public class Services {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Services.class);
+class ElasticsearchServices {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchServices.class);
 
     static {
         startMongo();
         startRedis();
-        startPostgres();
+        startElasticsearch();
     }
 
     private static void startMongo() {
@@ -31,18 +32,22 @@ public class Services {
         LOGGER.info("Redis uri is {}", redisUri);
     }
 
-    private static void startPostgres() {
-        GenericContainer postgres = startGenericContainer("postgres:11.3-alpine", 5432);
-        String postgresUrl = String.format("jdbc:postgresql://%s:%d/%s",
-                postgres.getContainerIpAddress(), postgres.getFirstMappedPort(), "postgres");
-        System.setProperty("jpa.uri", postgresUrl);
-        LOGGER.info("Postgres DB url is {}", postgresUrl);
+    private static void startElasticsearch() {
+        ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
+        elasticSearch.start();
+
+        System.setProperty("elasticsearch.hosts[0].host", elasticSearch.getContainerIpAddress());
+        System.setProperty("elasticsearch.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
+        System.setProperty("elasticsearch.hosts[0].protocol", "http");
+
+        LOGGER.info("Elasticsearch host:port are {}:{}",
+                elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
     }
 
     @NotNull
     private static GenericContainer startGenericContainer(String dockerImageName, int portToExpose) {
-        GenericContainer postgres = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
-        postgres.start();
-        return postgres;
+        GenericContainer container = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
+        container.start();
+        return container;
     }
 }

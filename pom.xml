@@ -12,6 +12,7 @@
     <modules>
         <module>extremum-common-starter</module>
         <module>extremum-jpa-starter</module>
+        <module>extremum-elasticsearch-starter</module>
     </modules>
 
     <build>
@@ -34,6 +35,7 @@
 
     <properties>
         <spring-boot-dependencies.version>2.1.4.RELEASE</spring-boot-dependencies.version>
+        <testcontainers.version>1.11.3</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -115,7 +117,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.11.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

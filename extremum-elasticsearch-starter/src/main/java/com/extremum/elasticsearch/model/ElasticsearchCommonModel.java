@@ -1,6 +1,7 @@
-package com.extremum.common.models;
+package com.extremum.elasticsearch.model;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.models.PersistableCommonModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,7 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Setter
-public abstract class ElasticCommonModel implements PersistableCommonModel<String> {
+public abstract class ElasticsearchCommonModel implements PersistableCommonModel<String> {
     private Descriptor uuid;
     private String id;
     private ZonedDateTime created;

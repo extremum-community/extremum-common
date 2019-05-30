@@ -8,8 +8,8 @@ import org.testcontainers.containers.GenericContainer;
 /**
  * @author rpuch
  */
-public class Services {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Services.class);
+class JpaServices {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JpaServices.class);
 
     static {
         startMongo();
@@ -41,8 +41,8 @@ public class Services {
 
     @NotNull
     private static GenericContainer startGenericContainer(String dockerImageName, int portToExpose) {
-        GenericContainer postgres = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
-        postgres.start();
-        return postgres;
+        GenericContainer container = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
+        container.start();
+        return container;
     }
 }

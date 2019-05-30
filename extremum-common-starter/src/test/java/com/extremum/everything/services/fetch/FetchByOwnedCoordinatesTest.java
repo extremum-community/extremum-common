@@ -168,14 +168,14 @@ class FetchByOwnedCoordinatesTest {
     @Test
     void givenModelStoregaTypeIsNotMongo_whenFetchingCollectionViaIds_thenAnExceptionShouldBeThrown() {
         Street model = new Street();
-        model.setUuid(Descriptor.builder().storageType(Descriptor.StorageType.ELASTIC).build());
+        model.setUuid(Descriptor.builder().storageType(Descriptor.StorageType.ELASTICSEARCH).build());
 
         try {
             fetcher.fetchCollection(model, "houses", Projection.empty());
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is("Only Mongo models can use IDs to fetch collections, " +
-                    "but it was 'ELASTIC' on 'Street', field 'houses'"));
+                    "but it was 'ELASTICSEARCH' on 'Street', field 'houses'"));
         }
     }
 
