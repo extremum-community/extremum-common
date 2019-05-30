@@ -10,6 +10,6 @@ public class TestElasticModelDao extends DefaultElasticCommonDao<TestElasticMode
     public TestElasticModelDao(ElasticProperties elasticProperties,
             ElasticDescriptorFactory descriptorFactory,
             ObjectMapper mapper) {
-        super(elasticProperties, descriptorFactory, mapper, "test_entities", null);
+        super(elasticProperties, descriptorFactory, mapper, TestElasticModel.INDEX, null);
     }
 }

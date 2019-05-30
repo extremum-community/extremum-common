@@ -5,11 +5,11 @@ import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
 
-@ModelName(TestElasticModel.INDEX)
+@ModelName("TestElasticModel")
 @Getter @Setter
 public class TestElasticModel extends ElasticCommonModel {
 
-    public static final String INDEX = "testEntities";
+    public static final String INDEX = "test_entities";
 
     private String name;
 
