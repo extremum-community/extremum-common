@@ -1,4 +1,4 @@
-package com.extremum.common.dao.extractor;
+package com.extremum.elastic.dao.extractor;
 
 import com.extremum.common.descriptor.Descriptor;
 

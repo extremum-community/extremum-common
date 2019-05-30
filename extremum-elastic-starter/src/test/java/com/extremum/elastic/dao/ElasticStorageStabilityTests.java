@@ -3,7 +3,7 @@ package com.extremum.elastic.dao;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.elastic.TestWithServices;
 import com.extremum.elastic.model.TestElasticModel;
-import com.extremum.starter.properties.ElasticProperties;
+import com.extremum.elastic.properties.ElasticProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetRequest;

@@ -1,6 +1,7 @@
-package com.extremum.common.dao;
+package com.extremum.elastic.dao;
 
-import com.extremum.common.models.ElasticCommonModel;
+import com.extremum.common.dao.CommonDao;
+import com.extremum.elastic.model.ElasticCommonModel;
 
 import java.util.List;
 import java.util.Map;

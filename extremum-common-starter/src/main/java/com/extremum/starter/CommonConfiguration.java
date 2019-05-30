@@ -12,7 +12,6 @@ import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
 import com.extremum.elastic.service.lifecycle.MongoCommonModelLifecycleListener;
 import com.extremum.starter.properties.DescriptorsProperties;
-import com.extremum.starter.properties.ElasticProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +42,7 @@ import java.lang.annotation.Target;
 @Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
-@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class, ElasticProperties.class,
+@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class,
         DescriptorsProperties.class})
 public class CommonConfiguration {
     private final RedisProperties redisProperties;

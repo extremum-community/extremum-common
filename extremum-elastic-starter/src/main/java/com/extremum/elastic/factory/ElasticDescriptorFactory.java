@@ -1,6 +1,7 @@
-package com.extremum.common.descriptor.factory.impl;
+package com.extremum.elastic.factory;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFactory;
 import org.springframework.stereotype.Component;
 
 @Component

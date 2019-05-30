@@ -1,6 +1,6 @@
 package com.extremum.elastic.service;
 
-import com.extremum.common.dao.ElasticCommonDao;
+import com.extremum.elastic.dao.ElasticCommonDao;
 import com.extremum.elastic.service.impl.ElasticCommonServiceImpl;
 import com.extremum.elastic.model.TestElasticModel;
 

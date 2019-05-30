@@ -1,17 +1,15 @@
-package com.extremum.common.dao.extractor;
+package com.extremum.elastic.dao.extractor;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.action.get.GetResponse;
 
 import java.util.Map;
 
-@Slf4j
-public class SearchHitAccessorFacade extends AccessorFacade {
-    private SearchHit response;
+public class GetResponseAccessorFacade extends AccessorFacade {
+    private GetResponse response;
 
-    public SearchHitAccessorFacade(SearchHit response) {
+    public GetResponseAccessorFacade(GetResponse response) {
         this.response = response;
     }
 

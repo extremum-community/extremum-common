@@ -1,6 +1,7 @@
-package com.extremum.common.models;
+package com.extremum.elastic.model;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.models.PersistableCommonModel;
 import lombok.Getter;
 import lombok.Setter;
 

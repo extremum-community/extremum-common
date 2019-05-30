@@ -1,7 +1,7 @@
 package com.extremum.elastic.service.impl;
 
-import com.extremum.common.dao.ElasticCommonDao;
-import com.extremum.common.models.ElasticCommonModel;
+import com.extremum.elastic.dao.ElasticCommonDao;
+import com.extremum.elastic.model.ElasticCommonModel;
 import com.extremum.elastic.service.ElasticCommonService;
 
 
