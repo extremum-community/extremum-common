@@ -2,6 +2,7 @@ package com.extremum.elasticsearch.dao;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
+import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepository;
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.client.Client;
@@ -26,7 +27,8 @@ import java.net.UnknownHostException;
 @Configuration
 @EnableConfigurationProperties(ElasticsearchProperties.class)
 @Import(CommonConfiguration.class)
-@EnableElasticsearchRepositories("com.extremum.elasticsearch.dao")
+@EnableElasticsearchRepositories(basePackages = "com.extremum.elasticsearch.dao",
+        repositoryBaseClass = ExtremumElasticsearchRepository.class)
 @RequiredArgsConstructor
 public class ElasticsearchCommonDaoConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
@@ -37,7 +39,7 @@ public class ElasticsearchCommonDaoConfiguration {
     }
 
     @Bean
-    public Client client() throws UnknownHostException {
+    public Client elasticsearchClient() throws UnknownHostException {
         Settings elasticsearchSettings = Settings.builder()
 //                .put("client.transport.sniff", true)
 //                .put("path.home", elasticsearchHome)
@@ -51,6 +53,6 @@ public class ElasticsearchCommonDaoConfiguration {
     @Bean
     public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
 //        return new ElasticsearchTemplate(nodeBuilder().local(true).node().client());
-        return new ElasticsearchTemplate(client());
+        return new ElasticsearchTemplate(elasticsearchClient());
     }
 }

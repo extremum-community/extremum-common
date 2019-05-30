@@ -10,8 +10,6 @@ public interface ElasticsearchCommonDao<Model extends ElasticsearchCommonModel> 
 
     List<Model> search(String queryString);
 
-    <N extends Model> N save(N model);
-
     boolean patch(String id, String painlessQuery);
 
     boolean patch(String id, String painlessScript, Map<String, Object> params);

@@ -3,7 +3,6 @@ package com.extremum.elasticsearch.dao;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.*;
 
@@ -26,7 +25,7 @@ class TestElasticsearchClient {
     Optional<String> getAsJson(String indexName, String id) {
         try (RestHighLevelClient client = getClient()) {
             GetResponse response = client.get(
-                    new GetRequest(indexName, id),
+                    Requests.getRequest(indexName).id(id),
                     RequestOptions.DEFAULT
             );
 
