@@ -119,12 +119,6 @@
             <version>1.11.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.ydespreaux.testcontainers</groupId>
-            <artifactId>testcontainers-elasticsearch</artifactId>
-            <version>1.2.4</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <distributionManagement>
