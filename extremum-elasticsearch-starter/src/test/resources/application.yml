@@ -13,12 +13,6 @@ descriptors:
 
 
 spring:
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
   main:
     allow-bean-definition-overriding: true
 
