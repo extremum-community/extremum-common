@@ -4,7 +4,7 @@ import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
 
-@ModelName("TestElasticModel")
+@ModelName("TestElasticsearchModel")
 @Getter @Setter
 public class TestElasticsearchModel extends ElasticsearchCommonModel {
 
