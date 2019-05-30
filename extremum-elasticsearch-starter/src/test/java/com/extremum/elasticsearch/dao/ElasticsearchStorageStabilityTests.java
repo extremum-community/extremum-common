@@ -2,8 +2,8 @@ package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.elasticsearch.TestWithServices;
-import com.extremum.elasticsearch.model.TestElasticModel;
-import com.extremum.elasticsearch.properties.ElasticProperties;
+import com.extremum.elasticsearch.model.TestElasticsearchModel;
+import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetRequest;
@@ -30,22 +30,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-@SpringBootTest(classes = ElasticCommonDaoConfiguration.class)
-class ElasticStorageStabilityTests extends TestWithServices {
+@SpringBootTest(classes = ElasticsearchCommonDaoConfiguration.class)
+class ElasticsearchStorageStabilityTests extends TestWithServices {
     @Autowired
-    private ElasticProperties elasticProperties;
+    private ElasticsearchProperties elasticsearchProperties;
     @Autowired
-    private TestElasticModelDao dao;
+    private TestElasticsearchModelDao dao;
 
     @Test
     void givenAnEntityWasSaved_whenGetThisEntityRawJson_thenItShouldBeDeserializedToTheSameValuesByOurObjectMapper()
             throws Exception {
-        TestElasticModel model = saveEntity();
+        TestElasticsearchModel model = saveEntity();
 
-        String json = getAsJson(TestElasticModel.INDEX, model.getId())
+        String json = getAsJson(TestElasticsearchModel.INDEX, model.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Did not find anything"));
 
-        TestElasticModel parsedModel = parseJsonWithOurObjectMapper(json);
+        TestElasticsearchModel parsedModel = parseJsonWithOurObjectMapper(json);
 
         assertThat(parsedModel.getId(), is(notNullValue()));
         assertThat(parsedModel.getUuid(), is(notNullValue()));
@@ -59,8 +59,8 @@ class ElasticStorageStabilityTests extends TestWithServices {
     }
 
     @NotNull
-    private TestElasticModel saveEntity() {
-        TestElasticModel model = new TestElasticModel();
+    private TestElasticsearchModel saveEntity() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
         model.setName("test");
 
         dao.save(model);
@@ -86,7 +86,7 @@ class ElasticStorageStabilityTests extends TestWithServices {
     }
 
     private RestHighLevelClient getClient() {
-        List<HttpHost> httpHosts = elasticProperties.getHosts().stream()
+        List<HttpHost> httpHosts = elasticsearchProperties.getHosts().stream()
                 .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
                 .collect(Collectors.toList());
 
@@ -94,8 +94,8 @@ class ElasticStorageStabilityTests extends TestWithServices {
         return new RestHighLevelClient(builder);
     }
 
-    private TestElasticModel parseJsonWithOurObjectMapper(String json) throws IOException {
+    private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) throws IOException {
         ObjectMapper mapper = JsonObjectMapper.createWithoutDescriptorTransfiguration();
-        return mapper.readerFor(TestElasticModel.class).readValue(json);
+        return mapper.readerFor(TestElasticsearchModel.class).readValue(json);
     }
 }

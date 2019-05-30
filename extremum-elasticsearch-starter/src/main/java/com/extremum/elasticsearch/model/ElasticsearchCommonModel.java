@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Setter
-public abstract class ElasticCommonModel implements PersistableCommonModel<String> {
+public abstract class ElasticsearchCommonModel implements PersistableCommonModel<String> {
     private Descriptor uuid;
     private String id;
     private ZonedDateTime created;

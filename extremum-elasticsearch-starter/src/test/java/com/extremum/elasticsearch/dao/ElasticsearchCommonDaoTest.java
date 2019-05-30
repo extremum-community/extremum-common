@@ -4,7 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.elasticsearch.TestWithServices;
-import com.extremum.elasticsearch.model.TestElasticModel;
+import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import org.bson.types.ObjectId;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
@@ -28,19 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
-@SpringBootTest(classes = ElasticCommonDaoConfiguration.class)
-class ElasticCommonDaoTest extends TestWithServices {
+@SpringBootTest(classes = ElasticsearchCommonDaoConfiguration.class)
+class ElasticsearchCommonDaoTest extends TestWithServices {
     @Autowired
-    private TestElasticModelDao dao;
+    private TestElasticsearchModelDao dao;
 
     @Test
     void testCreateModel() {
-        TestElasticModel model = getTestModel();
+        TestElasticsearchModel model = getTestModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
 
-        TestElasticModel createdModel = dao.save(model);
+        TestElasticsearchModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
@@ -50,7 +50,7 @@ class ElasticCommonDaoTest extends TestWithServices {
 
     @Test
     void whenAnEntityIsSavedTwice_thenTheVersionShouldBecome2() {
-        TestElasticModel model = new TestElasticModel();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         model = dao.save(model);
         model.setName(UUID.randomUUID().toString());
         model = dao.save(model);
@@ -60,7 +60,7 @@ class ElasticCommonDaoTest extends TestWithServices {
 
     @Test
     void testCreateModelWithWrongVersion() {
-        TestElasticModel model = new TestElasticModel();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         model = dao.save(model);
 
         model.setSeqNo(0L);
@@ -76,12 +76,12 @@ class ElasticCommonDaoTest extends TestWithServices {
     @Test
     void testCreateModelList() {
         int modelsToCreate = 10;
-        List<TestElasticModel> modelList = Stream
-                .generate(ElasticCommonDaoTest::getTestModel)
+        List<TestElasticsearchModel> modelList = Stream
+                .generate(ElasticsearchCommonDaoTest::getTestModel)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
 
-        List<TestElasticModel> createdModelList = dao.saveAll(modelList);
+        List<TestElasticsearchModel> createdModelList = dao.saveAll(modelList);
         assertNotNull(createdModelList);
         assertEquals(modelsToCreate, createdModelList.size());
 
@@ -94,10 +94,10 @@ class ElasticCommonDaoTest extends TestWithServices {
 
     @Test
     void givenEntityExists_whenFindById_thenWeShouldFindTheEntity() {
-        TestElasticModel model = getTestModel();
+        TestElasticsearchModel model = getTestModel();
         dao.save(model);
 
-        TestElasticModel resultModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
@@ -107,17 +107,17 @@ class ElasticCommonDaoTest extends TestWithServices {
 
     @Test
     void givenEntityDoesNotExist_whenFindById_thenNothingShouldBeFound() {
-        TestElasticModel resultModel = dao.findById(UUID.randomUUID().toString()).orElse(null);
+        TestElasticsearchModel resultModel = dao.findById(UUID.randomUUID().toString()).orElse(null);
         assertNull(resultModel);
     }
 
     @Test
     void givenEntityIsDeleted_whenFindById_thenNothingShouldBeFound() {
-        TestElasticModel modelToBeDeleted = new TestElasticModel();
+        TestElasticsearchModel modelToBeDeleted = new TestElasticsearchModel();
         dao.save(modelToBeDeleted);
         dao.deleteById(modelToBeDeleted.getId());
 
-        TestElasticModel resultModel = dao.findById(modelToBeDeleted.getId()).orElse(null);
+        TestElasticsearchModel resultModel = dao.findById(modelToBeDeleted.getId()).orElse(null);
         assertNull(resultModel);
     }
 
@@ -211,7 +211,7 @@ class ElasticCommonDaoTest extends TestWithServices {
 
     @Test
     void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {
-        TestElasticModel model = new TestElasticModel();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
         dao.deleteById(model.getId());
 
@@ -272,7 +272,7 @@ class ElasticCommonDaoTest extends TestWithServices {
 
     @Test
     void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
-        TestElasticModel model = new TestElasticModel();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         model.setName("Test");
         model = dao.save(model);
 
@@ -284,24 +284,24 @@ class ElasticCommonDaoTest extends TestWithServices {
     }
 
     @NotNull
-    private List<TestElasticModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
-        TestElasticModel notDeleted = new TestElasticModel();
+    private List<TestElasticsearchModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
+        TestElasticsearchModel notDeleted = new TestElasticsearchModel();
         notDeleted.setName(uniqueName);
 
-        TestElasticModel deleted = new TestElasticModel();
+        TestElasticsearchModel deleted = new TestElasticsearchModel();
         deleted.setName(uniqueName);
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
     }
 
-    private static TestElasticModel getTestModel() {
-        TestElasticModel model = new TestElasticModel();
+    private static TestElasticsearchModel getTestModel() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
-                .storageType(Descriptor.StorageType.ELASTIC)
+                .storageType(Descriptor.StorageType.ELASTICSEARCH)
                 .build();
 
         model.setUuid(descriptor);

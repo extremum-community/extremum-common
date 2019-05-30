@@ -4,16 +4,16 @@ import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
 import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
 import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.elasticsearch.factory.ElasticDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.elasticsearch.model.ElasticCommonModel;
+import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.common.utils.StreamUtils;
-import com.extremum.elasticsearch.properties.ElasticProperties;
+import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -55,25 +55,25 @@ import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
-public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implements ElasticCommonDao<Model> {
+public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<Model> {
     private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted; ctx._source.modified = params.modified";
 
     private RestClientBuilder restClientBuilder;
-    private ElasticDescriptorFactory elasticDescriptorFactory;
+    private ElasticsearchDescriptorFactory elasticsearchDescriptorFactory;
 
-    private ElasticProperties elasticProps;
+    private ElasticsearchProperties elasticProps;
     private ObjectMapper mapper;
     private String indexName;
     private String indexType;
 
     private Class<? extends Model> modelClass;
 
-    public DefaultElasticCommonDao(Class<Model> modelClass, ElasticProperties elasticProperties,
-                                   ElasticDescriptorFactory descriptorFactory, ObjectMapper mapper, String indexName,
+    public DefaultElasticsearchCommonDao(Class<Model> modelClass, ElasticsearchProperties elasticsearchProperties,
+                                   ElasticsearchDescriptorFactory descriptorFactory, ObjectMapper mapper, String indexName,
                                    String indexType) {
         this.modelClass = modelClass;
-        this.elasticProps = elasticProperties;
-        this.elasticDescriptorFactory = descriptorFactory;
+        this.elasticProps = elasticsearchProperties;
+        this.elasticsearchDescriptorFactory = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
@@ -81,10 +81,10 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
         initRest();
     }
 
-    protected DefaultElasticCommonDao(ElasticProperties elasticProperties, ElasticDescriptorFactory descriptorFactory,
+    protected DefaultElasticsearchCommonDao(ElasticsearchProperties elasticsearchProperties, ElasticsearchDescriptorFactory descriptorFactory,
                                       ObjectMapper mapper, String indexName, String indexType) {
-        this.elasticProps = elasticProperties;
-        this.elasticDescriptorFactory = descriptorFactory;
+        this.elasticProps = elasticsearchProperties;
+        this.elasticsearchDescriptorFactory = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
@@ -200,7 +200,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
         if (isDocumentExists(id)) {
             try {
                 final Optional<Model> data = findById(id);
-                boolean doesNotExist = data.map(ElasticCommonModel::getDeleted).orElse(true);
+                boolean doesNotExist = data.map(ElasticsearchCommonModel::getDeleted).orElse(true);
                 return !doesNotExist;
             } catch (ModelNotFoundException e) {
                 return false;
@@ -266,7 +266,7 @@ public class DefaultElasticCommonDao<Model extends ElasticCommonModel> implement
     protected void preSave(Model model) {
         if (model.getId() == null) {
             String name = ModelUtils.getModelName(model.getClass());
-            final Descriptor descriptor = elasticDescriptorFactory.create(UUID.randomUUID(), name);
+            final Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
             final Descriptor stored = DescriptorService.store(descriptor);
             model.setUuid(stored);
             model.setId(stored.getInternalId());

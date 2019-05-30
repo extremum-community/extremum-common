@@ -6,8 +6,8 @@ import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.elasticsearch.dao.TestElasticModelDao;
-import com.extremum.elasticsearch.model.TestElasticModel;
+import com.extremum.elasticsearch.dao.TestElasticsearchModelDao;
+import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ElasticCommonServiceTest {
+class ElasticsearchCommonServiceTest {
 
-    private TestElasticModelDao dao = Mockito.mock(TestElasticModelDao.class);
-    private TestElasticModelService service = new TestElasticModelService(dao);
+    private TestElasticsearchModelDao dao = Mockito.mock(TestElasticsearchModelDao.class);
+    private TestElasticsearchModelService service = new TestElasticsearchModelService(dao);
 
-    private static TestElasticModel getTestModel() {
-        TestElasticModel model = new TestElasticModel();
+    private static TestElasticsearchModel getTestModel() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
 
         model.setCreated(ZonedDateTime.now());
         model.setModified(ZonedDateTime.now());
@@ -48,10 +48,10 @@ class ElasticCommonServiceTest {
 
     @Test
     void testGet() {
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestElasticModel resultModel = service.get(createdModel.getId());
+        TestElasticsearchModel resultModel = service.get(createdModel.getId());
         assertEquals(createdModel, resultModel);
     }
 
@@ -68,10 +68,10 @@ class ElasticCommonServiceTest {
     @Test
     void testGetWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestElasticModel resultModel = service.get(createdModel.getId(), alertList);
+        TestElasticsearchModel resultModel = service.get(createdModel.getId(), alertList);
         assertEquals(createdModel, resultModel);
         assertTrue(alertList.isEmpty());
 
@@ -93,10 +93,10 @@ class ElasticCommonServiceTest {
 
     @Test
     void testList() {
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestElasticModel> resultModelList = service.list();
+        List<TestElasticsearchModel> resultModelList = service.list();
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
         assertEquals(createdModel, resultModelList.get(0));
@@ -104,11 +104,11 @@ class ElasticCommonServiceTest {
 
     @Test
     void testListWithAlerts() {
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestElasticModel> resultModelList = service.list(alertList);
+        List<TestElasticsearchModel> resultModelList = service.list(alertList);
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
@@ -117,29 +117,29 @@ class ElasticCommonServiceTest {
 
     @Test
     void testCreate() {
-        TestElasticModel createdModel = getTestModel();
-        Mockito.when(dao.save(ArgumentMatchers.any(TestElasticModel.class))).thenReturn(createdModel);
+        TestElasticsearchModel createdModel = getTestModel();
+        Mockito.when(dao.save(ArgumentMatchers.any(TestElasticsearchModel.class))).thenReturn(createdModel);
 
-        TestElasticModel resultModel = service.create(new TestElasticModel());
+        TestElasticsearchModel resultModel = service.create(new TestElasticsearchModel());
         assertEquals(createdModel, resultModel);
     }
 
     @Test
     void testCreateWithNullData() {
-        assertThrows(WrongArgumentException.class, () -> service.create((TestElasticModel) null));
+        assertThrows(WrongArgumentException.class, () -> service.create((TestElasticsearchModel) null));
     }
 
     @Test
     void testCreateWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
-        TestElasticModel createdModel = getTestModel();
-        Mockito.when(dao.save(ArgumentMatchers.any(TestElasticModel.class))).thenReturn(createdModel);
+        TestElasticsearchModel createdModel = getTestModel();
+        Mockito.when(dao.save(ArgumentMatchers.any(TestElasticsearchModel.class))).thenReturn(createdModel);
 
-        TestElasticModel resultModel = service.create(new TestElasticModel(), alertList);
+        TestElasticsearchModel resultModel = service.create(new TestElasticsearchModel(), alertList);
         assertTrue(alertList.isEmpty());
         assertEquals(createdModel, resultModel);
 
-        resultModel = service.create((TestElasticModel) null, alertList);
+        resultModel = service.create((TestElasticsearchModel) null, alertList);
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -149,10 +149,10 @@ class ElasticCommonServiceTest {
 
     @Test
     void testCreateList() {
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestElasticModel> resultModels = service.create(Collections.singletonList(new TestElasticModel()));
+        List<TestElasticsearchModel> resultModels = service.create(Collections.singletonList(new TestElasticsearchModel()));
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
         assertEquals(createdModel, resultModels.get(0));
@@ -160,23 +160,23 @@ class ElasticCommonServiceTest {
 
     @Test
     void testCreateListWithNullData() {
-        assertThrows(WrongArgumentException.class, () -> service.create((List<TestElasticModel>) null));
+        assertThrows(WrongArgumentException.class, () -> service.create((List<TestElasticsearchModel>) null));
     }
 
     @Test
     void testCreateListWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestElasticModel> resultModels = service.create(Collections.singletonList(new TestElasticModel()), alertList);
+        List<TestElasticsearchModel> resultModels = service.create(Collections.singletonList(new TestElasticsearchModel()), alertList);
 
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
         assertEquals(createdModel, resultModels.get(0));
 
-        resultModels = service.create((List<TestElasticModel>) null, alertList);
+        resultModels = service.create((List<TestElasticsearchModel>) null, alertList);
 
         assertNull(resultModels);
         assertEquals(1, alertList.size());
@@ -186,10 +186,10 @@ class ElasticCommonServiceTest {
 
     @Test
     void testSaveNewModel() {
-        TestElasticModel createdModel = getTestModel();
-        Mockito.when(dao.save(ArgumentMatchers.any(TestElasticModel.class))).thenReturn(createdModel);
+        TestElasticsearchModel createdModel = getTestModel();
+        Mockito.when(dao.save(ArgumentMatchers.any(TestElasticsearchModel.class))).thenReturn(createdModel);
 
-        TestElasticModel resultModel = service.save(new TestElasticModel());
+        TestElasticsearchModel resultModel = service.save(new TestElasticsearchModel());
         assertEquals(createdModel, resultModel);
 
         resultModel = service.save(createdModel);
@@ -198,15 +198,15 @@ class ElasticCommonServiceTest {
 
     @Test
     void testSaveUpdatedModel() {
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestElasticModel updatedModel = getTestModel();
+        TestElasticsearchModel updatedModel = getTestModel();
         updatedModel.setId(createdModel.getId());
         updatedModel.setUuid(null);
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
-        TestElasticModel resultModel = service.save(updatedModel);
+        TestElasticsearchModel resultModel = service.save(updatedModel);
         assertEquals(updatedModel, resultModel);
         assertEquals(createdModel.getUuid(), resultModel.getUuid());
     }
@@ -219,14 +219,14 @@ class ElasticCommonServiceTest {
     @Test
     void testSaveModelWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
-        TestElasticModel createdModel = getTestModel();
+        TestElasticsearchModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestElasticModel updatedModel = getTestModel();
+        TestElasticsearchModel updatedModel = getTestModel();
         updatedModel.setId(createdModel.getId());
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
-        TestElasticModel resultModel = service.save(updatedModel, alertList);
+        TestElasticsearchModel resultModel = service.save(updatedModel, alertList);
         assertTrue(alertList.isEmpty());
         assertEquals(updatedModel, resultModel);
 

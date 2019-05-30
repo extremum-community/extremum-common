@@ -8,5 +8,5 @@ package com.extremum.elasticsearch;
  */
 public abstract class TestWithServices {
     @SuppressWarnings("unused")
-    private static final ElasticServices services = new ElasticServices();
+    private static final ElasticsearchServices services = new ElasticsearchServices();
 }

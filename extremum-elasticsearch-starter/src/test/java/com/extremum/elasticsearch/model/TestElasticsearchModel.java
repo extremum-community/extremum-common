@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @ModelName("TestElasticModel")
 @Getter @Setter
-public class TestElasticModel extends ElasticCommonModel {
+public class TestElasticsearchModel extends ElasticsearchCommonModel {
 
     public static final String INDEX = "test_entities";
 

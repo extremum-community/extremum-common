@@ -9,13 +9,13 @@ import org.testcontainers.containers.GenericContainer;
 /**
  * @author rpuch
  */
-class ElasticServices {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticServices.class);
+class ElasticsearchServices {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchServices.class);
 
     static {
         startMongo();
         startRedis();
-        startElasticSearch();
+        startElasticsearch();
     }
 
     private static void startMongo() {
@@ -32,13 +32,13 @@ class ElasticServices {
         LOGGER.info("Redis uri is {}", redisUri);
     }
 
-    private static void startElasticSearch() {
+    private static void startElasticsearch() {
         ElasticsearchContainer elasticSearch = new ElasticsearchContainer("7.1.0");
         elasticSearch.start();
 
-        System.setProperty("elastic.hosts[0].host", elasticSearch.getContainerIpAddress());
-        System.setProperty("elastic.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
-        System.setProperty("elastic.hosts[0].protocol", "http");
+        System.setProperty("elasticsearch.hosts[0].host", elasticSearch.getContainerIpAddress());
+        System.setProperty("elasticsearch.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
+        System.setProperty("elasticsearch.hosts[0].protocol", "http");
 
         LOGGER.info("Elasticsearch host:port are {}:{}",
                 elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());

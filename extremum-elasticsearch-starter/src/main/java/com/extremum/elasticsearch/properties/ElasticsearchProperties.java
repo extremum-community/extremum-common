@@ -12,9 +12,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties("elastic")
-public class ElasticProperties {
-    private List<ElasticProperties.Host> hosts;
+@ConfigurationProperties("elasticsearch")
+public class ElasticsearchProperties {
+    private List<ElasticsearchProperties.Host> hosts;
     private String username;
     private String password;
 
