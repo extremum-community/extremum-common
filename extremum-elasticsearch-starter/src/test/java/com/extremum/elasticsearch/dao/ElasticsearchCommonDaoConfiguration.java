@@ -1,14 +1,24 @@
 package com.extremum.elasticsearch.dao;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
-import com.extremum.starter.CommonConfiguration;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author rpuch
@@ -16,6 +26,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @EnableConfigurationProperties(ElasticsearchProperties.class)
 @Import(CommonConfiguration.class)
+@EnableElasticsearchRepositories("com.extremum.elasticsearch.dao")
 @RequiredArgsConstructor
 public class ElasticsearchCommonDaoConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
@@ -26,7 +37,20 @@ public class ElasticsearchCommonDaoConfiguration {
     }
 
     @Bean
-    public TestElasticsearchModelDao testElasticModelDao(ObjectMapper mapper) {
-        return new TestElasticsearchModelDao(elasticsearchProperties, elasticDescriptorFactory(), mapper);
+    public Client client() throws UnknownHostException {
+        Settings elasticsearchSettings = Settings.builder()
+//                .put("client.transport.sniff", true)
+//                .put("path.home", elasticsearchHome)
+//                .put("cluster.name", clusterName)
+                .build();
+        TransportClient client = new PreBuiltTransportClient(elasticsearchSettings);
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+        return client;
+    }
+
+    @Bean
+    public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
+//        return new ElasticsearchTemplate(nodeBuilder().local(true).node().client());
+        return new ElasticsearchTemplate(client());
     }
 }

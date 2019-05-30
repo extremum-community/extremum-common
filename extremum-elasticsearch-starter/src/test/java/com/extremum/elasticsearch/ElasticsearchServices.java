@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 /**
  * @author rpuch
@@ -33,6 +32,8 @@ class ElasticsearchServices {
     }
 
     private static void startElasticsearch() {
+        System.setProperty("es.set.netty.runtime.available.processors", "false");
+
         if ("true".equals(System.getProperty("start.elasticsearch", "true"))) {
             ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
             elasticSearch.start();

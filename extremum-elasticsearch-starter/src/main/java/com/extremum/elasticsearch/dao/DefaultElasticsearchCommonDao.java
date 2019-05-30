@@ -170,7 +170,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     public Optional<Model> findById(String id) {
         try (RestHighLevelClient client = getClient()) {
             GetResponse response = client.get(
-                    new GetRequest(indexName, id),
+                    new GetRequest(indexName, null, id),
                     RequestOptions.DEFAULT
             );
 
@@ -212,7 +212,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     protected boolean isDocumentExists(String id) {
         try (RestHighLevelClient client = getClient()) {
-            GetRequest getRequest = new GetRequest(indexName, id);
+            GetRequest getRequest = new GetRequest(indexName, null, id);
             getRequest.fetchSourceContext(FetchSourceContext.DO_NOT_FETCH_SOURCE);
             getRequest.storedFields("_none_");
 
@@ -242,8 +242,9 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
             request.source(rawData, XContentType.JSON);
 
             if (model.getSeqNo() != null && model.getPrimaryTerm() != null) {
-                request.setIfSeqNo(model.getSeqNo());
-                request.setIfPrimaryTerm(model.getPrimaryTerm());
+                // TODO: restore?
+//                request.setIfSeqNo(model.getSeqNo());
+//                request.setIfPrimaryTerm(model.getPrimaryTerm());
             }
 
             final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
@@ -324,7 +325,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> params) {
         if (existsById(id)) {
-            final UpdateRequest request = new UpdateRequest(indexName, id);
+            final UpdateRequest request = new UpdateRequest(indexName, null, id);
 
             request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
 
