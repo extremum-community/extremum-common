@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -281,6 +282,22 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         dao.deleteById(model.getId());
 
         assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
+    void givenADocumentExists_whenSearchingForItByName_thenItShouldBeFound() throws Exception {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
+        model.setName(uniqueName);
+        model = dao.save(model);
+
+        System.out.println(model.getName());
+        Thread.sleep(1000);
+
+        List<TestElasticsearchModel> results = dao.search(uniqueName);
+        assertThat(results.size(), is(1));
+
+        assertThat(results.get(0).getName(), is(equalTo(model.getName())));
     }
 
     @NotNull

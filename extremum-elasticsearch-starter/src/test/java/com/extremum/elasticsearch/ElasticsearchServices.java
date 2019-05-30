@@ -1,10 +1,10 @@
 package com.extremum.elasticsearch;
 
-import com.github.ydespreaux.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 /**
  * @author rpuch
@@ -33,7 +33,7 @@ class ElasticsearchServices {
     }
 
     private static void startElasticsearch() {
-        ElasticsearchContainer elasticSearch = new ElasticsearchContainer("7.1.0");
+        ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
         elasticSearch.start();
 
         System.setProperty("elasticsearch.hosts[0].host", elasticSearch.getContainerIpAddress());

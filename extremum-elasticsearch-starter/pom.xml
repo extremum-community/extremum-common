@@ -39,9 +39,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.ydespreaux.testcontainers</groupId>
-            <artifactId>testcontainers-elasticsearch</artifactId>
-            <version>1.2.4</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
