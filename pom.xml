@@ -12,7 +12,7 @@
     <modules>
         <module>extremum-common-starter</module>
         <module>extremum-jpa-starter</module>
-        <module>extremum-elastic-starter</module>
+        <module>extremum-elasticsearch-starter</module>
     </modules>
 
     <build>
