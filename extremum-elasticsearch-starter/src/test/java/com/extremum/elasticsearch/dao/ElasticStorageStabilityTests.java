@@ -1,9 +1,9 @@
-package com.extremum.elastic.dao;
+package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.mapper.JsonObjectMapper;
-import com.extremum.elastic.TestWithServices;
-import com.extremum.elastic.model.TestElasticModel;
-import com.extremum.elastic.properties.ElasticProperties;
+import com.extremum.elasticsearch.TestWithServices;
+import com.extremum.elasticsearch.model.TestElasticModel;
+import com.extremum.elasticsearch.properties.ElasticProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetRequest;

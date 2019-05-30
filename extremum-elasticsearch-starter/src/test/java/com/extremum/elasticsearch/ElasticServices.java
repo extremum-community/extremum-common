@@ -1,4 +1,4 @@
-package com.extremum.elastic;
+package com.extremum.elasticsearch;
 
 import com.github.ydespreaux.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.jetbrains.annotations.NotNull;

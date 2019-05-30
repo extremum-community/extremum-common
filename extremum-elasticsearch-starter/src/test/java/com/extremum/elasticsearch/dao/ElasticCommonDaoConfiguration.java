@@ -1,8 +1,8 @@
-package com.extremum.elastic.dao;
+package com.extremum.elasticsearch.dao;
 
-import com.extremum.elastic.factory.ElasticDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticDescriptorFactory;
 import com.extremum.starter.CommonConfiguration;
-import com.extremum.elastic.properties.ElasticProperties;
+import com.extremum.elasticsearch.properties.ElasticProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

@@ -1,4 +1,4 @@
-package com.extremum.elastic.model;
+package com.extremum.elasticsearch.model;
 
 import com.extremum.common.models.annotation.ModelName;
 import lombok.Getter;

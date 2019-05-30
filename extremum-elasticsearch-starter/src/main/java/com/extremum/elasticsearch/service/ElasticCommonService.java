@@ -1,7 +1,7 @@
-package com.extremum.elastic.service;
+package com.extremum.elasticsearch.service;
 
 import com.extremum.common.service.CommonService;
-import com.extremum.elastic.model.ElasticCommonModel;
+import com.extremum.elasticsearch.model.ElasticCommonModel;
 
 /**
  * Common interface for Elasticsearch services.

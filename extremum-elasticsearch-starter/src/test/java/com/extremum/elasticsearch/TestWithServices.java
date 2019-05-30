@@ -1,4 +1,4 @@
-package com.extremum.elastic;
+package com.extremum.elasticsearch;
 
 /**
  * Extend this class in your test to make sure that services are started

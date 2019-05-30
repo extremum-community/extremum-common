@@ -1,19 +1,19 @@
-package com.extremum.elastic.dao;
+package com.extremum.elasticsearch.dao;
 
-import com.extremum.elastic.dao.extractor.AccessorFacade;
-import com.extremum.elastic.dao.extractor.GetResponseAccessorFacade;
-import com.extremum.elastic.dao.extractor.SearchHitAccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.elastic.factory.ElasticDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.elastic.model.ElasticCommonModel;
+import com.extremum.elasticsearch.model.ElasticCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.common.utils.StreamUtils;
-import com.extremum.elastic.properties.ElasticProperties;
+import com.extremum.elasticsearch.properties.ElasticProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

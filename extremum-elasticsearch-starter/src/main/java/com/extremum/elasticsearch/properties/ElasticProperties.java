@@ -1,4 +1,4 @@
-package com.extremum.elastic.properties;
+package com.extremum.elasticsearch.properties;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

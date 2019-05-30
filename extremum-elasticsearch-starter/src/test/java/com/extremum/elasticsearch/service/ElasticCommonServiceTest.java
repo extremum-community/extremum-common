@@ -1,4 +1,4 @@
-package com.extremum.elastic.service;
+package com.extremum.elasticsearch.service;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
@@ -6,8 +6,8 @@ import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.elastic.dao.TestElasticModelDao;
-import com.extremum.elastic.model.TestElasticModel;
+import com.extremum.elasticsearch.dao.TestElasticModelDao;
+import com.extremum.elasticsearch.model.TestElasticModel;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;

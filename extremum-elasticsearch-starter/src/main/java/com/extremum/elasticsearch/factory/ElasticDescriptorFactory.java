@@ -1,4 +1,4 @@
-package com.extremum.elastic.factory;
+package com.extremum.elasticsearch.factory;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFactory;

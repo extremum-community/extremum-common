@@ -1,4 +1,4 @@
-package com.extremum.elastic.model;
+package com.extremum.elasticsearch.model;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.models.PersistableCommonModel;
