@@ -1,10 +1,10 @@
-package com.extremum.elastic.service.impl;
+package com.extremum.common.service.impl;
 
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
-import com.extremum.elastic.service.MongoCommonService;
+import com.extremum.common.service.MongoCommonService;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;

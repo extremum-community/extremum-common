@@ -1,5 +1,6 @@
 package com.extremum.elastic.service;
 
+import com.extremum.common.service.CommonService;
 import com.extremum.elastic.model.ElasticCommonModel;
 
 /**

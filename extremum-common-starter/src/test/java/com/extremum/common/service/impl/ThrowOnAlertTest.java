@@ -1,4 +1,4 @@
-package com.extremum.elastic.service.impl;
+package com.extremum.common.service.impl;
 
 import com.extremum.common.exceptions.CommonException;
 import org.junit.jupiter.api.Test;

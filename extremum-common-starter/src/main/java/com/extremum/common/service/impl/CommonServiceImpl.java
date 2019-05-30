@@ -1,4 +1,4 @@
-package com.extremum.elastic.service.impl;
+package com.extremum.common.service.impl;
 
 import com.extremum.common.dao.CommonDao;
 import com.extremum.common.exceptions.CommonException;
@@ -6,7 +6,7 @@ import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.response.Alert;
-import com.extremum.elastic.service.CommonService;
+import com.extremum.common.service.CommonService;
 import com.extremum.common.utils.StreamUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

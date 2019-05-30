@@ -1,4 +1,4 @@
-package com.extremum.elastic.service;
+package com.extremum.common.service;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.PersistableCommonModel;

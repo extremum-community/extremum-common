@@ -1,7 +1,7 @@
 package com.extremum.everything.services.mongo;
 
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.elastic.service.MongoCommonService;
+import com.extremum.common.service.MongoCommonService;
 import com.extremum.everything.services.GetterService;
 import lombok.RequiredArgsConstructor;
 

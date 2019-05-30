@@ -5,7 +5,7 @@ import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.elastic.service.MongoCommonService;
+import com.extremum.common.service.MongoCommonService;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.services.EverythingEverythingService;
 import org.springframework.core.ResolvableType;

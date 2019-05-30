@@ -4,7 +4,7 @@ import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.elastic.service.MongoCommonService;
+import com.extremum.common.service.MongoCommonService;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.everything.services.mongo.DefaultMongoGetterService;
