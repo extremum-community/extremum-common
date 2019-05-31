@@ -89,7 +89,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     private RequestDto applyPatch(JsonPatch patch, JsonNode jsonDtoNode, Class<? extends RequestDto> requestDtoType) {
         try {
             JsonNode patchedNode = patch.apply(jsonDtoNode);
-            return jsonMapper.readValue(patchedNode.toString(), requestDtoType);
+            return jsonMapper.treeToValue(patchedNode, requestDtoType);
         } catch (IOException e) {
             String message = format("Unable to create a type %s from a raw json data %s",
                     requestDtoType, jsonDtoNode);
