@@ -17,8 +17,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.ConstraintViolation;
 import java.io.IOException;
@@ -28,9 +27,8 @@ import static java.lang.String.format;
 
 @Getter
 @Setter
+@Slf4j
 public abstract class AbstractPatcherService<M extends Model> implements PatcherService<M> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPatcherService.class);
-
     private DtoConversionService dtoConversionService;
     private ObjectMapper jsonMapper;
     private EmptyFieldDestroyer emptyFieldDestroyer = new PublicEmptyFieldDestroyer();
@@ -41,15 +39,15 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         this.jsonMapper = jsonMapper;
     }
 
-    public AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-                                  EmptyFieldDestroyer emptyFieldDestroyer) {
+    protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
+                                     EmptyFieldDestroyer emptyFieldDestroyer) {
         this.dtoConversionService = dtoConversionService;
         this.jsonMapper = jsonMapper;
         this.emptyFieldDestroyer = emptyFieldDestroyer;
     }
 
-    public AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-                                  EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator) {
+    protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
+                                     EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator) {
         this.dtoConversionService = dtoConversionService;
         this.jsonMapper = jsonMapper;
         this.emptyFieldDestroyer = emptyFieldDestroyer;
@@ -71,7 +69,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         validateRequest(patchedRequestDto);
         M patchedModel = persistFromRequestDto(patchedRequestDto, found, id, name);
 
-        LOGGER.debug("Model with id {} has been patched with patch {}", id, patch);
+        log.debug("Model with id {} has been patched with patch {}", id, patch);
         afterPatch();
 
         return patchedModel;
@@ -98,7 +96,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
             afterValidation(dto, !constraintViolation.isEmpty(), constraintViolation);
         } else {
-            LOGGER.warn("No request DTO validator will be used for validating a patched request DTO {}", dto);
+            log.warn("No request DTO validator will be used for validating a patched request DTO {}", dto);
         }
     }
 
@@ -108,7 +106,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             return jsonToType(patched, requestDtoType);
         } else {
             String message = format("Converter is not of a %s instance", ToRequestDtoConverter.class.getSimpleName());
-            LOGGER.error(message);
+            log.error(message);
             throw new RuntimeException(message);
         }
     }
@@ -120,7 +118,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             String message = format("Unable to create a type %s from a raw json data %s",
                     requestDtoType, patched);
 
-            LOGGER.error(message);
+            log.error(message);
 
             throw new RuntimeException(message);
         }
@@ -137,7 +135,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             return node.toString();
         } catch (JsonPatchException e) {
             String message = format("Unable to apply patch %s to json %s", patch, serialized);
-            LOGGER.error(message, e);
+            log.error(message, e);
             throw new RuntimeException(message, e);
         }
     }
@@ -147,7 +145,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             return JsonLoader.fromString(serialized);
         } catch (IOException e) {
             String message = format("Unable to load a JsonNode from a string %s", serialized);
-            LOGGER.error(message, e);
+            log.error(message, e);
             throw new RuntimeException(message, e);
         }
     }
@@ -157,7 +155,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             return jsonMapper.writeValueAsString(requestDto);
         } catch (JsonProcessingException e) {
             String message = "Unable to serialize a RequestDto object";
-            LOGGER.error(message, e);
+            log.error(message, e);
             throw new RuntimeException(message, e);
         }
     }
@@ -170,7 +168,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
             String message = format("Converter for a model %s is not of a %s instance",
                     name, ToRequestDtoConverter.class.getSimpleName());
 
-            LOGGER.error(message);
+            log.error(message);
 
             throw new RuntimeException(message);
         }
@@ -180,7 +178,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         if (emptyFieldDestroyer != null) {
             return emptyFieldDestroyer.destroy(model);
         } else {
-            LOGGER.warn("Empty fields will bot be destroyed because EmptyFieldDestroyer doesn't defined");
+            log.warn("Empty fields will bot be destroyed because EmptyFieldDestroyer doesn't defined");
             return model;
         }
     }
@@ -193,7 +191,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
     protected void afterValidation(RequestDto dto, boolean hasValidationErrors, Set<ConstraintViolation<RequestDto>> constraintsViolation) {
         if (hasValidationErrors) {
-            LOGGER.error("Invalid requestDto DTO after patching detected {}", constraintsViolation);
+            log.error("Invalid requestDto DTO after patching detected {}", constraintsViolation);
             throw new RequestDtoValidationException(dto, constraintsViolation);
         }
     }
