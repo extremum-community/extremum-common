@@ -1,18 +1,16 @@
 package com.extremum.everything.services;
 
 import com.extremum.common.dto.RequestDto;
-import com.extremum.common.dto.converters.DtoConverter;
 import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
+import com.extremum.common.exceptions.ConverterNotFoundException;
 import com.extremum.common.models.Model;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.Getter;
@@ -55,24 +53,64 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public M patch(String id, JsonPatch patch) {
         beforePatch(id, patch);
-        M found = findById(id);
+        M foundModel = findById(id);
 
-        String name = ModelUtils.getModelName(found.getClass());
-        DtoConverter dtoConverter = dtoConversionService.determineConverterOrElseThrow(found,
-                () -> new RuntimeException("Unable to determine a DTO converter for a model " + name));
+        String name = ModelUtils.getModelName(foundModel.getClass());
+        ToRequestDtoConverter<M, RequestDto> modelConverter;
 
-        RequestDto requestDto = convertToRequestDto(found, dtoConverter);
-        String patched = patchRequest(requestDto, patch);
-        RequestDto patchedRequestDto = createRequestDtoFromString(patched, dtoConverter);
-        validateRequest(patchedRequestDto);
-        M patchedModel = persistFromRequestDto(patchedRequestDto, found, id, name);
+//        Validation before execution
+        try {
+            modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConversionService.determineConverterOrElseThrow(foundModel,
+                    () -> new ConverterNotFoundException("Cannot found dto converter for a model with name " + name));
+        } catch (ClassCastException e) {
+            String message = format("Converter for a model %s is not of a %s instance",
+                    name, ToRequestDtoConverter.class.getSimpleName());
+            log.error(message);
+            throw new ConverterNotFoundException(message);
+        }
+
+        RequestDto requestDto = modelConverter.convertToRequest(foundModel, null);
+        JsonNode jsonDtoNode = jsonMapper.valueToTree(requestDto);
+
+        Class<? extends RequestDto> requestDtoType = modelConverter.getRequestDtoType();
+        RequestDto patchedDto = applyPatch(patch, jsonDtoNode, requestDtoType);
+
+        validateRequest(patchedDto);
+        M patchedModel = persistFromRequestDto(patchedDto, foundModel, id, name);
 
         log.debug("Model with id {} has been patched with patch {}", id, patch);
         afterPatch();
-
         return patchedModel;
+    }
+
+    private RequestDto applyPatch(JsonPatch patch, JsonNode jsonDtoNode, Class<? extends RequestDto> requestDtoType) {
+        try {
+            JsonNode patchedNode = patch.apply(jsonDtoNode);
+            return jsonMapper.readValue(patchedNode.toString(), requestDtoType);
+        } catch (IOException e) {
+            String message = format("Unable to create a type %s from a raw json data %s",
+                    requestDtoType, jsonDtoNode);
+            log.error(message);
+            throw new RuntimeException(message);
+        } catch (JsonPatchException e) {
+            String message = format("Unable to apply patch %s to json %s",
+                    patch, jsonDtoNode);
+            log.error(message, e);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    private void validateRequest(RequestDto dto) {
+        beforeValidation(dto);
+        if (dtoValidator != null) {
+            Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
+            afterValidation(dto, !constraintViolation.isEmpty(), constraintViolation);
+        } else {
+            log.warn("Cannot find request dto validator to check a patched request {}", dto);
+        }
     }
 
     private M persistFromRequestDto(RequestDto dto, M origin, String id, String modelName) {
@@ -83,110 +121,31 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
         beforePersist(context);
         handleContextBeforePersisting(context);
-        context.currentStateModel = persist(context, modelName);
-
+        context.setCurrentStateModel(persist(context, modelName));
         afterPersist(context);
-
-        return context.currentStateModel;
+        return context.getCurrentStateModel();
     }
 
-    private void validateRequest(RequestDto dto) {
-        beforeValidation(dto);
-        if (dtoValidator != null) {
-            Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
-            afterValidation(dto, !constraintViolation.isEmpty(), constraintViolation);
-        } else {
-            log.warn("No request DTO validator will be used for validating a patched request DTO {}", dto);
-        }
-    }
-
-    private RequestDto createRequestDtoFromString(String patched, DtoConverter dtoConverter) {
-        if (dtoConverter instanceof ToRequestDtoConverter) {
-            Class<? extends RequestDto> requestDtoType = ((ToRequestDtoConverter) dtoConverter).getRequestDtoType();
-            return jsonToType(patched, requestDtoType);
-        } else {
-            String message = format("Converter is not of a %s instance", ToRequestDtoConverter.class.getSimpleName());
-            log.error(message);
-            throw new RuntimeException(message);
-        }
-    }
-
-    private RequestDto jsonToType(String patched, Class<? extends RequestDto> requestDtoType) {
-        try {
-            return jsonMapper.readValue(patched, requestDtoType);
-        } catch (IOException e) {
-            String message = format("Unable to create a type %s from a raw json data %s",
-                    requestDtoType, patched);
-
-            log.error(message);
-
-            throw new RuntimeException(message);
-        }
-    }
-
-    private String patchRequest(RequestDto requestDto, JsonPatch patch) {
-        String serialized = serializeRequestDto(requestDto);
-        return applyPatch(patch, serialized);
-    }
-
-    private String applyPatch(JsonPatch patch, String serialized) {
-        try {
-            JsonNode node = patch.apply(loadJsonNodeFromString(serialized));
-            return node.toString();
-        } catch (JsonPatchException e) {
-            String message = format("Unable to apply patch %s to json %s", patch, serialized);
-            log.error(message, e);
-            throw new RuntimeException(message, e);
-        }
-    }
-
-    private JsonNode loadJsonNodeFromString(String serialized) {
-        try {
-            return JsonLoader.fromString(serialized);
-        } catch (IOException e) {
-            String message = format("Unable to load a JsonNode from a string %s", serialized);
-            log.error(message, e);
-            throw new RuntimeException(message, e);
-        }
-    }
-
-    private String serializeRequestDto(RequestDto requestDto) {
-        try {
-            return jsonMapper.writeValueAsString(requestDto);
-        } catch (JsonProcessingException e) {
-            String message = "Unable to serialize a RequestDto object";
-            log.error(message, e);
-            throw new RuntimeException(message, e);
-        }
-    }
-
-    private RequestDto convertToRequestDto(M model, DtoConverter dtoConverter) {
-        if (dtoConverter instanceof ToRequestDtoConverter) {
-            return ((ToRequestDtoConverter) dtoConverter).convertToRequest(model, null);
-        } else {
-            String name = ModelUtils.getModelName(model.getClass());
-            String message = format("Converter for a model %s is not of a %s instance",
-                    name, ToRequestDtoConverter.class.getSimpleName());
-
-            log.error(message);
-
-            throw new RuntimeException(message);
-        }
-    }
 
     private M destroyEmptyFields(M model) {
         if (emptyFieldDestroyer != null) {
             return emptyFieldDestroyer.destroy(model);
         } else {
-            log.warn("Empty fields will bot be destroyed because EmptyFieldDestroyer doesn't defined");
+            log.warn("Empty fields cannot be destroyed because EmptyFieldDestroyer doesn't defined");
             return model;
         }
     }
 
-    protected void afterPatch() {
+//    Methods to override if needed
+
+    protected void handleContextBeforePersisting(PatchPersistenceContext<M> context) {
+        context.currentStateModel = destroyEmptyFields(context.originModel);
     }
 
     protected void beforePatch(String id, JsonPatch patch) {
+    }
+
+    protected void beforeValidation(RequestDto dto) {
     }
 
     protected void afterValidation(RequestDto dto, boolean hasValidationErrors, Set<ConstraintViolation<RequestDto>> constraintsViolation) {
@@ -196,20 +155,16 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         }
     }
 
-    protected void beforeValidation(RequestDto dto) {
+    protected void beforePersist(PatchPersistenceContext<M> context) {
     }
 
     protected void afterPersist(PatchPersistenceContext<M> context) {
     }
 
+    protected void afterPatch() {
+    }
+
     protected abstract M persist(PatchPersistenceContext<M> context, String modelName);
-
-    protected void handleContextBeforePersisting(PatchPersistenceContext<M> context) {
-        context.currentStateModel = destroyEmptyFields(context.originModel);
-    }
-
-    protected void beforePersist(PatchPersistenceContext<M> context) {
-    }
 
     protected abstract M findById(String id);
 
