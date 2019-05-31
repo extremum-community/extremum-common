@@ -2,8 +2,11 @@ package com.extremum.everything.services.patcher;
 
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.everything.services.AbstractPatcherService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static java.lang.String.format;
 
 public class TestPatcherService extends AbstractPatcherService<PatchModel> {
 
@@ -21,7 +24,10 @@ public class TestPatcherService extends AbstractPatcherService<PatchModel> {
 
     @Override
     protected PatchModel findById(String id) {
-        return new PatchModel("patch");
+        if ("id".equals(id)) {
+            return new PatchModel("patch");
+        }
+        throw new ModelNotFoundException(format("Cannot find model with id %s", id));
     }
 
     @Override

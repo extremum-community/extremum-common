@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import java.util.ArrayList;
 
 @Configuration
 public class PatcherServiceTestConfig {
     @Bean
-    public DtoConversionService dtoConversionService(List<DtoConverter> converters) {
-        return new DefaultDtoConversionService(converters, new StubDtoConverter());
+    public DefaultDtoConversionService dtoConversionService() {
+        return new DefaultDtoConversionService(new ArrayList<>(), new StubDtoConverter());
     }
 
     @Bean
