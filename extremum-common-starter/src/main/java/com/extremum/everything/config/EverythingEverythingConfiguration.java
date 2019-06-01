@@ -82,6 +82,7 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(EverythingCollectionManagementService.class)
     @ConditionalOnMissingBean(EverythingEverythingCollectionRestController.class)
     public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
             EverythingCollectionManagementService collectionManagementService) {
@@ -160,6 +161,7 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(CollectionDescriptorService.class)
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
             CollectionDescriptorService collectionDescriptorService,
