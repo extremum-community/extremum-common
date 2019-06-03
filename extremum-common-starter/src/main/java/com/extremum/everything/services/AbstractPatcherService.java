@@ -1,6 +1,7 @@
 package com.extremum.everything.services;
 
 import com.extremum.common.dto.RequestDto;
+import com.extremum.common.dto.converters.DtoConverter;
 import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.exceptions.ConverterNotFoundException;
@@ -59,12 +60,13 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         M foundModel = findById(id);
 
         String name = ModelUtils.getModelName(foundModel.getClass());
-        ToRequestDtoConverter<M, RequestDto> modelConverter;
+        DtoConverter dtoConverter = dtoConversionService.determineConverterOrElseThrow(foundModel,
+                () -> new ConverterNotFoundException("Cannot found dto converter for a model with name " + name));
 
+        ToRequestDtoConverter<M, RequestDto> modelConverter;
 //        Validation before execution
         try {
-            modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConversionService.determineConverterOrElseThrow(foundModel,
-                    () -> new ConverterNotFoundException("Cannot found dto converter for a model with name " + name));
+            modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConverter;
         } catch (ClassCastException e) {
             String message = format("Converter for a model %s is not of a %s instance",
                     name, ToRequestDtoConverter.class.getSimpleName());
