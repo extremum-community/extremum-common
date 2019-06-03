@@ -65,7 +65,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
 //        Validation before execution
         ToRequestDtoConverter<M, RequestDto> modelConverter;
-        if (!(dtoConverter instanceof ToRequestDtoConverter)) {
+        if (dtoConverter instanceof ToRequestDtoConverter) {
             modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConverter;
         } else {
             String message = format("Converter for a model %s is not of a %s instance",
