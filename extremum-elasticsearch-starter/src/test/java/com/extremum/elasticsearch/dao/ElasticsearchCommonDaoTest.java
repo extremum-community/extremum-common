@@ -5,10 +5,11 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
+import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import org.bson.types.ObjectId;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +35,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ElasticsearchCommonDaoTest extends TestWithServices {
     @Autowired
     private TestElasticsearchModelDao dao;
+    @Autowired
+    private ElasticsearchProperties elasticsearchProperties;
+
+    private TestElasticsearchClient client;
+
+    @BeforeEach
+    void createClient() {
+        client = new TestElasticsearchClient(elasticsearchProperties);
+    }
 
     @Test
     void testCreateModel() {
@@ -286,15 +296,13 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    @Disabled("Needs a mechanism to refresh index, it will be added soon")
     void givenADocumentExists_whenSearchingForItByName_thenItShouldBeFound() throws Exception {
         TestElasticsearchModel model = new TestElasticsearchModel();
         String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
         model.setName(uniqueName);
+        
         model = dao.save(model);
-
-        System.out.println(model.getName());
-        Thread.sleep(1000);
+        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> results = dao.search(uniqueName);
         assertThat(results.size(), is(1));
