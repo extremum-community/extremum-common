@@ -63,11 +63,11 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         DtoConverter dtoConverter = dtoConversionService.determineConverterOrElseThrow(foundModel,
                 () -> new ConverterNotFoundException("Cannot found dto converter for a model with name " + name));
 
-        ToRequestDtoConverter<M, RequestDto> modelConverter;
 //        Validation before execution
-        try {
+        ToRequestDtoConverter<M, RequestDto> modelConverter;
+        if (!(dtoConverter instanceof ToRequestDtoConverter)) {
             modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConverter;
-        } catch (ClassCastException e) {
+        } else {
             String message = format("Converter for a model %s is not of a %s instance",
                     name, ToRequestDtoConverter.class.getSimpleName());
             log.error(message);
