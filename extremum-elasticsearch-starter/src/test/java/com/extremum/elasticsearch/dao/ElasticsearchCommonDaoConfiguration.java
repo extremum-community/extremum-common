@@ -5,21 +5,20 @@ import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepository;
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author rpuch
@@ -39,20 +38,18 @@ public class ElasticsearchCommonDaoConfiguration {
     }
 
     @Bean
-    public Client elasticsearchClient() throws UnknownHostException {
-        Settings elasticsearchSettings = Settings.builder()
-//                .put("client.transport.sniff", true)
-//                .put("path.home", elasticsearchHome)
-//                .put("cluster.name", clusterName)
-                .build();
-        TransportClient client = new PreBuiltTransportClient(elasticsearchSettings);
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-        return client;
+    public RestHighLevelClient elasticsearchClient() {
+        List<HttpHost> httpHosts = elasticsearchProperties.getHosts().stream()
+                .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
+                .collect(Collectors.toList());
+
+        RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[0]));
+
+        return new RestHighLevelClient(builder);
     }
 
     @Bean
-    public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
-//        return new ElasticsearchTemplate(nodeBuilder().local(true).node().client());
-        return new ElasticsearchTemplate(elasticsearchClient());
+    public ElasticsearchOperations elasticsearchTemplate() {
+        return new ElasticsearchRestTemplate(elasticsearchClient());
     }
 }

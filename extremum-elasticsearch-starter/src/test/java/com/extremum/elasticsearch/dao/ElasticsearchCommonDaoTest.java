@@ -54,10 +54,10 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
         TestElasticsearchModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
-        assertNotNull(model.getId());
-        assertNotNull(model.getCreated());
-        assertNotNull(model.getVersion());
-        assertFalse(model.getDeleted());
+        assertNotNull(createdModel.getId());
+        assertNotNull(createdModel.getCreated());
+        assertNotNull(createdModel.getVersion());
+        assertFalse(createdModel.getDeleted());
     }
 
     @Test

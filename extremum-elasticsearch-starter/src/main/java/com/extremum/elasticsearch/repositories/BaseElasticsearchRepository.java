@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 /**
  * @author rpuch
  */
-abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel> extends SimpleElasticsearchRepository<T>
-        implements ElasticsearchCommonDao<T> {
+abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
+        extends SimpleElasticsearchRepository<T, String> implements ElasticsearchCommonDao<T> {
     protected BaseElasticsearchRepository(ElasticsearchEntityInformation<T, String> metadata,
             ElasticsearchOperations elasticsearchOperations) {
         super(metadata, elasticsearchOperations);
