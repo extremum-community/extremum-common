@@ -2,7 +2,6 @@ package com.extremum.jpa.repositories;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.data.querydsl.EntityPathResolver;
@@ -19,7 +18,6 @@ import java.io.Serializable;
 public class ExtremumJpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
         extends JpaRepositoryFactoryBean<T, S, ID> {
     private EntityPathResolver entityPathResolver;
-    private EscapeCharacter escapeCharacter = EscapeCharacter.of('\\');
 
     public ExtremumJpaRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
@@ -33,16 +31,9 @@ public class ExtremumJpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID
     }
 
     @Override
-    public void setEscapeCharacter(char escapeCharacter) {
-        super.setEscapeCharacter(escapeCharacter);
-        this.escapeCharacter = EscapeCharacter.of(escapeCharacter);
-    }
-
-    @Override
     protected RepositoryFactorySupport createRepositoryFactory(EntityManager entityManager) {
         JpaRepositoryFactory jpaRepositoryFactory = new ExtremumJpaRepositoryFactory(entityManager);
         jpaRepositoryFactory.setEntityPathResolver(entityPathResolver);
-        jpaRepositoryFactory.setEscapeCharacter(escapeCharacter);
         return jpaRepositoryFactory;
     }
 }
