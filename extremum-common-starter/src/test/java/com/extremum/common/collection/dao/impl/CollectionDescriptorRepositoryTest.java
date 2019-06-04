@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.hasSize;
  */
 @DataMongoTest
 @ContextConfiguration(classes = MongoCommonDaoConfiguration.class)
-public class CollectionDescriptorRepositoryTest extends TestWithServices {
+class CollectionDescriptorRepositoryTest extends TestWithServices {
     @Autowired
     private CollectionDescriptorRepository repository;
 
@@ -41,7 +41,7 @@ public class CollectionDescriptorRepositoryTest extends TestWithServices {
     private MongoProperties mongoProperties;
 
     @Test
-    public void whenCollectionDescriptorIsSaved_thenANewDocumentShouldAppearInMongo() {
+    void whenCollectionDescriptorIsSaved_thenANewDocumentShouldAppearInMongo() {
         String internalId = new ObjectId().toString();
         Descriptor hostId = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())

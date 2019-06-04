@@ -63,8 +63,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     private String getHostFieldName(Field field) {
         OwnedCollection annotation = field.getAnnotation(OwnedCollection.class);
-        if (StringUtils.isNotBlank(annotation.hostFieldName())) {
-            return annotation.hostFieldName();
+        if (StringUtils.isNotBlank(annotation.hostPropertyName())) {
+            return annotation.hostPropertyName();
         }
         return field.getName();
     }

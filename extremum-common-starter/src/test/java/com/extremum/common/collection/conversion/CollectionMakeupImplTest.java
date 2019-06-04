@@ -150,9 +150,9 @@ public class CollectionMakeupImplTest {
     }
 
     private static class StreetResponseDto extends AbstractResponseDto {
-        @OwnedCollection(hostFieldName = "the-buildings")
+        @OwnedCollection(hostPropertyName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
-        @OwnedCollection(hostFieldName = "the-private-buildings")
+        @OwnedCollection(hostPropertyName = "the-private-buildings")
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
         @OwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
