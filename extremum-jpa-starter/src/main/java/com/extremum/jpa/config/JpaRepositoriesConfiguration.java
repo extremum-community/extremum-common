@@ -25,6 +25,7 @@ import javax.sql.DataSource;
  * @author rpuch
  */
 @Configuration
+@ConditionalOnProperty("jpa.repository-packages")
 @EnableConfigurationProperties(JpaProperties.class)
 @EnableExtremumJpaRepositories(basePackages = "${jpa.repository-packages}",
         repositoryFactoryBeanClass = ExtremumJpaRepositoryFactoryBean.class)
