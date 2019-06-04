@@ -71,7 +71,7 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
         Document ownedCoordinates = coordinates.get("ownedCoordinates", Document.class);
         assertThat(ownedCoordinates, is(notNullValue()));
         assertThat(ownedCoordinates.getString("hostId"), is(equalTo(hostId.getExternalId())));
-        assertThat(ownedCoordinates.getString("hostFieldName"), is("the-field"));
+        assertThat(ownedCoordinates.getString("hostPropertyName"), is("the-field"));
         assertThat(document.getString("coordinatesString"), startsWith("OWNED/"));
         assertThat(document.get("created", Date.class), is(notNullValue()));
         assertThat(document.getBoolean("deleted"), is(false));

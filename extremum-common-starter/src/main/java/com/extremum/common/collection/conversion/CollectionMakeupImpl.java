@@ -46,7 +46,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) value;
 
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostFieldName(field));
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostPropertyName(field));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
@@ -61,7 +61,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         reference.setUrl(externalUrl);
     }
 
-    private String getHostFieldName(Field field) {
+    private String getHostPropertyName(Field field) {
         OwnedCollection annotation = field.getAnnotation(OwnedCollection.class);
         if (StringUtils.isNotBlank(annotation.hostPropertyName())) {
             return annotation.hostPropertyName();

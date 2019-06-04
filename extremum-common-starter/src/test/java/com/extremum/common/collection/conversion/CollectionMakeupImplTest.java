@@ -74,13 +74,13 @@ public class CollectionMakeupImplTest {
     }
 
     private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor,
-            String expectedHostFieldName) {
+            String expectedHostPropertyName) {
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
         OwnedCoordinates ownedCoordinates = descriptor.getCoordinates().getOwnedCoordinates();
         assertThat(ownedCoordinates, is(notNullValue()));
         assertThat(ownedCoordinates.getHostId().getExternalId(), is("the-street"));
-        assertThat(ownedCoordinates.getHostFieldName(), is(expectedHostFieldName));
+        assertThat(ownedCoordinates.getHostPropertyName(), is(expectedHostPropertyName));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenHostFieldNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostFieldNameIsDeducedFromFieldName() {
+    public void givenHostPropertyNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostFieldNameIsDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();

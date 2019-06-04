@@ -4,7 +4,6 @@ import com.extremum.common.descriptor.Descriptor;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * @author rpuch
@@ -15,9 +14,9 @@ import java.util.Objects;
 @EqualsAndHashCode
 public class OwnedCoordinates implements Serializable {
     private Descriptor hostId;
-    private String hostFieldName;
+    private String hostPropertyName;
 
     public String toCoordinatesString() {
-        return "OWNED/" + hostId.getExternalId() + "/" + hostFieldName;
+        return "OWNED/" + hostId.getExternalId() + "/" + hostPropertyName;
     }
 }
