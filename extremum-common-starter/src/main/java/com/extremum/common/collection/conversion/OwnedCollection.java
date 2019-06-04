@@ -17,11 +17,12 @@ import java.lang.annotation.Target;
  * Infrastructure will generate the ID and URL automatically.
  *
  * This annotation is used to define 'owned' collecitons.
- * As collection coordinates, they have &lt;host entity descriptor, host field name&gt;
+ * As collection coordinates, they have &lt;host entity descriptor, host property name&gt;
  * pair. Host entity descriptor is just a {@link Descriptor} of the {@link ResponseDto}
  * to which the annotated collection instance belongs.
- * Host field name is either specified in this annotation or, if omitted, it
+ * Host property name is either specified in this annotation or, if omitted, it
  * is considered to be equal to the annotated field name.
+ * Later, the setter corresponding to this property will be used to fetch the collection.
  *
  * @author rpuch
  * @see CollectionReference
