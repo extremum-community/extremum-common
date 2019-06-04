@@ -74,6 +74,15 @@ public class JpaFieldsInReferencesBehaviorTest extends TestWithServices {
     public void testWithGetReference() {
         Parent parent = entityManager.getReference(Parent.class, parentId);
 
+        assertThat(parent.getName(), is("Joe"));
+        assertThat(parent.getChildren(), hasSize(2));
+    }
+
+    @Test
+    @Transactional
+    public void testThatFieldsInAProxyObtainedViaReferenceNeverChange() {
+        Parent parent = entityManager.getReference(Parent.class, parentId);
+
         assertNull(parent.name);
         assertThat(parent.children, hasSize(0));
 
