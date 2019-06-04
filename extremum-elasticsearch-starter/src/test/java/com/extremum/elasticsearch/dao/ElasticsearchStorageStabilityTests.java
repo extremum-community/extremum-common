@@ -5,22 +5,13 @@ import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpHost;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -37,12 +28,19 @@ class ElasticsearchStorageStabilityTests extends TestWithServices {
     @Autowired
     private TestElasticsearchModelDao dao;
 
+    private TestElasticsearchClient client;
+
+    @BeforeEach
+    void createClient() {
+        client = new TestElasticsearchClient(elasticsearchProperties);
+    }
+
     @Test
     void givenAnEntityWasSaved_whenGetThisEntityRawJson_thenItShouldBeDeserializedToTheSameValuesByOurObjectMapper()
             throws Exception {
         TestElasticsearchModel model = saveEntity();
 
-        String json = getAsJson(TestElasticsearchModel.INDEX, model.getId())
+        String json = client.getAsJson(TestElasticsearchModel.INDEX, model.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Did not find anything"));
 
         TestElasticsearchModel parsedModel = parseJsonWithOurObjectMapper(json);
@@ -65,33 +63,6 @@ class ElasticsearchStorageStabilityTests extends TestWithServices {
 
         dao.save(model);
         return model;
-    }
-
-    private Optional<String> getAsJson(String indexName, String id) {
-        try (RestHighLevelClient client = getClient()) {
-            GetResponse response = client.get(
-                    new GetRequest(indexName, id),
-                    RequestOptions.DEFAULT
-            );
-
-            if (response.isExists()) {
-                return Optional.of(response.getSourceAsString());
-            } else {
-                return Optional.empty();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to get data by id " + id +
-                    " from index " + indexName, e);
-        }
-    }
-
-    private RestHighLevelClient getClient() {
-        List<HttpHost> httpHosts = elasticsearchProperties.getHosts().stream()
-                .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
-                .collect(Collectors.toList());
-
-        RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[]{}));
-        return new RestHighLevelClient(builder);
     }
 
     private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) throws IOException {

@@ -33,15 +33,21 @@ class ElasticsearchServices {
     }
 
     private static void startElasticsearch() {
-        ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
-        elasticSearch.start();
+        if ("true".equals(System.getProperty("start.elasticsearch", "true"))) {
+            ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
+            elasticSearch.start();
 
-        System.setProperty("elasticsearch.hosts[0].host", elasticSearch.getContainerIpAddress());
-        System.setProperty("elasticsearch.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
-        System.setProperty("elasticsearch.hosts[0].protocol", "http");
+            System.setProperty("elasticsearch.hosts[0].host", elasticSearch.getContainerIpAddress());
+            System.setProperty("elasticsearch.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
+            System.setProperty("elasticsearch.hosts[0].protocol", "http");
 
-        LOGGER.info("Elasticsearch host:port are {}:{}",
-                elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+            LOGGER.info("Elasticsearch host:port are {}:{}",
+                    elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+        } else {
+            System.setProperty("elasticsearch.hosts[0].host", "localhost");
+            System.setProperty("elasticsearch.hosts[0].port", "9200");
+            System.setProperty("elasticsearch.hosts[0].protocol", "http");
+        }
     }
 
     @NotNull
