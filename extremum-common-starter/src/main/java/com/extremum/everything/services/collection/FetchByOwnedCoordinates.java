@@ -4,6 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.common.utils.EntityUtils;
 import com.extremum.common.utils.InstanceFields;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.collection.CollectionElementType;
@@ -13,8 +14,11 @@ import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +39,7 @@ public class FetchByOwnedCoordinates {
     public CollectionFragment<Model> fetchCollection(BasicModel host, String hostFieldName, Projection projection) {
         Field field = findField(host, hostFieldName);
 
-        Object fieldValue = getFieldValue(host, field);
+        Object fieldValue = getPropertyValue(host, field);
         if (fieldValue == null) {
             return CollectionFragment.emptyWithZeroTotal();
         }
@@ -59,6 +63,37 @@ public class FetchByOwnedCoordinates {
                 .orElseThrow(() -> new EverythingEverythingException(
                         String.format("No field '%s' was found in class '%s'", fieldName, object.getClass()))
                 );
+    }
+
+    private Object getPropertyValue(Model host, Field field) {
+        if (EntityUtils.isProxyClass(host.getClass())) {
+            return getGetterValue(host, field.getName());
+        }
+
+        return getFieldValue(host, field);
+    }
+
+    private Object getGetterValue(Model host, String propertyName) {
+        Method method = findGetter(host, propertyName);
+        return invokeGetter(host, method);
+    }
+
+    private Method findGetter(Model host, String propertyName) {
+        final String getterName = "get" + StringUtils.capitalize(propertyName);
+
+        try {
+            return host.getClass().getMethod(getterName);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("Cannot find a getter", e);
+        }
+    }
+
+    private Object invokeGetter(Model host, Method method) {
+        try {
+            return method.invoke(host);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("Cannot invoke a getter", e);
+        }
     }
 
     private Object getFieldValue(Model host, Field field) {

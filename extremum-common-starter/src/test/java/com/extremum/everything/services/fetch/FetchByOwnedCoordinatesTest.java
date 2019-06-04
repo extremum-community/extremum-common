@@ -3,6 +3,7 @@ package com.extremum.everything.services.fetch;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
+import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionElementType;
 import com.extremum.everything.collection.CollectionFragment;
@@ -179,6 +180,14 @@ class FetchByOwnedCoordinatesTest {
         }
     }
 
+    @Test
+    void givenModelIsAProxyThatDoesNotStoreDataInOurFields_whenFetchingCollection_thenGetterShouldBeUsed() {
+        PersistableCommonModel model = new AProxy$HibernateProxy$ThatIgnoresTheFieldValue();
+
+        CollectionFragment<Model> houses = fetcher.fetchCollection(model, "houses", Projection.empty());
+        assertThat(houses.elements(), hasSize(2));
+    }
+
     @ModelName("House")
     private static class House extends MongoCommonModel {
     }
@@ -206,5 +215,14 @@ class FetchByOwnedCoordinatesTest {
     private static class OwnerWithCollectionWith2Ids extends MongoCommonModel {
         @CollectionElementType(Has2Ids.class)
         private List<String> items = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
+    }
+
+    @ModelName("Proxied")
+    public static class AProxy$HibernateProxy$ThatIgnoresTheFieldValue extends MongoCommonModel {
+        private List<House> houses = new ArrayList<>();
+
+        public List<House> getHouses() {
+            return Arrays.asList(new House(), new House());
+        }
     }
 }
