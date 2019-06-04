@@ -172,7 +172,7 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
     private static class ExplicitHouseFetcher implements CollectionFetcher<Street, House> {
 
         @Override
-        public String getHostFieldName() {
+        public String getHostPropertyName() {
             return "explicitHouses";
         }
 

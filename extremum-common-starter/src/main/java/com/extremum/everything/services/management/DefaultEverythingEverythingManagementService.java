@@ -185,7 +185,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
             Optional<CollectionFetcher> collectionFetcher = collectionFetchers.stream()
                     .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
-                    .filter(fetcher -> fetcher.getHostFieldName().equals(owned.getHostPropertyName()))
+                    .filter(fetcher -> fetcher.getHostPropertyName().equals(owned.getHostPropertyName()))
                     .findFirst();
 
             return collectionFetcher.map(fetcher -> fetcher.fetchCollection(host, projection))
