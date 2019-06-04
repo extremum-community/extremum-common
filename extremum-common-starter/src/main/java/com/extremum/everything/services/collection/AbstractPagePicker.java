@@ -16,13 +16,13 @@ import java.util.List;
 abstract class AbstractPagePicker<T extends BasicModel> implements PagePicker {
     @Override
     public final CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
-            Projection projection, Model host, String hostFieldName) {
-        List<T> fullList = convertToModels(nonEmptyCollection, host, hostFieldName);
+            Projection projection, Model host, String hostPropertyName) {
+        List<T> fullList = convertToModels(nonEmptyCollection, host, hostPropertyName);
         List<T> sortedFullList = sortModels(fullList);
         return filterAndProject(sortedFullList, projection);
     }
 
-    abstract List<T> convertToModels(Collection<?> nonEmptyCollection, Model host, String hostFieldName);
+    abstract List<T> convertToModels(Collection<?> nonEmptyCollection, Model host, String hostPropertyName);
 
     private List<T> sortModels(List<T> fullList) {
         List<T> sortedFullList = new ArrayList<>(fullList);

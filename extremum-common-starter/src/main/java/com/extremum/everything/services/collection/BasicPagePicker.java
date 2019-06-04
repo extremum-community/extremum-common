@@ -17,17 +17,17 @@ import java.util.stream.Collectors;
  */
 final class BasicPagePicker extends AbstractPagePicker<BasicModel> {
     @Override
-    List<BasicModel> convertToModels(Collection<?> nonEmptyCollection, Model host, String hostFieldName) {
+    List<BasicModel> convertToModels(Collection<?> nonEmptyCollection, Model host, String hostPropertyName) {
         return nonEmptyCollection.stream()
-                .map(element -> convertElementToBasicModel(element, host, hostFieldName))
+                .map(element -> convertElementToBasicModel(element, host, hostPropertyName))
                 .collect(Collectors.toList());
     }
 
-    private BasicModel convertElementToBasicModel(Object element, Model host, String hostFieldName) {
+    private BasicModel convertElementToBasicModel(Object element, Model host, String hostPropertyName) {
         if (!(element instanceof BasicModel)) {
             String name = ModelUtils.getModelName(host);
             String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
-                            " ObjectId, or BasicModel instances, but encountered '%s'", name, hostFieldName,
+                            " ObjectId, or BasicModel instances, but encountered '%s'", name, hostPropertyName,
                     element.getClass());
             throw new EverythingEverythingException(message);
         }

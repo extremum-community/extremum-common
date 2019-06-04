@@ -36,15 +36,15 @@ public class FetchByOwnedCoordinates {
         this.universalDao = universalDao;
     }
 
-    public CollectionFragment<Model> fetchCollection(BasicModel host, String hostFieldName, Projection projection) {
-        Field field = findField(host, hostFieldName);
+    public CollectionFragment<Model> fetchCollection(BasicModel host, String hostPropertyName, Projection projection) {
+        Field field = findField(host, hostPropertyName);
 
         Object fieldValue = getPropertyValue(host, field);
         if (fieldValue == null) {
             return CollectionFragment.emptyWithZeroTotal();
         }
 
-        Collection<?> collection = asCollection(fieldValue, host, hostFieldName);
+        Collection<?> collection = asCollection(fieldValue, host, hostPropertyName);
         if (collection.isEmpty()) {
             return CollectionFragment.emptyWithZeroTotal();
         }
@@ -53,7 +53,7 @@ public class FetchByOwnedCoordinates {
             return loadModelsByIdsCollection(collection, projection, host, field);
         }
 
-        return getModelsFromModelsCollection(collection, projection, host, hostFieldName);
+        return getModelsFromModelsCollection(collection, projection, host, hostPropertyName);
     }
 
     private Field findField(Object object, String fieldName) {
@@ -108,10 +108,10 @@ public class FetchByOwnedCoordinates {
         }
     }
 
-    private Collection<?> asCollection(Object fieldValue, Model host, String hostFieldName) {
+    private Collection<?> asCollection(Object fieldValue, Model host, String hostPropertyName) {
         if (!(fieldValue instanceof Collection)) {
             String name = ModelUtils.getModelName(host);
-            String message = String.format("'%s' field on '%s' contains '%s' and not a Collection", hostFieldName,
+            String message = String.format("'%s' field on '%s' contains '%s' and not a Collection", hostPropertyName,
                     name, fieldValue.getClass());
             throw new EverythingEverythingException(message);
         }
@@ -181,9 +181,9 @@ public class FetchByOwnedCoordinates {
     }
 
     private CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
-            Projection projection, Model host, String hostFieldName) {
+            Projection projection, Model host, String hostPropertyName) {
         PagePicker pagePicker = detectPagePicker(nonEmptyCollection);
-        return pagePicker.getModelsFromModelsCollection(nonEmptyCollection, projection, host, hostFieldName);
+        return pagePicker.getModelsFromModelsCollection(nonEmptyCollection, projection, host, hostPropertyName);
     }
 
     private PagePicker detectPagePicker(Collection<?> nonEmptyCollection) {

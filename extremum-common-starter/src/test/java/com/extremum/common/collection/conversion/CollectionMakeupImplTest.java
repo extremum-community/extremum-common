@@ -123,7 +123,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenHostPropertyNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostFieldNameIsDeducedFromFieldName() {
+    public void givenHostPropertyNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostPropertyNameIsDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();
