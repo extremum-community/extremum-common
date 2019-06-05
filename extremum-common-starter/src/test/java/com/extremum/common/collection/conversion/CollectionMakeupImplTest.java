@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-public class CollectionMakeupImplTest {
+class CollectionMakeupImplTest {
     @InjectMocks
     private CollectionMakeupImpl collectionMakeup;
 
@@ -53,7 +53,7 @@ public class CollectionMakeupImplTest {
             new Descriptor("the-street"), "the-buildings");
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         BuildingResponseDto building1 = new BuildingResponseDto("building1", "address1");
         BuildingResponseDto building2 = new BuildingResponseDto("building2", "address2");
         List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings = Arrays.asList(
@@ -64,7 +64,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
+    void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildings.getId();
@@ -84,7 +84,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
+    void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
         when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.of(descriptorInDB));
 
         collectionMakeup.applyCollectionMakeup(streetDto);
@@ -96,7 +96,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
+    void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.privateBuildings.getId();
@@ -106,7 +106,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+    void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
         streetDto.setId(null);
 
         collectionMakeup.applyCollectionMakeup(streetDto);
@@ -116,14 +116,14 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+    void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
         streetDto.buildings = null;
 
         collectionMakeup.applyCollectionMakeup(streetDto);
     }
 
     @Test
-    public void givenHostPropertyNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostPropertyNameIsDeducedFromFieldName() {
+    void givenHostPropertyNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostPropertyNameIsDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();
@@ -133,7 +133,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void whenMakeupIsApplied_thenUrlShouldBeFilled() {
+    void whenMakeupIsApplied_thenUrlShouldBeFilled() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         String collectionId = streetDto.buildings.getId().getExternalId();
