@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -198,6 +199,19 @@ class FetchByOwnedCoordinatesTest {
         assertThat(houses.elements(), hasSize(2));
     }
 
+    @Test
+    void givenModelClassHasCollectionElementTypeAnnotatedBothOnFieldAndGetter_whenFetchingCollection_thenAnExceptionShouldBeThrown() {
+        PersistableCommonModel model = new HasElementTypeAnnotatedTwice();
+
+        try {
+            fetcher.fetchCollection(model, "houses", Projection.empty());
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("For host type 'HasElementTypeAnnotatedTwice' attribute 'houses'" +
+                    " has @CollectionElementType annotation on both field and getter"));
+        }
+    }
+
     @ModelName("House")
     private static class House extends MongoCommonModel {
     }
@@ -238,6 +252,17 @@ class FetchByOwnedCoordinatesTest {
 
         public List<House> getHouses() {
             return Arrays.asList(new House(), new House());
+        }
+    }
+
+    @ModelName("HasElementTypeAnnotatedTwice")
+    public static class HasElementTypeAnnotatedTwice extends MongoCommonModel {
+        @CollectionElementType(House.class)
+        private List<String> houses = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
+
+        @CollectionElementType(House.class)
+        public List<String> getHouses() {
+            return houses;
         }
     }
 }

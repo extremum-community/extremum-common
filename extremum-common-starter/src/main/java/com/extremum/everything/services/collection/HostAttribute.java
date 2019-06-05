@@ -40,6 +40,18 @@ class HostAttribute {
                 .map(field -> field.getAnnotation(CollectionElementType.class))
                 .orElse(null);
         CollectionElementType getterAnnotation = getter().getAnnotation(CollectionElementType.class);
+
+        throwIfNoCollectionElementTypeAnnotationIsPresent(host, fieldAnnotation, getterAnnotation);
+        throwIfMultipleCollectionElementAnnotationIsPresent(host, fieldAnnotation, getterAnnotation);
+
+        if (getterAnnotation != null) {
+            return getterAnnotation.value();
+        }
+        return fieldAnnotation.value();
+    }
+
+    private void throwIfNoCollectionElementTypeAnnotationIsPresent(Model host, CollectionElementType fieldAnnotation,
+            CollectionElementType getterAnnotation) {
         if (fieldAnnotation == null && getterAnnotation == null) {
             String name = ModelUtils.getModelName(host);
             String message = String.format(
@@ -47,10 +59,16 @@ class HostAttribute {
                     name, name());
             throw new EverythingEverythingException(message);
         }
+    }
 
-        if (getterAnnotation != null) {
-            return getterAnnotation.value();
+    private void throwIfMultipleCollectionElementAnnotationIsPresent(Model host,
+            CollectionElementType fieldAnnotation, CollectionElementType getterAnnotation) {
+        if (fieldAnnotation != null && getterAnnotation != null) {
+            String name = ModelUtils.getModelName(host);
+            String message = String.format(
+                    "For host type '%s' attribute '%s' has @CollectionElementType annotation on both field and getter",
+                    name, name());
+            throw new EverythingEverythingException(message);
         }
-        return fieldAnnotation.value();
     }
 }
