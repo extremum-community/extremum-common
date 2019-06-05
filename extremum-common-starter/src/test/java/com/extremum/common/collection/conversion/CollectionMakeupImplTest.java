@@ -141,7 +141,7 @@ class CollectionMakeupImplTest {
     }
 
     @Test
-    void givenAACollectionIsAnnotatedOnAGetter_whenMakeupIsApplied_thenIdAndUrlShouldBeFilled() {
+    void givenACollectionIsAnnotatedOnAGetter_whenMakeupIsApplied_thenIdAndUrlShouldBeFilled() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         assertThat(streetDto.getBuildingsAnnotatedViaGetter().getId(), is(notNullValue()));
