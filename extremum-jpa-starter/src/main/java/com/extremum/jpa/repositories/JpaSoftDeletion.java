@@ -1,6 +1,6 @@
 package com.extremum.jpa.repositories;
 
-import com.extremum.common.utils.InstanceMethods;
+import com.extremum.common.utils.DeclaredInstanceMethods;
 
 import javax.persistence.Transient;
 import java.lang.reflect.Method;
@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
  */
 class JpaSoftDeletion {
     boolean supportsSoftDeletion(Class<?> domainType) {
-        long nonTransientGetDeletedMethodsCount = new InstanceMethods(domainType).stream()
+        long nonTransientGetDeletedMethodsCount = new DeclaredInstanceMethods(domainType).stream()
                 .filter(this::isPublic)
                 .filter(method -> "getDeleted".equals(method.getName()))
                 .filter(this::notAnnotatedAsTransient)

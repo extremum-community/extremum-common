@@ -10,8 +10,6 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
-import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
-import com.extremum.common.utils.attribute.AttributeGraphWalker;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
@@ -126,17 +124,10 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public AttributeGraphWalker collectionMakeupFieldGraphWalker() {
-        return new DeepAttributeGraphWalker(5);
-    }
-
-    @Bean
     @ConditionalOnBean(CollectionDescriptorService.class)
     @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService) {
-        return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls(),
-                collectionMakeupFieldGraphWalker());
+        return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls());
     }
 
     @Bean

@@ -14,7 +14,7 @@ public interface Attribute {
         return getAnnotation(annotationClass) != null;
     }
 
-    Class<?> getType();
+    Class<?> type();
 
     Object value();
 }

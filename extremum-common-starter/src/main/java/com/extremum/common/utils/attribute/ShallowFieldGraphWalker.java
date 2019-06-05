@@ -1,6 +1,7 @@
 package com.extremum.common.utils.attribute;
 
 import com.extremum.common.utils.InstanceFields;
+import com.extremum.common.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public final class ShallowFieldGraphWalker implements AttributeGraphWalker {
     }
 
     private void visitField(Field field, Object root, AttributeVisitor visitor) {
-        Object value = new GetFieldValue(field, root).get();
+        Object value = ReflectionUtils.getFieldValue(field, root);
         visitor.visitAttribute(new FieldAttribute(field, value));
     }
 }

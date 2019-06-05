@@ -1,9 +1,7 @@
 package com.extremum.common.utils.attribute;
 
-import com.extremum.common.utils.InstanceFields;
 import com.google.common.collect.ImmutableList;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -14,15 +12,15 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
 
     private final int maxLevel;
-    private final Predicate<Object> shoudGoDeeperPredicate;
+    private final Predicate<Object> shouldGoDeeperPredicate;
 
     public DeepAttributeGraphWalker(int maxLevel) {
         this(maxLevel, object -> true);
     }
 
-    public DeepAttributeGraphWalker(int maxLevel, Predicate<Object> shoudGoDeeperPredicate) {
+    public DeepAttributeGraphWalker(int maxLevel, Predicate<Object> shouldGoDeeperPredicate) {
         this.maxLevel = maxLevel;
-        this.shoudGoDeeperPredicate = shoudGoDeeperPredicate;
+        this.shouldGoDeeperPredicate = shouldGoDeeperPredicate;
     }
 
     @Override
@@ -34,28 +32,24 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     }
 
     private void walkRecursively(Object currentTarget, Context context, int currentDepth) {
-        new InstanceFields(currentTarget.getClass()).stream()
-                .forEach(field -> introspectField(currentTarget, context, currentDepth, field));
+        new InstanceAttributes(currentTarget).stream()
+                .forEach(attribute -> introspectAttribute(context, currentDepth, attribute));
     }
 
-    private void introspectField(Object currentTarget, Context context, int currentDepth, Field field) {
-        Object fieldValue = getFieldValue(currentTarget, field);
-        if (fieldValue == null) {
+    private void introspectAttribute(Context context, int currentDepth, Attribute attribute) {
+        Object attributeValue = attribute.value();
+        if (attributeValue == null) {
             return;
         }
 
-        if (context.alreadySeen(fieldValue)) {
+        if (context.alreadySeen(attributeValue)) {
             return;
         }
-        context.rememberAsSeen(fieldValue);
+        context.rememberAsSeen(attributeValue);
 
-        context.visitField(field, fieldValue);
+        context.visitAttribute(attribute);
 
-        goDeeperIfNeeded(fieldValue, context, currentDepth);
-    }
-
-    private Object getFieldValue(Object currentTarget, Field field) {
-        return new GetFieldValue(field, currentTarget).get();
+        goDeeperIfNeeded(attributeValue, context, currentDepth);
     }
 
     private void goDeeperIfNeeded(Object nextValue, Context context, int currentDepth) {
@@ -98,7 +92,7 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
             return false;
         }
 
-        if (!shoudGoDeeperPredicate.test(nextValue)) {
+        if (!shouldGoDeeperPredicate.test(nextValue)) {
             return false;
         }
         
@@ -127,8 +121,8 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
             }
         }
 
-        void visitField(Field field, Object value) {
-            visitor.visitAttribute(new FieldAttribute(field, value));
+        void visitAttribute(Attribute attribute) {
+            visitor.visitAttribute(attribute);
         }
     }
 }

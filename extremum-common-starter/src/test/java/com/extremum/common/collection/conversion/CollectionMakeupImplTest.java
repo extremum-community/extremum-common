@@ -9,8 +9,6 @@ import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.TestApplicationUrls;
-import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
-import com.extremum.common.utils.attribute.AttributeGraphWalker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,8 +43,6 @@ class CollectionMakeupImplTest {
     private CollectionDescriptorService collectionDescriptorService;
     @Spy
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
-    @Spy
-    private AttributeGraphWalker attributeGraphWalker = new DeepAttributeGraphWalker(5);
 
     private StreetResponseDto streetDto;
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
@@ -159,7 +155,7 @@ class CollectionMakeupImplTest {
         }
     }
 
-    private static class StreetResponseDto extends AbstractResponseDto {
+    public static class StreetResponseDto extends AbstractResponseDto {
         @OwnedCollection(hostPropertyName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
         @OwnedCollection(hostPropertyName = "the-private-buildings")

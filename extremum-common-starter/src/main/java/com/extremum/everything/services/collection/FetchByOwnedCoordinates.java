@@ -7,6 +7,7 @@ import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.EntityUtils;
 import com.extremum.common.utils.InstanceFields;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.common.utils.ReflectionUtils;
 import com.extremum.everything.collection.CollectionElementType;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
@@ -97,15 +98,7 @@ public class FetchByOwnedCoordinates {
     }
 
     private Object getFieldValue(Model host, Field field) {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-        }
-
-        try {
-            return field.get(host);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Cannot get field value", e);
-        }
+        return ReflectionUtils.getFieldValue(field, host);
     }
 
     private Collection<?> asCollection(Object fieldValue, Model host, String hostPropertyName) {

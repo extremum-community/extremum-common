@@ -26,7 +26,7 @@ class FieldAttribute implements Attribute {
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<?> type() {
         return field.getType();
     }
 

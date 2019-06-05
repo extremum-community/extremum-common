@@ -3,11 +3,13 @@ package com.extremum.common.collection.conversion;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
+import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.utils.attribute.Attribute;
 import com.extremum.common.utils.attribute.AttributeGraphWalker;
 import com.extremum.common.utils.attribute.AttributeVisitor;
+import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +22,17 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final AttributeGraphWalker attributeGraphWalker;
+    private final AttributeGraphWalker attributeGraphWalker = new DeepAttributeGraphWalker(5,
+            CollectionMakeupImpl::shouldGoDeeper);
+
+    private static boolean shouldGoDeeper(Object object) {
+        return object != null && (!(object instanceof Descriptor));
+    }
 
     public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
-            ApplicationUrls applicationUrls, AttributeGraphWalker attributeGraphWalker) {
+            ApplicationUrls applicationUrls) {
         this.collectionDescriptorService = collectionDescriptorService;
         this.applicationUrls = applicationUrls;
-        this.attributeGraphWalker = attributeGraphWalker;
     }
 
     @Override
@@ -70,7 +76,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private boolean isOfTypeCollectionReference(Attribute attribute) {
-        return CollectionReference.class.isAssignableFrom(attribute.getType());
+        return CollectionReference.class.isAssignableFrom(attribute.type());
     }
 
     private boolean isAnnotatedWithOwnedCollection(Attribute attribute) {
