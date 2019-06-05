@@ -5,12 +5,12 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
-import com.extremum.common.utils.FieldGraphWalker;
-import com.extremum.common.utils.FieldVisitor;
+import com.extremum.common.utils.Attribute;
+import com.extremum.common.utils.AttributeGraphWalker;
+import com.extremum.common.utils.AttributeVisitor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 /**
@@ -20,13 +20,13 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final FieldGraphWalker fieldGraphWalker;
+    private final AttributeGraphWalker attributeGraphWalker;
 
     public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
-            ApplicationUrls applicationUrls, FieldGraphWalker fieldGraphWalker) {
+            ApplicationUrls applicationUrls, AttributeGraphWalker attributeGraphWalker) {
         this.collectionDescriptorService = collectionDescriptorService;
         this.applicationUrls = applicationUrls;
-        this.fieldGraphWalker = fieldGraphWalker;
+        this.attributeGraphWalker = attributeGraphWalker;
     }
 
     @Override
@@ -35,18 +35,18 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
-        FieldVisitor visitor = (field, value) -> applyMakeupToField(field, value, dto);
-        fieldGraphWalker.walk(dto, new EligibleForMakeup(visitor));
+        AttributeVisitor visitor = attribute -> applyMakeupToField(attribute, dto);
+        attributeGraphWalker.walk(dto, new EligibleForMakeup(visitor));
     }
 
-    private void applyMakeupToField(Field field, Object value, ResponseDto dto) {
-        if (value == null) {
+    private void applyMakeupToField(Attribute attribute, ResponseDto dto) {
+        if (attribute.value() == null) {
             return;
         }
 
-        CollectionReference reference = (CollectionReference) value;
+        CollectionReference reference = (CollectionReference) attribute.value();
 
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostPropertyName(field));
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostPropertyName(attribute));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
@@ -61,33 +61,33 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         reference.setUrl(externalUrl);
     }
 
-    private String getHostPropertyName(Field field) {
-        OwnedCollection annotation = field.getAnnotation(OwnedCollection.class);
+    private String getHostPropertyName(Attribute attribute) {
+        OwnedCollection annotation = attribute.getAnnotation(OwnedCollection.class);
         if (StringUtils.isNotBlank(annotation.hostPropertyName())) {
             return annotation.hostPropertyName();
         }
-        return field.getName();
+        return attribute.name();
     }
 
-    private boolean isOfTypeCollectionReference(Field field) {
-        return field.getType() == CollectionReference.class;
+    private boolean isOfTypeCollectionReference(Attribute attribute) {
+        return CollectionReference.class.isAssignableFrom(attribute.getType());
     }
 
-    private boolean isAnnotatedWithOwnedCollection(Field field) {
-        return field.getAnnotation(OwnedCollection.class) != null;
+    private boolean isAnnotatedWithOwnedCollection(Attribute attribute) {
+        return attribute.isAnnotatedWith(OwnedCollection.class);
     }
 
-    private class EligibleForMakeup implements FieldVisitor {
-        private final FieldVisitor visitor;
+    private class EligibleForMakeup implements AttributeVisitor {
+        private final AttributeVisitor visitor;
 
-        private EligibleForMakeup(FieldVisitor visitor) {
+        private EligibleForMakeup(AttributeVisitor visitor) {
             this.visitor = visitor;
         }
 
         @Override
-        public void visitField(Field field, Object value) {
-            if (isOfTypeCollectionReference(field) && isAnnotatedWithOwnedCollection(field)) {
-                visitor.visitField(field, value);
+        public void visitAttribute(Attribute attribute) {
+            if (isOfTypeCollectionReference(attribute) && isAnnotatedWithOwnedCollection(attribute)) {
+                visitor.visitAttribute(attribute);
             }
         }
     }

@@ -10,8 +10,8 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
-import com.extremum.common.utils.DeepFieldGraphWalker;
-import com.extremum.common.utils.FieldGraphWalker;
+import com.extremum.common.utils.DeepAttributeGraphWalker;
+import com.extremum.common.utils.AttributeGraphWalker;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
@@ -127,8 +127,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public FieldGraphWalker collectionMakeupFieldGraphWalker() {
-        return new DeepFieldGraphWalker(5);
+    public AttributeGraphWalker collectionMakeupFieldGraphWalker() {
+        return new DeepAttributeGraphWalker(5);
     }
 
     @Bean

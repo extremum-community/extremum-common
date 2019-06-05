@@ -9,8 +9,8 @@ import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.TestApplicationUrls;
-import com.extremum.common.utils.DeepFieldGraphWalker;
-import com.extremum.common.utils.FieldGraphWalker;
+import com.extremum.common.utils.DeepAttributeGraphWalker;
+import com.extremum.common.utils.AttributeGraphWalker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +46,7 @@ class CollectionMakeupImplTest {
     @Spy
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
     @Spy
-    private FieldGraphWalker fieldGraphWalker = new DeepFieldGraphWalker(5);
+    private AttributeGraphWalker attributeGraphWalker = new DeepAttributeGraphWalker(5);
 
     private StreetResponseDto streetDto;
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(

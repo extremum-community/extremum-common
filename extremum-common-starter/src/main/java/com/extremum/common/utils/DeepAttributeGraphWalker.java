@@ -9,23 +9,23 @@ import java.util.function.Predicate;
 /**
  * @author rpuch
  */
-public class DeepFieldGraphWalker implements FieldGraphWalker {
+public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
 
     private final int maxLevel;
     private final Predicate<Object> shoudGoDeeperPredicate;
 
-    public DeepFieldGraphWalker(int maxLevel) {
+    public DeepAttributeGraphWalker(int maxLevel) {
         this(maxLevel, object -> true);
     }
 
-    public DeepFieldGraphWalker(int maxLevel, Predicate<Object> shoudGoDeeperPredicate) {
+    public DeepAttributeGraphWalker(int maxLevel, Predicate<Object> shoudGoDeeperPredicate) {
         this.maxLevel = maxLevel;
         this.shoudGoDeeperPredicate = shoudGoDeeperPredicate;
     }
 
     @Override
-    public void walk(Object root, FieldVisitor visitor) {
+    public void walk(Object root, AttributeVisitor visitor) {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
@@ -109,10 +109,10 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
     }
 
     private static class Context {
-        private final FieldVisitor visitor;
+        private final AttributeVisitor visitor;
         private final Map<Object, Object> visitedObjects = new IdentityHashMap<>();
 
-        private Context(FieldVisitor visitor) {
+        private Context(AttributeVisitor visitor) {
             this.visitor = visitor;
         }
 
@@ -127,7 +127,7 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
         }
 
         void visitField(Field field, Object value) {
-            visitor.visitField(field, value);
+            visitor.visitAttribute(new FieldAttribute(field, value));
         }
     }
 }

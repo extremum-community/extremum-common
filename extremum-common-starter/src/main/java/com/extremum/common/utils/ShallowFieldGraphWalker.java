@@ -1,17 +1,23 @@
 package com.extremum.common.utils;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
  * @author rpuch
  */
-public final class ShallowFieldGraphWalker implements FieldGraphWalker {
+public final class ShallowFieldGraphWalker implements AttributeGraphWalker {
     @Override
-    public void walk(Object root, FieldVisitor visitor) {
+    public void walk(Object root, AttributeVisitor visitor) {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
         new InstanceFields(root.getClass()).stream()
-                .forEach(field -> visitor.visitField(field, new GetFieldValue(field, root).get()));
+                .forEach(field -> visitField(field, root, visitor));
+    }
+
+    private void visitField(Field field, Object root, AttributeVisitor visitor) {
+        Object value = new GetFieldValue(field, root).get();
+        visitor.visitAttribute(new FieldAttribute(field, value));
     }
 }

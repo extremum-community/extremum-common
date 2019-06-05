@@ -6,6 +6,6 @@ import java.util.function.Supplier;
 /**
  * @author rpuch
  */
-public interface FieldVisitor {
-    void visitField(Field field, Object value);
+public interface AttributeVisitor {
+    void visitAttribute(Attribute attribute);
 }
