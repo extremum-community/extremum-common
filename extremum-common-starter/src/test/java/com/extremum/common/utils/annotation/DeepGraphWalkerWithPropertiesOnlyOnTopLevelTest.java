@@ -1,6 +1,6 @@
 package com.extremum.common.utils.annotation;
 
-import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
+import com.extremum.common.utils.attribute.DeepGraphWalkerWithPropertiesOnlyOnTopLevel;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
@@ -16,8 +16,8 @@ import static org.hamcrest.Matchers.hasSize;
 /**
  * @author rpuch
  */
-class DeepAttributeGraphWalkerTest {
-    private final DeepAttributeGraphWalker walker = new DeepAttributeGraphWalker(10);
+class DeepGraphWalkerWithPropertiesOnlyOnTopLevelTest {
+    private final DeepGraphWalkerWithPropertiesOnlyOnTopLevel walker = new DeepGraphWalkerWithPropertiesOnlyOnTopLevel(10);
     private final ValueCollector collector = new ValueCollector();
 
     @Test
@@ -107,7 +107,7 @@ class DeepAttributeGraphWalkerTest {
         Container b = new Container(c);
         Container a = new Container(b);
 
-        DeepAttributeGraphWalker limitedWalker = new DeepAttributeGraphWalker(2);
+        DeepGraphWalkerWithPropertiesOnlyOnTopLevel limitedWalker = new DeepGraphWalkerWithPropertiesOnlyOnTopLevel(2);
 
         limitedWalker.walk(new Container(a), collector);
 
@@ -117,7 +117,7 @@ class DeepAttributeGraphWalkerTest {
 
     @Test
     void givenPredicateDoesNotAllowToVisitAnything_whenThereAreFieldsToVisit_nothingShouldBeVisited() {
-        DeepAttributeGraphWalker dontGoDeeper = new DeepAttributeGraphWalker(10, object -> false);
+        DeepGraphWalkerWithPropertiesOnlyOnTopLevel dontGoDeeper = new DeepGraphWalkerWithPropertiesOnlyOnTopLevel(10, object -> false);
 
         DeepBean root = new DeepBean();
         dontGoDeeper.walk(root, collector);

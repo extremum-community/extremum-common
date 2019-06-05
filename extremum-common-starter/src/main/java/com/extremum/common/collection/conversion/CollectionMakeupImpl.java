@@ -9,7 +9,7 @@ import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.utils.attribute.Attribute;
 import com.extremum.common.utils.attribute.AttributeGraphWalker;
 import com.extremum.common.utils.attribute.AttributeVisitor;
-import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
+import com.extremum.common.utils.attribute.DeepGraphWalkerWithPropertiesOnlyOnTopLevel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final AttributeGraphWalker attributeGraphWalker = new DeepAttributeGraphWalker(5,
+    private final AttributeGraphWalker attributeGraphWalker = new DeepGraphWalkerWithPropertiesOnlyOnTopLevel(5,
             CollectionMakeupImpl::shouldGoDeeper);
 
     private static boolean shouldGoDeeper(Object object) {

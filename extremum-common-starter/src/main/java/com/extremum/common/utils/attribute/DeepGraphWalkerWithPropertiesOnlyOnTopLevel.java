@@ -1,24 +1,31 @@
 package com.extremum.common.utils.attribute;
 
+import com.extremum.common.utils.InstanceFields;
+import com.extremum.common.utils.ReflectionUtils;
 import com.google.common.collect.ImmutableList;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
 /**
+ * Deep attribute graph walker. On the first level, introspects both
+ * fields and properties. On the subsequent levels, only fields are considered.
+ *
  * @author rpuch
  */
-public class DeepAttributeGraphWalker implements AttributeGraphWalker {
+public class DeepGraphWalkerWithPropertiesOnlyOnTopLevel implements AttributeGraphWalker {
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
+    private static final int INITIAL_DEPTH = 1;
 
     private final int maxLevel;
     private final Predicate<Object> shouldGoDeeperPredicate;
 
-    public DeepAttributeGraphWalker(int maxLevel) {
+    public DeepGraphWalkerWithPropertiesOnlyOnTopLevel(int maxLevel) {
         this(maxLevel, object -> true);
     }
 
-    public DeepAttributeGraphWalker(int maxLevel, Predicate<Object> shouldGoDeeperPredicate) {
+    public DeepGraphWalkerWithPropertiesOnlyOnTopLevel(int maxLevel, Predicate<Object> shouldGoDeeperPredicate) {
         this.maxLevel = maxLevel;
         this.shouldGoDeeperPredicate = shouldGoDeeperPredicate;
     }
@@ -28,12 +35,22 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walkRecursively(root, new Context(visitor), 1);
+        walkRecursively(root, new Context(visitor), INITIAL_DEPTH);
     }
 
     private void walkRecursively(Object currentTarget, Context context, int currentDepth) {
-        new InstanceAttributes(currentTarget).stream()
-                .forEach(attribute -> introspectAttribute(context, currentDepth, attribute));
+        if (currentDepth == INITIAL_DEPTH) {
+            new InstanceAttributes(currentTarget).stream()
+                    .forEach(attribute -> introspectAttribute(context, currentDepth, attribute));
+        } else {
+            new InstanceFields(currentTarget.getClass()).stream()
+                    .forEach(field -> introspectField(currentTarget, context, currentDepth, field));
+        }
+    }
+
+    private void introspectField(Object currentTarget, Context context, int currentDepth, Field field) {
+        FieldAttribute attribute = new FieldAttribute(field, ReflectionUtils.getFieldValue(field, currentTarget));
+        introspectAttribute(context, currentDepth, attribute);
     }
 
     private void introspectAttribute(Context context, int currentDepth, Attribute attribute) {
