@@ -11,5 +11,5 @@ import java.util.Collection;
  */
 interface PagePicker {
     CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection, Projection projection,
-            Model host, String hostPropertyName);
+            Model host, String hostAttributeName);
 }

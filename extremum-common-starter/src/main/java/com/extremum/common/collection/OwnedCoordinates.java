@@ -14,9 +14,9 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class OwnedCoordinates implements Serializable {
     private Descriptor hostId;
-    private String hostPropertyName;
+    private String hostAttributeName;
 
     public String toCoordinatesString() {
-        return "OWNED/" + hostId.getExternalId() + "/" + hostPropertyName;
+        return "OWNED/" + hostId.getExternalId() + "/" + hostAttributeName;
     }
 }

@@ -70,13 +70,13 @@ class CollectionMakeupImplTest {
     }
 
     private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor,
-            String expectedHostPropertyName) {
+            String expectedHostAttributeName) {
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
         OwnedCoordinates ownedCoordinates = descriptor.getCoordinates().getOwnedCoordinates();
         assertThat(ownedCoordinates, is(notNullValue()));
         assertThat(ownedCoordinates.getHostId().getExternalId(), is("the-street"));
-        assertThat(ownedCoordinates.getHostPropertyName(), is(expectedHostPropertyName));
+        assertThat(ownedCoordinates.getHostAttributeName(), is(expectedHostAttributeName));
     }
 
     @Test
@@ -119,7 +119,7 @@ class CollectionMakeupImplTest {
     }
 
     @Test
-    void givenHostPropertyNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostPropertyNameIsDeducedFromFieldName() {
+    void givenHostAttributeNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostAttributeNameIsDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();
@@ -156,9 +156,9 @@ class CollectionMakeupImplTest {
     }
 
     public static class StreetResponseDto extends AbstractResponseDto {
-        @OwnedCollection(hostPropertyName = "the-buildings")
+        @OwnedCollection(hostAttributeName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
-        @OwnedCollection(hostPropertyName = "the-private-buildings")
+        @OwnedCollection(hostAttributeName = "the-private-buildings")
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
         @OwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;

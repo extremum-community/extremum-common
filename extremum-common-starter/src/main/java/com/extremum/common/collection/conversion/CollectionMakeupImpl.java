@@ -52,7 +52,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) attribute.value();
 
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostPropertyName(attribute));
+        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostAttributeName(attribute));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
@@ -67,10 +67,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         reference.setUrl(externalUrl);
     }
 
-    private String getHostPropertyName(Attribute attribute) {
+    private String getHostAttributeName(Attribute attribute) {
         OwnedCollection annotation = attribute.getAnnotation(OwnedCollection.class);
-        if (StringUtils.isNotBlank(annotation.hostPropertyName())) {
-            return annotation.hostPropertyName();
+        if (StringUtils.isNotBlank(annotation.hostAttributeName())) {
+            return annotation.hostAttributeName();
         }
         return attribute.name();
     }

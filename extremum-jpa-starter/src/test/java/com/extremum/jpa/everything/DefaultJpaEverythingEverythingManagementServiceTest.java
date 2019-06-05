@@ -143,7 +143,7 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
             JpaBasicElement> {
 
         @Override
-        public String getHostPropertyName() {
+        public String getHostAttributeName() {
             return "explicitElements";
         }
 

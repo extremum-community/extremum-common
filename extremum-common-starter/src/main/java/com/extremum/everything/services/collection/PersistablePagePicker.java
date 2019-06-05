@@ -17,19 +17,19 @@ import java.util.stream.Collectors;
  */
 final class PersistablePagePicker extends AbstractPagePicker<PersistableCommonModel> {
     @Override
-    List<PersistableCommonModel> convertToModels(Collection<?> nonEmptyCollection, Model host, String hostPropertyName) {
+    List<PersistableCommonModel> convertToModels(Collection<?> nonEmptyCollection, Model host, String hostAttributeName) {
         return nonEmptyCollection.stream()
-                .map(element -> convertElementToPersistableModel(element, host, hostPropertyName))
+                .map(element -> convertElementToPersistableModel(element, host, hostAttributeName))
                 .collect(Collectors.toList());
     }
 
     private PersistableCommonModel convertElementToPersistableModel(Object element, Model host,
-            String hostPropertyName) {
+            String hostAttributeName) {
         if (!(element instanceof PersistableCommonModel)) {
             String name = ModelUtils.getModelName(host);
             String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
                             " ObjectId, or PersistableCommonModel instances, but encountered '%s'",
-                    name, hostPropertyName, element.getClass());
+                    name, hostAttributeName, element.getClass());
             throw new EverythingEverythingException(message);
         }
 
