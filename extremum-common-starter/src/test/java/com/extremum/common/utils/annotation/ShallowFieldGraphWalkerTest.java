@@ -1,5 +1,6 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.annotation;
 
+import com.extremum.common.utils.attribute.ShallowFieldGraphWalker;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;

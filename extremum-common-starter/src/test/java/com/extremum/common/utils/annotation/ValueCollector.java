@@ -1,4 +1,7 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.annotation;
+
+import com.extremum.common.utils.attribute.Attribute;
+import com.extremum.common.utils.attribute.AttributeVisitor;
 
 import java.util.ArrayList;
 import java.util.HashSet;

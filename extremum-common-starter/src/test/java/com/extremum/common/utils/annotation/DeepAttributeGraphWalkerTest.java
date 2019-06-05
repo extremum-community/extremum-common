@@ -1,5 +1,6 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.annotation;
 
+import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 

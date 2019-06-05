@@ -1,4 +1,4 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.attribute;
 
 import java.lang.reflect.Field;
 import java.util.Objects;

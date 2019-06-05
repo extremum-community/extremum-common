@@ -5,9 +5,9 @@ import com.extremum.common.collection.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
-import com.extremum.common.utils.Attribute;
-import com.extremum.common.utils.AttributeGraphWalker;
-import com.extremum.common.utils.AttributeVisitor;
+import com.extremum.common.utils.attribute.Attribute;
+import com.extremum.common.utils.attribute.AttributeGraphWalker;
+import com.extremum.common.utils.attribute.AttributeVisitor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
