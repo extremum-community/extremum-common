@@ -4,11 +4,8 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.PersistableCommonModel;
-import com.extremum.common.utils.EntityUtils;
 import com.extremum.common.utils.InstanceFields;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.common.utils.ReflectionUtils;
-import com.extremum.everything.collection.CollectionElementType;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
@@ -17,6 +14,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,45 +36,37 @@ public class FetchByOwnedCoordinates {
     }
 
     public CollectionFragment<Model> fetchCollection(BasicModel host, String hostAttributeName, Projection projection) {
-        Field field = findField(host, hostAttributeName);
+        HostAttribute attribute = getAttribute(host, hostAttributeName);
 
-        Object fieldValue = getPropertyValue(host, field);
-        if (fieldValue == null) {
+        Object attributeValue = getGetterValue(host, attribute);
+        if (attributeValue == null) {
             return CollectionFragment.emptyWithZeroTotal();
         }
 
-        Collection<?> collection = asCollection(fieldValue, host, hostAttributeName);
+        Collection<?> collection = asCollection(attributeValue, host, attribute);
         if (collection.isEmpty()) {
             return CollectionFragment.emptyWithZeroTotal();
         }
 
         if (collectionContainsIds(collection)) {
-            return loadModelsByIdsCollection(collection, projection, host, field);
+            return loadModelsByIdsCollection(collection, projection, host, attribute);
         }
 
         return getModelsFromModelsCollection(collection, projection, host, hostAttributeName);
     }
 
+    private HostAttribute getAttribute(BasicModel host, String hostAttributeName) {
+        Field field = findField(host, hostAttributeName);
+        Method getter = findGetter(host, hostAttributeName);
+        return new HostAttribute(hostAttributeName, getter, field);
+    }
+
+    @Nullable
     private Field findField(Object object, String fieldName) {
         return new InstanceFields(object.getClass()).stream()
                 .filter(field -> Objects.equals(field.getName(), fieldName))
                 .findFirst()
-                .orElseThrow(() -> new EverythingEverythingException(
-                        String.format("No field '%s' was found in class '%s'", fieldName, object.getClass()))
-                );
-    }
-
-    private Object getPropertyValue(Model host, Field field) {
-        if (EntityUtils.isProxyClass(host.getClass())) {
-            return getGetterValue(host, field.getName());
-        }
-
-        return getFieldValue(host, field);
-    }
-
-    private Object getGetterValue(Model host, String propertyName) {
-        Method method = findGetter(host, propertyName);
-        return invokeGetter(host, method);
+                .orElse(null);
     }
 
     private Method findGetter(Model host, String propertyName) {
@@ -85,8 +75,13 @@ public class FetchByOwnedCoordinates {
         try {
             return host.getClass().getMethod(getterName);
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("Cannot find a getter", e);
+            throw new EverythingEverythingException(
+                    String.format("No method '%s' was found in class '%s'", getterName, host.getClass()));
         }
+    }
+
+    private Object getGetterValue(Model host, HostAttribute attribute) {
+        return invokeGetter(host, attribute.getter());
     }
 
     private Object invokeGetter(Model host, Method method) {
@@ -97,18 +92,14 @@ public class FetchByOwnedCoordinates {
         }
     }
 
-    private Object getFieldValue(Model host, Field field) {
-        return ReflectionUtils.getFieldValue(field, host);
-    }
-
-    private Collection<?> asCollection(Object fieldValue, Model host, String hostAttributeName) {
-        if (!(fieldValue instanceof Collection)) {
+    private Collection<?> asCollection(Object attributeValue, Model host, HostAttribute attribute) {
+        if (!(attributeValue instanceof Collection)) {
             String name = ModelUtils.getModelName(host);
-            String message = String.format("'%s' field on '%s' contains '%s' and not a Collection", hostAttributeName,
-                    name, fieldValue.getClass());
+            String message = String.format("'%s' attribute on '%s' contains '%s' and not a Collection",
+                    attribute.name(), name, attributeValue.getClass());
             throw new EverythingEverythingException(message);
         }
-        return (Collection<?>) fieldValue;
+        return (Collection<?>) attributeValue;
     }
 
     private boolean collectionContainsIds(Collection<?> collection) {
@@ -117,23 +108,23 @@ public class FetchByOwnedCoordinates {
     }
 
     private CollectionFragment<Model> loadModelsByIdsCollection(Collection<?> collection, Projection projection,
-            BasicModel host, Field field) {
-        makeSureStorageTypeIsSupported(host, field);
-        List<?> ids = convertIdsToDatabaseTypes(collection, host, field);
-        return loadModelsByIds(ids, projection, host, field);
+            BasicModel host, HostAttribute attribute) {
+        makeSureStorageTypeIsSupported(host, attribute);
+        List<?> ids = convertIdsToDatabaseTypes(collection, host, attribute);
+        return loadModelsByIds(ids, projection, host, attribute);
     }
 
-    private void makeSureStorageTypeIsSupported(BasicModel host, Field field) {
+    private void makeSureStorageTypeIsSupported(BasicModel host, HostAttribute attribute) {
         if (host.getUuid() != null && host.getUuid().getStorageType() != Descriptor.StorageType.MONGO) {
             String message = String.format(
-                    "Only Mongo models can use IDs to fetch collections, but it was '%s' on '%s', field '%s'",
-                    host.getUuid().getStorageType(), ModelUtils.getModelName(host), field.getName());
+                    "Only Mongo models can use IDs to fetch collections, but it was '%s' on '%s', attribute '%s'",
+                    host.getUuid().getStorageType(), ModelUtils.getModelName(host), attribute.name());
             throw new IllegalStateException(message);
         }
     }
 
-    private List<?> convertIdsToDatabaseTypes(Collection<?> collection, Model host, Field field) {
-        Class<? extends Model> elementClass = detectElementClass(host, field);
+    private List<?> convertIdsToDatabaseTypes(Collection<?> collection, Model host, HostAttribute attribute) {
+        Class<? extends Model> elementClass = attribute.detectElementClass(host);
         Class<?> elementIdClass = detectIdClass(elementClass);
 
         return collection.stream()
@@ -154,23 +145,11 @@ public class FetchByOwnedCoordinates {
         return idField.getType();
     }
 
-    private CollectionFragment<Model> loadModelsByIds(List<?> ids, Projection projection, Model host, Field field) {
-        Class<? extends Model> classOfElement = detectElementClass(host, field);
+    private CollectionFragment<Model> loadModelsByIds(List<?> ids, Projection projection, Model host,
+            HostAttribute attribute) {
+        Class<? extends Model> classOfElement = attribute.detectElementClass(host);
         return universalDao.retrieveByIds(ids, classOfElement, projection)
                 .map(Function.identity());
-    }
-
-    private Class<? extends Model> detectElementClass(Model host, Field field) {
-        CollectionElementType elementTypeAnn = field.getAnnotation(CollectionElementType.class);
-        if (elementTypeAnn == null) {
-            String name = ModelUtils.getModelName(host);
-            String message = String.format(
-                    "For host type '%s' field '%s' does not contain @CollectionElementType annotation",
-                    name, field.getName());
-            throw new EverythingEverythingException(message);
-        }
-
-        return elementTypeAnn.value();
     }
 
     private CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
@@ -191,4 +170,5 @@ public class FetchByOwnedCoordinates {
         throw new EverythingEverythingException(
                 "Only instances of BasicModel are supported as elements of a collection");
     }
+
 }

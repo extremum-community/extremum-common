@@ -11,6 +11,7 @@ import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,11 +63,20 @@ class FetchByOwnedCoordinatesTest {
     }
 
     @Test
-    void whenFieldIsNotFound_thenAnExceptionShouldBeThrown() {
+    void whenCollectionElementIsAnnotatedOnGetter_thenCollectionShouldBeReturned() {
+        whenRetrieveByIdsThenReturn2Houses();
+
+        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(),
+                "collectionElementOnGetter", Projection.empty());
+        assertThat(houses.elements(), hasSize(2));
+    }
+
+    @Test
+    void whenGetterIsNotFound_thenAnExceptionShouldBeThrown() {
         try {
             fetcher.fetchCollection(new Street(), "noSuchField", Projection.empty());
         } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("No field 'noSuchField' was found in class" +
+            assertThat(e.getMessage(), is("No method 'getNoSuchField' was found in class" +
                     " 'class com.extremum.everything.services.fetch.FetchByOwnedCoordinatesTest$Street'"));
         }
     }
@@ -87,7 +97,7 @@ class FetchByOwnedCoordinatesTest {
             fetcher.fetchCollection(new Street(), "name", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(),
-                    is("'name' field on 'Street' contains 'class java.lang.String' and not a Collection"));
+                    is("'name' attribute on 'Street' contains 'class java.lang.String' and not a Collection"));
         }
     }
 
@@ -103,7 +113,7 @@ class FetchByOwnedCoordinatesTest {
             fetcher.fetchCollection(new Street(), "noElementType", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(),
-                    is("For host type 'Street' field 'noElementType' does not contain " +
+                    is("For host type 'Street' attribute 'noElementType' does not contain " +
                             "@CollectionElementType annotation"));
         }
     }
@@ -176,7 +186,7 @@ class FetchByOwnedCoordinatesTest {
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is("Only Mongo models can use IDs to fetch collections, " +
-                    "but it was 'ELASTICSEARCH' on 'Street', field 'houses'"));
+                    "but it was 'ELASTICSEARCH' on 'Street', attribute 'houses'"));
         }
     }
 
@@ -193,26 +203,31 @@ class FetchByOwnedCoordinatesTest {
     }
 
     @ModelName("Street")
-    private static class Street extends MongoCommonModel {
+    @Getter
+    public static class Street extends MongoCommonModel {
+        private String name = "the name";
         @CollectionElementType(House.class)
         private List<String> houses = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
         private List<String> noElementType = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
-        private String name = "the name";
         private List<Object> emptyList = new ArrayList<>();
         private List<House> bareHouses = Arrays.asList(new House(), new House());
+        @Getter(onMethod_ = {@CollectionElementType(House.class)})
+        private List<String> collectionElementOnGetter = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
     }
 
     private static class SubStreet extends Street {
     }
 
     @ModelName("Has2Ids")
-    private static class Has2Ids extends MongoCommonModel {
+    @Getter
+    public static class Has2Ids extends MongoCommonModel {
         @Id
         private String id2;
     }
 
     @ModelName("Owner")
-    private static class OwnerWithCollectionWith2Ids extends MongoCommonModel {
+    @Getter
+    public static class OwnerWithCollectionWith2Ids extends MongoCommonModel {
         @CollectionElementType(Has2Ids.class)
         private List<String> items = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
     }

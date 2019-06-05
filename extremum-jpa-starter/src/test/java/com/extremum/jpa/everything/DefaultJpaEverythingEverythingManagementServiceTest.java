@@ -13,6 +13,7 @@ import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
 import com.extremum.jpa.models.PostgresBasicModel;
+import lombok.Getter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -120,7 +121,8 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
     }
 
     @ModelName("JpaBasicContainer")
-    private static class JpaBasicContainer extends PostgresBasicModel {
+    @Getter
+    public static class JpaBasicContainer extends PostgresBasicModel {
         @OwnedCollection
         private List<JpaBasicElement> elements = Arrays.asList(new JpaBasicElement(), new JpaBasicElement());
         @OwnedCollection

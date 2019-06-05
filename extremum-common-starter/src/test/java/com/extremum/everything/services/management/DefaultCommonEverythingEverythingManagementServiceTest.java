@@ -15,6 +15,7 @@ import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.config.TestConfig;
+import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -149,7 +150,8 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
     }
 
     @ModelName("Street")
-    private static class Street extends MongoCommonModel {
+    @Getter
+    public static class Street extends MongoCommonModel {
         @OwnedCollection
         @CollectionElementType(House.class)
         private List<String> houses = Arrays.asList(id1.toString(), id2.toString());
