@@ -242,9 +242,8 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
             request.source(rawData, XContentType.JSON);
 
             if (model.getSeqNo() != null && model.getPrimaryTerm() != null) {
-                // TODO: restore?
-//                request.setIfSeqNo(model.getSeqNo());
-//                request.setIfPrimaryTerm(model.getPrimaryTerm());
+                request.setIfSeqNo(model.getSeqNo());
+                request.setIfPrimaryTerm(model.getPrimaryTerm());
             }
 
             final IndexResponse response = client.index(request, RequestOptions.DEFAULT);

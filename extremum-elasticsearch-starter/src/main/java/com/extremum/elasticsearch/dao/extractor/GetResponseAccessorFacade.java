@@ -35,14 +35,12 @@ public class GetResponseAccessorFacade extends AccessorFacade {
 
     @Override
     public Long getSeqNo() {
-//        return response.getSeqNo();
-        throw new UnsupportedOperationException("Fix me!");
+        return response.getSeqNo();
     }
 
     @Override
     public Long getPrimaryTerm() {
-//        return response.getPrimaryTerm();
-        throw new UnsupportedOperationException("Fix me!");
+        return response.getPrimaryTerm();
     }
 
     @Override
