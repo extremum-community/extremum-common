@@ -140,6 +140,16 @@ class CollectionMakeupImplTest {
         assertThat(streetDto.buildings.getUrl(), is("https://example.com/collection/" + collectionId));
     }
 
+    @Test
+    void givenAACollectionIsAnnotatedOnAGetter_whenMakeupIsApplied_thenIdAndUrlShouldBeFilled() {
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        assertThat(streetDto.getBuildingsAnnotatedViaGetter().getId(), is(notNullValue()));
+        String collectionId = streetDto.getBuildingsAnnotatedViaGetter().getId().getExternalId();
+        assertThat(streetDto.getBuildingsAnnotatedViaGetter().getUrl(),
+                is("https://example.com/collection/" + collectionId));
+    }
+
     private static class BuildingResponseDto extends AbstractResponseDto {
         public String address;
 
@@ -156,6 +166,7 @@ class CollectionMakeupImplTest {
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
         @OwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
+        private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsAnnotatedViaGetter;
 
         StreetResponseDto(String externalId,
                 List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
@@ -163,6 +174,12 @@ class CollectionMakeupImplTest {
             this.buildings = new CollectionReference<>(buildings);
             this.privateBuildings = new CollectionReference<>(buildings);
             this.buildingsWithDefaultName = new CollectionReference<>(buildings);
+            this.buildingsAnnotatedViaGetter = new CollectionReference<>(buildings);
+        }
+
+        @OwnedCollection
+        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> getBuildingsAnnotatedViaGetter() {
+            return buildingsAnnotatedViaGetter;
         }
     }
 }
