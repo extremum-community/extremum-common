@@ -13,7 +13,7 @@ public class CollectionReference<T> {
     private CollectionDescriptor id;
 
     private String url;
-    private int count;
+    private Long count;
     private List<T> top;
 
     public CollectionReference() {
@@ -24,8 +24,8 @@ public class CollectionReference<T> {
         this(list, list.size());
     }
 
-    public CollectionReference(List<T> top, int count) {
-        this.count = count;
+    public CollectionReference(List<T> top, long total) {
+        this.count = total;
         this.top = top;
     }
 
