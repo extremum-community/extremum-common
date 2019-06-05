@@ -77,17 +77,6 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return field.getAnnotation(OwnedCollection.class) != null;
     }
 
-    private Object getFieldValue(ResponseDto dto, Field field) {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-        }
-        try {
-            return field.get(dto);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Cannot get field value", e);
-        }
-    }
-
     private class EligibleForMakeup implements FieldVisitor {
         private final FieldVisitor visitor;
 
