@@ -2,6 +2,8 @@ package com.extremum.elasticsearch.model;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.elasticsearch.annotation.PrimaryTerm;
+import com.extremum.elasticsearch.annotation.SequenceNumber;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.*;
@@ -22,6 +24,8 @@ public abstract class ElasticsearchCommonModel implements PersistableCommonModel
     @Version
     private Long version;
     private Boolean deleted;
+    @SequenceNumber
     private Long seqNo;
+    @PrimaryTerm
     private Long primaryTerm;
 }

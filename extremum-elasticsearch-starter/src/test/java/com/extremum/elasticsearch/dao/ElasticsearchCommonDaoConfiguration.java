@@ -3,6 +3,7 @@ package com.extremum.elasticsearch.dao;
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepository;
+import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRestTemplate;
 import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import java.util.List;
@@ -50,6 +50,6 @@ public class ElasticsearchCommonDaoConfiguration {
 
     @Bean
     public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchRestTemplate(elasticsearchClient());
+        return new ExtremumElasticsearchRestTemplate(elasticsearchClient());
     }
 }
