@@ -30,10 +30,10 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walkOneLevel(root, new Context(visitor), 1);
+        walkRecursively(root, new Context(visitor), 1);
     }
 
-    private void walkOneLevel(Object currentTarget, Context context, int currentDepth) {
+    private void walkRecursively(Object currentTarget, Context context, int currentDepth) {
         new InstanceFields(currentTarget.getClass()).stream()
                 .forEach(field -> introspectField(currentTarget, context, currentDepth, field));
     }
@@ -66,7 +66,7 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
             Object[] array = (Object[]) nextValue;
             goDeeperThroughIterable(Arrays.asList(array), context, currentDepth);
         } else if (shouldGoDeeper(nextValue, currentDepth)) {
-            walkOneLevel(nextValue, context, currentDepth + 1);
+            walkRecursively(nextValue, context, currentDepth + 1);
         }
     }
 
@@ -74,7 +74,7 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
             Context context, int currentDepth) {
         iterable.forEach(element -> {
             if (shouldGoDeeper(element, currentDepth)) {
-                walkOneLevel(element, context, currentDepth + 1);
+                walkRecursively(element, context, currentDepth + 1);
             }
         });
     }
