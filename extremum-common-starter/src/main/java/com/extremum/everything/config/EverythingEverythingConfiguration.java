@@ -126,8 +126,9 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnBean(CollectionDescriptorService.class)
     @ConditionalOnMissingBean
-    public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService) {
-        return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls());
+    public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
+            ApplicationUrls applicationUrls) {
+        return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls);
     }
 
     @Bean
