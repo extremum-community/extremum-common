@@ -29,7 +29,7 @@ class CompositeAttribute implements Attribute {
     }
 
     private Attribute firstAttribute() {
-        return attributes.iterator().next();
+        return attributes.get(0);
     }
 
     @Override
