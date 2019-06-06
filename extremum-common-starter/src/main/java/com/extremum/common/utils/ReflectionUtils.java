@@ -1,9 +1,6 @@
 package com.extremum.common.utils;
 
-import java.lang.reflect.GenericDeclaration;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.Stack;
 
 /**
@@ -83,6 +80,24 @@ public class ReflectionUtils {
         } else {
             throw new IllegalStateException("Argument " + typeVariable.toString() + " is not found in "
                     + genericDeclaration.toString());
+        }
+    }
+
+    public static Object getFieldValue(Field field, Object target) {
+        field.setAccessible(true);
+
+        try {
+            return field.get(target);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Cannot get field value", e);
+        }
+    }
+
+    public static Object invokeMethod(Method method, Object target, Object... args) {
+        try {
+            return method.invoke(target, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Cannot invoke a method", e);
         }
     }
 }

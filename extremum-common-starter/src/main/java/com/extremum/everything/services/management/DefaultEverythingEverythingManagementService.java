@@ -185,7 +185,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
             Optional<CollectionFetcher> collectionFetcher = collectionFetchers.stream()
                     .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
-                    .filter(fetcher -> fetcher.getHostFieldName().equals(owned.getHostFieldName()))
+                    .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
                     .findFirst();
 
             return collectionFetcher.map(fetcher -> fetcher.fetchCollection(host, projection))
@@ -211,7 +211,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         private CollectionFragment<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
                 BasicModel host, Projection projection) {
             FetchByOwnedCoordinates fetcher = new FetchByOwnedCoordinates(universalDao);
-            return fetcher.fetchCollection(host, owned.getHostFieldName(), projection);
+            return fetcher.fetchCollection(host, owned.getHostAttributeName(), projection);
         }
     }
 }

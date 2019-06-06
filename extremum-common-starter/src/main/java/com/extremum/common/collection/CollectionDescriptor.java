@@ -43,9 +43,9 @@ public final class CollectionDescriptor implements Serializable {
         this.coordinates = coordinates;
     }
 
-    public static CollectionDescriptor forOwned(Descriptor hostId, String hostFieldName) {
+    public static CollectionDescriptor forOwned(Descriptor hostId, String hostAttributeName) {
         return new CollectionDescriptor(Type.OWNED,
-                new CollectionCoordinates(new OwnedCoordinates(hostId, hostFieldName)));
+                new CollectionCoordinates(new OwnedCoordinates(hostId, hostAttributeName)));
     }
 
     @Override

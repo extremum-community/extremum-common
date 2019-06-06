@@ -1,10 +1,7 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.annotation;
 
+import com.extremum.common.utils.attribute.ShallowFieldGraphWalker;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,21 +13,21 @@ import static org.hamcrest.Matchers.hasSize;
  */
 class ShallowFieldGraphWalkerTest {
     private final ShallowFieldGraphWalker walker = new ShallowFieldGraphWalker();
-    private final Collector collector = new Collector();
+    private final ValueCollector collector = new ValueCollector();
 
     @Test
     void whenObjectHasNoIntanceField_thenNothingShouldBeVisited() {
         walker.walk(new Object(), collector);
 
-        assertThat(collector.values, hasSize(0));
+        assertThat(collector.getValues(), hasSize(0));
     }
 
     @Test
     void whenObjectHasInstanceFields_thenAllOfThemShouldBeVisited() {
         walker.walk(new ShallowBean(), collector);
 
-        assertThat(collector.values, hasSize(4));
-        assertThat(collector.values, hasItems("abc", 10L, 20, null));
+        assertThat(collector.getValues(), hasSize(4));
+        assertThat(collector.getValues(), hasItems("abc", 10L, 20, null));
     }
 
     @Test
@@ -41,13 +38,5 @@ class ShallowFieldGraphWalkerTest {
             assertThat(e.getMessage(), is("Root cannot be null"));
         }
     }
-    
-    private static class Collector implements FieldVisitor {
-        private final List<Object> values = new ArrayList<>();
 
-        @Override
-        public void visitField(Field field, Object value) {
-            values.add(value);
-        }
-    }
 }

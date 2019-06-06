@@ -1,4 +1,4 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.annotation;
 
 /**
  * @author rpuch

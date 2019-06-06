@@ -9,8 +9,6 @@ import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.TestApplicationUrls;
-import com.extremum.common.utils.DeepFieldGraphWalker;
-import com.extremum.common.utils.FieldGraphWalker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +35,7 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-public class CollectionMakeupImplTest {
+class CollectionMakeupImplTest {
     @InjectMocks
     private CollectionMakeupImpl collectionMakeup;
 
@@ -45,15 +43,13 @@ public class CollectionMakeupImplTest {
     private CollectionDescriptorService collectionDescriptorService;
     @Spy
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
-    @Spy
-    private FieldGraphWalker fieldGraphWalker = new DeepFieldGraphWalker(5);
 
     private StreetResponseDto streetDto;
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
             new Descriptor("the-street"), "the-buildings");
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         BuildingResponseDto building1 = new BuildingResponseDto("building1", "address1");
         BuildingResponseDto building2 = new BuildingResponseDto("building2", "address2");
         List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings = Arrays.asList(
@@ -64,7 +60,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
+    void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildings.getId();
@@ -74,17 +70,17 @@ public class CollectionMakeupImplTest {
     }
 
     private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor,
-            String expectedHostFieldName) {
+            String expectedHostAttributeName) {
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
         OwnedCoordinates ownedCoordinates = descriptor.getCoordinates().getOwnedCoordinates();
         assertThat(ownedCoordinates, is(notNullValue()));
         assertThat(ownedCoordinates.getHostId().getExternalId(), is("the-street"));
-        assertThat(ownedCoordinates.getHostFieldName(), is(expectedHostFieldName));
+        assertThat(ownedCoordinates.getHostAttributeName(), is(expectedHostAttributeName));
     }
 
     @Test
-    public void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
+    void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
         when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.of(descriptorInDB));
 
         collectionMakeup.applyCollectionMakeup(streetDto);
@@ -96,7 +92,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
+    void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.privateBuildings.getId();
@@ -106,7 +102,7 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+    void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
         streetDto.setId(null);
 
         collectionMakeup.applyCollectionMakeup(streetDto);
@@ -116,14 +112,14 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+    void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
         streetDto.buildings = null;
 
         collectionMakeup.applyCollectionMakeup(streetDto);
     }
 
     @Test
-    public void givenHostFieldNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostFieldNameIsDeducedFromFieldName() {
+    void givenHostAttributeNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostAttributeNameIsDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();
@@ -133,11 +129,21 @@ public class CollectionMakeupImplTest {
     }
 
     @Test
-    public void whenMakeupIsApplied_thenUrlShouldBeFilled() {
+    void whenMakeupIsApplied_thenUrlShouldBeFilled() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         String collectionId = streetDto.buildings.getId().getExternalId();
         assertThat(streetDto.buildings.getUrl(), is("https://example.com/collection/" + collectionId));
+    }
+
+    @Test
+    void givenACollectionIsAnnotatedOnAGetter_whenMakeupIsApplied_thenIdAndUrlShouldBeFilled() {
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        assertThat(streetDto.getBuildingsAnnotatedViaGetter().getId(), is(notNullValue()));
+        String collectionId = streetDto.getBuildingsAnnotatedViaGetter().getId().getExternalId();
+        assertThat(streetDto.getBuildingsAnnotatedViaGetter().getUrl(),
+                is("https://example.com/collection/" + collectionId));
     }
 
     private static class BuildingResponseDto extends AbstractResponseDto {
@@ -149,13 +155,14 @@ public class CollectionMakeupImplTest {
         }
     }
 
-    private static class StreetResponseDto extends AbstractResponseDto {
-        @OwnedCollection(hostFieldName = "the-buildings")
+    public static class StreetResponseDto extends AbstractResponseDto {
+        @OwnedCollection(hostAttributeName = "the-buildings")
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
-        @OwnedCollection(hostFieldName = "the-private-buildings")
+        @OwnedCollection(hostAttributeName = "the-private-buildings")
         private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
         @OwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
+        private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsAnnotatedViaGetter;
 
         StreetResponseDto(String externalId,
                 List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
@@ -163,6 +170,12 @@ public class CollectionMakeupImplTest {
             this.buildings = new CollectionReference<>(buildings);
             this.privateBuildings = new CollectionReference<>(buildings);
             this.buildingsWithDefaultName = new CollectionReference<>(buildings);
+            this.buildingsAnnotatedViaGetter = new CollectionReference<>(buildings);
+        }
+
+        @OwnedCollection
+        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> getBuildingsAnnotatedViaGetter() {
+            return buildingsAnnotatedViaGetter;
         }
     }
 }

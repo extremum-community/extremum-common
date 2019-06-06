@@ -1,60 +1,61 @@
-package com.extremum.common.utils;
+package com.extremum.common.utils.attribute;
 
 import com.google.common.collect.ImmutableList;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
 /**
+ * Deep attribute graph walker. Considers both fields and properties,
+ * proceeds to their attributes as well. The maximum depth is controllable
+ * via constructor parameters, as well as a rule that defines whether
+ * the walker should go 'inside' current object.
+ *
  * @author rpuch
  */
-public class DeepFieldGraphWalker implements FieldGraphWalker {
+public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
+    private static final int INITIAL_DEPTH = 1;
 
     private final int maxLevel;
-    private final Predicate<Object> shoudGoDeeperPredicate;
+    private final Predicate<Object> shouldGoDeeperPredicate;
 
-    public DeepFieldGraphWalker(int maxLevel) {
+    public DeepAttributeGraphWalker(int maxLevel) {
         this(maxLevel, object -> true);
     }
 
-    public DeepFieldGraphWalker(int maxLevel, Predicate<Object> shoudGoDeeperPredicate) {
+    public DeepAttributeGraphWalker(int maxLevel, Predicate<Object> shouldGoDeeperPredicate) {
         this.maxLevel = maxLevel;
-        this.shoudGoDeeperPredicate = shoudGoDeeperPredicate;
+        this.shouldGoDeeperPredicate = shouldGoDeeperPredicate;
     }
 
     @Override
-    public void walk(Object root, FieldVisitor visitor) {
+    public void walk(Object root, AttributeVisitor visitor) {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walkOneLevel(root, new Context(visitor), 1);
+        walkRecursively(root, new Context(visitor), INITIAL_DEPTH);
     }
 
-    private void walkOneLevel(Object currentTarget, Context context, int currentDepth) {
-        new InstanceFields(currentTarget.getClass()).stream()
-                .forEach(field -> introspectField(currentTarget, context, currentDepth, field));
+    private void walkRecursively(Object currentTarget, Context context, int currentDepth) {
+        new InstanceAttributes(currentTarget).stream()
+                .forEach(attribute -> introspectAttribute(context, currentDepth, attribute));
     }
 
-    private void introspectField(Object currentTarget, Context context, int currentDepth, Field field) {
-        Object fieldValue = getFieldValue(currentTarget, field);
-        if (fieldValue == null) {
+    private void introspectAttribute(Context context, int currentDepth, Attribute attribute) {
+        Object attributeValue = attribute.value();
+        if (attributeValue == null) {
             return;
         }
 
-        if (context.alreadySeen(fieldValue)) {
+        if (context.alreadySeen(attributeValue)) {
             return;
         }
-        context.rememberAsSeen(fieldValue);
+        context.rememberAsSeen(attributeValue);
 
-        context.visitField(field, fieldValue);
+        context.visitAttribute(attribute);
 
-        goDeeperIfNeeded(fieldValue, context, currentDepth);
-    }
-
-    private Object getFieldValue(Object currentTarget, Field field) {
-        return new GetFieldValue(field, currentTarget).get();
+        goDeeperIfNeeded(attributeValue, context, currentDepth);
     }
 
     private void goDeeperIfNeeded(Object nextValue, Context context, int currentDepth) {
@@ -65,7 +66,7 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
             Object[] array = (Object[]) nextValue;
             goDeeperThroughIterable(Arrays.asList(array), context, currentDepth);
         } else if (shouldGoDeeper(nextValue, currentDepth)) {
-            walkOneLevel(nextValue, context, currentDepth + 1);
+            walkRecursively(nextValue, context, currentDepth + 1);
         }
     }
 
@@ -73,7 +74,7 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
             Context context, int currentDepth) {
         iterable.forEach(element -> {
             if (shouldGoDeeper(element, currentDepth)) {
-                walkOneLevel(element, context, currentDepth + 1);
+                walkRecursively(element, context, currentDepth + 1);
             }
         });
     }
@@ -97,7 +98,7 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
             return false;
         }
 
-        if (!shoudGoDeeperPredicate.test(nextValue)) {
+        if (!shouldGoDeeperPredicate.test(nextValue)) {
             return false;
         }
         
@@ -109,10 +110,10 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
     }
 
     private static class Context {
-        private final FieldVisitor visitor;
+        private final AttributeVisitor visitor;
         private final Map<Object, Object> visitedObjects = new IdentityHashMap<>();
 
-        private Context(FieldVisitor visitor) {
+        private Context(AttributeVisitor visitor) {
             this.visitor = visitor;
         }
 
@@ -126,8 +127,8 @@ public class DeepFieldGraphWalker implements FieldGraphWalker {
             }
         }
 
-        void visitField(Field field, Object value) {
-            visitor.visitField(field, value);
+        void visitAttribute(Attribute attribute) {
+            visitor.visitAttribute(attribute);
         }
     }
 }

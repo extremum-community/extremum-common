@@ -10,28 +10,33 @@ import java.util.stream.Stream;
 /**
  * @author rpuch
  */
-public class InstanceMethods {
+public class DeclaredInstanceMethods {
     private final Class<?> targetClass;
 
-    public InstanceMethods(Class<?> targetClass) {
+    public DeclaredInstanceMethods(Class<?> targetClass) {
         this.targetClass = targetClass;
     }
 
     public Stream<Method> stream() {
-        List<Method> methods = findInstanceMethods();
+        List<Method> methods = findDeclaredInstanceMethods();
         return methods.stream();
     }
 
-    private List<Method> findInstanceMethods() {
+    private List<Method> findDeclaredInstanceMethods() {
         List<Method> methods = new ArrayList<>();
-        collectInstanceMethods(targetClass, methods);
+        collectDeclaredInstanceMethods(targetClass, methods);
         return methods;
     }
 
-    private void collectInstanceMethods(Class<?> aClass, List<Method> methods) {
-        Arrays.stream(aClass.getMethods())
+    private void collectDeclaredInstanceMethods(Class<?> aClass, List<Method> methods) {
+        Arrays.stream(aClass.getDeclaredMethods())
                 .filter(method -> !Modifier.isStatic(method.getModifiers()))
                 .filter(method -> !method.isSynthetic())
                 .forEach(methods::add);
+
+        Class<?> superclass = aClass.getSuperclass();
+        if (superclass != null) {
+            collectDeclaredInstanceMethods(superclass, methods);
+        }
     }
 }

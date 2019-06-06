@@ -79,7 +79,7 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
         assertThat(retrievedDescriptor.get().getType(), is(CollectionDescriptor.Type.OWNED));
         OwnedCoordinates ownedCoordinates = retrievedDescriptor.get().getCoordinates().getOwnedCoordinates();
         assertThat(ownedCoordinates.getHostId().getExternalId(), is(hostExternalId));
-        assertThat(ownedCoordinates.getHostFieldName(), is("items"));
+        assertThat(ownedCoordinates.getHostAttributeName(), is("items"));
     }
 
     @NotNull

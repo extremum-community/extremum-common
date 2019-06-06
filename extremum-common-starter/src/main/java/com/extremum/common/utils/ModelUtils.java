@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public class ModelUtils {
-    private static final List<String> PROXY_MARKERS = ImmutableList.of("$HibernateProxy$");
-
     public static String getModelName(Class<? extends Model> modelClass) {
         ModelName annotation = findModelNameAnnotation(modelClass);
         if (annotation == null) {
@@ -23,16 +21,11 @@ public class ModelUtils {
     }
 
     private static Class<?> unwrapProxyClass(Class<? extends Model> modelClass) {
-        if (isProxyClass(modelClass)) {
+        if (EntityUtils.isProxyClass(modelClass)) {
             return modelClass.getSuperclass();
         } else {
             return modelClass;
         }
-    }
-
-    private static boolean isProxyClass(Class<?> classToCheck) {
-        final String name = classToCheck.getName();
-        return PROXY_MARKERS.stream().anyMatch(name::contains);
     }
 
     public static boolean hasModelName(Class<? extends Model> modelClass) {
