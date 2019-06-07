@@ -34,7 +34,6 @@ import com.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
@@ -80,7 +79,6 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(EverythingCollectionManagementService.class)
     @ConditionalOnMissingBean(EverythingEverythingCollectionRestController.class)
     public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
             EverythingCollectionManagementService collectionManagementService) {
@@ -99,7 +97,6 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(MongoOperations.class)
     @ConditionalOnMissingBean(UniversalDao.class)
     public UniversalDao universalDao(MongoOperations mongoOperations) {
         return new SpringDataUniversalDao(mongoOperations);
@@ -124,7 +121,6 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(CollectionDescriptorService.class)
     @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
             ApplicationUrls applicationUrls) {
@@ -132,14 +128,12 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(CollectionMakeup.class)
     @ConditionalOnMissingBean
     public ResponseCollectionsMakeupAdvice responseCollectionsMakeupAdvice(CollectionMakeup collectionMakeup) {
         return new ResponseCollectionsMakeupAdvice(collectionMakeup);
     }
 
     @Bean
-    @ConditionalOnBean(CollectionDescriptorService.class)
     @ConditionalOnMissingBean
     public Converter<String, CollectionDescriptor> stringToCollectionDescriptorConverter(
             CollectionDescriptorService collectionDescriptorService) {
@@ -153,7 +147,6 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(CollectionDescriptorService.class)
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
             CollectionDescriptorService collectionDescriptorService,
