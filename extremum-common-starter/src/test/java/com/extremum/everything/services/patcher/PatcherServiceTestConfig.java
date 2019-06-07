@@ -32,7 +32,7 @@ public class PatcherServiceTestConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies());
+        return new JsonObjectMapper(mapperDependencies());
     }
 
     @Bean

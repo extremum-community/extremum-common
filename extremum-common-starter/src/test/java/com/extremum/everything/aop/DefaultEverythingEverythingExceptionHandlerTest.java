@@ -3,10 +3,11 @@ package com.extremum.everything.aop;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.response.Response;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class DefaultEverythingEverythingExceptionHandlerTest {
     private MockMvc mockMvc;
-    private final JsonObjectMapper mapper = JsonObjectMapper.createWithoutDescriptorTransfiguration();
+    private final ObjectMapper mapper = new BasicJsonObjectMapper();
 
     @BeforeEach
     void setUp() {

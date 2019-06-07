@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DisplayDeserializeTest {
-    private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private JsonObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void deserializeFromSimpleStringTest() throws IOException {

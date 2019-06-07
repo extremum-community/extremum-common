@@ -1,18 +1,14 @@
 package com.extremum.common.mapper;
 
+import com.extremum.common.deserializers.*;
+import com.extremum.common.response.Pagination;
+import com.extremum.common.serializers.*;
+import com.extremum.common.stucts.*;
 import com.extremum.common.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -40,10 +36,6 @@ public class BasicJsonObjectMapper extends ObjectMapper {
     private static final DateTimeFormatter FORMATTER = ofPattern(DateUtils.FORMAT);
 
     public BasicJsonObjectMapper() {
-        super();
-    }
-
-    public void configure() {
         // deserialization
         this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
         this.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
@@ -59,16 +51,38 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         this.setDateFormat(DateUtils.DATE_FORMAT);
     }
 
-    protected SimpleModule createCustomModule() {
+    private SimpleModule createCustomModule() {
         SimpleModule module = new SimpleModule();
+
         module.setDeserializerModifier(new EnumDeserializerModifier());
         module.addSerializer(Enum.class, new EnumSerializer());
         module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
 
+        module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
+        module.addDeserializer(MultilingualObject.class, new MultilingualObjectDeserializer());
+
+        module.addSerializer(IdListOrObjectListStruct.class, new IdListOrObjectListStructSerializer());
+
+        module.addDeserializer(IntegerRangeOrValue.class, new IntegerRangeOrValueDeserializer());
+        module.addSerializer(IntegerRangeOrValue.class, new IntegerRangeOrValueSerializer());
+
+        module.addDeserializer(DurationVariativeValue.class, new DurationVariativeValueDeserializer());
+        module.addSerializer(DurationVariativeValue.class, new DurationVariativeValueSerializer());
+
+        module.addDeserializer(Display.class, new DisplayDeserializer(this));
+        module.addSerializer(Display.class, new DisplaySerializer());
+
+        module.addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
+        module.addDeserializer(IntegerOrString.class, new IntegerOrStringDeserializer());
+
+        module.addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(this));
+
+        module.addDeserializer(Pagination.class, new PaginationDeserializer(this));
+
         return module;
     }
 
-    protected JavaTimeModule createJavaTimeModule() {
+    private JavaTimeModule createJavaTimeModule() {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(ZonedDateTime.class, new ZoneDateTimeSerializer());
         javaTimeModule.addDeserializer(ZonedDateTime.class, new ZoneDateTimeDeserializer());
@@ -148,6 +162,11 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         public ZonedDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             return ZonedDateTime.parse(jsonParser.getValueAsString(), FORMATTER);
         }
+    }
+
+    @Override
+    public ObjectMapper copy() {
+        return new BasicJsonObjectMapper();
     }
 }
 

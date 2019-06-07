@@ -14,7 +14,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DisplaySerializeTest {
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleStringTest() throws JsonProcessingException {

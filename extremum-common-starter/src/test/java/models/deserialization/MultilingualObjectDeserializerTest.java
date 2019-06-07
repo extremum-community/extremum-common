@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class MultilingualObjectDeserializerTest {
     private static final String PATH_TO_JSON = "json-files/";
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void deserializeSimpleTextTest() throws IOException {

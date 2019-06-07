@@ -1,6 +1,6 @@
 package com.extremum.elasticsearch.dao;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
@@ -66,7 +66,7 @@ class ElasticsearchStorageStabilityTests extends TestWithServices {
     }
 
     private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) throws IOException {
-        ObjectMapper mapper = JsonObjectMapper.createWithoutDescriptorTransfiguration();
+        ObjectMapper mapper = new BasicJsonObjectMapper();
         return mapper.readerFor(TestElasticsearchModel.class).readValue(json);
     }
 }

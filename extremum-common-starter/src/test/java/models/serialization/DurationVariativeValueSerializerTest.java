@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DurationVariativeValueSerializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void simpleIntSerializeTest() throws JsonProcessingException, JSONException {

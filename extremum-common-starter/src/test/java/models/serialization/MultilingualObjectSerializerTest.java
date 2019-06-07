@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultilingualObjectSerializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleTextTest() throws JsonProcessingException {

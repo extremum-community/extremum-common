@@ -7,6 +7,7 @@ import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
+import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.JsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
@@ -68,7 +69,7 @@ public class CommonConfiguration {
         }
 
         config.setCodec(new JsonJacksonCodec(
-                JsonObjectMapper.createWithoutDescriptorTransfiguration()));
+                new BasicJsonObjectMapper()));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
@@ -124,7 +125,7 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies) {
-        return JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
+        return new JsonObjectMapper(mapperDependencies);
     }
 
     @Bean

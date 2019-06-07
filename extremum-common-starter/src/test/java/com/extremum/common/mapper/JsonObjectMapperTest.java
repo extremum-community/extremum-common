@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
  */
 class JsonObjectMapperTest {
     private MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
-    private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(mapperDependencies);
+    private JsonObjectMapper mapper = new JsonObjectMapper(mapperDependencies);
 
     @Test
     void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
@@ -93,7 +93,7 @@ class JsonObjectMapperTest {
                 "\"1e71af1b-16f8-4567-9660-9e4549a0203f\",\"internalId\":\"5ce7db93dde97936c6c4c302\",\"modelType\":" +
                 "\"test_model\",\"modified\":\"2019-05-24T15:54:59.958+0400\",\"storageType\":\"mongo\",\"version\":0}";
 
-        Descriptor descriptor = JsonObjectMapper.createWithoutDescriptorTransfiguration()
+        Descriptor descriptor = new BasicJsonObjectMapper()
                 .readerFor(Descriptor.class).readValue(json);
         assertThat(descriptor.getDisplay(), is(notNullValue()));
         assertThat(descriptor.getDisplay().getType(), is(Display.Type.OBJECT));
