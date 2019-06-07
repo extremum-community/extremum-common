@@ -71,7 +71,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void testCreateModelWithWrongVersion() {
+    void testCreateModelWithVersionConflict() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model = dao.save(model);
 
