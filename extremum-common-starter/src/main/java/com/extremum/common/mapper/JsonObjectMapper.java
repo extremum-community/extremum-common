@@ -1,68 +1,40 @@
 package com.extremum.common.mapper;
 
-import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.collection.serde.CollectionDescriptorDeserializer;
-import com.extremum.common.descriptor.serde.DescriptorDeserializer;
 import com.extremum.common.deserializers.*;
 import com.extremum.common.response.Pagination;
-import com.extremum.common.serializers.DisplaySerializer;
-import com.extremum.common.serializers.DurationVariativeValueSerializer;
-import com.extremum.common.serializers.IdListOrObjectListStructSerializer;
-import com.extremum.common.serializers.IdOrObjectStructSerializer;
-import com.extremum.common.serializers.IntegerOrStringSerializer;
-import com.extremum.common.serializers.IntegerRangeOrValueSerializer;
-import com.extremum.common.serializers.MultilingualObjectSerializer;
-import com.extremum.common.stucts.Display;
-import com.extremum.common.stucts.DurationVariativeValue;
-import com.extremum.common.stucts.IdListOrObjectListStruct;
-import com.extremum.common.stucts.IdOrObjectStruct;
-import com.extremum.common.stucts.IntegerOrString;
-import com.extremum.common.stucts.IntegerRangeOrValue;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.common.serializers.*;
+import com.extremum.common.stucts.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 
 /**
  * Public object mapper for clients.
  */
 public class JsonObjectMapper extends BasicJsonObjectMapper {
-    private final Level level;
-    private final MapperDependencies collectionDescriptorTransfigurationDependencies;
-
-    private JsonObjectMapper(Level level,
-            MapperDependencies collectionDescriptorsTransfigurationDependencies) {
-        if (level.hasCollectionDescriptors()) {
-            makeSureDependenciesArePresent(collectionDescriptorsTransfigurationDependencies);
-        }
-        this.level = level;
-        this.collectionDescriptorTransfigurationDependencies = collectionDescriptorsTransfigurationDependencies;
-    }
-
-    private void makeSureDependenciesArePresent(MapperDependencies dependenciesToCheck) {
-        if (dependenciesToCheck == null) {
-            throw new IllegalStateException(
-                    "Descriptor collections transfiguration is enabled but dependencies are null");
-        }
-    }
 
     public static JsonObjectMapper createWithoutDescriptorTransfiguration() {
-        JsonObjectMapper mapper = new JsonObjectMapper(Level.BASIC, null);
+        JsonObjectMapper mapper = new JsonObjectMapper();
         mapper.configure();
         return mapper;
     }
 
     public static JsonObjectMapper createWithDescriptors() {
-        JsonObjectMapper mapper = new JsonObjectMapper(Level.DESCRIPTORS, null);
+        JsonObjectMapper mapper = new JsonObjectMapper();
         mapper.configure();
+
+        mapper.registerModule(new DescriptorsModule());
+
         return mapper;
     }
 
     public static JsonObjectMapper createWithCollectionDescriptors(MapperDependencies dependencies) {
-        JsonObjectMapper mapper = new JsonObjectMapper(Level.COLLECTION_DESCRIPTORS, dependencies);
+        JsonObjectMapper mapper = new JsonObjectMapper();
         mapper.configure();
+
+        mapper.registerModule(new DescriptorsModule());
+        mapper.registerModule(new CollectionDescriptorsModule(dependencies));
+
         return mapper;
     }
 
@@ -77,16 +49,6 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
     @Override
     protected SimpleModule createCustomModule() {
         SimpleModule module = super.createCustomModule();
-
-        if (level.hasDescriptors()) {
-            module.addSerializer(Descriptor.class, new ToStringSerializer());
-            module.addDeserializer(Descriptor.class, new DescriptorDeserializer());
-        }
-        if (level.hasCollectionDescriptors()) {
-            module.addSerializer(CollectionDescriptor.class, new ToStringSerializer());
-            module.addDeserializer(CollectionDescriptor.class, new CollectionDescriptorDeserializer(
-                    collectionDescriptorTransfigurationDependencies.collectionDescriptorService()));
-        }
 
         module.addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
         module.addDeserializer(MultilingualObject.class, new MultilingualObjectDeserializer());
@@ -112,17 +74,4 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         return module;
     }
 
-    private enum Level {
-        BASIC,
-        DESCRIPTORS,
-        COLLECTION_DESCRIPTORS;
-
-        boolean hasDescriptors() {
-            return this == DESCRIPTORS || this == COLLECTION_DESCRIPTORS;
-        }
-
-        boolean hasCollectionDescriptors() {
-            return this == COLLECTION_DESCRIPTORS;
-        }
-    }
 }
