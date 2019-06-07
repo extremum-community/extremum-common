@@ -95,6 +95,7 @@ class SystemJsonObjectMapperTest {
 
         Descriptor descriptor = new BasicJsonObjectMapper()
                 .readerFor(Descriptor.class).readValue(json);
+
         assertThat(descriptor.getDisplay(), is(notNullValue()));
         assertThat(descriptor.getDisplay().getType(), is(Display.Type.OBJECT));
         assertThat(descriptor.getDisplay().getIcon(), is(notNullValue()));
