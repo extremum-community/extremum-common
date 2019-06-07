@@ -4,7 +4,7 @@ import com.extremum.common.dto.converters.DtoConverter;
 import com.extremum.common.dto.converters.StubDtoConverter;
 import com.extremum.common.dto.converters.services.DefaultDtoConversionService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ public class PatcherServiceTestConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return new JsonObjectMapper(mapperDependencies());
+        return new SystemJsonObjectMapper(mapperDependencies());
     }
 
     @Bean

@@ -24,9 +24,9 @@ import static org.mockito.Mockito.when;
 /**
  * @author rpuch
  */
-class JsonObjectMapperTest {
+class SystemJsonObjectMapperTest {
     private MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
-    private JsonObjectMapper mapper = new JsonObjectMapper(mapperDependencies);
+    private SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mapperDependencies);
 
     @Test
     void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {

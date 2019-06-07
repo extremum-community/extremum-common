@@ -1,6 +1,6 @@
 package models.deserialization;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.Multilingual;
 import com.extremum.common.stucts.MultilingualObject;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class MultilingualObjectDeserializerTest {
     private static final String PATH_TO_JSON = "json-files/";
-    private ObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void deserializeSimpleTextTest() throws IOException {

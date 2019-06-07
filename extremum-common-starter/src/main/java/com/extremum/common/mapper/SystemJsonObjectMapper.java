@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Public object mapper for clients.
  */
-public class JsonObjectMapper extends BasicJsonObjectMapper {
+public class SystemJsonObjectMapper extends BasicJsonObjectMapper {
     private final MapperDependencies dependencies;
 
-    public JsonObjectMapper(MapperDependencies dependencies) {
+    public SystemJsonObjectMapper(MapperDependencies dependencies) {
         this.dependencies = dependencies;
 
         registerModule(new DescriptorsModule());
@@ -18,7 +18,7 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
 
     @Override
     public ObjectMapper copy() {
-        return new JsonObjectMapper(dependencies);
+        return new SystemJsonObjectMapper(dependencies);
     }
 
 }

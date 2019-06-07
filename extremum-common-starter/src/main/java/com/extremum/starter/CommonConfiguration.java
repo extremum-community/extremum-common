@@ -8,7 +8,7 @@ import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
 import com.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
@@ -125,7 +125,7 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies) {
-        return new JsonObjectMapper(mapperDependencies);
+        return new SystemJsonObjectMapper(mapperDependencies);
     }
 
     @Bean

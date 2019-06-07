@@ -1,6 +1,6 @@
 package models.deserialization;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DurationVariativeValueDeserializerTest {
-    private ObjectMapper mapper = new JsonObjectMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void simpleIntDeserializeTest() throws IOException {
