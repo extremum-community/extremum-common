@@ -19,15 +19,6 @@ public class JsonObjectMapper extends BasicJsonObjectMapper {
         return mapper;
     }
 
-    public static JsonObjectMapper createWithDescriptors() {
-        JsonObjectMapper mapper = new JsonObjectMapper();
-        mapper.configure();
-
-        mapper.registerModule(new DescriptorsModule());
-
-        return mapper;
-    }
-
     public static JsonObjectMapper createWithCollectionDescriptors(MapperDependencies dependencies) {
         JsonObjectMapper mapper = new JsonObjectMapper();
         mapper.configure();
