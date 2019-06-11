@@ -1,6 +1,6 @@
 package models.serialization;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.Multilingual;
 import com.extremum.common.stucts.MultilingualObject;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultilingualObjectSerializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleTextTest() throws JsonProcessingException {

@@ -1,6 +1,6 @@
 package models.serialization;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DurationVariativeValueSerializerTest {
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void simpleIntSerializeTest() throws JsonProcessingException, JSONException {

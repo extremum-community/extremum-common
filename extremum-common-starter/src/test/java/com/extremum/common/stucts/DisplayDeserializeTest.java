@@ -1,6 +1,6 @@
 package com.extremum.common.stucts;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import models.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DisplayDeserializeTest {
-    private JsonObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void deserializeFromSimpleStringTest() throws IOException {

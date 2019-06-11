@@ -1,6 +1,6 @@
 package com.extremum.common.stucts;
 
-import com.extremum.common.mapper.JsonObjectMapper;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DisplaySerializeTest {
-    private ObjectMapper mapper = JsonObjectMapper.createWithCollectionDescriptors(new MockedMapperDependencies());
+    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void serializeToSimpleStringTest() throws JsonProcessingException {
