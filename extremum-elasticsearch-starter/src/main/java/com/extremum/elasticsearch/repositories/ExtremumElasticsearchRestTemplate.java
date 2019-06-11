@@ -1,6 +1,7 @@
 package com.extremum.elasticsearch.repositories;
 
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.VersionType;
@@ -20,7 +21,7 @@ import java.io.IOException;
  * @author rpuch
  */
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
-    private final SequenceNumbers sequenceNumbers = new SequenceNumbers();
+    private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client) {
         super(client);
@@ -57,14 +58,17 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     public String index(IndexQuery query) {
         String documentId;
         IndexRequest request = prepareIndex(query);
+        IndexResponse response;
         try {
-            documentId = getClient().index(request).getId();
+            response = getClient().index(request);
+            documentId = response.getId();
         } catch (IOException e) {
             throw new ElasticsearchException("Error while index for request: " + request.toString(), e);
         }
         // We should call this because we are not going through a mapper.
         if (query.getObject() != null) {
             setPersistentEntityId(query.getObject(), documentId);
+            sequenceNumberOperations.setSequenceNumberAndPrimaryTermAfterIndexing(query.getObject(), response);
         }
         return documentId;
     }
@@ -108,14 +112,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
                 indexRequest.parent(query.getParentId());
             }
 
-            if (query.getObject() != null) {
-                if (sequenceNumbers.hasSequenceNumber(query.getObject())) {
-                    indexRequest.setIfSeqNo(sequenceNumbers.getRequiredSequenceNumber(query.getObject()));
-                }
-                if (sequenceNumbers.hasPrimaryTerm(query.getObject())) {
-                    indexRequest.setIfPrimaryTerm(sequenceNumbers.getRequiredPrimaryTerm(query.getObject()));
-                }
-            }
+            sequenceNumberOperations.fillSequenceNumberAndPrimaryTermOnIndexRequest(query.getObject(), indexRequest);
 
             return indexRequest;
         } catch (IOException e) {
