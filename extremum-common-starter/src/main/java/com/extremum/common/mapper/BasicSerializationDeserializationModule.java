@@ -23,8 +23,8 @@ import java.lang.reflect.Method;
 /**
  * @author rpuch
  */
-public class BasicDeSerModule extends SimpleModule {
-    public BasicDeSerModule(ObjectMapper mapper) {
+public class BasicSerializationDeserializationModule extends SimpleModule {
+    public BasicSerializationDeserializationModule(ObjectMapper mapper) {
         setDeserializerModifier(new EnumDeserializerModifier());
         addSerializer(Enum.class, new EnumSerializer());
         addDeserializer(ObjectId.class, new ObjectIdDeserializer());
