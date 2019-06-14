@@ -47,6 +47,7 @@ class CollectionMakeupImplTest {
     private StreetResponseDto streetDto;
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
             new Descriptor("the-street"), "the-buildings");
+    private OuterResponseDto outerDto;
 
     @BeforeEach
     void setUp() {
@@ -57,6 +58,8 @@ class CollectionMakeupImplTest {
                 new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building2)
         );
         streetDto = new StreetResponseDto("the-street", buildings);
+
+        outerDto = new OuterResponseDto("outer-id", "inner-id", buildings);
     }
 
     @Test
@@ -146,6 +149,19 @@ class CollectionMakeupImplTest {
                 is("https://example.com/collection/" + collectionId));
     }
 
+    @Test
+    void givenACollectionIsInsideANestedDto_whenMakeupIsApplied_thenInternalIdShouldBeSavedAsHostId() {
+        collectionMakeup.applyCollectionMakeup(outerDto);
+
+        CollectionDescriptor collectionDescriptor = outerDto.innerDto.buildings.getId();
+        assertThat(collectionDescriptor, is(notNullValue()));
+
+        assertThat(collectionDescriptor, is(notNullValue()));
+        OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
+        assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
+        assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
+    }
+
     private static class BuildingResponseDto extends AbstractResponseDto {
         public String address;
 
@@ -176,6 +192,27 @@ class CollectionMakeupImplTest {
         @OwnedCollection
         public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> getBuildingsAnnotatedViaGetter() {
             return buildingsAnnotatedViaGetter;
+        }
+    }
+
+    public static class InnerResponseDto extends AbstractResponseDto {
+        @OwnedCollection(hostAttributeName = "the-buildings")
+        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
+
+        InnerResponseDto(String externalId,
+                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+            setId(new Descriptor(externalId));
+            this.buildings = new CollectionReference<>(buildings);
+        }
+    }
+
+    public static class OuterResponseDto extends AbstractResponseDto {
+        public InnerResponseDto innerDto;
+
+        OuterResponseDto(String outerExternalId, String innerExternalId,
+                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+            setId(new Descriptor(outerExternalId));
+            innerDto = new InnerResponseDto(innerExternalId, buildings);
         }
     }
 }
