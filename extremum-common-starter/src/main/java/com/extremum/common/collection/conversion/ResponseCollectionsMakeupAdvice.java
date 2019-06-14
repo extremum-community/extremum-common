@@ -52,15 +52,25 @@ public class ResponseCollectionsMakeupAdvice implements ResponseBodyAdvice<Respo
         }
 
         if (result instanceof ResponseDto[]) {
-            ResponseDto[] array = (ResponseDto[]) result;
-            for (ResponseDto dto : array) {
-                makeup.applyCollectionMakeup(dto);
-            }
+            applyToArrayOfDto((ResponseDto[]) result);
         }
 
         if (result instanceof Iterable) {
-            Iterable<?> iterable = (Iterable<?>) result;
-            iterable.forEach(this::applyMakeupToPayloadIfNeeded);
+            applyToIterable((Iterable<?>) result);
         }
+    }
+
+    private void applyToArrayOfDto(ResponseDto[] array) {
+        for (ResponseDto dto : array) {
+            makeup.applyCollectionMakeup(dto);
+        }
+    }
+
+    private void applyToIterable(Iterable<?> iterable) {
+        iterable.forEach(element -> {
+            if (element instanceof ResponseDto) {
+                makeup.applyCollectionMakeup((ResponseDto) element);
+            }
+        });
     }
 }
