@@ -102,7 +102,7 @@ class CollectionMakeupImplTest {
     }
 
     @Test
-    void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+    void givenADtoHasNullId_whenApplyCollectionMakeup_thenShouldNotChangeAnything() {
         streetDto.setId(null);
 
         collectionMakeup.applyCollectionMakeup(streetDto);
@@ -112,14 +112,14 @@ class CollectionMakeupImplTest {
     }
 
     @Test
-    void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeNothing() {
+    void givenADtoHasNullCollectionReference_whenApplyCollectionMakeup_thenShouldNotChangeAnything() {
         streetDto.buildings = null;
 
         collectionMakeup.applyCollectionMakeup(streetDto);
     }
 
     @Test
-    void givenHostAttributeNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostAttributeNameIsDeducedFromFieldName() {
+    void givenHostAttributeNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostAttributeNameShouldBeDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         CollectionDescriptor descriptor = streetDto.buildingsWithDefaultName.getId();
