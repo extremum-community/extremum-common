@@ -19,7 +19,7 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(5,
+    private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
             CollectionMakeupImpl::shouldGoDeeper);
     private final AttributeGraphWalker shallowWalker = new ShallowAttributeGraphWalker();
 
