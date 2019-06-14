@@ -13,6 +13,8 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 
+import java.util.Arrays;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,6 +60,32 @@ class ResponseCollectionsMakeupAdviceTest {
                 NOT_USED, request, response);
 
         verify(makeup).applyCollectionMakeup(dto);
+    }
+
+    @Test
+    void givenReturnedValueIsResponseWithArrayOfDto_whenBeforeBedyWriteIsCalled_thenMakeupIsApplied() {
+        TestResponseDto dto1 = new TestResponseDto();
+        TestResponseDto dto2 = new TestResponseDto();
+        Response responseValue = Response.ok(new TestResponseDto[]{dto1, dto2});
+
+        advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
+                NOT_USED, request, response);
+
+        verify(makeup).applyCollectionMakeup(dto1);
+        verify(makeup).applyCollectionMakeup(dto2);
+    }
+
+    @Test
+    void givenReturnedValueIsResponseWithIterableOfDto_whenBeforeBedyWriteIsCalled_thenMakeupIsApplied() {
+        TestResponseDto dto1 = new TestResponseDto();
+        TestResponseDto dto2 = new TestResponseDto();
+        Response responseValue = Response.ok(Arrays.asList(dto1, dto2));
+
+        advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
+                NOT_USED, request, response);
+
+        verify(makeup).applyCollectionMakeup(dto1);
+        verify(makeup).applyCollectionMakeup(dto2);
     }
 
     @Test
