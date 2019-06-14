@@ -128,11 +128,11 @@
 
     <distributionManagement>
         <repository>
-            <id>releases</id>
+            <id>extremum-releases</id>
             <url>http://nexus.cybernation.com:8081/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>snapshots</id>
+            <id>extremum-snapshots</id>
             <url>http://nexus.cybernation.com:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
