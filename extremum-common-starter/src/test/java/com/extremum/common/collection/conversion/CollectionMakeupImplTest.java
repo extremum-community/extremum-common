@@ -6,6 +6,7 @@ import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.AbstractResponseDto;
+import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.stucts.IdOrObjectStruct;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.TestApplicationUrls;
@@ -48,6 +49,7 @@ class CollectionMakeupImplTest {
     private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
             new Descriptor("the-street"), "the-buildings");
     private OuterResponseDto outerDto;
+    private OuterResponseDtoWithObjectTyping outerResponseDtoWithObjectTyping;
 
     @BeforeEach
     void setUp() {
@@ -60,6 +62,7 @@ class CollectionMakeupImplTest {
         streetDto = new StreetResponseDto("the-street", buildings);
 
         outerDto = new OuterResponseDto("outer-id", "inner-id", buildings);
+        outerResponseDtoWithObjectTyping = new OuterResponseDtoWithObjectTyping("outer-id", "inner-id", buildings);
     }
 
     @Test
@@ -162,6 +165,35 @@ class CollectionMakeupImplTest {
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
 
+    @Test
+    void givenACollectionIsInsideA2LevelNestedDto_whenMakeupIsApplied_thenInternalIdShouldBeSavedAsHostId() {
+        ContainerResponseDto top = new ContainerResponseDto("top-id", outerDto);
+
+        collectionMakeup.applyCollectionMakeup(top);
+
+        CollectionDescriptor collectionDescriptor = outerDto.innerDto.buildings.getId();
+        assertThat(collectionDescriptor, is(notNullValue()));
+
+        assertThat(collectionDescriptor, is(notNullValue()));
+        OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
+        assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
+        assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
+    }
+    
+    @Test
+    void givenACollectionIsInsideANestedDtoViaObjectTypedField_whenMakeupIsApplied_thenTheMakeupShouldBeApplied() {
+        collectionMakeup.applyCollectionMakeup(outerResponseDtoWithObjectTyping);
+
+        InnerResponseDto innerDto = (InnerResponseDto) outerResponseDtoWithObjectTyping.innerDto;
+        CollectionDescriptor collectionDescriptor = innerDto.buildings.getId();
+        assertThat(collectionDescriptor, is(notNullValue()));
+
+        assertThat(collectionDescriptor, is(notNullValue()));
+        OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
+        assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
+        assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
+    }
+
     private static class BuildingResponseDto extends AbstractResponseDto {
         public String address;
 
@@ -213,6 +245,25 @@ class CollectionMakeupImplTest {
                 List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
             setId(new Descriptor(outerExternalId));
             innerDto = new InnerResponseDto(innerExternalId, buildings);
+        }
+    }
+
+    public static class OuterResponseDtoWithObjectTyping extends AbstractResponseDto {
+        public Object innerDto;
+
+        OuterResponseDtoWithObjectTyping(String outerExternalId, String innerExternalId,
+                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+            setId(new Descriptor(outerExternalId));
+            innerDto = new InnerResponseDto(innerExternalId, buildings);
+        }
+    }
+
+    public static class ContainerResponseDto extends AbstractResponseDto {
+        public ResponseDto dto;
+
+        ContainerResponseDto(String id, ResponseDto dto) {
+            setId(new Descriptor(id));
+            this.dto = dto;
         }
     }
 }

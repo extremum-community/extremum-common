@@ -98,7 +98,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         @Override
         public void visitAttribute(Attribute attribute) {
-            if (ResponseDto.class.isAssignableFrom(attribute.type())) {
+            Object value = attribute.value();
+            if (value != null && ResponseDto.class.isAssignableFrom(value.getClass())) {
                 visitor.visitAttribute(attribute);
             }
         }
