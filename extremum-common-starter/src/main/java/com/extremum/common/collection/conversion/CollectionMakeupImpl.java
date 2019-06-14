@@ -41,11 +41,11 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
-        AttributeVisitor visitor = attribute -> applyMakeupToField(attribute, dto);
+        AttributeVisitor visitor = attribute -> applyMakeupToAttribute(attribute, dto);
         attributeGraphWalker.walk(dto, new EligibleForMakeup(visitor));
     }
 
-    private void applyMakeupToField(Attribute attribute, ResponseDto dto) {
+    private void applyMakeupToAttribute(Attribute attribute, ResponseDto dto) {
         if (attribute.value() == null) {
             return;
         }
