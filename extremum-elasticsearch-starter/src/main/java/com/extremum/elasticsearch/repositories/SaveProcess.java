@@ -6,6 +6,7 @@ import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.index.IndexResponse;
 
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -22,19 +23,24 @@ class SaveProcess {
     }
 
     void prepareForSave(Object object) {
+        asModel(object).ifPresent(model -> {
+            fillId(model);
+            fillCreatedUpdated(model);
+            fillDeleted(model);
+        });
+    }
+
+    private Optional<ElasticsearchCommonModel> asModel(Object object) {
         if (object == null) {
-            return;
+            return Optional.empty();
         }
 
         if (!(object instanceof ElasticsearchCommonModel)) {
-            return;
+            return Optional.empty();
         }
 
         ElasticsearchCommonModel model = (ElasticsearchCommonModel) object;
-
-        fillId(model);
-        fillCreatedUpdated(model);
-        fillDeleted(model);
+        return Optional.of(model);
     }
 
     private void fillId(ElasticsearchCommonModel model) {
@@ -66,19 +72,11 @@ class SaveProcess {
     }
 
     private void createDescriptorIfNeeded(Object object) {
-        if (object == null) {
-            return;
-        }
-
-        if (!(object instanceof ElasticsearchCommonModel)) {
-            return;
-        }
-
-        ElasticsearchCommonModel model = (ElasticsearchCommonModel) object;
-
-        String name = ModelUtils.getModelName(model);
-        if (model.getUuid() == null) {
-            model.setUuid(elasticsearchDescriptorFactory.create(UUID.fromString(model.getId()), name));
-        }
+        asModel(object).ifPresent(model -> {
+            String name = ModelUtils.getModelName(model);
+            if (model.getUuid() == null) {
+                model.setUuid(elasticsearchDescriptorFactory.create(UUID.fromString(model.getId()), name));
+            }
+        });
     }
 }
