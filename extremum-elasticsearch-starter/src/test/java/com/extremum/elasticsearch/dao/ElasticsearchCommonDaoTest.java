@@ -6,7 +6,6 @@ import com.extremum.common.utils.ModelUtils;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
-import org.bson.types.ObjectId;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +22,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -65,6 +65,18 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertNotNull(createdModel.getCreated(), "created");
         assertNotNull(createdModel.getVersion(), "version");
         assertFalse(createdModel.getDeleted(), "deleted");
+    }
+
+    @Test
+    void givenAModelHasAnExternallySuppliedDescriptor_whenSavingIt_thenIdShouldBeFilledFromTheDescriptor() {
+        TestElasticsearchModel model = createModelWithExternalDescriptor();
+        String internalId = model.getUuid().getInternalId();
+
+        assertThat(model.getId(), is(nullValue()));
+
+        dao.save(model);
+
+        assertThat(model.getId(), is(internalId));
     }
 
     @Test
@@ -114,7 +126,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
     @Test
     void givenEntityExists_whenFindById_thenWeShouldFindTheEntity() {
-        TestElasticsearchModel model = getTestModel();
+        TestElasticsearchModel model = createModelWithExternalDescriptor();
         dao.save(model);
 
         TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
@@ -146,7 +158,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         int modelsToCreate = 10;
 
         for (int i = 0; i < modelsToCreate; i++) {
-            dao.save(getTestModel());
+            dao.save(createModelWithExternalDescriptor());
         }
 
         assertEquals(0, dao.findAll().size());
@@ -330,11 +342,11 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         return Arrays.asList(notDeleted, deleted);
     }
 
-    private static TestElasticsearchModel getTestModel() {
+    private static TestElasticsearchModel createModelWithExternalDescriptor() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorService.createExternalId())
-                .internalId(new ObjectId().toString())
+                .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.ELASTICSEARCH)
                 .build();

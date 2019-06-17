@@ -24,7 +24,8 @@ class SaveProcess {
 
     void prepareForSave(Object object) {
         asModel(object).ifPresent(model -> {
-            fillId(model);
+            fillIdFromDescriptor(model);
+            fillIdIfStillNull(model);
             fillCreatedUpdated(model);
             fillDeleted(model);
         });
@@ -43,7 +44,14 @@ class SaveProcess {
         return Optional.of(model);
     }
 
-    private void fillId(ElasticsearchCommonModel model) {
+    private void fillIdFromDescriptor(ElasticsearchCommonModel model) {
+        if (model.getId() == null && model.getUuid() != null) {
+            UUID resolvedId = elasticsearchDescriptorFactory.resolve(model.getUuid());
+            model.setId(resolvedId.toString());
+        }
+    }
+
+    private void fillIdIfStillNull(ElasticsearchCommonModel model) {
         if (model.getId() == null) {
             model.setId(UUID.randomUUID().toString());
         }
