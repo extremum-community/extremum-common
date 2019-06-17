@@ -23,7 +23,7 @@ import java.io.IOException;
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final VersionOperations versionOperations = new VersionOperations();
-    private final ManualAuditing manualAuditing = new ManualAuditing();
+    private final SavePreparation savePreparation = new SavePreparation();
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client) {
         super(client);
@@ -59,7 +59,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     @Override
     public String index(IndexQuery query) {
         if (query.getObject() != null) {
-            manualAuditing.fillCreatedAndModifiedDates(query.getObject());
+            savePreparation.prepareForSave(query.getObject());
         }
 
         String documentId;

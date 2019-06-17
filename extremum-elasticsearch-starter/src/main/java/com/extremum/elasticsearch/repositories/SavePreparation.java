@@ -7,8 +7,8 @@ import java.time.ZonedDateTime;
 /**
  * @author rpuch
  */
-class ManualAuditing {
-    void fillCreatedAndModifiedDates(Object object) {
+class SavePreparation {
+    void prepareForSave(Object object) {
         if (object == null) {
             return;
         }
@@ -23,6 +23,9 @@ class ManualAuditing {
         }
         if (model.getModified() == null) {
             model.setModified(ZonedDateTime.now());
+        }
+        if (model.getDeleted() == null) {
+            model.setDeleted(false);
         }
     }
 }
