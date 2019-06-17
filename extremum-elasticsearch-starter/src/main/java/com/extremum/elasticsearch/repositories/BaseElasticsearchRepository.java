@@ -26,7 +26,7 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
         return iterableToList(all);
     }
 
-    private <S> List<S> iterableToList(Iterable<S> iterable) {
+    final <S> List<S> iterableToList(Iterable<S> iterable) {
         return StreamUtils.fromIterable(iterable).collect(Collectors.toList());
     }
 

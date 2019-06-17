@@ -2,26 +2,55 @@ package com.extremum.elasticsearch.repositories;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.VersionType;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.GetResultMapper;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.facet.FacetRequest;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.*;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static org.elasticsearch.client.Requests.refreshRequest;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * @author rpuch
@@ -34,7 +63,11 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
             ObjectMapper objectMapper,
             ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
-        super(client, new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper));
+        super(client,
+                new ExtremumResultMapper(
+                        new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
+                )
+        );
 
         saveProcess = new SaveProcess(elasticsearchDescriptorFactory);
     }
@@ -66,6 +99,11 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 //        super(client, elasticsearchConverter, resultsMapper);
 //    }
 
+    private static String[] toArray(List<String> values) {
+        String[] valuesAsArray = new String[values.size()];
+        return values.toArray(valuesAsArray);
+    }
+
     @Override
     public String index(IndexQuery query) {
         if (query.getObject() != null) {
@@ -76,7 +114,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         IndexRequest request = prepareIndex(query);
         IndexResponse response;
         try {
-            response = getClient().index(request);
+            response = getClient().index(request, RequestOptions.DEFAULT);
             documentId = response.getId();
         } catch (IOException e) {
             throw new ElasticsearchException("Error while index for request: " + request.toString(), e);
@@ -124,9 +162,10 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
                 indexRequest.versionType(versionType);
             }
 
-            if (query.getParentId() != null) {
-                indexRequest.parent(query.getParentId());
-            }
+            // in elasticsearch 7.1.0 client library, there is no parent() method
+//            if (query.getParentId() != null) {
+//                indexRequest.parent(query.getParentId());
+//            }
 
             // This is the only thing we needed to add to this method for extremum-specific tasks
             sequenceNumberOperations.fillSequenceNumberAndPrimaryTermOnIndexRequest(query.getObject(), indexRequest);
@@ -193,7 +232,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
         BulkResponse bulkResponse;
         try {
-            bulkResponse = getClient().bulk(bulkRequest);
+            bulkResponse = getClient().bulk(bulkRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException("Error while bulk for request: " + bulkRequest.toString(), e);
         }
@@ -241,4 +280,279 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
                     failedDocuments);
         }
     }
+
+    // Code that follows is needed just to work-around the fact that Spring Data Elasticsearch 3.2 uses old
+    // request method signatures which were removed in 7.1.0 (or earlier). Hence the copy-paste.
+
+    @Override
+    public boolean indexExists(String indexName) {
+        GetIndexRequest request = new GetIndexRequest();
+        request.indices(indexName);
+        try {
+            return getClient().indices().exists(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while for indexExists request: " + request.toString(), e);
+        }
+    }
+
+    @Override
+    public boolean putMapping(String indexName, String type, Object mapping) {
+        Assert.notNull(indexName, "No index defined for putMapping()");
+        Assert.notNull(type, "No type defined for putMapping()");
+        PutMappingRequest request = new PutMappingRequest(indexName).type(type);
+        if (mapping instanceof String) {
+            request.source(String.valueOf(mapping), XContentType.JSON);
+        } else if (mapping instanceof Map) {
+            request.source((Map) mapping);
+        } else if (mapping instanceof XContentBuilder) {
+            request.source((XContentBuilder) mapping);
+        }
+        try {
+            return getClient().indices().putMapping(request, RequestOptions.DEFAULT).isAcknowledged();
+        } catch (IOException e) {
+            throw new ElasticsearchException("Failed to put mapping for " + indexName, e);
+        }
+    }
+
+    @Override
+    public void refresh(String indexName) {
+        Assert.notNull(indexName, "No index defined for refresh()");
+        try {
+            // TODO: Do something with the response.
+            getClient().indices().refresh(refreshRequest(indexName), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("failed to refresh index: " + indexName, e);
+        }
+    }
+
+    @Override
+    public <T> long count(SearchQuery searchQuery, Class<T> clazz) {
+        QueryBuilder elasticsearchQuery = searchQuery.getQuery();
+        QueryBuilder elasticsearchFilter = searchQuery.getFilter();
+
+        if (elasticsearchFilter == null) {
+            return doCount(prepareCount(searchQuery, clazz), elasticsearchQuery);
+        } else {
+            // filter could not be set into CountRequestBuilder, convert request into search request
+            return doCount(prepareSearch(searchQuery, clazz), elasticsearchQuery, elasticsearchFilter);
+        }
+    }
+
+    private long doCount(SearchRequest countRequest, QueryBuilder elasticsearchQuery) {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        if (elasticsearchQuery != null) {
+            sourceBuilder.query(elasticsearchQuery);
+        }
+        countRequest.source(sourceBuilder);
+
+        try {
+            return getClient().search(countRequest, RequestOptions.DEFAULT).getHits().getTotalHits().value;
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while searching for request: " + countRequest.toString(), e);
+        }
+    }
+
+    private <T> SearchRequest prepareCount(Query query, Class<T> clazz) {
+        String indexName[] = !isEmpty(query.getIndices())
+                ? query.getIndices().toArray(new String[query.getIndices().size()])
+                : retrieveIndexNameFromPersistentEntity(clazz);
+        String types[] = !isEmpty(query.getTypes()) ? query.getTypes().toArray(new String[query.getTypes().size()])
+                : retrieveTypeFromPersistentEntity(clazz);
+
+        Assert.notNull(indexName, "No index defined for Query");
+
+        SearchRequest countRequestBuilder = new SearchRequest(indexName);
+
+        if (types != null) {
+            countRequestBuilder.types(types);
+        }
+        return countRequestBuilder;
+    }
+
+    private long doCount(SearchRequest searchRequest, QueryBuilder elasticsearchQuery,
+            QueryBuilder elasticsearchFilter) {
+        if (elasticsearchQuery != null) {
+            searchRequest.source().query(elasticsearchQuery);
+        } else {
+            searchRequest.source().query(QueryBuilders.matchAllQuery());
+        }
+        if (elasticsearchFilter != null) {
+            searchRequest.source().postFilter(elasticsearchFilter);
+        }
+        SearchResponse response;
+        try {
+            response = getClient().search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error for search request: " + searchRequest.toString(), e);
+        }
+        return response.getHits().getTotalHits().value;
+    }
+
+    private <T> SearchRequest prepareSearch(SearchQuery query, Class<T> clazz) {
+        setPersistentEntityIndexAndType(query, clazz);
+        return prepareSearch(query, Optional.ofNullable(query.getQuery()));
+    }
+
+    private void setPersistentEntityIndexAndType(Query query, Class clazz) {
+        if (query.getIndices().isEmpty()) {
+            query.addIndices(retrieveIndexNameFromPersistentEntity(clazz));
+        }
+        if (query.getTypes().isEmpty()) {
+            query.addTypes(retrieveTypeFromPersistentEntity(clazz));
+        }
+    }
+
+    private SearchRequest prepareSearch(Query query, Optional<QueryBuilder> builder) {
+        Assert.notNull(query.getIndices(), "No index defined for Query");
+        Assert.notNull(query.getTypes(), "No type defined for Query");
+
+        int startRecord = 0;
+        SearchRequest request = new SearchRequest(toArray(query.getIndices()));
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        request.types(toArray(query.getTypes()));
+        sourceBuilder.version(true);
+        sourceBuilder.trackScores(query.getTrackScores());
+
+        if (builder.isPresent()) {
+            sourceBuilder.query(builder.get());
+        }
+
+        if (query.getSourceFilter() != null) {
+            SourceFilter sourceFilter = query.getSourceFilter();
+            sourceBuilder.fetchSource(sourceFilter.getIncludes(), sourceFilter.getExcludes());
+        }
+
+        if (query.getPageable().isPaged()) {
+            startRecord = query.getPageable().getPageNumber() * query.getPageable().getPageSize();
+            sourceBuilder.size(query.getPageable().getPageSize());
+        }
+        sourceBuilder.from(startRecord);
+
+        if (!query.getFields().isEmpty()) {
+            sourceBuilder.fetchSource(toArray(query.getFields()), null);
+        }
+
+        if (query.getIndicesOptions() != null) {
+            request.indicesOptions(query.getIndicesOptions());
+        }
+
+        if (query.getSort() != null) {
+            prepareSort(query, sourceBuilder);
+        }
+
+        if (query.getMinScore() > 0) {
+            sourceBuilder.minScore(query.getMinScore());
+        }
+        request.source(sourceBuilder);
+        return request;
+    }
+
+    private void prepareSort(Query query, SearchSourceBuilder sourceBuilder) {
+        for (Sort.Order order : query.getSort()) {
+            FieldSortBuilder sort = SortBuilders.fieldSort(order.getProperty())
+                    .order(order.getDirection().isDescending() ? SortOrder.DESC : SortOrder.ASC);
+            if (order.getNullHandling() == Sort.NullHandling.NULLS_FIRST) {
+                sort.missing("_first");
+            } else if (order.getNullHandling() == Sort.NullHandling.NULLS_LAST) {
+                sort.missing("_last");
+            }
+            sourceBuilder.sort(sort);
+        }
+    }
+
+    @Override
+    public <T> AggregatedPage<T> queryForPage(SearchQuery query, Class<T> clazz, SearchResultMapper mapper) {
+        SearchResponse response = doSearch(prepareSearch(query, clazz), query);
+        return mapper.mapResults(response, clazz, query.getPageable());
+    }
+
+    private SearchResponse doSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
+        prepareSearch(searchRequest, searchQuery);
+
+        try {
+            return getClient().search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error for search request with scroll: " + searchRequest.toString(), e);
+        }
+    }
+
+    private SearchRequest prepareSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
+        if (searchQuery.getFilter() != null) {
+            searchRequest.source().postFilter(searchQuery.getFilter());
+        }
+
+        if (!isEmpty(searchQuery.getElasticsearchSorts())) {
+            for (SortBuilder sort : searchQuery.getElasticsearchSorts()) {
+                searchRequest.source().sort(sort);
+            }
+        }
+
+        if (!searchQuery.getScriptFields().isEmpty()) {
+            // _source should be return all the time
+            // searchRequest.addStoredField("_source");
+            for (ScriptField scriptedField : searchQuery.getScriptFields()) {
+                searchRequest.source().scriptField(scriptedField.fieldName(), scriptedField.script());
+            }
+        }
+
+        if (searchQuery.getHighlightFields() != null || searchQuery.getHighlightBuilder() != null) {
+            HighlightBuilder highlightBuilder = searchQuery.getHighlightBuilder();
+            if (highlightBuilder == null) {
+                highlightBuilder = new HighlightBuilder();
+            }
+            if (searchQuery.getHighlightFields() != null) {
+                for (HighlightBuilder.Field highlightField : searchQuery.getHighlightFields()) {
+                    highlightBuilder.field(highlightField);
+                }
+            }
+            searchRequest.source().highlighter(highlightBuilder);
+        }
+
+        if (!isEmpty(searchQuery.getIndicesBoost())) {
+            for (IndexBoost indexBoost : searchQuery.getIndicesBoost()) {
+                searchRequest.source().indexBoost(indexBoost.getIndexName(), indexBoost.getBoost());
+            }
+        }
+
+        if (!isEmpty(searchQuery.getAggregations())) {
+            for (AbstractAggregationBuilder aggregationBuilder : searchQuery.getAggregations()) {
+                searchRequest.source().aggregation(aggregationBuilder);
+            }
+        }
+
+        if (!isEmpty(searchQuery.getFacets())) {
+            for (FacetRequest aggregatedFacet : searchQuery.getFacets()) {
+                searchRequest.source().aggregation(aggregatedFacet.getFacet());
+            }
+        }
+        return searchRequest;
+    }
+
+    @Override
+    public <T> T queryForObject(GetQuery query, Class<T> clazz, GetResultMapper mapper) {
+        ElasticsearchPersistentEntity<T> persistentEntity = getPersistentEntityFor(clazz);
+        GetRequest request = new GetRequest(persistentEntity.getIndexName(), persistentEntity.getIndexType(),
+                query.getId());
+        GetResponse response;
+        try {
+            response = getClient().get(request, RequestOptions.DEFAULT);
+            T entity = mapper.mapResult(response, clazz);
+            return entity;
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while getting for request: " + request.toString(), e);
+        }
+    }
+
+    @Override
+    public String delete(String indexName, String type, String id) {
+        DeleteRequest request = new DeleteRequest(indexName, type, id);
+        try {
+            return getClient().delete(request, RequestOptions.DEFAULT).getId();
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while deleting item request: " + request.toString(), e);
+        }
+    }
+
+    // Here ends the copy-paste due to the fact that Spring Data Elasticsearch 3.2 uses old
+    // request method signatures which were removed in 7.1.0 (or earlier)
 }

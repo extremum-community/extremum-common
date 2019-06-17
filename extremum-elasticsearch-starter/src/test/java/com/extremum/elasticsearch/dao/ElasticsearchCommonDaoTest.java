@@ -193,7 +193,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void testFindAll() {
+    void testFindAll_findsNothing() {
         int modelsToCreate = 10;
 
         for (int i = 0; i < modelsToCreate; i++) {
@@ -357,7 +357,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     @Test
     void givenADocumentExists_whenSearchingForItByName_thenItShouldBeFound() {
         TestElasticsearchModel model = new TestElasticsearchModel();
-        String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
+        String uniqueName = UUID.randomUUID().toString();
         model.setName(uniqueName);
         
         model = dao.save(model);
