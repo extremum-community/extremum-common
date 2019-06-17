@@ -355,7 +355,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenADocumentExists_whenSearchingForItByName_thenItShouldBeFound() throws Exception {
+    void givenADocumentExists_whenSearchingForItByName_thenItShouldBeFound() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
         model.setName(uniqueName);
@@ -363,10 +363,28 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         model = dao.save(model);
         client.refresh(TestElasticsearchModel.INDEX);
 
-        List<TestElasticsearchModel> results = dao.search(uniqueName);
+        List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
         assertThat(results.size(), is(1));
 
         assertThat(results.get(0).getName(), is(equalTo(model.getName())));
+    }
+
+    @Test
+    void givenADocumentExists_whenSearchingForItByDescriptorExternalId_thenItShouldBeFound() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+
+        model = dao.save(model);
+        client.refresh(TestElasticsearchModel.INDEX);
+
+        List<TestElasticsearchModel> results = dao.search(searchByFullString(model.getUuid().getExternalId()));
+        assertThat(results.size(), is(1));
+
+        assertThat(results.get(0).getName(), is(equalTo(model.getName())));
+    }
+
+    @NotNull
+    private String searchByFullString(String query) {
+        return "*" + query + "*";
     }
 
     @NotNull
