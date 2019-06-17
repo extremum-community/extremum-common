@@ -1,6 +1,7 @@
 package com.extremum.elasticsearch.repositories;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -13,6 +14,7 @@ import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
+import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.util.StringUtils;
 
@@ -25,12 +27,14 @@ import java.util.Map;
  * @author rpuch
  */
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
+
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final SaveProcess saveProcess;
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+            ObjectMapper objectMapper,
             ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
-        super(client);
+        super(client, new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper));
 
         saveProcess = new SaveProcess(elasticsearchDescriptorFactory);
     }

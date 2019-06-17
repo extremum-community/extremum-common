@@ -5,6 +5,7 @@ import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepository;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRestTemplate;
 import com.extremum.starter.CommonConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -49,7 +50,8 @@ public class ElasticsearchCommonDaoConfiguration {
     }
 
     @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ExtremumElasticsearchRestTemplate(elasticsearchClient(), elasticsearchDescriptorFactory());
+    public ElasticsearchOperations elasticsearchTemplate(ObjectMapper objectMapper) {
+        return new ExtremumElasticsearchRestTemplate(elasticsearchClient(), objectMapper,
+                elasticsearchDescriptorFactory());
     }
 }

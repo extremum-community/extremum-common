@@ -160,7 +160,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         dao.save(model);
 
         assertThat(model.getId(), is(equalTo(internalId)));
-        assertThat(model.getUuid(), is(equalTo(externalId)));
+        assertThat(model.getUuid().getExternalId(), is(equalTo(externalId)));
     }
 
     @Test
