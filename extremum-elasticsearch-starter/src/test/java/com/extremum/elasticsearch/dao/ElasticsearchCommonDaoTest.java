@@ -372,6 +372,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     @Test
     void givenADocumentExists_whenSearchingForItByDescriptorExternalId_thenItShouldBeFound() {
         TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName(UUID.randomUUID().toString());
 
         model = dao.save(model);
         client.refresh(TestElasticsearchModel.INDEX);
