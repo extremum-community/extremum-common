@@ -79,9 +79,9 @@ class SequenceNumberOperations {
         return primaryTerm;
     }
 
-    void setSequenceNumberAndPrimaryTermAfterIndexing(Object object,
+    void setSequenceNumberAndPrimaryTermAfterIndexing(Object indexedEntity,
             IndexResponse response) {
-        if (object == null) {
+        if (indexedEntity == null) {
             return;
         }
         if (response.getSeqNo() == SequenceNumbers.UNASSIGNED_SEQ_NO
@@ -89,11 +89,11 @@ class SequenceNumberOperations {
             return;
         }
 
-        if (!(object instanceof ElasticsearchCommonModel)) {
+        if (!(indexedEntity instanceof ElasticsearchCommonModel)) {
             return;
         }
 
-        ElasticsearchCommonModel model = (ElasticsearchCommonModel) object;
+        ElasticsearchCommonModel model = (ElasticsearchCommonModel) indexedEntity;
 
         model.setSeqNo(response.getSeqNo());
         model.setPrimaryTerm(response.getPrimaryTerm());

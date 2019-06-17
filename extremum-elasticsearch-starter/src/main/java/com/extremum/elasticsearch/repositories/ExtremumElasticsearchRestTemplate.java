@@ -22,6 +22,7 @@ import java.io.IOException;
  */
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
+    private final VersionOperations versionOperations = new VersionOperations();
     private final ManualAuditing manualAuditing = new ManualAuditing();
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client) {
@@ -74,6 +75,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         if (query.getObject() != null) {
             setPersistentEntityId(query.getObject(), documentId);
             sequenceNumberOperations.setSequenceNumberAndPrimaryTermAfterIndexing(query.getObject(), response);
+            versionOperations.setVersionAfterIndexing(query.getObject(), response);
         }
         return documentId;
     }
@@ -117,6 +119,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
                 indexRequest.parent(query.getParentId());
             }
 
+            // This is the only thing we needed to add to this method for extremum-specific tasks
             sequenceNumberOperations.fillSequenceNumberAndPrimaryTermOnIndexRequest(query.getObject(), indexRequest);
 
             return indexRequest;
