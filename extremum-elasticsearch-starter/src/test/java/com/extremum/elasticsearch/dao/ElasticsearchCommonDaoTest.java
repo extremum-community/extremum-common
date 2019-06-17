@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -193,14 +194,14 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void testFindAll_findsNothing() {
+    void testFindAll_throwsAnException() {
         int modelsToCreate = 10;
 
         for (int i = 0; i < modelsToCreate; i++) {
             dao.save(createModelWithExternalDescriptor());
         }
 
-        assertEquals(0, dao.findAll().size());
+        assertThrows(UnsupportedOperationException.class, dao::findAll);
     }
 
     // TODO: restore

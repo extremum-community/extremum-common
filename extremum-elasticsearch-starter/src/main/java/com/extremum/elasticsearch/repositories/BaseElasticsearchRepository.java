@@ -22,8 +22,8 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     @Override
     public List<T> findAll() {
-        Iterable<T> all = super.findAll();
-        return iterableToList(all);
+        throw new UnsupportedOperationException("" +
+                "Please do not call this method as a list of all documents may be very large");
     }
 
     final <S> List<S> iterableToList(Iterable<S> iterable) {
