@@ -25,7 +25,8 @@ class SaveProcess {
     void prepareForSave(Object object) {
         asModel(object).ifPresent(model -> {
             fillIdFromDescriptor(model);
-            fillIdIfStillNull(model);
+            fillIdIfStillMissing(model);
+            createDescriptorIfNeeded(object);
             fillCreatedUpdated(model);
             fillDeleted(model);
         });
@@ -51,7 +52,7 @@ class SaveProcess {
         }
     }
 
-    private void fillIdIfStillNull(ElasticsearchCommonModel model) {
+    private void fillIdIfStillMissing(ElasticsearchCommonModel model) {
         if (model.getId() == null) {
             model.setId(UUID.randomUUID().toString());
         }
@@ -81,8 +82,8 @@ class SaveProcess {
 
     private void createDescriptorIfNeeded(Object object) {
         asModel(object).ifPresent(model -> {
-            String name = ModelUtils.getModelName(model);
             if (model.getUuid() == null) {
+                String name = ModelUtils.getModelName(model);
                 model.setUuid(elasticsearchDescriptorFactory.create(UUID.fromString(model.getId()), name));
             }
         });

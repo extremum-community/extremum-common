@@ -6,14 +6,16 @@ import com.extremum.elasticsearch.annotation.PrimaryTerm;
 import com.extremum.elasticsearch.annotation.SequenceNumber;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 
 import java.time.ZonedDateTime;
 
 @Getter
 @Setter
 public abstract class ElasticsearchCommonModel implements PersistableCommonModel<String> {
-    @Transient
     private Descriptor uuid;
     @Id
     private String id;
