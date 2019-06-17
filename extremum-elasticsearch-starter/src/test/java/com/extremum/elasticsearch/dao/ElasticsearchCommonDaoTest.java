@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -191,6 +192,28 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
         TestElasticsearchModel resultModel = dao.findById(modelToBeDeleted.getId()).orElse(null);
         assertNull(resultModel);
+    }
+
+    @Test
+    void whenSavingAnEntity_thenVersionSequenceNumberAndPrimaryTermShouldBeFilled() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        assertThat(model.getVersion(), is(notNullValue()));
+        assertThat(model.getSeqNo(), is(notNullValue()));
+        assertThat(model.getPrimaryTerm(), is(notNullValue()));
+    }
+
+    @Test
+    void givenEntityIsCreated_whenFindById_thenVersionSequenceNumberAndPrimaryTermShouldBeFilled() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+
+        assertThat(resultModel.getVersion(), is(notNullValue()));
+        assertThat(resultModel.getSeqNo(), is(notNullValue()));
+        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
     }
 
     @Test

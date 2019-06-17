@@ -6,7 +6,6 @@ import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.index.IndexResponse;
 
 import java.time.ZonedDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -23,26 +22,13 @@ class SaveProcess {
     }
 
     void prepareForSave(Object object) {
-        asModel(object).ifPresent(model -> {
+        ElasticsearchModels.asElasticsearchModel(object).ifPresent(model -> {
             fillIdFromDescriptor(model);
             fillIdIfStillMissing(model);
             createDescriptorIfNeeded(object);
             fillCreatedUpdated(model);
             fillDeleted(model);
         });
-    }
-
-    private Optional<ElasticsearchCommonModel> asModel(Object object) {
-        if (object == null) {
-            return Optional.empty();
-        }
-
-        if (!(object instanceof ElasticsearchCommonModel)) {
-            return Optional.empty();
-        }
-
-        ElasticsearchCommonModel model = (ElasticsearchCommonModel) object;
-        return Optional.of(model);
     }
 
     private void fillIdFromDescriptor(ElasticsearchCommonModel model) {
@@ -81,7 +67,7 @@ class SaveProcess {
     }
 
     private void createDescriptorIfNeeded(Object object) {
-        asModel(object).ifPresent(model -> {
+        ElasticsearchModels.asElasticsearchModel(object).ifPresent(model -> {
             if (model.getUuid() == null) {
                 String name = ModelUtils.getModelName(model);
                 model.setUuid(elasticsearchDescriptorFactory.create(UUID.fromString(model.getId()), name));

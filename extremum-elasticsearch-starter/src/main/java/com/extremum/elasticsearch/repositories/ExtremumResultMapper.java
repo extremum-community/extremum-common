@@ -1,10 +1,13 @@
 package com.extremum.elasticsearch.repositories;
 
+import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.document.DocumentField;
+import org.elasticsearch.index.seqno.SequenceNumbers;
 import org.elasticsearch.search.SearchHit;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -32,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.extremum.elasticsearch.repositories.ElasticsearchModels.asElasticsearchModel;
+
 /**
  * @author rpuch
  */
@@ -50,6 +55,29 @@ public class ExtremumResultMapper extends DefaultResultMapper {
 
         this.mappingContext = mappingContext;
     }
+
+    @Override
+    public <T> T mapResult(GetResponse response, Class<T> clazz) {
+        T result = super.mapResult(response, clazz);
+
+        asElasticsearchModel(result).ifPresent(model -> {
+            fillSequenceNumberAndPrimaryTerm(response, model);
+        });
+        
+        return result;
+    }
+
+    private void fillSequenceNumberAndPrimaryTerm(GetResponse response, ElasticsearchCommonModel model) {
+        if (response.getSeqNo() != SequenceNumbers.UNASSIGNED_SEQ_NO) {
+            model.setSeqNo(response.getSeqNo());
+        }
+        if (response.getPrimaryTerm() != SequenceNumbers.UNASSIGNED_PRIMARY_TERM) {
+            model.setPrimaryTerm(response.getPrimaryTerm());
+        }
+    }
+
+    // The following is needed to work-around an incompatible class change in Elasticsearch client libraries
+    // which makes spring-data-elasticsearch 3.2 fail.
 
     @Override
     public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
@@ -182,4 +210,7 @@ public class ExtremumResultMapper extends DefaultResultMapper {
             }
         }
     }
+
+    // End of the code needed to work-around an incompatible class change in Elasticsearch client libraries
+    // which makes spring-data-elasticsearch 3.2 fail.
 }
