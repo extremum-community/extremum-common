@@ -1,6 +1,9 @@
 package com.extremum.elasticsearch.repositories;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Requests;
@@ -14,6 +17,9 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author rpuch
@@ -170,5 +176,65 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         }
 
         return null;
+    }
+
+    @Override
+    public void bulkIndex(List<IndexQuery> queries) {
+        prepareBulkForSave(queries);
+
+        BulkRequest bulkRequest = new BulkRequest();
+        for (IndexQuery query : queries) {
+            bulkRequest.add(prepareIndex(query));
+        }
+
+        BulkResponse bulkResponse;
+        try {
+            bulkResponse = getClient().bulk(bulkRequest);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while bulk for request: " + bulkRequest.toString(), e);
+        }
+        checkForBulkUpdateFailure(bulkResponse);
+
+        if (bulkResponse.getItems().length != queries.size()) {
+            String message = String.format("There were %d queries but %d responses in bulk",
+                    queries.size(), bulkResponse.getItems().length);
+            throw new IllegalStateException(message);
+        }
+
+        fillAfterBulkSave(queries, bulkResponse);
+    }
+
+    private void prepareBulkForSave(List<IndexQuery> queries) {
+        for (IndexQuery query : queries) {
+            if (query.getObject() != null) {
+                saveProcess.prepareForSave(query.getObject());
+            }
+        }
+    }
+
+    private void fillAfterBulkSave(List<IndexQuery> queries, BulkResponse bulkResponse) {
+        for (int i = 0; i < queries.size(); i++) {
+            IndexQuery query = queries.get(i);
+            BulkItemResponse responseItem = bulkResponse.getItems()[i];
+            IndexResponse indexResponse = responseItem.getResponse();
+            if (query.getObject() != null) {
+                saveProcess.fillAfterSave(query.getObject(), indexResponse);
+            }
+        }
+    }
+
+    private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {
+        if (bulkResponse.hasFailures()) {
+            Map<String, String> failedDocuments = new HashMap<>();
+            for (BulkItemResponse item : bulkResponse.getItems()) {
+                if (item.isFailed()) {
+                    failedDocuments.put(item.getId(), item.getFailureMessage());
+                }
+            }
+            throw new ElasticsearchException(
+                    "Bulk indexing has failures. Use ElasticsearchException.getFailedDocuments() for detailed messages ["
+                            + failedDocuments + "]",
+                    failedDocuments);
+        }
     }
 }

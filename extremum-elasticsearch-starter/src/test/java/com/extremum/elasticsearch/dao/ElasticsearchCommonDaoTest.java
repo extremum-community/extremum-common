@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -102,6 +103,28 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         } catch (ElasticsearchStatusException e) {
             assertThat(e.getMessage(), containsString("version conflict"));
         }
+    }
+
+    @Test
+    void whenSaveAllIsCalled_thenAllSystemFieldsShouldBeFilled() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName(UUID.randomUUID().toString());
+
+        dao.saveAll(Collections.singletonList(model));
+
+        assertThatSystemFieldsAreFilledAfterSave(model);
+    }
+
+    @Test
+    void givenAModelHasAnExternallySuppliedDescriptor_whenSavingTheModelWithSaveAll_thenIdShouldBeFilledFromTheDescriptor() {
+        TestElasticsearchModel model = createModelWithExternalDescriptor();
+        String internalId = model.getUuid().getInternalId();
+
+        assertThat(model.getId(), is(nullValue()));
+
+        dao.saveAll(Collections.singletonList(model));
+
+        assertThat(model.getId(), is(internalId));
     }
 
     @Test
