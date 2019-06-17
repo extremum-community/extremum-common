@@ -148,6 +148,22 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenAnEntityIsSaved_whenSavingItAgain_thenTheIdNorDescriptorShouldChange() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName(UUID.randomUUID().toString());
+        dao.save(model);
+
+        String externalId = model.getUuid().getExternalId();
+        String internalId = model.getId();
+
+        model.setName(UUID.randomUUID().toString());
+        dao.save(model);
+
+        assertThat(model.getId(), is(equalTo(internalId)));
+        assertThat(model.getUuid(), is(equalTo(externalId)));
+    }
+
+    @Test
     void givenEntityExists_whenFindById_thenWeShouldFindTheEntity() {
         TestElasticsearchModel model = createModelWithExternalDescriptor();
         dao.save(model);

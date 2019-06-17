@@ -6,6 +6,8 @@ import com.extremum.elasticsearch.annotation.SequenceNumber;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.common.lucene.uid.Versions;
+import org.elasticsearch.index.VersionType;
 import org.elasticsearch.index.seqno.SequenceNumbers;
 
 import java.lang.annotation.Annotation;
@@ -23,10 +25,16 @@ class SequenceNumberOperations {
         
         if (hasSequenceNumber(object)) {
             indexRequest.setIfSeqNo(getRequiredSequenceNumber(object));
+            resetVersionToMatchAnyBecauseItDoesNotWorkWithSeqNo(indexRequest);
         }
         if (hasPrimaryTerm(object)) {
             indexRequest.setIfPrimaryTerm(getRequiredPrimaryTerm(object));
         }
+    }
+
+    private void resetVersionToMatchAnyBecauseItDoesNotWorkWithSeqNo(IndexRequest indexRequest) {
+        indexRequest.version(Versions.MATCH_ANY);
+        indexRequest.versionType(VersionType.INTERNAL);
     }
 
     private boolean hasSequenceNumber(Object object) {
