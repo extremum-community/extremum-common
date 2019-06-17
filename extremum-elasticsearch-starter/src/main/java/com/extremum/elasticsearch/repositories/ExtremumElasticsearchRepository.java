@@ -1,6 +1,7 @@
 package com.extremum.elasticsearch.repositories;
 
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 
@@ -19,8 +20,8 @@ public class ExtremumElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     @Override
     public List<T> search(String queryString) {
-        // TODO:
-        throw new UnsupportedOperationException();
+        Iterable<T> results = search(QueryBuilders.queryStringQuery(queryString));
+        return iterableToList(results);
     }
 
     @Override
