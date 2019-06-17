@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -47,17 +48,23 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
     @Test
     void testCreateModel() {
-        TestElasticsearchModel model = getTestModel();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         assertNull(model.getId());
+        assertNull(model.getUuid());
         assertNull(model.getCreated());
         assertNull(model.getModified());
 
         TestElasticsearchModel createdModel = dao.save(model);
-        assertEquals(model, createdModel);
-        assertNotNull(createdModel.getId());
-        assertNotNull(createdModel.getCreated());
-        assertNotNull(createdModel.getVersion());
-        assertFalse(createdModel.getDeleted());
+        assertSame(model, createdModel);
+        assertThatSystemFieldsAreFilledAfterSave(createdModel);
+    }
+
+    private void assertThatSystemFieldsAreFilledAfterSave(TestElasticsearchModel createdModel) {
+        assertNotNull(createdModel.getId(), "id");
+        assertNotNull(createdModel.getUuid(), "uuid");
+        assertNotNull(createdModel.getCreated(), "created");
+        assertNotNull(createdModel.getVersion(), "version");
+        assertFalse(createdModel.getDeleted(), "deleted");
     }
 
     @Test
@@ -89,9 +96,10 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestElasticsearchModel> modelList = Stream
-                .generate(ElasticsearchCommonDaoTest::getTestModel)
+                .generate(TestElasticsearchModel::new)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
+        modelList.forEach(model -> model.setName(UUID.randomUUID().toString()));
 
         List<TestElasticsearchModel> createdModelList = dao.saveAll(modelList);
         assertNotNull(createdModelList);

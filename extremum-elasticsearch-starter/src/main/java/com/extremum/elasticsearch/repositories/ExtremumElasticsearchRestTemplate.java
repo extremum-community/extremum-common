@@ -1,5 +1,6 @@
 package com.extremum.elasticsearch.repositories;
 
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Requests;
@@ -22,44 +23,46 @@ import java.io.IOException;
  */
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
-    private final VersionOperations versionOperations = new VersionOperations();
-    private final SavePreparation savePreparation = new SavePreparation();
+    private final SaveProcess saveProcess;
 
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client) {
+    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+            ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
         super(client);
+
+        saveProcess = new SaveProcess(elasticsearchDescriptorFactory);
     }
 
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            EntityMapper entityMapper) {
-        super(client, entityMapper);
-    }
-
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            ElasticsearchConverter elasticsearchConverter,
-            EntityMapper entityMapper) {
-        super(client, elasticsearchConverter, entityMapper);
-    }
-
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            ResultsMapper resultsMapper) {
-        super(client, resultsMapper);
-    }
-
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            ElasticsearchConverter elasticsearchConverter) {
-        super(client, elasticsearchConverter);
-    }
-
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            ElasticsearchConverter elasticsearchConverter,
-            ResultsMapper resultsMapper) {
-        super(client, elasticsearchConverter, resultsMapper);
-    }
+//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+//            EntityMapper entityMapper) {
+//        super(client, entityMapper);
+//    }
+//
+//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+//            ElasticsearchConverter elasticsearchConverter,
+//            EntityMapper entityMapper) {
+//        super(client, elasticsearchConverter, entityMapper);
+//    }
+//
+//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+//            ResultsMapper resultsMapper) {
+//        super(client, resultsMapper);
+//    }
+//
+//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+//            ElasticsearchConverter elasticsearchConverter) {
+//        super(client, elasticsearchConverter);
+//    }
+//
+//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
+//            ElasticsearchConverter elasticsearchConverter,
+//            ResultsMapper resultsMapper) {
+//        super(client, elasticsearchConverter, resultsMapper);
+//    }
 
     @Override
     public String index(IndexQuery query) {
         if (query.getObject() != null) {
-            savePreparation.prepareForSave(query.getObject());
+            saveProcess.prepareForSave(query.getObject());
         }
 
         String documentId;
@@ -74,8 +77,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         // We should call this because we are not going through a mapper.
         if (query.getObject() != null) {
             setPersistentEntityId(query.getObject(), documentId);
-            sequenceNumberOperations.setSequenceNumberAndPrimaryTermAfterIndexing(query.getObject(), response);
-            versionOperations.setVersionAfterIndexing(query.getObject(), response);
+            saveProcess.fillAfterSave(query.getObject(), response);
         }
         return documentId;
     }

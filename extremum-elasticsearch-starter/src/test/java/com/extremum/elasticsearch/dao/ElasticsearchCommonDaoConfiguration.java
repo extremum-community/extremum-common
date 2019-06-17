@@ -33,7 +33,7 @@ public class ElasticsearchCommonDaoConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
 
     @Bean
-    public ElasticsearchDescriptorFactory elasticDescriptorFactory() {
+    public ElasticsearchDescriptorFactory elasticsearchDescriptorFactory() {
         return new ElasticsearchDescriptorFactory();
     }
 
@@ -50,6 +50,6 @@ public class ElasticsearchCommonDaoConfiguration {
 
     @Bean
     public ElasticsearchOperations elasticsearchTemplate() {
-        return new ExtremumElasticsearchRestTemplate(elasticsearchClient());
+        return new ExtremumElasticsearchRestTemplate(elasticsearchClient(), elasticsearchDescriptorFactory());
     }
 }
