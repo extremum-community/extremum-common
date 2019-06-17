@@ -6,10 +6,7 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
-import com.extremum.common.utils.attribute.Attribute;
-import com.extremum.common.utils.attribute.AttributeGraphWalker;
-import com.extremum.common.utils.attribute.AttributeVisitor;
-import com.extremum.common.utils.attribute.DeepAttributeGraphWalker;
+import com.extremum.common.utils.attribute.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +19,9 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-    private final AttributeGraphWalker attributeGraphWalker = new DeepAttributeGraphWalker(5,
+    private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
             CollectionMakeupImpl::shouldGoDeeper);
+    private final AttributeGraphWalker shallowWalker = new ShallowAttributeGraphWalker();
 
     private static boolean shouldGoDeeper(Object object) {
         return object != null && (!(object instanceof Descriptor));
@@ -41,11 +39,27 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
-        AttributeVisitor visitor = attribute -> applyMakeupToField(attribute, dto);
-        attributeGraphWalker.walk(dto, new EligibleForMakeup(visitor));
+        applyMakeupToResponseDtoWithoutRecursion(dto);
+
+        AttributeVisitor dtoVisitor = this::applyMakeupToResponseDtoInAttribute;
+        deepWalker.walk(dto, new IsResponseDto(dtoVisitor));
     }
 
-    private void applyMakeupToField(Attribute attribute, ResponseDto dto) {
+    private void applyMakeupToResponseDtoInAttribute(Attribute dtoAttribute) {
+        ResponseDto dto = (ResponseDto) dtoAttribute.value();
+        if (dto == null) {
+            return;
+        }
+
+        applyMakeupToResponseDtoWithoutRecursion(dto);
+    }
+
+    private void applyMakeupToResponseDtoWithoutRecursion(ResponseDto dto) {
+        AttributeVisitor visitor = attribute -> applyMakeupToAttribute(attribute, dto);
+        shallowWalker.walk(dto, new EligibleForMakeup(visitor));
+    }
+
+    private void applyMakeupToAttribute(Attribute attribute, ResponseDto dto) {
         if (attribute.value() == null) {
             return;
         }
@@ -75,12 +89,20 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return attribute.name();
     }
 
-    private boolean isOfTypeCollectionReference(Attribute attribute) {
-        return CollectionReference.class.isAssignableFrom(attribute.type());
-    }
+    private class IsResponseDto implements AttributeVisitor {
+        private final AttributeVisitor visitor;
 
-    private boolean isAnnotatedWithOwnedCollection(Attribute attribute) {
-        return attribute.isAnnotatedWith(OwnedCollection.class);
+        private IsResponseDto(AttributeVisitor visitor) {
+            this.visitor = visitor;
+        }
+
+        @Override
+        public void visitAttribute(Attribute attribute) {
+            Object value = attribute.value();
+            if (value != null && ResponseDto.class.isAssignableFrom(value.getClass())) {
+                visitor.visitAttribute(attribute);
+            }
+        }
     }
 
     private class EligibleForMakeup implements AttributeVisitor {
@@ -95,6 +117,14 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             if (isOfTypeCollectionReference(attribute) && isAnnotatedWithOwnedCollection(attribute)) {
                 visitor.visitAttribute(attribute);
             }
+        }
+
+        private boolean isOfTypeCollectionReference(Attribute attribute) {
+            return CollectionReference.class.isAssignableFrom(attribute.type());
+        }
+
+        private boolean isAnnotatedWithOwnedCollection(Attribute attribute) {
+            return attribute.isAnnotatedWith(OwnedCollection.class);
         }
     }
 }

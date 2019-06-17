@@ -9,8 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+
+import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,7 +25,9 @@ import static org.mockito.Mockito.verify;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-public class ResponseCollectionsMakeupAdviceTest {
+class ResponseCollectionsMakeupAdviceTest {
+    private static final Class<HttpMessageConverter<?>> NOT_USED = null;
+
     @InjectMocks
     private ResponseCollectionsMakeupAdvice advice;
 
@@ -35,54 +40,80 @@ public class ResponseCollectionsMakeupAdviceTest {
     private ServerHttpResponse response;
 
     @Test
-    public void givenReturnedValueIsResponse_whenSupportsIsCalled_thenShouldReturnTrue() {
-        boolean supports = advice.supports(returnType(ReturnsResponse.class), null);
+    void givenReturnedValueIsResponse_whenSupportsIsCalled_thenShouldReturnTrue() {
+        boolean supports = advice.supports(returnType(ReturnsResponse.class), NOT_USED);
         assertThat(supports, is(true));
     }
 
     @Test
-    public void givenReturnedValueIsNotResponse_whenSupportsIsCalled_thenShouldReturnFalse() {
-        boolean supports = advice.supports(returnType(ReturnsString.class), null);
+    void givenReturnedValueIsResponse_whenSupportsIsCalled_thenShouldReturnFalse() {
+        boolean supports = advice.supports(returnType(ReturnsString.class), NOT_USED);
         assertThat(supports, is(false));
     }
 
     @Test
-    public void givenReturnedValueIsResponseWithDto_whenBeforeBedyWriteIsCalled_thenMakeupIsApplied() {
+    void givenReturnedValueIsResponseWithDto_whenBeforeBedyWriteIsCalled_thenMakeupIsApplied() {
         TestResponseDto dto = new TestResponseDto();
         Response responseValue = Response.ok(dto);
 
         advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
-                null, request, response);
+                NOT_USED, request, response);
 
         verify(makeup).applyCollectionMakeup(dto);
     }
 
     @Test
-    public void givenReturnedValueIsResponseWithNonDto_whenBeforeBedyWriteIsCalled_thenMakeupIsNotApplied() {
+    void givenReturnedValueIsResponseWithArrayOfDto_whenBeforeBedyWriteIsCalled_thenMakeupIsApplied() {
+        TestResponseDto dto1 = new TestResponseDto();
+        TestResponseDto dto2 = new TestResponseDto();
+        Response responseValue = Response.ok(new TestResponseDto[]{dto1, dto2});
+
+        advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
+                NOT_USED, request, response);
+
+        verify(makeup).applyCollectionMakeup(dto1);
+        verify(makeup).applyCollectionMakeup(dto2);
+    }
+
+    @Test
+    void givenReturnedValueIsResponseWithIterableOfDto_whenBeforeBedyWriteIsCalled_thenMakeupIsApplied() {
+        TestResponseDto dto1 = new TestResponseDto();
+        TestResponseDto dto2 = new TestResponseDto();
+        Response responseValue = Response.ok(Arrays.asList(dto1, dto2));
+
+        advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
+                NOT_USED, request, response);
+
+        verify(makeup).applyCollectionMakeup(dto1);
+        verify(makeup).applyCollectionMakeup(dto2);
+    }
+
+    @Test
+    void givenReturnedValueIsResponseWithNonDto_whenBeforeBedyWriteIsCalled_thenMakeupIsNotApplied() {
         Response responseValue = Response.ok("test");
 
         advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
-                null, request, response);
+                NOT_USED, request, response);
 
         verify(makeup, never()).applyCollectionMakeup(any());
     }
 
     @Test
-    public void givenReturnedValueIsNull_whenBeforeBedyWriteIsCalled_thenMakeupIsNotApplied() {
+    void givenReturnedValueIsNull_whenBeforeBedyWriteIsCalled_thenMakeupIsNotApplied() {
         Response responseValue = null;
 
         advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
-                null, request, response);
+                NOT_USED, request, response);
 
         verify(makeup, never()).applyCollectionMakeup(any());
     }
 
     @Test
-    public void givenReturnedValueIsResponseWithNullResult_whenBeforeBedyWriteIsCalled_thenMakeupIsNotApplied() {
+    void givenReturnedValueIsResponseWithNullResult_whenBeforeBedyWriteIsCalled_thenMakeupIsNotApplied() {
         Response responseValue = Response.ok(null);
 
         advice.beforeBodyWrite(responseValue, returnType(ReturnsResponse.class), MediaType.APPLICATION_JSON,
-                null, request, response);
+                NOT_USED, request, response);
 
         verify(makeup, never()).applyCollectionMakeup(any());
     }

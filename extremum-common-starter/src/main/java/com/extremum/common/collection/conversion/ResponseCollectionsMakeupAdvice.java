@@ -35,10 +35,42 @@ public class ResponseCollectionsMakeupAdvice implements ResponseBodyAdvice<Respo
     }
 
     private void applyIfNeeded(Response response) {
-        if (response == null || !(response.getResult() instanceof ResponseDto)) {
+        if (response == null) {
             return;
         }
 
-        makeup.applyCollectionMakeup((ResponseDto) response.getResult());
+        applyMakeupToPayloadIfNeeded(response.getResult());
+    }
+
+    private void applyMakeupToPayloadIfNeeded(Object result) {
+        if (result == null) {
+            return;
+        }
+
+        if (result instanceof ResponseDto) {
+            makeup.applyCollectionMakeup((ResponseDto) result);
+        }
+
+        if (result instanceof ResponseDto[]) {
+            applyToArrayOfDto((ResponseDto[]) result);
+        }
+
+        if (result instanceof Iterable) {
+            applyToIterable((Iterable<?>) result);
+        }
+    }
+
+    private void applyToArrayOfDto(ResponseDto[] array) {
+        for (ResponseDto dto : array) {
+            makeup.applyCollectionMakeup(dto);
+        }
+    }
+
+    private void applyToIterable(Iterable<?> iterable) {
+        iterable.forEach(element -> {
+            if (element instanceof ResponseDto) {
+                makeup.applyCollectionMakeup((ResponseDto) element);
+            }
+        });
     }
 }
