@@ -443,6 +443,10 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         if (query.getMinScore() > 0) {
             sourceBuilder.minScore(query.getMinScore());
         }
+
+        // extremum addition: request that Elasticsearch return seq_no and primary_term for each search hit
+        sourceBuilder.seqNoAndPrimaryTerm(true);
+
         request.source(sourceBuilder);
         return request;
     }

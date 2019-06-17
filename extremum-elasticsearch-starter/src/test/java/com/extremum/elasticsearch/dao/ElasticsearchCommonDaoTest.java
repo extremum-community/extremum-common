@@ -26,6 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -205,11 +206,25 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenEntityIsCreated_whenFindById_thenVersionSequenceNumberAndPrimaryTermShouldBeFilled() {
+    void givenEntityIsCreated_whenFindById_thenVersionAndSequenceNumberAndPrimaryTermShouldBeFilled() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
         TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+
+        assertThat(resultModel.getVersion(), is(notNullValue()));
+        assertThat(resultModel.getSeqNo(), is(notNullValue()));
+        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+    }
+
+    @Test
+    void givenEntityIsCreated_whenFindItWithSearch_thenVersionAndSequenceNumberAndPrimaryTermShouldBeFilled() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        List<TestElasticsearchModel> searchResult = dao.search(searchByFullString(model.getId()));
+        assertThat(searchResult, hasSize(1));
+        TestElasticsearchModel resultModel = searchResult.get(0);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
         assertThat(resultModel.getSeqNo(), is(notNullValue()));

@@ -68,11 +68,15 @@ public class ExtremumResultMapper extends DefaultResultMapper {
     }
 
     private void fillSequenceNumberAndPrimaryTerm(GetResponse response, ElasticsearchCommonModel model) {
-        if (response.getSeqNo() != SequenceNumbers.UNASSIGNED_SEQ_NO) {
-            model.setSeqNo(response.getSeqNo());
+        fillSequenceNumberAndPrimaryTerm(response.getSeqNo(), response.getPrimaryTerm(), model);
+    }
+
+    private void fillSequenceNumberAndPrimaryTerm(long seqNo, long primaryTerm, ElasticsearchCommonModel model) {
+        if (seqNo != SequenceNumbers.UNASSIGNED_SEQ_NO) {
+            model.setSeqNo(seqNo);
         }
-        if (response.getPrimaryTerm() != SequenceNumbers.UNASSIGNED_PRIMARY_TERM) {
-            model.setPrimaryTerm(response.getPrimaryTerm());
+        if (primaryTerm != SequenceNumbers.UNASSIGNED_PRIMARY_TERM) {
+            model.setPrimaryTerm(primaryTerm);
         }
     }
 
@@ -100,6 +104,12 @@ public class ExtremumResultMapper extends DefaultResultMapper {
                 setPersistentEntityScore(result, hit.getScore(), clazz);
 
                 populateScriptFields(result, hit);
+
+                // we also add filling of seqNo and primaryTerm
+                asElasticsearchModel(result).ifPresent(model -> {
+                    fillSequenceNumberAndPrimaryTerm(hit.getSeqNo(), hit.getPrimaryTerm(), model);
+                });
+
                 results.add(result);
             }
         }
