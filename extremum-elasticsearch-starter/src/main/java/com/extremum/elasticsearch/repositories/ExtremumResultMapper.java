@@ -9,6 +9,7 @@ import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.document.DocumentField;
+import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.seqno.SequenceNumbers;
 import org.elasticsearch.search.SearchHit;
 import org.springframework.core.convert.ConversionService;
@@ -97,7 +98,25 @@ public class ExtremumResultMapper extends DefaultResultMapper {
 
         return results;
     }
-    
+
+    @Override
+    public <T> T mapGetResult(GetResult getResult, Class<T> type) {
+        T result = super.mapGetResult(getResult, type);
+        asElasticsearchModel(result).ifPresent(model -> {
+            fillSequenceNumberAndPrimaryTerm(getResult.getSeqNo(), getResult.getPrimaryTerm(), model);
+        });
+        return result;
+    }
+
+    @Override
+    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
+        T result = super.mapSearchHit(searchHit, type);
+        asElasticsearchModel(result).ifPresent(model -> {
+            fillSequenceNumberAndPrimaryTerm(searchHit.getSeqNo(), searchHit.getPrimaryTerm(), model);
+        });
+        return result;
+    }
+
     // The following is needed to work-around an incompatible class change in Elasticsearch client libraries
     // which makes spring-data-elasticsearch 3.2 fail.
 
