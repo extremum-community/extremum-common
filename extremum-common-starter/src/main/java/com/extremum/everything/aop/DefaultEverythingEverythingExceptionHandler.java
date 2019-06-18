@@ -45,8 +45,7 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
         }
 
         return responseBuilder
-                .withFailStatus()
-                .withCode(HttpStatus.BAD_REQUEST.value())
+                .withFailStatus(HttpStatus.BAD_REQUEST.value())
                 .withNowTimestamp()
                 .withResult("Unable to complete 'everything-everything' operation")
                 .build();
@@ -70,9 +69,8 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     private Response notFound() {
         return Response.builder()
-                .withFailStatus()
+                .withFailStatus(HttpStatus.NOT_FOUND.value())
                 .withNowTimestamp()
-                .withCode(404)
                 .build();
     }
 

@@ -14,9 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static com.extremum.common.Constants.DEFAULT_LOCALE;
 import static com.extremum.common.response.ResponseStatusEnum.OK;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,11 +48,11 @@ class ResponseTest {
         assertEquals(ResponseStatusEnum.DOING, responseDoing.getStatus());
 
         Response responseWarning = createDefaultResponseBuilder(UUID.randomUUID().toString())
-                .withWarningStatus().build();
+                .withWarningStatus(200).build();
         assertEquals(ResponseStatusEnum.WARNING, responseWarning.getStatus());
 
         Response responseFail = createDefaultResponseBuilder(UUID.randomUUID().toString())
-                .withFailStatus().build();
+                .withFailStatus(400).build();
         assertEquals(ResponseStatusEnum.FAIL, responseFail.getStatus());
     }
 
@@ -115,7 +113,6 @@ class ResponseTest {
     private Response.Builder createDefaultResponseBuilder(String rqid) {
         return Response.builder()
                 .withOkStatus()
-                .withCode(HTTP_OK)
                 .withLocale("en_US")
 //                .withLocale(DEFAULT_LOCALE)
                 .withRequestId(rqid);

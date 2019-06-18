@@ -99,8 +99,7 @@ public class Response {
 
     public static Response fail(Collection<Alert> alerts, int code) {
         return Response.builder()
-                .withFailStatus()
-                .withCode(code)
+                .withFailStatus(code)
                 .withAlerts(alerts)
                 .withNowTimestamp()
                 .build();
@@ -125,10 +124,9 @@ public class Response {
     }
 
     public static class Builder {
-        private static final int OK_STATUS_CODE = HttpStatus.OK.value();
 
         private ResponseStatusEnum status;
-        private Integer code = OK_STATUS_CODE;
+        private Integer code;
         private Object result;
         private String locale;
         private List<Alert> alerts;
@@ -151,17 +149,21 @@ public class Response {
         }
 
         public Builder withOkStatus() {
+            return withOkStatus(HttpStatus.OK.value());
+        }
+
+        public Builder withOkStatus(int code) {
             this.status = ResponseStatusEnum.OK;
-            this.code = OK_STATUS_CODE;
+            this.code = code;
 
             withNowTimestamp();
 
             return this;
         }
 
-        public Builder withFailStatus() {
+        public Builder withFailStatus(int code) {
             this.status = ResponseStatusEnum.FAIL;
-            this.code = OK_STATUS_CODE;
+            this.code = code;
 
             withNowTimestamp();
 
@@ -170,16 +172,16 @@ public class Response {
 
         public Builder withDoingStatus() {
             this.status = ResponseStatusEnum.DOING;
-            this.code = OK_STATUS_CODE;
+            this.code = HttpStatus.PROCESSING.value();
 
             withNowTimestamp();
 
             return this;
         }
 
-        public Builder withWarningStatus() {
+        public Builder withWarningStatus(int code) {
             this.status = ResponseStatusEnum.WARNING;
-            this.code = OK_STATUS_CODE;
+            this.code = code;
 
             withNowTimestamp();
 
@@ -232,15 +234,6 @@ public class Response {
 
         public Builder withLocale(String locale) {
             this.locale = locale;
-            return this;
-        }
-
-        public Builder withCode(HttpStatus httpStatus) {
-            return withCode(httpStatus.value());
-        }
-
-        public Builder withCode(int code) {
-            this.code = code;
             return this;
         }
 
