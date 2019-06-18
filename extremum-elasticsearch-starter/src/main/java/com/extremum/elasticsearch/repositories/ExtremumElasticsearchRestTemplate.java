@@ -32,6 +32,9 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -56,6 +59,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * @author rpuch
  */
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
+    private static final Logger logger = LoggerFactory.getLogger(ExtremumElasticsearchRestTemplate.class);
 
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final SaveProcess saveProcess;
@@ -388,6 +392,26 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         return response.getHits().getTotalHits().value;
     }
 
+    @Override
+    public <T> long count(CriteriaQuery criteriaQuery, Class<T> clazz) {
+        QueryBuilder elasticsearchQuery = new CriteriaQueryProcessor().createQueryFromCriteria(
+                criteriaQuery.getCriteria());
+        QueryBuilder elasticsearchFilter = new CriteriaFilterProcessor()
+                .createFilterFromCriteria(criteriaQuery.getCriteria());
+
+        if (elasticsearchFilter == null) {
+            return doCount(prepareCount(criteriaQuery, clazz), elasticsearchQuery);
+        } else {
+            // filter could not be set into CountRequestBuilder, convert request into search request
+            return doCount(prepareSearch(criteriaQuery, clazz), elasticsearchQuery, elasticsearchFilter);
+        }
+    }
+
+    private <T> SearchRequest prepareSearch(Query query, Class<T> clazz) {
+        setPersistentEntityIndexAndType(query, clazz);
+        return prepareSearch(query, Optional.empty());
+    }
+
     private <T> SearchRequest prepareSearch(SearchQuery query, Class<T> clazz) {
         setPersistentEntityIndexAndType(query, clazz);
         return prepareSearch(query, Optional.ofNullable(query.getQuery()));
@@ -468,6 +492,40 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     public <T> AggregatedPage<T> queryForPage(SearchQuery query, Class<T> clazz, SearchResultMapper mapper) {
         SearchResponse response = doSearch(prepareSearch(query, clazz), query);
         return mapper.mapResults(response, clazz, query.getPageable());
+    }
+
+    @Override
+    public <T> Page<T> queryForPage(CriteriaQuery criteriaQuery, Class<T> clazz) {
+        QueryBuilder elasticsearchQuery = new CriteriaQueryProcessor().createQueryFromCriteria(
+                criteriaQuery.getCriteria());
+        QueryBuilder elasticsearchFilter = new CriteriaFilterProcessor()
+                .createFilterFromCriteria(criteriaQuery.getCriteria());
+        SearchRequest request = prepareSearch(criteriaQuery, clazz);
+
+        if (elasticsearchQuery != null) {
+            request.source().query(elasticsearchQuery);
+        } else {
+            request.source().query(QueryBuilders.matchAllQuery());
+        }
+
+        if (criteriaQuery.getMinScore() > 0) {
+            request.source().minScore(criteriaQuery.getMinScore());
+        }
+
+        if (elasticsearchFilter != null) {
+            request.source().postFilter(elasticsearchFilter);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("doSearch query:\n" + request.toString());
+        }
+
+        SearchResponse response;
+        try {
+            response = getClient().search(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error for search request: " + request.toString(), e);
+        }
+        return getResultsMapper().mapResults(response, clazz, criteriaQuery.getPageable());
     }
 
     private SearchResponse doSearch(SearchRequest searchRequest, SearchQuery searchQuery) {

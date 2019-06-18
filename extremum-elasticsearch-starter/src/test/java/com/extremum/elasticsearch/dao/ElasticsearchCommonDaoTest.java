@@ -283,27 +283,25 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(all.iterator().hasNext(), is(false));
     }
 
-    // TODO: restore
-//    @Test
-//    void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
-//        String uniqueName = UUID.randomUUID().toString();
-//
-//        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-//
-//        List<TestElasticModel> results = dao.findByName(uniqueName);
-//        assertThat(results, hasSize(1));
-//    }
+    @Test
+    void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
+        String uniqueName = UUID.randomUUID().toString();
 
-    // TODO: restore
-//    @Test
-//    void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
-//        String uniqueName = UUID.randomUUID().toString();
-//
-//        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-//
-//        List<TestElasticModel> results = dao.findEvenDeletedByName(uniqueName);
-//        assertThat(results, hasSize(2));
-//    }
+        oneDeletedAndOneNonDeletedWithGivenName(uniqueName);
+
+        List<TestElasticsearchModel> results = dao.findByName(uniqueName);
+        assertThat(results, hasSize(1));
+    }
+
+    @Test
+    void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        oneDeletedAndOneNonDeletedWithGivenName(uniqueName);
+
+        List<TestElasticsearchModel> results = dao.findEvenDeletedByName(uniqueName);
+        assertThat(results, hasSize(2));
+    }
 
     // TODO: restore
 //    @Test
@@ -379,7 +377,9 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
         TestElasticsearchModel deleted = new TestElasticsearchModel();
         deleted.setName(uniqueName);
-        deleted.setDeleted(true);
+
+        dao.saveAll(Arrays.asList(notDeleted, deleted));
+        dao.delete(deleted);
 
         return Arrays.asList(notDeleted, deleted);
     }
