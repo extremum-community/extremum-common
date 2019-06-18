@@ -247,78 +247,6 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 //
 //        assertThat(dao.findAll(Pageable.unpaged()).getTotalElements(), is((long) count));
 
-    // TODO: restore
-//    @Test
-//    void givenOneExemplarEntityExists_whenInvokingFindAllByExample_thenOneDocumentShouldBeReturned() {
-//        TestElasticModel model = dao.save(new TestElasticModel());
-//
-//        List<TestElasticModel> all = dao.findAll(Example.of(model));
-//
-//        assertThat(all, hasSize(1));
-//        assertThat(all.get(0).getId(), is(equalTo(model.getId())));
-//    }
-
-    // TODO: restore
-//    @Test
-//    void givenADeletedExemplarEntityExists_whenInvokingFindAllByExample_thenNothingShouldBeReturned() {
-//        TestElasticModel model = new TestElasticModel();
-//        model.setDeleted(true);
-//        dao.save(model);
-//
-//        List<TestElasticModel> all = dao.findAll(Example.of(model));
-//
-//        assertThat(all, hasSize(0));
-//    }
-
-    // TODO: restore
-//    @Test
-//    void givenOneExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenOneDocumentShouldBeReturned() {
-//        TestElasticModel model = dao.save(new TestElasticModel());
-//
-//        List<TestElasticModel> all = dao.findAll(Example.of(model), Sort.by("id"));
-//
-//        assertThat(all, hasSize(1));
-//        assertThat(all.get(0).getId(), is(equalTo(model.getId())));
-//    }
-
-    // TODO: restore
-//    @Test
-//    void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithSort_thenNothingShouldBeReturned() {
-//        TestElasticModel model = dao.save(getDeletedTestModel());
-//
-//        List<TestElasticModel> all = dao.findAll(Example.of(model), Sort.by("id"));
-//
-//        assertThat(all, hasSize(0));
-//    }
-
-    // TODO: restore
-//    @Test
-//    void givenADeletedExemplarEntityExists_whenInvokingFindAllByExampleWithPageable_thenNothingShouldBeReturned() {
-//        TestElasticModel model = dao.save(getDeletedTestModel());
-//
-//        Page<TestElasticModel> page = dao.findAll(Example.of(model), Pageable.unpaged());
-//
-//        assertThat(page.getTotalElements(), is(0L));
-//    }
-
-    // TODO: restore
-//    @Test
-//    void givenADeletedExemplarEntityExists_whenInvokingFindOneByExample_thenNothingShouldBeReturned() {
-//        TestElasticModel model = dao.save(getDeletedTestModel());
-//
-//        Optional<TestElasticModel> result = dao.findOne(Example.of(model));
-//
-//        assertThat(result.isPresent(), is(false));
-//    }
-
-    // TODO: restore
-//    @Test
-//    void givenADeletedExemplarEntityExists_whenInvokingExistsByExample_thenFalseShouldBeReturned() {
-//        TestElasticModel model = dao.save(getDeletedTestModel());
-//
-//        assertThat(dao.exists(Example.of(model)), is(false));
-//    }
-
     @Test
     void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {
         TestElasticsearchModel model = new TestElasticsearchModel();
@@ -328,15 +256,16 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(dao.existsById(model.getId()), is(false));
     }
 
-    // TODO: restore
-//    @Test
-//    void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
-//        TestElasticModel model = dao.save(getDeletedTestModel());
-//
-//        Iterable<TestElasticModel> all = dao.findAllById(Collections.singletonList(model.getId()));
-//
-//        assertThat(all.iterator().hasNext(), is(false));
-//    }
+    @Test
+    void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+        dao.deleteById(model.getId());
+
+        Iterable<TestElasticsearchModel> all = dao.findAllById(Collections.singletonList(model.getId()));
+
+        assertThat(all.iterator().hasNext(), is(false));
+    }
 
     // TODO: restore
 //    @Test

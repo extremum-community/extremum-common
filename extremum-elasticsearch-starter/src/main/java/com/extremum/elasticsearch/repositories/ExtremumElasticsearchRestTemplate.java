@@ -11,6 +11,8 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -45,10 +47,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -572,6 +571,45 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return getClient().indices().create(request, RequestOptions.DEFAULT).isAcknowledged();
         } catch (IOException e) {
             throw new ElasticsearchException("Error for creating index: " + request.toString(), e);
+        }
+    }
+
+    @Override
+    public <T> LinkedList<T> multiGet(SearchQuery searchQuery, Class<T> clazz) {
+        return getResultsMapper().mapResults(getMultiResponse(searchQuery, clazz), clazz);
+    }
+
+    private <T> MultiGetResponse getMultiResponse(Query searchQuery, Class<T> clazz) {
+
+        String indexName = !isEmpty(searchQuery.getIndices()) ? searchQuery.getIndices().get(0)
+                : getPersistentEntityFor(clazz).getIndexName();
+        String type = !isEmpty(searchQuery.getTypes()) ? searchQuery.getTypes().get(0)
+                : getPersistentEntityFor(clazz).getIndexType();
+
+        Assert.notNull(indexName, "No index defined for Query");
+        Assert.notNull(type, "No type define for Query");
+        Assert.notEmpty(searchQuery.getIds(), "No Id define for Query");
+
+        MultiGetRequest request = new MultiGetRequest();
+
+        if (searchQuery.getFields() != null && !searchQuery.getFields().isEmpty()) {
+            searchQuery.addSourceFilter(new FetchSourceFilter(toArray(searchQuery.getFields()), null));
+        }
+
+        for (String id : searchQuery.getIds()) {
+
+            MultiGetRequest.Item item = new MultiGetRequest.Item(indexName, type, id);
+
+            if (searchQuery.getRoute() != null) {
+                item = item.routing(searchQuery.getRoute());
+            }
+
+            request.add(item);
+        }
+        try {
+            return getClient().multiGet(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while multiget for request: " + request.toString(), e);
         }
     }
 
