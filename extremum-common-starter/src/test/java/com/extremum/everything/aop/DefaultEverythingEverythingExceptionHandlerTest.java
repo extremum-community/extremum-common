@@ -83,7 +83,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         JSONObject root = getSuccessfullyAndParseResponse("/evr-evr-exception");
 
         assertThat(root.getString("status"), is("FAIL"));
-        assertThat(root.getInt("code"), is(200));
+        assertThat(root.getInt("code"), is(500));
         assertThat(root.getString("result"), is(nullValue()));
     }
 
@@ -93,7 +93,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         JSONObject root = getSuccessfullyAndParseResponse("/validation-failure");
 
         assertThat(root.getString("status"), is("FAIL"));
-        assertThat(root.getInt("code"), is(200));
+        assertThat(root.getInt("code"), is(400));
         assertThat(root.getString("result"), is("Unable to complete 'everything-everything' operation"));
     }
 

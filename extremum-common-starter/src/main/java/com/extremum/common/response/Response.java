@@ -8,6 +8,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -92,23 +93,8 @@ public class Response {
         return builder().withOkStatus().build();
     }
 
-    public static Response fail() {
-        return builder()
-                .withFailStatus()
-                .withNowTimestamp()
-                .build();
-    }
-
-    public static Response fail(Alert alert) {
-        return fail(alert, 200);
-    }
-
     public static Response fail(Alert alert, int code) {
         return fail(singletonList(alert), code);
-    }
-
-    public static Response fail(Collection<Alert> alerts) {
-        return fail(alerts, 200);
     }
 
     public static Response fail(Collection<Alert> alerts, int code) {
@@ -139,7 +125,7 @@ public class Response {
     }
 
     public static class Builder {
-        private static final int OK_STATUS_CODE = 200;
+        private static final int OK_STATUS_CODE = HttpStatus.OK.value();
 
         private ResponseStatusEnum status;
         private Integer code = OK_STATUS_CODE;
@@ -247,6 +233,10 @@ public class Response {
         public Builder withLocale(String locale) {
             this.locale = locale;
             return this;
+        }
+
+        public Builder withCode(HttpStatus httpStatus) {
+            return withCode(httpStatus.value());
         }
 
         public Builder withCode(int code) {
