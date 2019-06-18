@@ -3,6 +3,7 @@ package com.extremum.elasticsearch.dao;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
@@ -225,6 +226,21 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         List<TestElasticsearchModel> searchResult = dao.search(searchByFullString(model.getId()));
         assertThat(searchResult, hasSize(1));
         TestElasticsearchModel resultModel = searchResult.get(0);
+
+        assertThat(resultModel.getVersion(), is(notNullValue()));
+        assertThat(resultModel.getSeqNo(), is(notNullValue()));
+        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+    }
+
+    @Test
+    void givenEntityIsCreated_whenFindItWithFindAll_thenVersionAndSequenceNumberAndPrimaryTermShouldBeFilled() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        Iterable<TestElasticsearchModel> iterable = dao.findAllById(Collections.singletonList(model.getId()));
+        List<TestElasticsearchModel> list = StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+        assertThat(list, hasSize(1));
+        TestElasticsearchModel resultModel = list.get(0);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
         assertThat(resultModel.getSeqNo(), is(notNullValue()));

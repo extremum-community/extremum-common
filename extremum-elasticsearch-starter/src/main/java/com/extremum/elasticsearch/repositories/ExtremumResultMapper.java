@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.seqno.SequenceNumbers;
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.extremum.elasticsearch.repositories.ElasticsearchModels.asElasticsearchModel;
@@ -80,7 +83,21 @@ public class ExtremumResultMapper extends DefaultResultMapper {
         }
     }
 
-    // The following is needed to work-around an incompatible class change in Elasticsearch client libraries
+    @Override
+    public <T> LinkedList<T> mapResults(MultiGetResponse responses, Class<T> clazz) {
+        LinkedList<T> results = super.mapResults(responses, clazz);
+
+        for (int i = 0; i < results.size(); i++) {
+            T result = results.get(i);
+            MultiGetItemResponse itemResponse = responses.getResponses()[i];
+            asElasticsearchModel(result).ifPresent(model -> {
+                fillSequenceNumberAndPrimaryTerm(itemResponse.getResponse(), model);
+            });
+        }
+
+        return results;
+    }
+// The following is needed to work-around an incompatible class change in Elasticsearch client libraries
     // which makes spring-data-elasticsearch 3.2 fail.
 
     @Override
