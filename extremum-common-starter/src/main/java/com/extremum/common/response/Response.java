@@ -25,16 +25,16 @@ import static java.util.Objects.requireNonNull;
 public class Response {
     private static final Logger LOGGER = LoggerFactory.getLogger(Response.class);
 
-    private ResponseStatusEnum status;
-    private Integer code;
-    private ZonedDateTime timestamp;
+    private final ResponseStatusEnum status;
+    private final Integer code;
+    private final ZonedDateTime timestamp;
     @JsonProperty("rqid")
-    private String requestId;
-    private String locale;
-    private List<Alert> alerts;
-    private Object result;
+    private final String requestId;
+    private final String locale;
+    private final List<Alert> alerts;
+    private final Object result;
     @JsonProperty("paged")
-    private Pagination pagination;
+    private final Pagination pagination;
 
     @JsonCreator
     private Response(
