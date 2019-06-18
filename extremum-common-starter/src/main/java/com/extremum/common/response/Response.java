@@ -1,7 +1,9 @@
 package com.extremum.common.response;
 
 import com.extremum.common.Constants;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,11 +11,7 @@ import org.slf4j.MDC;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -36,6 +34,26 @@ public class Response {
     private Object result;
     @JsonProperty("paged")
     private Pagination pagination;
+
+    @JsonCreator
+    private Response(
+            @JsonProperty("status") ResponseStatusEnum status,
+            @JsonProperty("code") Integer code,
+            @JsonProperty("timestamp") ZonedDateTime timestamp,
+            @JsonProperty("rqid") String requestId,
+            @JsonProperty("locale") String locale,
+            @JsonProperty("alerts") List<Alert> alerts,
+            @JsonProperty("result") Object result,
+            @JsonProperty("paged") Pagination pagination) {
+        this.status = status;
+        this.code = code;
+        this.timestamp = timestamp;
+        this.requestId = requestId;
+        this.locale = locale;
+        this.alerts = alerts == null ? null : ImmutableList.copyOf(alerts);
+        this.result = result;
+        this.pagination = pagination;
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -210,6 +228,8 @@ public class Response {
         }
 
         public Builder withAlerts(Collection<Alert> alerts) {
+            Objects.requireNonNull(alerts, "Alerts cannot be a null list");
+
             if (this.alerts == null) {
                 this.alerts = new ArrayList<>();
             }
@@ -243,22 +263,10 @@ public class Response {
             requireNonNull(status, "Status can't be null");
             requireNonNull(code, "Code can't be null");
 
-            Response response = new Response();
-
-            response.status = status;
-            response.code = code;
-            response.result = result;
-            response.alerts = alerts;
-            if (this.requestId == null) {
-                response.requestId = tryToDetermineRequestId();
-            } else {
-                response.requestId = this.requestId;
-            }
-            response.timestamp = timestamp;
-            response.locale = (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale);
-            response.pagination = pagination;
-
-            return response;
+            return new Response(status, code, timestamp,
+                    requestId != null ? requestId : tryToDetermineRequestId(),
+                    (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale),
+                    alerts, result, pagination);
         }
 
         private String tryToDetermineRequestId() {
