@@ -97,7 +97,8 @@ public class ExtremumResultMapper extends DefaultResultMapper {
 
         return results;
     }
-// The following is needed to work-around an incompatible class change in Elasticsearch client libraries
+    
+    // The following is needed to work-around an incompatible class change in Elasticsearch client libraries
     // which makes spring-data-elasticsearch 3.2 fail.
 
     @Override
