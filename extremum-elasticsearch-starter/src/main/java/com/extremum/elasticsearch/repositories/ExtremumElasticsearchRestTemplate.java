@@ -2,6 +2,7 @@ package com.extremum.elasticsearch.repositories;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -554,6 +555,23 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return getClient().delete(request, RequestOptions.DEFAULT).getId();
         } catch (IOException e) {
             throw new ElasticsearchException("Error while deleting item request: " + request.toString(), e);
+        }
+    }
+
+    @Override
+    public boolean createIndex(String indexName, Object settings) {
+        CreateIndexRequest request = new CreateIndexRequest(indexName);
+        if (settings instanceof String) {
+            request.settings(String.valueOf(settings), Requests.INDEX_CONTENT_TYPE);
+        } else if (settings instanceof Map) {
+            request.settings((Map) settings);
+        } else if (settings instanceof XContentBuilder) {
+            request.settings((XContentBuilder) settings);
+        }
+        try {
+            return getClient().indices().create(request, RequestOptions.DEFAULT).isAcknowledged();
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error for creating index: " + request.toString(), e);
         }
     }
 
