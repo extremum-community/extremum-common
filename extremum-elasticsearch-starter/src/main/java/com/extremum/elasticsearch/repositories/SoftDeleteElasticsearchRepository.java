@@ -7,6 +7,8 @@ import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
@@ -48,6 +50,17 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     public List<T> search(String queryString) {
         Iterable<T> results = search(QueryBuilders.queryStringQuery(queryString));
         return iterableToList(results);
+    }
+
+    @Override
+    public Iterable<T> search(QueryBuilder query) {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        boolQueryBuilder.must(query);
+        QueryBuilder notDeletedQuery = new CriteriaQueryProcessor().createQueryFromCriteria(softDeletion.notDeleted());
+        boolQueryBuilder.must(notDeletedQuery);
+
+        return super.search(boolQueryBuilder);
     }
 
     @Override

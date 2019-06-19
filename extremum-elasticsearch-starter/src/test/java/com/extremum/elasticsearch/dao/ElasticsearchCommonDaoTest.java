@@ -11,6 +11,8 @@ import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -494,6 +496,28 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         } catch (UnsupportedOperationException e) {
             assertThat(e.getMessage(), is("We don't allow to delete all the documents in one go"));
         }
+    }
+
+    @Test
+    void whenSearching_softDeletionShouldBeRespected() {
+        String uniqueName = UUID.randomUUID().toString();
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
+
+        assertThat(results, hasSize(1));
+    }
+
+    @Test
+    void whenSearchingWithQueryBuilder_softDeletionShouldBeRespected() {
+        String uniqueName = UUID.randomUUID().toString();
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
+        Iterable<TestElasticsearchModel> iterable = dao.search(query);
+        List<TestElasticsearchModel> results = StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+
+        assertThat(results, hasSize(1));
     }
 
     @NotNull
