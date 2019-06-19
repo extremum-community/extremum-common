@@ -7,7 +7,6 @@ import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
-import com.extremum.elasticsearch.service.TestElasticsearchModelService;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -393,6 +392,12 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
 
         assertThat(foundModel.getName(), is("new name"));
+    }
+
+    @Test
+    void givenNoEntityExists_whenPatchingIt_thenExceptionShouldBeThrown() {
+        assertThrows(ElasticsearchStatusException.class,
+                () -> dao.patch(UUID.randomUUID().toString(), "ctx._source.name = \"new name\""));
     }
 
     @NotNull
