@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -245,7 +247,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         dao.save(model);
 
         Iterable<TestElasticsearchModel> iterable = dao.findAllById(Collections.singletonList(model.getId()));
-        List<TestElasticsearchModel> list = StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+        List<TestElasticsearchModel> list = iterableToList(iterable);
         assertThat(list, hasSize(1));
         TestElasticsearchModel resultModel = list.get(0);
 
@@ -515,7 +517,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
         QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
         Iterable<TestElasticsearchModel> iterable = dao.search(query);
-        List<TestElasticsearchModel> results = StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+        List<TestElasticsearchModel> results = iterableToList(iterable);
 
         assertThat(results, hasSize(1));
     }
@@ -527,7 +529,25 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
         QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
         Iterable<TestElasticsearchModel> iterable = dao.search(query, Pageable.unpaged());
-        List<TestElasticsearchModel> results = StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+        List<TestElasticsearchModel> results = iterableToList(iterable);
+
+        assertThat(results, hasSize(1));
+    }
+
+    @NotNull
+    private <T> List<T> iterableToList(Iterable<T> iterable) {
+        return StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+    }
+
+    @Test
+    void whenSearchingWithSearchQuery_softDeletionShouldBeRespected() {
+        String uniqueName = UUID.randomUUID().toString();
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        QueryStringQueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
+        NativeSearchQuery query = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
+        Iterable<TestElasticsearchModel> iterable = dao.search(query);
+        List<TestElasticsearchModel> results = iterableToList(iterable);
 
         assertThat(results, hasSize(1));
     }
