@@ -50,7 +50,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -633,7 +636,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     }
 
     @Override
-    public <T> LinkedList<T> multiGet(SearchQuery searchQuery, Class<T> clazz) {
+    public <T> List<T> multiGet(SearchQuery searchQuery, Class<T> clazz) {
         return getResultsMapper().mapResults(getMultiResponse(searchQuery, clazz), clazz);
     }
 

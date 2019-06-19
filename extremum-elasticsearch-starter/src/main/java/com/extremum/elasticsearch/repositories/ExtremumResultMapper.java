@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.extremum.elasticsearch.repositories.ElasticsearchModels.asElasticsearchModel;
@@ -85,8 +84,8 @@ public class ExtremumResultMapper extends DefaultResultMapper {
     }
 
     @Override
-    public <T> LinkedList<T> mapResults(MultiGetResponse responses, Class<T> clazz) {
-        LinkedList<T> results = super.mapResults(responses, clazz);
+    public <T> List<T> mapResults(MultiGetResponse responses, Class<T> clazz) {
+        List<T> results = super.mapResults(responses, clazz);
 
         for (int i = 0; i < results.size(); i++) {
             T result = results.get(i);
