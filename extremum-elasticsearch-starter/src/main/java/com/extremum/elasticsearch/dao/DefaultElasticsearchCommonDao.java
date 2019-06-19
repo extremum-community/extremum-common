@@ -317,8 +317,8 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public boolean patch(String id, String painlessQuery) {
-        return patch(id, painlessQuery, null);
+    public boolean patch(String id, String painlessScript) {
+        return patch(id, painlessScript, null);
     }
 
     @Override

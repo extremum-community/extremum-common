@@ -17,6 +17,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -57,6 +59,7 @@ import java.util.Optional;
 
 import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @author rpuch
@@ -645,6 +648,43 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         } catch (IOException e) {
             throw new ElasticsearchException("Error while multiget for request: " + request.toString(), e);
         }
+    }
+
+    @Override
+    public UpdateResponse update(UpdateQuery query) {
+        UpdateRequest request = prepareUpdate(query);
+        try {
+            return getClient().update(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException("Error while update for request: " + request.toString(), e);
+        }
+    }
+
+    private UpdateRequest prepareUpdate(UpdateQuery query) {
+        String indexName = hasText(query.getIndexName()) ? query.getIndexName()
+                : getPersistentEntityFor(query.getClazz()).getIndexName();
+        String type = hasText(query.getType()) ? query.getType() : getPersistentEntityFor(
+                query.getClazz()).getIndexType();
+        Assert.notNull(indexName, "No index defined for Query");
+        Assert.notNull(type, "No type define for Query");
+        Assert.notNull(query.getId(), "No Id define for Query");
+        Assert.notNull(query.getUpdateRequest(), "No IndexRequest define for Query");
+        UpdateRequest updateRequest = new UpdateRequest(indexName, type, query.getId());
+        updateRequest.routing(query.getUpdateRequest().routing());
+
+        if (query.getUpdateRequest().script() == null) {
+            // doc
+            if (query.DoUpsert()) {
+                updateRequest.docAsUpsert(true).doc(query.getUpdateRequest().doc());
+            } else {
+                updateRequest.doc(query.getUpdateRequest().doc());
+            }
+        } else {
+            // or script
+            updateRequest.script(query.getUpdateRequest().script());
+        }
+
+        return updateRequest;
     }
 
     // Here ends the copy-paste due to the fact that Spring Data Elasticsearch 3.2 uses old
