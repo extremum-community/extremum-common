@@ -2,7 +2,7 @@ package com.extremum.elasticsearch.dao;
 
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
-import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepository;
+import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepositoryFactoryBean;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRestTemplate;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @EnableConfigurationProperties(ElasticsearchProperties.class)
 @Import(CommonConfiguration.class)
 @EnableElasticsearchRepositories(basePackages = "com.extremum.elasticsearch.dao",
-        repositoryBaseClass = ExtremumElasticsearchRepository.class)
+        repositoryFactoryBeanClass = ExtremumElasticsearchRepositoryFactoryBean.class)
 @RequiredArgsConstructor
 public class ElasticsearchCommonDaoConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;

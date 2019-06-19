@@ -11,8 +11,8 @@ import java.util.Map;
 /**
  * @author rpuch
  */
-public class ExtremumElasticsearchRepository<T extends ElasticsearchCommonModel> extends BaseElasticsearchRepository<T> {
-    public ExtremumElasticsearchRepository(
+public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonModel> extends BaseElasticsearchRepository<T> {
+    public SoftDeleteElasticsearchRepository(
             ElasticsearchEntityInformation<T, String> metadata,
             ElasticsearchOperations elasticsearchOperations) {
         super(metadata, elasticsearchOperations);
