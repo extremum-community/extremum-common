@@ -367,22 +367,37 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenAnEntityExists_whenPathingIt_thenThePatchShouldBeApplied() {
+    void givenAnEntityExists_whenPathingItWithoutParameters_thenThePatchShouldBeApplied() {
         TestElasticsearchModel model = new TestElasticsearchModel();
-        model.setName(generateRandomString());
+        model.setName("old name");
         dao.save(model);
 
-        boolean patched = dao.patch(model.getId(), "ctx._source.name = \"abc\"");
+        boolean patched = dao.patch(model.getId(), "ctx._source.name = \"new name\"");
         assertThat(patched, is(true));
 
         TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
 
-        assertThat(foundModel.getName(), is("abc"));
+        assertThat(foundModel.getName(), is("new name"));
     }
 
     @NotNull
     private String generateRandomString() {
         return UUID.randomUUID().toString();
+    }
+
+    @Test
+    void givenAnEntityExists_whenPathingItWithParameters_thenThePatchShouldBeApplied() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName("old name");
+        dao.save(model);
+
+        boolean patched = dao.patch(model.getId(), "ctx._source.name = params.name",
+                Collections.singletonMap("name", "new name"));
+        assertThat(patched, is(true));
+
+        TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
+
+        assertThat(foundModel.getName(), is("new name"));
     }
 
     @NotNull

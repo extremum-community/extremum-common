@@ -40,8 +40,13 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
 
     @Override
     public boolean patch(String id, String painlessScript) {
+        return patch(id, painlessScript, Collections.emptyMap());
+    }
+
+    @Override
+    public boolean patch(String id, String painlessScript, Map<String, Object> params) {
         UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexName(), id);
-        updateRequest.script(new Script(ScriptType.INLINE, "painless", painlessScript, Collections.emptyMap()));
+        updateRequest.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
 
         UpdateQuery updateQuery = new UpdateQueryBuilder()
                 .withClass(metadata.getJavaType())
@@ -51,11 +56,5 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
 
         UpdateResponse response = elasticsearchOperations.update(updateQuery);
         return response.getResult() == DocWriteResponse.Result.UPDATED;
-    }
-
-    @Override
-    public boolean patch(String id, String painlessScript, Map<String, Object> params) {
-        // TODO:
-        throw new UnsupportedOperationException();
     }
 }
