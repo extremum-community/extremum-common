@@ -3,6 +3,7 @@ package com.extremum.elasticsearch.repositories;
 import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.dao.ElasticsearchCommonDao;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
@@ -22,6 +23,12 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     @Override
     public List<T> findAll() {
+        throw new UnsupportedOperationException("" +
+                "Please do not call this method as a list of all documents may be very large");
+    }
+
+    @Override
+    public Iterable<T> findAll(Sort sort) {
         throw new UnsupportedOperationException("" +
                 "Please do not call this method as a list of all documents may be very large");
     }

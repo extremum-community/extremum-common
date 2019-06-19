@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -256,6 +257,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         }
 
         assertThrows(UnsupportedOperationException.class, dao::findAll);
+        assertThrows(UnsupportedOperationException.class, () -> dao.findAll(Sort.by("id")));
     }
 
     // TODO: restore
