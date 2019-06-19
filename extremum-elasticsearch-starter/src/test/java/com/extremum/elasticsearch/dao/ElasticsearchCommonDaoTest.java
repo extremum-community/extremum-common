@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.io.IOException;
@@ -263,10 +264,15 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThrows(UnsupportedOperationException.class, () -> dao.findAll(Sort.by("id")));
     }
 
-    // TODO: restore
-//        assertThat(dao.findAll(Sort.by("id")), hasSize(count));
-//
-//        assertThat(dao.findAll(Pageable.unpaged()).getTotalElements(), is((long) count));
+    @Test
+    void testFindAllWithPageable_respectsSoftDeletion() {
+        long totalBefore = dao.findAll(Pageable.unpaged()).getTotalElements();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(UUID.randomUUID().toString()));
+
+        long totalAfter = dao.findAll(Pageable.unpaged()).getTotalElements();
+        assertThat(totalAfter - totalBefore, is(1L));
+    }
 
     @Test
     void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {

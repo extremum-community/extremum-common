@@ -10,7 +10,10 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.data.elasticsearch.core.query.UpdateQueryBuilder;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
@@ -113,5 +116,12 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
         return StreamUtils.fromIterable(super.findAllById(ids))
                 .filter(PersistableCommonModel::isNotDeleted)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<T> findAll(Pageable pageable) {
+        CriteriaQuery query = new CriteriaQuery(softDeletion.notDeleted());
+        query.setPageable(pageable);
+        return elasticsearchOperations.queryForPage(query, getEntityClass());
     }
 }
