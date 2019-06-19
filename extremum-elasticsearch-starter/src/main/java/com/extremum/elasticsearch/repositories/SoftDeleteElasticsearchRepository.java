@@ -83,8 +83,11 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
 
     private Map<String, Object> amendWithModificationTime(Map<String, Object> params) {
         Map<String, Object> paramsWithModificationTimeChange = new HashMap<>(params);
-        paramsWithModificationTimeChange.put(MODIFIED,
-                DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
+        paramsWithModificationTimeChange.put(MODIFIED, getNowAsString());
         return paramsWithModificationTimeChange;
+    }
+
+    private String getNowAsString() {
+        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
     }
 }
