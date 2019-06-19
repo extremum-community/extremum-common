@@ -79,33 +79,6 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         saveProcess = new SaveProcess(elasticsearchDescriptorFactory);
     }
 
-//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-//            EntityMapper entityMapper) {
-//        super(client, entityMapper);
-//    }
-//
-//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-//            ElasticsearchConverter elasticsearchConverter,
-//            EntityMapper entityMapper) {
-//        super(client, elasticsearchConverter, entityMapper);
-//    }
-//
-//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-//            ResultsMapper resultsMapper) {
-//        super(client, resultsMapper);
-//    }
-//
-//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-//            ElasticsearchConverter elasticsearchConverter) {
-//        super(client, elasticsearchConverter);
-//    }
-//
-//    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-//            ElasticsearchConverter elasticsearchConverter,
-//            ResultsMapper resultsMapper) {
-//        super(client, elasticsearchConverter, resultsMapper);
-//    }
-
     private static String[] toArray(List<String> values) {
         String[] valuesAsArray = new String[values.size()];
         return values.toArray(valuesAsArray);
