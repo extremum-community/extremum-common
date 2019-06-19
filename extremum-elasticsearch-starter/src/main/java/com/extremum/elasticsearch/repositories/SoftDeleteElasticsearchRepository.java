@@ -2,6 +2,7 @@ package com.extremum.elasticsearch.repositories;
 
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.DateUtils;
+import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -16,6 +17,7 @@ import org.springframework.data.elasticsearch.repository.support.ElasticsearchEn
 
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author rpuch
@@ -104,5 +106,12 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     @Override
     public Optional<T> findById(String id) {
         return super.findById(id).filter(PersistableCommonModel::isNotDeleted);
+    }
+
+    @Override
+    public Iterable<T> findAllById(Iterable<String> ids) {
+        return StreamUtils.fromIterable(super.findAllById(ids))
+                .filter(PersistableCommonModel::isNotDeleted)
+                .collect(Collectors.toList());
     }
 }
