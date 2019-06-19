@@ -480,6 +480,16 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThatEntityWasMarkedAsDeleted(model);
     }
 
+    @Test
+    void whenDeleteAll_thenAnExceptionShouldBeThrown() {
+        try {
+            dao.deleteAll();
+            fail("An exception should be thrown");
+        } catch (UnsupportedOperationException e) {
+            assertThat(e.getMessage(), is("We don't allow to delete all the documents in one go"));
+        }
+    }
+
     @NotNull
     private String searchByFullString(String query) {
         return "*" + query + "*";

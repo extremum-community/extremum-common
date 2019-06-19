@@ -97,4 +97,9 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     public void deleteById(String id) {
         patch(id, "ctx._source.deleted = true");
     }
+
+    @Override
+    public final void deleteAll() {
+        throw new UnsupportedOperationException("We don't allow to delete all the documents in one go");
+    }
 }
