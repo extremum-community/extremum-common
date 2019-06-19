@@ -367,7 +367,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenAnEntityExists_whenPathingItWithoutParameters_thenThePatchShouldBeApplied() {
+    void givenAnEntityExists_whenPatchingItWithoutParameters_thenThePatchShouldBeApplied() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model.setName("old name");
         dao.save(model);
@@ -380,13 +380,8 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(foundModel.getName(), is("new name"));
     }
 
-    @NotNull
-    private String generateRandomString() {
-        return UUID.randomUUID().toString();
-    }
-
     @Test
-    void givenAnEntityExists_whenPathingItWithParameters_thenThePatchShouldBeApplied() {
+    void givenAnEntityExists_whenPatchingItWithParameters_thenThePatchShouldBeApplied() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model.setName("old name");
         dao.save(model);
