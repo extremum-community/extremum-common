@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -367,9 +369,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
 
     @Test
     void givenAnEntityExists_whenPatchingItWithoutParameters_thenThePatchShouldBeApplied() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        model.setName("old name");
-        dao.save(model);
+        TestElasticsearchModel model = createAModelWithOldName();
 
         boolean patched = dao.patch(model.getId(), "ctx._source.name = \"new name\"");
         assertThat(patched, is(true));
@@ -379,11 +379,17 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(foundModel.getName(), is("new name"));
     }
 
-    @Test
-    void givenAnEntityExists_whenPatchingItWithParameters_thenThePatchShouldBeApplied() {
+    @NotNull
+    private TestElasticsearchModel createAModelWithOldName() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model.setName("old name");
         dao.save(model);
+        return model;
+    }
+
+    @Test
+    void givenAnEntityExists_whenPatchingItWithParameters_thenThePatchShouldBeApplied() {
+        TestElasticsearchModel model = createAModelWithOldName();
 
         boolean patched = dao.patch(model.getId(), "ctx._source.name = params.name",
                 Collections.singletonMap("name", "new name"));
@@ -398,6 +404,30 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
     void givenNoEntityExists_whenPatchingIt_thenExceptionShouldBeThrown() {
         assertThrows(ElasticsearchStatusException.class,
                 () -> dao.patch(UUID.randomUUID().toString(), "ctx._source.name = \"new name\""));
+    }
+
+    @Test
+    void givenAnEntityExists_whenPatchingIt_thenModifiedTimeShouldChange() throws Exception {
+        TestElasticsearchModel originalModel = createAModelWithOldName();
+
+        waitForAPalpableTime();
+
+        dao.patch(originalModel.getId(), "ctx._source.name = \"new name\"");
+
+        TestElasticsearchModel foundModel = dao.findById(originalModel.getId()).get();
+
+        assertThatFoundModelModificationTimeIsAfterTheOriginalModelModificationTime(originalModel, foundModel);
+    }
+
+    private void assertThatFoundModelModificationTimeIsAfterTheOriginalModelModificationTime(
+            TestElasticsearchModel originalModel, TestElasticsearchModel foundModel) {
+        ZonedDateTime originalModified = originalModel.getModified();
+        ZonedDateTime foundModified = foundModel.getModified();
+        assertTrue(foundModified.isAfter(originalModified));
+    }
+
+    private void waitForAPalpableTime() throws InterruptedException {
+        Thread.sleep(100);
     }
 
     @NotNull

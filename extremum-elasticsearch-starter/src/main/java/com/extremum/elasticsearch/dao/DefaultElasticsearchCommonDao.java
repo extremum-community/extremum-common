@@ -322,11 +322,11 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public boolean patch(String id, String painlessScript, Map<String, Object> params) {
+    public boolean patch(String id, String painlessScript, Map<String, Object> scriptParams) {
         if (existsById(id)) {
             final UpdateRequest request = new UpdateRequest(indexName, null, id);
 
-            request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
+            request.script(new Script(ScriptType.INLINE, "painless", painlessScript, scriptParams));
 
             try (final RestHighLevelClient client = getClient()) {
                 final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);

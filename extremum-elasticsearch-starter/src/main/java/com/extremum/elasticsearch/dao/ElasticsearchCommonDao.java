@@ -12,5 +12,5 @@ public interface ElasticsearchCommonDao<Model extends ElasticsearchCommonModel> 
 
     boolean patch(String id, String painlessScript);
 
-    boolean patch(String id, String painlessScript, Map<String, Object> params);
+    boolean patch(String id, String painlessScript, Map<String, Object> scriptParams);
 }
