@@ -520,6 +520,18 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(results, hasSize(1));
     }
 
+    @Test
+    void whenSearchingWithQueryBuilderAndPageable_softDeletionShouldBeRespected() {
+        String uniqueName = UUID.randomUUID().toString();
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
+        Iterable<TestElasticsearchModel> iterable = dao.search(query, Pageable.unpaged());
+        List<TestElasticsearchModel> results = StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+
+        assertThat(results, hasSize(1));
+    }
+
     @NotNull
     private String searchByFullString(String query) {
         return "*" + query + "*";

@@ -54,13 +54,24 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
 
     @Override
     public Iterable<T> search(QueryBuilder query) {
+        QueryBuilder amendedQueryBuilder = amendQueryBuilderWithNotDeletedCondition(query);
+        return super.search(amendedQueryBuilder);
+    }
+
+    private QueryBuilder amendQueryBuilderWithNotDeletedCondition(QueryBuilder query) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         boolQueryBuilder.must(query);
         QueryBuilder notDeletedQuery = new CriteriaQueryProcessor().createQueryFromCriteria(softDeletion.notDeleted());
         boolQueryBuilder.must(notDeletedQuery);
+        
+        return boolQueryBuilder;
+    }
 
-        return super.search(boolQueryBuilder);
+    @Override
+    public Page<T> search(QueryBuilder query, Pageable pageable) {
+        QueryBuilder amendedQueryBuilder = amendQueryBuilderWithNotDeletedCondition(query);
+        return super.search(amendedQueryBuilder, pageable);
     }
 
     @Override
