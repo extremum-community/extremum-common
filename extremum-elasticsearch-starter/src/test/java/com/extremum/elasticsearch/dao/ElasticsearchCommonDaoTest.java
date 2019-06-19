@@ -2,11 +2,14 @@ package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,11 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -419,6 +420,10 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThatFoundModelModificationTimeIsAfterTheOriginalModelModificationTime(originalModel, foundModel);
     }
 
+    private void waitForAPalpableTime() throws InterruptedException {
+        Thread.sleep(100);
+    }
+
     private void assertThatFoundModelModificationTimeIsAfterTheOriginalModelModificationTime(
             TestElasticsearchModel originalModel, TestElasticsearchModel foundModel) {
         ZonedDateTime originalModified = originalModel.getModified();
@@ -426,8 +431,53 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertTrue(foundModified.isAfter(originalModified));
     }
 
-    private void waitForAPalpableTime() throws InterruptedException {
-        Thread.sleep(100);
+    @Test
+    void whenAnEntityIsDeletedByObject_thenItShouldBeMarkedAsDeleted() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        dao.delete(model);
+
+        assertThatEntityWasMarkedAsDeleted(model);
+    }
+
+    private void assertThatEntityWasMarkedAsDeleted(TestElasticsearchModel model) {
+        Optional<TestElasticsearchModel> foundModelOpt = client.getAsJson(TestElasticsearchModel.INDEX,
+                model.getId())
+                .map(this::parseJsonWithOurObjectMapper);
+        assertThat("Present", foundModelOpt.isPresent(), is(true));
+
+        TestElasticsearchModel parsedModel = foundModelOpt.get();
+        assertThat("Marked as deleted", parsedModel.getDeleted(), is(true));
+    }
+
+    private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) {
+        ObjectMapper mapper = new BasicJsonObjectMapper();
+        try {
+            return mapper.readerFor(TestElasticsearchModel.class).readValue(json);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void whenAnEntityIsDeletedById_thenItShouldBeMarkedAsDeleted() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        dao.deleteById(model.getId());
+
+        assertThatEntityWasMarkedAsDeleted(model);
+    }
+
+    @Test
+    void whenAnEntityIsDeletedWithABatch_thenItShouldBeMarkedAsDeleted() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model);
+
+        dao.deleteAll(ImmutableList.of(model));
+
+        assertThatEntityWasMarkedAsDeleted(model);
     }
 
     @NotNull

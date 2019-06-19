@@ -30,6 +30,8 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     private final ElasticsearchOperations elasticsearchOperations;
     private final ElasticsearchEntityInformation<T, String> metadata;
 
+    private final SoftDeletion softDeletion = new SoftDeletion();
+
     public SoftDeleteElasticsearchRepository(
             ElasticsearchEntityInformation<T, String> metadata,
             ElasticsearchOperations elasticsearchOperations) {
@@ -89,5 +91,10 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
 
     private String getNowAsString() {
         return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
+    }
+
+    @Override
+    public void deleteById(String id) {
+        patch(id, "ctx._source.deleted = true");
     }
 }
