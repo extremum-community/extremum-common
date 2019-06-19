@@ -141,4 +141,8 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
         return elasticsearchOperations.queryForPage(query, getEntityClass());
     }
 
+    @Override
+    public long count() {
+        return elasticsearchOperations.count(new CriteriaQuery(softDeletion.notDeleted()), getEntityClass());
+    }
 }

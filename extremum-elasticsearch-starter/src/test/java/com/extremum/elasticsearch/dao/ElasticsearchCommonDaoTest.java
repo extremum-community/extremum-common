@@ -552,6 +552,18 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(results, hasSize(1));
     }
 
+    @Test
+    void countShouldRespectSoftDeletion() {
+        long countBefore = dao.count();
+
+        String uniqueName = UUID.randomUUID().toString();
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        long countAfter = dao.count();
+
+        assertThat(countAfter - countBefore, is(1L));
+    }
+
     @NotNull
     private String searchByFullString(String query) {
         return "*" + query + "*";
