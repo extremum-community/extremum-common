@@ -47,7 +47,7 @@ final class PersistablePagePicker extends AbstractPagePicker<PersistableCommonMo
     final List<Model> filter(List<PersistableCommonModel> nonEmptyFullList, Projection projection) {
         return nonEmptyFullList.stream()
                 .filter(projection::accepts)
-                .filter(model -> model.getDeleted() == null || !model.getDeleted())
+                .filter(PersistableCommonModel::isNotDeleted)
                 .collect(Collectors.toList());
     }
 }

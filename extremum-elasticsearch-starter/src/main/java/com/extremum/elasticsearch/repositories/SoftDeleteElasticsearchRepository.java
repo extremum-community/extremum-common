@@ -1,5 +1,6 @@
 package com.extremum.elasticsearch.repositories;
 
+import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.DocWriteResponse;
@@ -14,10 +15,7 @@ import org.springframework.data.elasticsearch.core.query.UpdateQueryBuilder;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author rpuch
@@ -101,5 +99,10 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     @Override
     public final void deleteAll() {
         throw new UnsupportedOperationException("We don't allow to delete all the documents in one go");
+    }
+
+    @Override
+    public Optional<T> findById(String id) {
+        return super.findById(id).filter(PersistableCommonModel::isNotDeleted);
     }
 }

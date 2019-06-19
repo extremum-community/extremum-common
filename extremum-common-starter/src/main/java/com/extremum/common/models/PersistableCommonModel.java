@@ -29,6 +29,10 @@ public interface PersistableCommonModel<ID extends Serializable> extends BasicMo
         to.setModified(this.getModified());
     }
 
+    default boolean isNotDeleted() {
+        return getDeleted() == null || !getDeleted();
+    }
+
     enum FIELDS {
         id, uuid, created, modified, version, deleted
     }
