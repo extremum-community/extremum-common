@@ -1,19 +1,18 @@
 package com.extremum.common.response;
 
 import com.extremum.common.Constants;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -26,16 +25,36 @@ import static java.util.Objects.requireNonNull;
 public class Response {
     private static final Logger LOGGER = LoggerFactory.getLogger(Response.class);
 
-    private ResponseStatusEnum status;
-    private Integer code;
-    private ZonedDateTime timestamp;
+    private final ResponseStatusEnum status;
+    private final Integer code;
+    private final ZonedDateTime timestamp;
     @JsonProperty("rqid")
-    private String requestId;
-    private String locale;
-    private List<Alert> alerts;
-    private Object result;
+    private final String requestId;
+    private final String locale;
+    private final List<Alert> alerts;
+    private final Object result;
     @JsonProperty("paged")
-    private Pagination pagination;
+    private final Pagination pagination;
+
+    @JsonCreator
+    private Response(
+            @JsonProperty("status") ResponseStatusEnum status,
+            @JsonProperty("code") Integer code,
+            @JsonProperty("timestamp") ZonedDateTime timestamp,
+            @JsonProperty("rqid") String requestId,
+            @JsonProperty("locale") String locale,
+            @JsonProperty("alerts") List<Alert> alerts,
+            @JsonProperty("result") Object result,
+            @JsonProperty("paged") Pagination pagination) {
+        this.status = status;
+        this.code = code;
+        this.timestamp = timestamp;
+        this.requestId = requestId;
+        this.locale = locale;
+        this.alerts = alerts == null ? null : ImmutableList.copyOf(alerts);
+        this.result = result;
+        this.pagination = pagination;
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -74,29 +93,13 @@ public class Response {
         return builder().withOkStatus().build();
     }
 
-    public static Response fail() {
-        return builder()
-                .withFailStatus()
-                .withNowTimestamp()
-                .build();
-    }
-
-    public static Response fail(Alert alert) {
-        return fail(alert, 200);
-    }
-
     public static Response fail(Alert alert, int code) {
         return fail(singletonList(alert), code);
     }
 
-    public static Response fail(Collection<Alert> alerts) {
-        return fail(alerts, 200);
-    }
-
     public static Response fail(Collection<Alert> alerts, int code) {
         return Response.builder()
-                .withFailStatus()
-                .withCode(code)
+                .withFailStatus(code)
                 .withAlerts(alerts)
                 .withNowTimestamp()
                 .build();
@@ -121,10 +124,9 @@ public class Response {
     }
 
     public static class Builder {
-        private static final int OK_STATUS_CODE = 200;
 
         private ResponseStatusEnum status;
-        private Integer code = OK_STATUS_CODE;
+        private Integer code;
         private Object result;
         private String locale;
         private List<Alert> alerts;
@@ -147,17 +149,21 @@ public class Response {
         }
 
         public Builder withOkStatus() {
+            return withOkStatus(HttpStatus.OK.value());
+        }
+
+        public Builder withOkStatus(int code) {
             this.status = ResponseStatusEnum.OK;
-            this.code = OK_STATUS_CODE;
+            this.code = code;
 
             withNowTimestamp();
 
             return this;
         }
 
-        public Builder withFailStatus() {
+        public Builder withFailStatus(int code) {
             this.status = ResponseStatusEnum.FAIL;
-            this.code = OK_STATUS_CODE;
+            this.code = code;
 
             withNowTimestamp();
 
@@ -166,16 +172,16 @@ public class Response {
 
         public Builder withDoingStatus() {
             this.status = ResponseStatusEnum.DOING;
-            this.code = OK_STATUS_CODE;
+            this.code = HttpStatus.PROCESSING.value();
 
             withNowTimestamp();
 
             return this;
         }
 
-        public Builder withWarningStatus() {
+        public Builder withWarningStatus(int code) {
             this.status = ResponseStatusEnum.WARNING;
-            this.code = OK_STATUS_CODE;
+            this.code = code;
 
             withNowTimestamp();
 
@@ -210,6 +216,8 @@ public class Response {
         }
 
         public Builder withAlerts(Collection<Alert> alerts) {
+            Objects.requireNonNull(alerts, "Alerts cannot be a null list");
+
             if (this.alerts == null) {
                 this.alerts = new ArrayList<>();
             }
@@ -229,11 +237,6 @@ public class Response {
             return this;
         }
 
-        public Builder withCode(int code) {
-            this.code = code;
-            return this;
-        }
-
         public Builder withRequestId(String requestId) {
             this.requestId = requestId;
             return this;
@@ -243,22 +246,10 @@ public class Response {
             requireNonNull(status, "Status can't be null");
             requireNonNull(code, "Code can't be null");
 
-            Response response = new Response();
-
-            response.status = status;
-            response.code = code;
-            response.result = result;
-            response.alerts = alerts;
-            if (this.requestId == null) {
-                response.requestId = tryToDetermineRequestId();
-            } else {
-                response.requestId = this.requestId;
-            }
-            response.timestamp = timestamp;
-            response.locale = (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale);
-            response.pagination = pagination;
-
-            return response;
+            return new Response(status, code, timestamp,
+                    requestId != null ? requestId : tryToDetermineRequestId(),
+                    (this.locale == null ? Locale.getDefault().toLanguageTag() : this.locale),
+                    alerts, result, pagination);
         }
 
         private String tryToDetermineRequestId() {

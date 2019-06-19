@@ -57,9 +57,8 @@ public class CommonException extends RuntimeException {
 
     private Response toFailResponse(String locale) {
         return Response.builder()
-                .withFailStatus()
+                .withFailStatus(code)
                 .withLocale(locale)
-                .withCode(code)
                 .withAlerts(alerts)
                 .build();
     }

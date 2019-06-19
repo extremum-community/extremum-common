@@ -2,10 +2,12 @@ package com.extremum.common.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.ZonedDateTime;
 
 @Getter
+@ToString
 public class Alert {
     private AlertLevelEnum level;
     private String code;

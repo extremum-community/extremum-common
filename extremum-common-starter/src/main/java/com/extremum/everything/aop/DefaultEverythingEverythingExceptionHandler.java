@@ -8,6 +8,7 @@ import com.extremum.common.response.Response;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -44,7 +45,7 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
         }
 
         return responseBuilder
-                .withFailStatus()
+                .withFailStatus(HttpStatus.BAD_REQUEST.value())
                 .withNowTimestamp()
                 .withResult("Unable to complete 'everything-everything' operation")
                 .build();
@@ -52,15 +53,15 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     @ExceptionHandler
     public Response handleEverythingEverythingException(EverythingEverythingException e) {
-        log.debug("Exception has occurred  and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
+        log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 
-        return fail(errorAlert(e.getMessage()));
+        return fail(errorAlert(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
     @ExceptionHandler
     public Response handleModelNotFoundException(ModelNotFoundException e) {
-        log.debug("Exception has occurred  and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
+        log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 
         return notFound();
@@ -68,9 +69,8 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     private Response notFound() {
         return Response.builder()
-                .withFailStatus()
+                .withFailStatus(HttpStatus.NOT_FOUND.value())
                 .withNowTimestamp()
-                .withCode(404)
                 .build();
     }
 

@@ -3,11 +3,9 @@ package com.extremum.everything.aop;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.response.Response;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class DefaultEverythingEverythingExceptionHandlerTest {
     private MockMvc mockMvc;
-    private final ObjectMapper mapper = new BasicJsonObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -86,7 +83,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         JSONObject root = getSuccessfullyAndParseResponse("/evr-evr-exception");
 
         assertThat(root.getString("status"), is("FAIL"));
-        assertThat(root.getInt("code"), is(200));
+        assertThat(root.getInt("code"), is(500));
         assertThat(root.getString("result"), is(nullValue()));
     }
 
@@ -96,7 +93,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         JSONObject root = getSuccessfullyAndParseResponse("/validation-failure");
 
         assertThat(root.getString("status"), is("FAIL"));
-        assertThat(root.getInt("code"), is(200));
+        assertThat(root.getInt("code"), is(400));
         assertThat(root.getString("result"), is("Unable to complete 'everything-everything' operation"));
     }
 
