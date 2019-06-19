@@ -20,6 +20,8 @@ import java.util.Map;
  * @author rpuch
  */
 public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonModel> extends BaseElasticsearchRepository<T> {
+    private static final String PAINLESS_LANGUAGE = "painless";
+
     private final ElasticsearchOperations elasticsearchOperations;
     private final ElasticsearchEntityInformation<T, String> metadata;
 
@@ -46,7 +48,7 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> params) {
         UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexName(), id);
-        updateRequest.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
+        updateRequest.script(new Script(ScriptType.INLINE, PAINLESS_LANGUAGE, painlessScript, params));
 
         UpdateQuery updateQuery = new UpdateQueryBuilder()
                 .withClass(metadata.getJavaType())
