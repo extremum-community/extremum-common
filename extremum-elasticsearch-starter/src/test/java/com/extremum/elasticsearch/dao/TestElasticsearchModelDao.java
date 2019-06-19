@@ -11,4 +11,9 @@ public interface TestElasticsearchModelDao extends SpringDataElasticsearchCommon
 
     @SeesSoftlyDeletedRecords
     List<TestElasticsearchModel> findEvenDeletedByName(String name);
+
+    long countByName(String name);
+
+    @SeesSoftlyDeletedRecords
+    long countEvenDeletedByName(String name);
 }

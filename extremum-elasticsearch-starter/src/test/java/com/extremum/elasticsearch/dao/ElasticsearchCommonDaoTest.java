@@ -303,25 +303,23 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
         assertThat(results, hasSize(2));
     }
 
-    // TODO: restore
-//    @Test
-//    void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
-//        String uniqueName = UUID.randomUUID().toString();
-//
-//        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-//
-//        assertThat(dao.countByName(uniqueName), is(1L));
-//    }
+    @Test
+    void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
+        String uniqueName = UUID.randomUUID().toString();
 
-    // TODO: restore
-//    @Test
-//    void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
-//        String uniqueName = UUID.randomUUID().toString();
-//
-//        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-//
-//        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
-//    }
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countByName(uniqueName), is(1L));
+    }
+
+    @Test
+    void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
+    }
 
     @Test
     void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymore() {
