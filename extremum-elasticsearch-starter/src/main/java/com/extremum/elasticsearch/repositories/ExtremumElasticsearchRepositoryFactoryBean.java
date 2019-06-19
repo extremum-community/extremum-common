@@ -12,10 +12,13 @@ import java.io.Serializable;
  */
 public class ExtremumElasticsearchRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
         extends ElasticsearchRepositoryFactoryBean<T, S, ID> {
+    private final Class<? extends T> repositoryInterface;
     private ElasticsearchOperations operations;
 
     public ExtremumElasticsearchRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
+
+        this.repositoryInterface = repositoryInterface;
     }
 
     @Override
@@ -26,6 +29,6 @@ public class ExtremumElasticsearchRepositoryFactoryBean<T extends Repository<S, 
 
     @Override
     protected RepositoryFactorySupport createRepositoryFactory() {
-        return new ExtremumElasticsearchRepositoryFactory(operations);
+        return new ExtremumElasticsearchRepositoryFactory(repositoryInterface, operations);
     }
 }
