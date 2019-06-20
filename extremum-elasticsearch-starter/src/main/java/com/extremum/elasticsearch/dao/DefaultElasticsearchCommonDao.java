@@ -329,7 +329,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     @Override
     public boolean patch(String id, String painlessScript) {
-        return patch(id, painlessScript, null);
+        return patch(id, painlessScript, Collections.emptyMap());
     }
 
     @Override
