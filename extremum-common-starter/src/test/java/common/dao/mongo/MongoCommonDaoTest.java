@@ -35,8 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 class MongoCommonDaoTest extends TestWithServices {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestMongoModelDao dao;
 

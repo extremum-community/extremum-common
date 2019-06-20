@@ -4,24 +4,16 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.TestWithServices;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -47,11 +39,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
-@SpringBootTest(classes = RepositoryBasedElasticsearchDaoConfiguration.class)
-class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@SpringBootTest(classes = ClassicElasticsearchDaoConfiguration.class)
+class ClassicElasticsearchDaoTest extends TestWithServices {
     @Autowired
-    private TestElasticsearchModelDao dao;
+    private ClassicTestElasticsearchModelDao dao;
     @Autowired
     private ElasticsearchProperties elasticsearchProperties;
 
@@ -244,98 +235,12 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenEntityIsCreated_whenFindItWithFindAll_thenVersionAndSequenceNumberAndPrimaryTermShouldBeFilled() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model);
-
-        Iterable<TestElasticsearchModel> iterable = dao.findAllById(Collections.singletonList(model.getId()));
-        List<TestElasticsearchModel> list = iterableToList(iterable);
-        assertThat(list, hasSize(1));
-        TestElasticsearchModel resultModel = list.get(0);
-
-        assertThat(resultModel.getVersion(), is(notNullValue()));
-        assertThat(resultModel.getSeqNo(), is(notNullValue()));
-        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
-    }
-
-    @Test
-    void testFindAll_throwsAnException() {
-        int modelsToCreate = 10;
-
-        for (int i = 0; i < modelsToCreate; i++) {
-            dao.save(createModelWithExternalDescriptor());
-        }
-
-        assertThrows(UnsupportedOperationException.class, dao::findAll);
-        assertThrows(UnsupportedOperationException.class, () -> dao.findAll(Sort.by("id")));
-    }
-
-    @Test
-    void testFindAllWithPageable_respectsSoftDeletion() {
-        long totalBefore = dao.findAll(Pageable.unpaged()).getTotalElements();
-
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(UUID.randomUUID().toString()));
-
-        long totalAfter = dao.findAll(Pageable.unpaged()).getTotalElements();
-        assertThat(totalAfter - totalBefore, is(1L));
-    }
-
-    @Test
     void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
         dao.deleteById(model.getId());
 
         assertThat(dao.existsById(model.getId()), is(false));
-    }
-
-    @Test
-    void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model);
-        dao.deleteById(model.getId());
-
-        Iterable<TestElasticsearchModel> all = dao.findAllById(Collections.singletonList(model.getId()));
-
-        assertThat(all.iterator().hasNext(), is(false));
-    }
-
-    @Test
-    void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
-        String uniqueName = UUID.randomUUID().toString();
-
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        List<TestElasticsearchModel> results = dao.findByName(uniqueName);
-        assertThat(results, hasSize(1));
-    }
-
-    @Test
-    void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
-        String uniqueName = UUID.randomUUID().toString();
-
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        List<TestElasticsearchModel> results = dao.findEvenDeletedByName(uniqueName);
-        assertThat(results, hasSize(2));
-    }
-
-    @Test
-    void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
-        String uniqueName = UUID.randomUUID().toString();
-
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        assertThat(dao.countByName(uniqueName), is(1L));
-    }
-
-    @Test
-    void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
-        String uniqueName = UUID.randomUUID().toString();
-
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
     }
 
     @Test
@@ -443,16 +348,6 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         assertTrue(foundModified.isAfter(originalModified));
     }
 
-    @Test
-    void whenAnEntityIsDeletedByObject_thenItShouldBeMarkedAsDeleted() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model);
-
-        dao.delete(model);
-
-        assertThatEntityWasMarkedAsDeleted(model);
-    }
-
     private void assertThatEntityWasMarkedAsDeleted(TestElasticsearchModel model) {
         Optional<TestElasticsearchModel> foundModelOpt = client.getAsJson(TestElasticsearchModel.INDEX,
                 model.getId())
@@ -483,26 +378,6 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
-    void whenAnEntityIsDeletedWithABatch_thenItShouldBeMarkedAsDeleted() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model);
-
-        dao.deleteAll(ImmutableList.of(model));
-
-        assertThatEntityWasMarkedAsDeleted(model);
-    }
-
-    @Test
-    void whenDeleteAll_thenAnExceptionShouldBeThrown() {
-        try {
-            dao.deleteAll();
-            fail("An exception should be thrown");
-        } catch (UnsupportedOperationException e) {
-            assertThat(e.getMessage(), is("We don't allow to delete all the documents in one go"));
-        }
-    }
-
-    @Test
     void whenSearching_softDeletionShouldBeRespected() {
         String uniqueName = UUID.randomUUID().toString();
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -510,60 +385,6 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
 
         assertThat(results, hasSize(1));
-    }
-
-    @Test
-    void whenSearchingWithQueryBuilder_softDeletionShouldBeRespected() {
-        String uniqueName = UUID.randomUUID().toString();
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
-        Iterable<TestElasticsearchModel> iterable = dao.search(query);
-        List<TestElasticsearchModel> results = iterableToList(iterable);
-
-        assertThat(results, hasSize(1));
-    }
-
-    @Test
-    void whenSearchingWithQueryBuilderAndPageable_softDeletionShouldBeRespected() {
-        String uniqueName = UUID.randomUUID().toString();
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
-        Iterable<TestElasticsearchModel> iterable = dao.search(query, Pageable.unpaged());
-        List<TestElasticsearchModel> results = iterableToList(iterable);
-
-        assertThat(results, hasSize(1));
-    }
-
-    @NotNull
-    private <T> List<T> iterableToList(Iterable<T> iterable) {
-        return StreamUtils.fromIterable(iterable).collect(Collectors.toList());
-    }
-
-    @Test
-    void whenSearchingWithSearchQuery_softDeletionShouldBeRespected() {
-        String uniqueName = UUID.randomUUID().toString();
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        QueryStringQueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
-        NativeSearchQuery query = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
-        Iterable<TestElasticsearchModel> iterable = dao.search(query);
-        List<TestElasticsearchModel> results = iterableToList(iterable);
-
-        assertThat(results, hasSize(1));
-    }
-
-    @Test
-    void countShouldRespectSoftDeletion() {
-        long countBefore = dao.count();
-
-        String uniqueName = UUID.randomUUID().toString();
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
-
-        long countAfter = dao.count();
-
-        assertThat(countAfter - countBefore, is(1L));
     }
 
     @NotNull
