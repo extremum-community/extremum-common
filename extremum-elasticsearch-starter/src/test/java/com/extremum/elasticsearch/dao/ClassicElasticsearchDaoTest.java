@@ -172,10 +172,11 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void givenEntityExists_whenFindById_thenWeShouldFindTheEntity() {
-        TestElasticsearchModel model = createModelWithExternalDescriptor();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
         TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());

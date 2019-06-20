@@ -180,7 +180,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void givenEntityExists_whenFindById_thenWeShouldFindTheEntity() {
-        TestElasticsearchModel model = createModelWithExternalDescriptor();
+        TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
         TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
