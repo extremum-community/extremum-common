@@ -36,7 +36,10 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.SearchHit;
@@ -57,6 +60,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 @Slf4j
 public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<Model> {
     private static final String MODIFIED = ElasticsearchCommonModel.FIELDS.modified.name();
+    private static final String DELETED = ElasticsearchCommonModel.FIELDS.deleted.name();
 
     private static final String PAINLESS_LANGUAGE = "painless";
 
@@ -132,9 +136,14 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     public List<Model> search(String queryString) {
         final SearchRequest request = new SearchRequest(indexName);
 
+        QueryStringQueryBuilder contentQuery = QueryBuilders.queryStringQuery(queryString);
+        QueryBuilder totalQuery = QueryBuilders.boolQuery()
+                .must(contentQuery)
+                .mustNot(QueryBuilders.queryStringQuery("true").field(DELETED).defaultOperator(Operator.AND));
         request.source(
                 new SearchSourceBuilder()
-                        .query(QueryBuilders.queryStringQuery(queryString))
+                        .query(totalQuery)
+                        .version(true)
                         .seqNoAndPrimaryTerm(true)
         );
 

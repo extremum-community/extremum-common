@@ -383,28 +383,27 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
     @Test
     void whenSearching_softDeletionShouldBeRespected() {
         String uniqueName = UUID.randomUUID().toString();
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
-
-        assertThat(results, hasSize(1));
-    }
-
-    @NotNull
-    private String searchByFullString(String query) {
-        return "*" + query + "*";
-    }
-
-    @NotNull
-    private List<TestElasticsearchModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
         TestElasticsearchModel notDeleted = new TestElasticsearchModel();
         notDeleted.setName(uniqueName);
 
         TestElasticsearchModel deleted = new TestElasticsearchModel();
         deleted.setName(uniqueName);
-        deleted.setDeleted(true);
 
-        return Arrays.asList(notDeleted, deleted);
+        dao.saveAll(Arrays.asList(notDeleted, deleted));
+        dao.deleteById(deleted.getId());
+
+        client.refresh(TestElasticsearchModel.INDEX);
+
+        List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
+
+        assertThat(results, hasSize(1));
+        assertThat(results.get(0).getId(), is(equalTo(notDeleted.getId())));
+    }
+
+    @NotNull
+    private String searchByFullString(String query) {
+        return "*" + query + "*";
     }
 
     private static TestElasticsearchModel createModelWithExternalDescriptor() {
