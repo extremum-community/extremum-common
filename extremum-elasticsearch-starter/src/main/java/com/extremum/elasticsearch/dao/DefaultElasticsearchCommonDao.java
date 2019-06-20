@@ -1,18 +1,18 @@
 package com.extremum.elasticsearch.dao;
 
-import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
-import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
-import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.common.utils.StreamUtils;
+import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -170,7 +170,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     public Optional<Model> findById(String id) {
         try (RestHighLevelClient client = getClient()) {
             GetResponse response = client.get(
-                    new GetRequest(indexName, null, id),
+                    new GetRequest(indexName, id),
                     RequestOptions.DEFAULT
             );
 
@@ -212,7 +212,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     protected boolean isDocumentExists(String id) {
         try (RestHighLevelClient client = getClient()) {
-            GetRequest getRequest = new GetRequest(indexName, null, id);
+            GetRequest getRequest = new GetRequest(indexName, id);
             getRequest.fetchSourceContext(FetchSourceContext.DO_NOT_FETCH_SOURCE);
             getRequest.storedFields("_none_");
 
@@ -324,7 +324,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> scriptParams) {
         if (existsById(id)) {
-            final UpdateRequest request = new UpdateRequest(indexName, null, id);
+            final UpdateRequest request = new UpdateRequest(indexName, id);
 
             request.script(new Script(ScriptType.INLINE, "painless", painlessScript, scriptParams));
 
