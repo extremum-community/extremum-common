@@ -591,6 +591,7 @@ class ElasticsearchCommonDaoTest extends TestWithServices {
                 .build();
 
         model.setUuid(descriptor);
+
         return model;
     }
 }
