@@ -224,6 +224,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
     void givenEntityIsCreated_whenFindItWithSearch_thenVersionAndSequenceNumberAndPrimaryTermShouldBeFilled() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
+        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> searchResult = dao.search(searchByFullString(model.getId()));
         assertThat(searchResult, hasSize(1));

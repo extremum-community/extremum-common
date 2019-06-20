@@ -130,8 +130,9 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
         request.source(
                 new SearchSourceBuilder()
-                        .query(
-                                QueryBuilders.queryStringQuery(queryString)));
+                        .query(QueryBuilders.queryStringQuery(queryString))
+                        .seqNoAndPrimaryTerm(true)
+        );
 
         return doSearch(queryString, request);
     }
