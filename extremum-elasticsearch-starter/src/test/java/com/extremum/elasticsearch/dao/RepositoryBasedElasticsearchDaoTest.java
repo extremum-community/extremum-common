@@ -46,8 +46,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
-@SpringBootTest(classes = ElasticsearchCommonDaoConfiguration.class)
-class ElasticsearchCommonDaoTest extends TestWithServices {
+@SpringBootTest(classes = RepositoryBasedElasticsearchDaoConfiguration.class)
+class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     @Autowired
     private TestElasticsearchModelDao dao;
     @Autowired

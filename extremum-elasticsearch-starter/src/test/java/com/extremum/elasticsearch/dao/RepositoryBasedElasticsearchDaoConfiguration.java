@@ -10,5 +10,5 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @Import({CommonConfiguration.class, ElasticsearchRepositoriesConfiguration.class})
-public class ElasticsearchCommonDaoConfiguration {
+public class RepositoryBasedElasticsearchDaoConfiguration {
 }
