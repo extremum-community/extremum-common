@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Getter
@@ -13,10 +15,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ConfigurationProperties("elasticsearch")
+@Valid
 public class ElasticsearchProperties {
     private List<ElasticsearchProperties.Host> hosts;
     private String username;
     private String password;
+    @NotEmpty
+    private List<String> repositoryPackages;
 
     @Getter
     @Setter
