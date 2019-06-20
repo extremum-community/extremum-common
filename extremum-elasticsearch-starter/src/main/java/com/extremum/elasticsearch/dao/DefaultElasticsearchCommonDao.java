@@ -31,10 +31,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -241,8 +238,9 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     @Override
     public <N extends Model> N save(N model) {
         preSave(model);
-
-        return doSave(model);
+        N saved = doSave(model);
+        refreshIndex();
+        return saved;
     }
 
     protected <N extends Model> N doSave(N model) {
@@ -296,6 +294,14 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
+    protected void refreshIndex() {
+        try (RestHighLevelClient client = getClient()) {
+            client.indices().refresh(Requests.refreshRequest(indexName), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot refresh index", e);
+        }
+    }
+
     private Descriptor getOrCreateDescriptor(Model model) {
         String name = ModelUtils.getModelName(model.getClass());
 
@@ -327,7 +333,13 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     @Override
     public <N extends Model> List<N> saveAll(Iterable<N> entities) {
-        entities.forEach(this::save);
+        entities.forEach(model -> {
+            preSave(model);
+            doSave(model);
+        });
+
+        refreshIndex();
+        
         return StreamUtils.fromIterable(entities).collect(Collectors.toList());
     }
 
@@ -356,6 +368,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
                 final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
 
                 if (SC_OK == response.status().getStatus()) {
+                    refreshIndex();
                     return true;
                 } else {
                     log.warn("Document {} is not patched, status {}", id, response.status());

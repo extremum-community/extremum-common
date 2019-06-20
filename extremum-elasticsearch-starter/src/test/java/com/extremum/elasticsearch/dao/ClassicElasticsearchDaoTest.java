@@ -226,7 +226,6 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
     void givenEntityIsCreated_whenFindItWithSearch_thenVersionAndSequenceNumberAndPrimaryTermShouldBeFilled() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
-        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> searchResult = dao.search(searchByFullString(model.getId()));
         assertThat(searchResult, hasSize(1));
@@ -266,7 +265,6 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         model.setName(uniqueName);
         
         model = dao.save(model);
-        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
         assertThat(results.size(), is(1));
@@ -280,7 +278,6 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         model.setName(UUID.randomUUID().toString());
 
         model = dao.save(model);
-        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> results = dao.search(searchByFullString(model.getUuid().getExternalId()));
         assertThat(results.size(), is(1));
@@ -392,8 +389,6 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
 
         dao.saveAll(Arrays.asList(notDeleted, deleted));
         dao.deleteById(deleted.getId());
-
-        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
 

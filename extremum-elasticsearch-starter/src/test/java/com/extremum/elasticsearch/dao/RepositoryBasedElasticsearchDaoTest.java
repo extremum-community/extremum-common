@@ -358,7 +358,6 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         model.setName(uniqueName);
         
         model = dao.save(model);
-        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
         assertThat(results.size(), is(1));
@@ -372,7 +371,6 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         model.setName(UUID.randomUUID().toString());
 
         model = dao.save(model);
-        client.refresh(TestElasticsearchModel.INDEX);
 
         List<TestElasticsearchModel> results = dao.search(searchByFullString(model.getUuid().getExternalId()));
         assertThat(results.size(), is(1));

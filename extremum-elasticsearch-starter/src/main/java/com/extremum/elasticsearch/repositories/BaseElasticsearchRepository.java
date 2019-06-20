@@ -92,8 +92,11 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
                 .withUpdateRequest(updateRequest)
                 .build();
 
-        UpdateResponse response = elasticsearchOperations.update(updateQuery);
-        return response.getResult() == DocWriteResponse.Result.UPDATED;
+        UpdateResponse updateResponse = elasticsearchOperations.update(updateQuery);
+
+        refresh();
+
+        return updateResponse.getResult() == DocWriteResponse.Result.UPDATED;
     }
 
     private Script createScript(String painlessScript, Map<String, Object> params) {
