@@ -10,14 +10,21 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
+import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * Differs from the standard {@link SimpleElasticsearchRepository} in two aspects:
+ * 1. has implementations for our extension methods
+ * 2. implements soft-deletion logic; that is, all deletions are replaced with setting 'deleted' flag to true,
+ * and all find operations filter out documents with 'deleted' set to true.
+ *
  * @author rpuch
  */
-public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonModel> extends BaseElasticsearchRepository<T> {
+public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonModel>
+        extends BaseElasticsearchRepository<T> {
     private final ElasticsearchOperations elasticsearchOperations;
 
     private final SoftDeletion softDeletion = new SoftDeletion();
