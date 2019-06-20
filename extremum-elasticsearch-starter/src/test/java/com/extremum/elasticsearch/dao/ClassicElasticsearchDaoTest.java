@@ -2,6 +2,7 @@ package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.elasticsearch.TestWithServices;
@@ -321,7 +322,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void givenNoEntityExists_whenPatchingIt_thenExceptionShouldBeThrown() {
-        assertThrows(ElasticsearchStatusException.class,
+        assertThrows(ModelNotFoundException.class,
                 () -> dao.patch(UUID.randomUUID().toString(), "ctx._source.name = \"new name\""));
     }
 
