@@ -266,11 +266,10 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     protected void preSave(Model model) {
         if (model.getId() == null) {
-            String name = ModelUtils.getModelName(model.getClass());
-            final Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
-            final Descriptor stored = DescriptorService.store(descriptor);
-            model.setUuid(stored);
-            model.setId(stored.getInternalId());
+            final Descriptor descriptor = getOrCreateDescriptor(model);
+
+            model.setUuid(descriptor);
+            model.setId(descriptor.getInternalId());
             ZonedDateTime now = ZonedDateTime.now();
             model.setCreated(now);
             model.setModified(now);
@@ -281,6 +280,17 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
             } else {
                 throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
             }
+        }
+    }
+
+    private Descriptor getOrCreateDescriptor(Model model) {
+        String name = ModelUtils.getModelName(model.getClass());
+
+        if (model.getUuid() != null) {
+            return model.getUuid();
+        } else {
+            Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
+            return DescriptorService.store(descriptor);
         }
     }
 
