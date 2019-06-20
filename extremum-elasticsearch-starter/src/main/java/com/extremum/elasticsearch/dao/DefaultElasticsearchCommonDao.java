@@ -56,7 +56,11 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
 public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<Model> {
-    private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted; ctx._source.modified = params.modified";
+    private static final String MODIFIED = ElasticsearchCommonModel.FIELDS.modified.name();
+
+    private static final String PAINLESS_LANGUAGE = "painless";
+
+    private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted";
 
     private RestClientBuilder restClientBuilder;
     private ElasticsearchDescriptorFactory elasticsearchDescriptorFactory;
@@ -337,7 +341,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         if (existsById(id)) {
             final UpdateRequest request = new UpdateRequest(indexName, id);
 
-            request.script(new Script(ScriptType.INLINE, "painless", painlessScript, scriptParams));
+            request.script(createScript(painlessScript, scriptParams));
 
             try (final RestHighLevelClient client = getClient()) {
                 final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
@@ -355,6 +359,31 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         } else {
             throw new ModelNotFoundException("Not found " + id);
         }
+    }
+
+    private Script createScript(String painlessScript, Map<String, Object> params) {
+        String scriptWithModificationTimeChange = amendWithModificationTimeChange(painlessScript);
+        Map<String, Object> paramsWithModificationTimeChange = amendWithModificationTime(params);
+        return new Script(ScriptType.INLINE, PAINLESS_LANGUAGE, scriptWithModificationTimeChange,
+                paramsWithModificationTimeChange);
+    }
+
+    private String amendWithModificationTimeChange(String painlessScript) {
+        return painlessScript + changeModificationTimeScriptSuffix();
+    }
+
+    private String changeModificationTimeScriptSuffix() {
+        return "; ctx._source." + MODIFIED + " = params." + MODIFIED;
+    }
+
+    private Map<String, Object> amendWithModificationTime(Map<String, Object> params) {
+        Map<String, Object> paramsWithModificationTimeChange = new HashMap<>(params);
+        paramsWithModificationTimeChange.put(MODIFIED, getNowAsString());
+        return paramsWithModificationTimeChange;
+    }
+
+    private String getNowAsString() {
+        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
     }
 
     private Model extract(AccessorFacade accessor) {
