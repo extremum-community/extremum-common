@@ -26,9 +26,9 @@ import static java.util.Optional.ofNullable;
 public class DefaultDtoConversionService implements DtoConversionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDtoConversionService.class);
 
-    private StubDtoConverter stubDtoConverter;
-    private List<DtoConverter> converters;
-    private boolean useStubConverter = true;
+    private final StubDtoConverter stubDtoConverter;
+    private final List<DtoConverter> converters;
+    private final boolean useStubConverter = true;
 
     public DefaultDtoConversionService(@Autowired(required = false) List<DtoConverter> converters,
                                        StubDtoConverter stubDtoConverter) {

@@ -8,12 +8,13 @@ import java.util.Optional;
 public class ModelClasses {
     private static Map<String, Class<? extends Model>> modelNameToClassMap;
 
-    static void setModelNameToClassMap(Map<String, Class<? extends Model>> modelNameToClassMapIn) {
+    public static void setModelNameToClassMap(Map<String, Class<? extends Model>> modelNameToClassMapIn) {
         modelNameToClassMap = modelNameToClassMapIn;
     }
 
     public static Class<? extends Model> getClassByModelName(String modelName) {
         return Optional.ofNullable(modelNameToClassMap.get(modelName))
-                .orElseThrow(() -> new RuntimeException("Model with name " + modelName + "doesn't have annotation ModelName"));
+                .orElseThrow(() -> new RuntimeException("Model with name " + modelName
+                        + " is not known, probably it doesn't have @ModelName annotation"));
     }
 }

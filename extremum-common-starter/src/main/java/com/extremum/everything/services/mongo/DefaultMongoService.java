@@ -18,7 +18,7 @@ public interface DefaultMongoService<M extends MongoCommonModel> extends Everyth
         return services.stream()
                 .filter(type::isInstance)
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cannot found implementation for MongoCommonService for model " + modelClass));
+                .orElseThrow(() -> new RuntimeException("Cannot find implementation of MongoCommonService for model " + modelClass));
     }
 
     default M getById(List<MongoCommonService<? extends M>> services, String internalId) {

@@ -85,7 +85,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
         PatcherService patcherService = findServiceForModelOrElseThrow(modelName, patcherServices,
                 () -> new EverythingEverythingException(
-                        format("No one service of %d doesn't support patching models with name %s",
+                        format("Not a single service of %d supports patching models with name %s",
                                 patcherServices.size(), modelName)),
                 PatcherService.class);
 
@@ -100,7 +100,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
         RemovalService removalService = findServiceForModelOrElseThrow(modelName, removalServices,
                 () -> new EverythingEverythingException(
-                        format("No one service of %d doesn't support removing models with name %s",
+                        format("Not a single service of %d supports removing models with name %s",
                                 removalServices.size(), modelName)),
                 RemovalService.class);
 
