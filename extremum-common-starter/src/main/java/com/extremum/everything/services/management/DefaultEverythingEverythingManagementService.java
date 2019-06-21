@@ -17,6 +17,9 @@ import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.collection.CoordinatesHandler;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import com.extremum.everything.services.mongo.DefaultGetter;
+import com.extremum.everything.services.mongo.DefaultPatcher;
+import com.extremum.everything.services.mongo.DefaultRemover;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -38,6 +40,9 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<GetterService<? extends Model>> getterServices;
     private final List<PatcherService<? extends Model>> patcherServices;
     private final List<RemovalService> removalServices;
+    private final DefaultGetter<? extends Model> defaultGetter;
+    private final DefaultPatcher<? extends Model> defaultPatcher;
+    private final DefaultRemover<? extends Model> defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
@@ -49,13 +54,13 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     private Model retrieveModelObject(Descriptor id) {
         String modelName = determineModelName(id);
-        GetterService getterService = findGetterService(modelName);
-        Model model = getterService.get(id.getInternalId());
+        Getter getter = findGetter(modelName);
+        Model model = getter.get(id.getInternalId());
 
         if (model != null) {
-            LOGGER.debug(format("Model with ID '%s' was found by service '%s': '%s'", id, getterService, model));
+            LOGGER.debug(format("Model with ID '%s' was found by service '%s': '%s'", id, getter, model));
         } else {
-            LOGGER.debug(format("Model with ID '%s' wasn't found by service '%s'", id, getterService));
+            LOGGER.debug(format("Model with ID '%s' wasn't found by service '%s'", id, getter));
         }
         return model;
     }
@@ -73,12 +78,13 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         }
     }
 
-    private GetterService findGetterService(String modelName) {
-        return findServiceForModelOrElseThrow(modelName, GetterService.class, getterServices,
-                    () -> new EverythingEverythingException(
-                            format("Not a single service of %d supports getting models with name '%s'",
-                                    getterServices.size(), modelName))
-        );
+    private Getter findGetter(String modelName) {
+        GetterService<Model> service = findServiceForModel(modelName, GetterService.class, getterServices);;
+        if (service != null) {
+            return new GetterServiceGetter<>(service);
+        }
+
+        return defaultGetter;
     }
 
     @Override
@@ -96,36 +102,36 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
         String modelName = determineModelName(id);
 
-        PatcherService patcherService = findPatcherService(modelName);
+        Patcher patcher = findPatcher(modelName);
 
-        Model patched = patcherService.patch(id.getInternalId(), patch);
+        Model patched = patcher.patch(id.getInternalId(), patch);
         return convertModelToResponseDto(patched, expand);
     }
 
-    private PatcherService findPatcherService(String modelName) {
-        return findServiceForModelOrElseThrow(modelName, PatcherService.class, patcherServices,
-                    () -> new EverythingEverythingException(
-                            format("Not a single service of %d supports patching models with name '%s'",
-                                    patcherServices.size(), modelName))
-        );
+    private Patcher findPatcher(String modelName) {
+        PatcherService<Model> service = findServiceForModel(modelName, PatcherService.class, patcherServices);
+        if (service != null) {
+            return new PatcherServicePatcher<>(service);
+        }
+
+        return defaultPatcher;
     }
 
     @Override
     public void remove(Descriptor id) {
         String modelName = determineModelName(id);
-
-        RemovalService removalService = findRemovalService(modelName);
-
-        removalService.remove(id.getInternalId());
-        LOGGER.debug(format("Model with ID '%s' was removed by service '%s'", id, removalService));
+        Remover remover = findRemover(modelName);
+        remover.remove(id.getInternalId());
+        LOGGER.debug(format("Model with ID '%s' was removed by service '%s'", id, remover));
     }
 
-    private RemovalService findRemovalService(String modelName) {
-        return findServiceForModelOrElseThrow(modelName, RemovalService.class, removalServices,
-                    () -> new EverythingEverythingException(
-                            format("Not a single service of %d supports removing models with name '%s'",
-                                    removalServices.size(), modelName))
-        );
+    private Remover findRemover(String modelName) {
+        RemovalService removalService = findServiceForModel(modelName, RemovalService.class, removalServices);
+        if (removalService != null) {
+            return new RemovalServiceRemover(removalService);
+        }
+
+        return defaultRemover;
     }
 
     private String determineModelNameById(Descriptor id) {
@@ -134,8 +140,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private <T extends EverythingEverythingService> T findServiceForModel(String modelName,
-                                                                          Collection<? extends EverythingEverythingService> services,
-                                                                          Class<T> expectedServiceType) {
+            Class<T> expectedServiceType, Collection<? extends EverythingEverythingService> services) {
         requireNonNull(modelName, "Name of a model can't be null");
         requireNonNull(services, "Services list can't be null");
 
@@ -145,20 +150,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
                 .filter(expectedServiceType::isInstance)
                 .map(expectedServiceType::cast)
                 .orElse(null);
-    }
-
-    private <T extends EverythingEverythingService> T findServiceForModelOrElseThrow(String modelName,
-            Class<T> expectedServiceType, Collection<? extends EverythingEverythingService> services,
-            Supplier<? extends RuntimeException> exceptionSupplier) {
-        T result = findServiceForModel(modelName, services, expectedServiceType);
-
-        if (result == null) {
-            LOGGER.error("No services for a {} model support found. {} services were consulted",
-                    modelName, services.size());
-            throw exceptionSupplier.get();
-        } else {
-            return result;
-        }
     }
 
     private Predicate<? super EverythingEverythingService> getIsServiceSupportsModelFilter(String modelName) {

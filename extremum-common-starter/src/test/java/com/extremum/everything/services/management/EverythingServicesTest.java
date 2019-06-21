@@ -10,20 +10,19 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.MongoCommonModel;
+import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
-import com.extremum.everything.services.mongo.DefaultMongoGetterService;
-import com.extremum.everything.services.mongo.DefaultMongoPatcherService;
-import com.extremum.everything.services.mongo.DefaultMongoRemovalService;
+import com.extremum.everything.services.mongo.DefaultGetter;
+import com.extremum.everything.services.mongo.DefaultPatcher;
+import com.extremum.everything.services.mongo.DefaultRemover;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.google.common.collect.ImmutableList;
 import org.bson.types.ObjectId;
-import org.junit.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,28 +90,25 @@ class EverythingServicesTest {
     void initEverythingServicesAndManagementService() {
         MongoCommonServiceImpl<MongoModelWithoutServices> commonServiceForMongoModelWithoutServices
                 = new MongoCommonServiceImpl<MongoModelWithoutServices>(commonDaoForModelWithoutServices) {};
-        List<GetterService<? extends Model>> getters = ImmutableList.of(
-                new MongoWithServicesGetterService(),
-                new DefaultMongoGetterService<MongoCommonModel>(
-                        ImmutableList.of(commonServiceForMongoModelWithoutServices)
-                )
+        List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
+        List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
+        List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
+
+        DefaultGetter<? extends Model> defaultGetter = new DefaultGetter<Model>(
+                ImmutableList.of(commonServiceForMongoModelWithoutServices)
         );
-        List<PatcherService<? extends Model>> patchers = ImmutableList.of(
-                mongoWithServicesPatcherService,
-                new DefaultMongoPatcherService<MongoCommonModel>(dtoConversionService, objectMapper,
-                        new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                        ImmutableList.of(commonServiceForMongoModelWithoutServices),
-                        ImmutableList.of(new DtoConverterForModelWithoutServices())
-                )
+        DefaultPatcher<? extends Model> defaultPatcher = new DefaultPatcher<PersistableCommonModel<?>>(
+                dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
+                ImmutableList.of(commonServiceForMongoModelWithoutServices),
+                ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
-        List<RemovalService> removers = ImmutableList.of(
-                mongoWithServicesRemovalService,
-                new DefaultMongoRemovalService<MongoCommonModel>(
-                        ImmutableList.of(commonServiceForMongoModelWithoutServices)
-                )
+        DefaultRemover<? extends Model> defaultRemover = new DefaultRemover<Model>(
+                ImmutableList.of(commonServiceForMongoModelWithoutServices)
         );
 
-        service = new DefaultEverythingEverythingManagementService(getters, patchers, removers, Collections.emptyList(),
+        service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
+                defaultGetter, defaultPatcher, defaultRemover,
+                Collections.emptyList(),
                 dtoConversionService, NOT_USED);
     }
 

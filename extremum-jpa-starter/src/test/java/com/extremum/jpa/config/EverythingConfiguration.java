@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({DefaultJpaServicesConfiguration.class, JpaRepositoriesConfiguration.class, CommonConfiguration.class})
+@Import({JpaRepositoriesConfiguration.class, CommonConfiguration.class})
 public class EverythingConfiguration {
 }

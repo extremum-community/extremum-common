@@ -77,6 +77,7 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
                 Collections.singletonList(streetGetterService),
                 Collections.emptyList(),
                 Collections.emptyList(),
+                null, null, null,
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,
                 universalDao
