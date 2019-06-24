@@ -1,8 +1,5 @@
 package com.extremum.everything.config.listener;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
-import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.utils.FindUtils;
@@ -42,11 +39,4 @@ public class DefaultModelClasses implements ModelClasses {
                         + " is not known, probably it doesn't have @ModelName annotation"));
     }
 
-    @Override
-    public Class<? extends Model> getModelClassByDescriptorId(String internalId) {
-        Descriptor descriptor = DescriptorService.loadByInternalId(internalId)
-                .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
-
-        return this.getClassByModelName(descriptor.getModelType());
-    }
 }

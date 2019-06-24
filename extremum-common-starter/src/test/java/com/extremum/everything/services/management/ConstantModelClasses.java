@@ -1,8 +1,5 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
-import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
 import com.extremum.everything.config.listener.ModelClasses;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
@@ -24,11 +21,4 @@ public class ConstantModelClasses implements ModelClasses {
         return modelNameToClassMap.get(modelName);
     }
 
-    @Override
-    public Class<? extends Model> getModelClassByDescriptorId(String internalId) {
-        Descriptor descriptor = DescriptorService.loadByInternalId(internalId)
-                .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
-
-        return this.getClassByModelName(descriptor.getModelType());
-    }
 }
