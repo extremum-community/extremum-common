@@ -20,6 +20,7 @@ public interface PersistableCommonModel<ID extends Serializable> extends BasicMo
 
     void setDeleted(Boolean deleted);
 
+    @Override
     default void copyServiceFieldsTo(Model to) {
         if (!(to instanceof PersistableCommonModel)) {
             throw new IllegalStateException("I can only copy to a PersistableCommonModel");

@@ -13,6 +13,7 @@ public interface BasicModel<ID extends Serializable> extends Model {
 
     void setId(ID id);
 
+    @Override
     default void copyServiceFieldsTo(Model to) {
         if (!(to instanceof BasicModel)) {
             throw new IllegalStateException("I can only copy to a BasicModel");
