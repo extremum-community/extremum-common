@@ -4,7 +4,6 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
-import com.extremum.everything.config.listener.DefaultModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
@@ -18,7 +17,6 @@ public class ConstantModelClasses implements ModelClasses {
 
     public ConstantModelClasses(Map<String, Class<? extends Model>> modelNameToClassMap) {
         this.modelNameToClassMap = ImmutableMap.copyOf(modelNameToClassMap);
-        DefaultModelClasses.setInstance(this);
     }
 
     @Override

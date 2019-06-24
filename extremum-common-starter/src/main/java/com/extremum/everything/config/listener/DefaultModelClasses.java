@@ -16,12 +16,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DefaultModelClasses implements ModelClasses {
-    private static ModelClasses INSTANCE;
-    public static ModelClasses getInstance() { return INSTANCE; }
-    public static void setInstance(ModelClasses modelClasses) {
-        INSTANCE = modelClasses;
-    }
-
     private final Map<String, Class<? extends Model>> modelNameToClassMap;
 
     public DefaultModelClasses(List<String> modelPackages) {
@@ -39,8 +33,6 @@ public class DefaultModelClasses implements ModelClasses {
                                     "Found a model with duplicate ModelName value: " + ModelUtils.getModelName(aClass));
                         }));
         modelNameToClassMap = ImmutableMap.copyOf(modelClasses);
-
-        setInstance(this);
     }
 
     public static void setModelNameToClassMap(Map<String, Class<? extends Model>> modelNameToClassMapIn) {
