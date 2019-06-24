@@ -87,9 +87,10 @@ public class ExtremumResultMapper extends DefaultResultMapper {
     public <T> List<T> mapResults(MultiGetResponse responses, Class<T> clazz) {
         List<T> results = super.mapResults(responses, clazz);
 
+        MultiGetItemResponse[] itemResponses = responses.getResponses();
         for (int i = 0; i < results.size(); i++) {
             T result = results.get(i);
-            MultiGetItemResponse itemResponse = responses.getResponses()[i];
+            MultiGetItemResponse itemResponse = itemResponses[i];
             asElasticsearchModel(result).ifPresent(model -> {
                 fillSequenceNumberAndPrimaryTerm(itemResponse.getResponse(), model);
             });
