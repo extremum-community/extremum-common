@@ -118,8 +118,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter<Model> defaultGetter(List<CommonService<?, ? extends Model>> commonServices) {
-        return new DefaultGetterImpl<>(commonServices);
+    public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelClasses modelClasses) {
+        return new DefaultGetterImpl<>(commonServices, modelClasses);
     }
 
     @Bean
@@ -139,7 +139,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DefaultRemover defaultRemover(CommonServices commonServices, ModelClasses modelClasses) {
-        return new DefaultRemoverImpl<>(commonServices, modelClasses);
+        return new DefaultRemoverImpl(commonServices, modelClasses);
     }
 
     @Bean
