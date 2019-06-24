@@ -1,4 +1,4 @@
-package com.extremum.everything.services.mongo;
+package com.extremum.everything.services.management;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;

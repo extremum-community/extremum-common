@@ -34,9 +34,9 @@ import com.extremum.everything.services.management.DefaultEverythingCollectionMa
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
 import com.extremum.everything.services.management.EverythingCollectionManagementService;
 import com.extremum.everything.services.management.EverythingEverythingManagementService;
-import com.extremum.everything.services.mongo.DefaultGetter;
-import com.extremum.everything.services.mongo.DefaultPatcher;
-import com.extremum.everything.services.mongo.DefaultRemover;
+import com.extremum.everything.services.management.DefaultGetter;
+import com.extremum.everything.services.management.DefaultPatcher;
+import com.extremum.everything.services.management.DefaultRemover;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,7 @@
-package com.extremum.everything.services.mongo;
+package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
-import com.extremum.everything.services.management.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

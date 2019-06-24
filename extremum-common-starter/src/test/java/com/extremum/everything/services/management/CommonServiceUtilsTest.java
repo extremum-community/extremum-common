@@ -1,4 +1,4 @@
-package com.extremum.everything.services.mongo;
+package com.extremum.everything.services.management;
 
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.models.MongoCommonModel;

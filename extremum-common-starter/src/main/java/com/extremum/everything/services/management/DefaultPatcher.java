@@ -1,4 +1,4 @@
-package com.extremum.everything.services.mongo;
+package com.extremum.everything.services.management;
 
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
@@ -7,7 +7,6 @@ import com.extremum.common.models.BasicModel;
 import com.extremum.common.service.CommonService;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.RequestDtoValidator;
-import com.extremum.everything.services.management.Patcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 
