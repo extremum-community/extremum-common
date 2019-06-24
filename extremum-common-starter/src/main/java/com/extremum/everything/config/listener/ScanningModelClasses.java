@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DefaultModelClasses implements ModelClasses {
+public class ScanningModelClasses implements ModelClasses {
     private final Map<String, Class<? extends Model>> modelNameToClassMap;
 
-    public DefaultModelClasses(List<String> modelPackages) {
+    public ScanningModelClasses(List<String> modelPackages) {
         List<Class<? extends Model>> models = new ArrayList<>();
         for (String packageName : modelPackages) {
             models.addAll(FindUtils.findClassesByAnnotation(Model.class, ModelName.class, packageName));

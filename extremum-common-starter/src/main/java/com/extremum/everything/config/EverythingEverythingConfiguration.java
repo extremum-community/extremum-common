@@ -16,7 +16,7 @@ import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
-import com.extremum.everything.config.listener.DefaultModelClasses;
+import com.extremum.everything.config.listener.ScanningModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.config.properties.DestroyerProperties;
 import com.extremum.everything.config.properties.ModelProperties;
@@ -111,7 +111,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ModelClasses modelClasses() {
-        return new DefaultModelClasses(modelProperties.getPackageNames());
+        return new ScanningModelClasses(modelProperties.getPackageNames());
     }
 
     @Bean
