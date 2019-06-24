@@ -119,7 +119,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DefaultGetter<Model> defaultGetter(List<CommonService<?, ? extends Model>> commonServices) {
-        return new DefaultGetter<>(commonServices);
+        return new DefaultGetterImpl<>(commonServices);
     }
 
     @Bean
@@ -132,14 +132,14 @@ public class EverythingEverythingConfiguration {
             ModelClasses modelClasses,
             List<FromRequestDtoConverter<? extends BasicModel<?>, ? extends RequestDto>> dtoConverters
     ) {
-        return new DefaultPatcher<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
+        return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
                 services, commonServices, modelClasses, dtoConverters);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public DefaultRemover<Model> defaultRemover(CommonServices commonServices, ModelClasses modelClasses) {
-        return new DefaultRemover<>(commonServices, modelClasses);
+        return new DefaultRemoverImpl<>(commonServices, modelClasses);
     }
 
     @Bean

@@ -99,16 +99,16 @@ class EverythingServicesTest {
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
-        DefaultGetter<? extends Model> defaultGetter = new DefaultGetter<Model>(
+        DefaultGetter<? extends Model> defaultGetter = new DefaultGetterImpl<Model>(
                 ImmutableList.of(commonServiceForMongoModelWithoutServices)
         );
-        DefaultPatcher<? extends Model> defaultPatcher = new DefaultPatcher<PersistableCommonModel<?>>(
+        DefaultPatcher<? extends Model> defaultPatcher = new DefaultPatcherImpl<PersistableCommonModel<?>>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 ImmutableList.of(commonServiceForMongoModelWithoutServices),
                 commonServices, modelClasses,
                 ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
-        DefaultRemover<? extends Model> defaultRemover = new DefaultRemover<>(
+        DefaultRemover<? extends Model> defaultRemover = new DefaultRemoverImpl<>(
                 commonServices, modelClasses
         );
 

@@ -1,17 +1,10 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
-import com.extremum.common.service.CommonService;
-import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
-@RequiredArgsConstructor
-public class DefaultGetter<M extends Model> implements Getter<M>, DefaultService<M> {
-    private final List<CommonService<?, ? extends M>> services;
-
-    @Override
-    public M get(String id) {
-        return getById(services, id);
-    }
+/**
+ * @author rpuch
+ */
+public interface DefaultGetter<M extends Model> extends Getter<M>, DefaultService<M> {
+    M get(String id);
 }
