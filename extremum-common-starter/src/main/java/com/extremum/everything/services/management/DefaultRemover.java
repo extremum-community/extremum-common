@@ -1,18 +1,16 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
-import com.extremum.common.service.CommonService;
 import com.extremum.everything.services.Remover;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 public class DefaultRemover<M extends Model> implements Remover, DefaultService<M> {
-    private final List<CommonService<?, ? extends M>> services;
+    private final CommonServices commonServices;
 
     @Override
     public void remove(String id) {
-        findServiceByModel(services, getModelByDescriptorId(id)).delete(id);
+        Class<? extends M> model = (Class<M>) getModelByDescriptorId(id);
+        commonServices.findServiceByModel(model).delete(id);
     }
 }

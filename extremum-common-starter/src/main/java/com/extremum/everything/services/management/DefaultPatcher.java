@@ -19,9 +19,10 @@ public class DefaultPatcher<M extends BasicModel<?>>
     public DefaultPatcher(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
             List<CommonService<?, ? extends M>> services,
+            CommonServices commonServices,
             List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters) {
         internalPatcher = new InternalDefaultPatcher<>(dtoConversionService, jsonMapper, emptyFieldDestroyer,
-                dtoValidator, services, dtoConverters);
+                dtoValidator, services, commonServices, dtoConverters);
     }
 
     @Override

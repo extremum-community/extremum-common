@@ -87,6 +87,9 @@ class EverythingServicesTest {
     void initEverythingServicesAndManagementService() {
         MongoCommonServiceImpl<MongoModelWithoutServices> commonServiceForMongoModelWithoutServices
                 = new MongoCommonServiceImpl<MongoModelWithoutServices>(commonDaoForModelWithoutServices) {};
+        CommonServices commonServices = new DefaultCommonServices(
+                ImmutableList.of(commonServiceForMongoModelWithoutServices));
+
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
@@ -97,10 +100,11 @@ class EverythingServicesTest {
         DefaultPatcher<? extends Model> defaultPatcher = new DefaultPatcher<PersistableCommonModel<?>>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 ImmutableList.of(commonServiceForMongoModelWithoutServices),
+                commonServices,
                 ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
-        DefaultRemover<? extends Model> defaultRemover = new DefaultRemover<Model>(
-                ImmutableList.of(commonServiceForMongoModelWithoutServices)
+        DefaultRemover<? extends Model> defaultRemover = new DefaultRemover<>(
+                commonServices
         );
 
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,

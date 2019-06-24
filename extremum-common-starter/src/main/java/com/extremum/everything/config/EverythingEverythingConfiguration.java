@@ -30,13 +30,7 @@ import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
-import com.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
-import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
-import com.extremum.everything.services.management.EverythingCollectionManagementService;
-import com.extremum.everything.services.management.EverythingEverythingManagementService;
-import com.extremum.everything.services.management.DefaultGetter;
-import com.extremum.everything.services.management.DefaultPatcher;
-import com.extremum.everything.services.management.DefaultRemover;
+import com.extremum.everything.services.management.*;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -110,6 +104,12 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public CommonServices commonServices(List<CommonService<?, ? extends Model>> services) {
+        return new DefaultCommonServices(services);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public DefaultGetter<Model> defaultGetter(List<CommonService<?, ? extends Model>> commonServices) {
         return new DefaultGetter<>(commonServices);
     }
@@ -120,15 +120,16 @@ public class EverythingEverythingConfiguration {
             DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
             List<CommonService<?, ? extends BasicModel<?>>> services,
+            CommonServices commonServices,
             List<FromRequestDtoConverter<? extends BasicModel<?>, ? extends RequestDto>> dtoConverters
     ) {
         return new DefaultPatcher<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                services, dtoConverters);
+                services, commonServices, dtoConverters);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultRemover<Model> defaultRemover(List<CommonService<?, ? extends Model>> commonServices) {
+    public DefaultRemover<Model> defaultRemover(CommonServices commonServices) {
         return new DefaultRemover<>(commonServices);
     }
 

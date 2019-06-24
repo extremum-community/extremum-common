@@ -4,6 +4,7 @@ import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.BasicModel;
+import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -13,17 +14,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-class InternalDefaultPatcher<M extends BasicModel<?>>
+class InternalDefaultPatcher<M extends Model>
         extends AbstractPatcherService<M> implements DefaultService<M> {
     private final List<CommonService<?, ? extends M>> services;
+    private final CommonServices commonServices;
     private final List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters;
 
     InternalDefaultPatcher(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
             List<CommonService<?, ? extends M>> services,
+            CommonServices commonServices,
             List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters) {
         super(dtoConversionService, jsonMapper, emptyFieldDestroyer, dtoValidator);
         this.services = services;
+        this.commonServices = commonServices;
         this.dtoConverters = dtoConverters;
     }
 
@@ -43,7 +47,8 @@ class InternalDefaultPatcher<M extends BasicModel<?>>
         context.getOriginModel().copyServiceFieldsTo(model);
 
 //      We can eliminate this warning because we cast service generic to the base class
-        @SuppressWarnings("unchecked") CommonService<?, M> commonService = (CommonService<?, M>) findServiceByModel(services, model.getClass());
+        @SuppressWarnings("unchecked")
+        CommonService<?, M> commonService = (CommonService<?, M>) commonServices.findServiceByModel(model.getClass());
         return commonService.save(model);
     }
 
