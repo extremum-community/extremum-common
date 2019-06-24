@@ -39,8 +39,8 @@ class ListBasedCommonServicesTest {
             services.findServiceByModel(SecondModel.class);
             fail("An exception should be thrown");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Cannot find implementation of CommonService for model class " +
-                    "com.extremum.everything.support.ListBasedCommonServicesTest$SecondModel"));
+            assertThat(e.getMessage(), is("Cannot find implementation of CommonService for model class "
+                    + SecondModel.class.getName()));
         }
     }
 
