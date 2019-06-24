@@ -6,7 +6,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
 import com.extremum.everything.support.CommonServices;
-import com.extremum.everything.config.listener.ModelClasses;
+import com.extremum.everything.support.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.AbstractPatcherService;
 import com.extremum.everything.services.RequestDtoValidator;

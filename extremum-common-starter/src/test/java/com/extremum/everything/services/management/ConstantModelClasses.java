@@ -1,7 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
-import com.extremum.everything.config.listener.ModelClasses;
+import com.extremum.everything.support.ModelClasses;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import java.util.Map;

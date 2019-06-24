@@ -1,4 +1,4 @@
-package com.extremum.everything.config.listener;
+package com.extremum.everything.support;
 
 import com.extremum.common.models.Model;
 

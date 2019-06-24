@@ -5,7 +5,7 @@ import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
 import com.extremum.everything.support.CommonServices;
-import com.extremum.everything.config.listener.ModelClasses;
+import com.extremum.everything.support.ModelClasses;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

@@ -13,7 +13,7 @@ import com.extremum.common.models.Model;
 import com.extremum.everything.support.CommonServices;
 import com.extremum.everything.support.ListBasedCommonServices;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
-import com.extremum.everything.config.listener.ModelClasses;
+import com.extremum.everything.support.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
