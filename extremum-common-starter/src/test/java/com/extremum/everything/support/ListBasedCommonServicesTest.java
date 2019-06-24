@@ -1,7 +1,6 @@
 package com.extremum.everything.support;
 
 import com.extremum.common.dao.MongoCommonDao;
-import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.service.CommonService;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -43,12 +42,6 @@ class ListBasedCommonServicesTest {
             assertThat(e.getMessage(), is("Cannot find implementation of CommonService for model class " +
                     "com.extremum.everything.support.ListBasedCommonServicesTest$SecondModel"));
         }
-    }
-
-    private static class FirstModel extends MongoCommonModel {
-    }
-
-    private static class SecondModel extends MongoCommonModel {
     }
 
     private static class FirstModelService extends MongoCommonServiceImpl<FirstModel> {
