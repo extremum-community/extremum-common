@@ -17,10 +17,7 @@ import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author rpuch
@@ -98,7 +95,7 @@ public class ExtremumEntityMapper extends DefaultEntityMapper {
             public SpringDataSerializerModifier(
                     MappingContext<? extends ElasticsearchPersistentEntity<?>, ElasticsearchPersistentProperty> context) {
 
-                Assert.notNull(context, "MappingContext must not be null!");
+                Objects.requireNonNull(context, "MappingContext must not be null!");
 
                 this.context = context;
             }
