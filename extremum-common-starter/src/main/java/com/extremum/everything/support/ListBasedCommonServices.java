@@ -1,4 +1,4 @@
-package com.extremum.everything.services.management;
+package com.extremum.everything.support;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
