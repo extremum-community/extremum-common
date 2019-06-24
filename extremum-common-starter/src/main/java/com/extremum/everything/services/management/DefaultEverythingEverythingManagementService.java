@@ -11,7 +11,6 @@ import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
-import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.*;
@@ -150,8 +149,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private Predicate<? super EverythingEverythingService> getIsServiceSupportsModelFilter(String modelName) {
-        Class<? extends Model> modelClass = ModelClasses.getClassByModelName(modelName);
-        return service -> service.isSupportedModel(modelClass) || modelName.equalsIgnoreCase(service.getSupportedModel());
+        return service -> modelName.equalsIgnoreCase(service.getSupportedModel());
     }
 
 
