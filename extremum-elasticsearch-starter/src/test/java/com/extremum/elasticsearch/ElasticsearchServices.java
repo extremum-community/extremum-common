@@ -33,7 +33,7 @@ class ElasticsearchServices {
     }
 
     private static void startElasticsearch() {
-        System.setProperty("es.set.netty.runtime.available.processors", "false");
+        workaroundElasticsearchClientStartupQuirk();
 
         if ("true".equals(System.getProperty("start.elasticsearch", "true"))) {
             ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
@@ -50,6 +50,10 @@ class ElasticsearchServices {
             System.setProperty("elasticsearch.hosts[0].port", "9200");
             System.setProperty("elasticsearch.hosts[0].protocol", "http");
         }
+    }
+
+    private static void workaroundElasticsearchClientStartupQuirk() {
+        System.setProperty("es.set.netty.runtime.available.processors", "false");
     }
 
     @NotNull
