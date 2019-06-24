@@ -138,7 +138,7 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultRemover<Model> defaultRemover(CommonServices commonServices, ModelClasses modelClasses) {
+    public DefaultRemover defaultRemover(CommonServices commonServices, ModelClasses modelClasses) {
         return new DefaultRemoverImpl<>(commonServices, modelClasses);
     }
 
@@ -150,7 +150,7 @@ public class EverythingEverythingConfiguration {
             List<RemovalService> removalServices,
             DefaultGetter<Model> defaultGetter,
             DefaultPatcher<BasicModel<?>> defaultPatcher,
-            DefaultRemover<Model> defaultRemover,
+            DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao) {

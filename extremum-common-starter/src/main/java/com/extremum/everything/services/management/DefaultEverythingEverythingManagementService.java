@@ -38,7 +38,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<RemovalService> removalServices;
     private final DefaultGetter<? extends Model> defaultGetter;
     private final DefaultPatcher<? extends Model> defaultPatcher;
-    private final DefaultRemover<? extends Model> defaultRemover;
+    private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;

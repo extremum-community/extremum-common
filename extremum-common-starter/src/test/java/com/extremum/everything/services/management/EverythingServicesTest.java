@@ -108,9 +108,7 @@ class EverythingServicesTest {
                 commonServices, modelClasses,
                 ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
-        DefaultRemover<? extends Model> defaultRemover = new DefaultRemoverImpl<>(
-                commonServices, modelClasses
-        );
+        DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelClasses);
 
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
                 defaultGetter, defaultPatcher, defaultRemover,
