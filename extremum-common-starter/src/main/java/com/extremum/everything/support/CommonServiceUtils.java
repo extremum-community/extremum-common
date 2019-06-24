@@ -9,16 +9,13 @@ import org.springframework.core.ResolvableType;
  */
 class CommonServiceUtils {
     static boolean isCommonServiceOfModelClass(CommonService<?, ?> service, Class<? extends Model> modelClass) {
+        Class<?> serviceModelClass = findServiceModelClass(service);
+        return serviceModelClass == modelClass;
+    }
+
+    static Class<?> findServiceModelClass(CommonService<?, ?> service) {
         ResolvableType commonServiceInterface = findCommonServiceInterface(service);
-
-        for (ResolvableType generic : commonServiceInterface.getGenerics()) {
-            Class<?> resolvedGeneric = generic.resolve(Object.class);
-            if (Model.class.isAssignableFrom(resolvedGeneric)) {
-                return modelClass == resolvedGeneric;
-            }
-        }
-
-        return false;
+        return findModelGeneric(commonServiceInterface, service);
     }
 
     private static ResolvableType findCommonServiceInterface(CommonService<?, ?> service) {
@@ -36,5 +33,16 @@ class CommonServiceUtils {
         } while (commonServiceInterface == ResolvableType.NONE && currentType != ResolvableType.NONE);
 
         return commonServiceInterface;
+    }
+
+    private static Class<?> findModelGeneric(ResolvableType commonServiceInterface, CommonService<?, ?> service) {
+        for (ResolvableType generic : commonServiceInterface.getGenerics()) {
+            Class<?> resolvedGeneric = generic.resolve();
+            if (resolvedGeneric != null && Model.class.isAssignableFrom(resolvedGeneric)) {
+                return resolvedGeneric;
+            }
+        }
+
+        throw new IllegalStateException("For class " + service.getClass() + " did not find model generic");
     }
 }

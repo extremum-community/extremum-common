@@ -5,6 +5,9 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,8 +25,14 @@ class CommonServiceUtilsTest {
     }
 
     @Test
-    void givenCommonServiceIsOfTypeA_whenCheckingForB_thenShouldReturnTrue() {
+    void givenCommonServiceIsOfTypeA_whenCheckingForB_thenShouldReturnFalse() {
         assertFalse(CommonServiceUtils.isCommonServiceOfModelClass(aService, B.class));
+    }
+
+    @Test
+    void givenCommonServiceIsOfTypeA_whenFindServiceModelClass_thenReturnClassA() {
+        Class<?> modelClass = CommonServiceUtils.findServiceModelClass(aService);
+        assertThat(modelClass, is(sameInstance(A.class)));
     }
 
     private static class A extends MongoCommonModel {
