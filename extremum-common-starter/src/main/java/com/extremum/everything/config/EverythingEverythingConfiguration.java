@@ -11,15 +11,12 @@ import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
-import com.extremum.everything.support.CommonServices;
-import com.extremum.everything.support.ListBasedCommonServices;
+import com.extremum.everything.support.*;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
-import com.extremum.everything.support.ScanningModelClasses;
-import com.extremum.everything.support.ModelClasses;
 import com.extremum.everything.config.properties.DestroyerProperties;
 import com.extremum.everything.config.properties.ModelProperties;
 import com.extremum.everything.controllers.DefaultEverythingEverythingCollectionRestController;
@@ -118,8 +115,14 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelClasses modelClasses) {
-        return new DefaultGetterImpl<>(commonServices, modelClasses);
+    public ModelDescriptors modelDescriptors(ModelClasses modelClasses) {
+        return new DefaultModelDescriptors(modelClasses);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultGetterImpl<>(commonServices, modelDescriptors);
     }
 
     @Bean
@@ -138,8 +141,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultRemover defaultRemover(CommonServices commonServices, ModelClasses modelClasses) {
-        return new DefaultRemoverImpl(commonServices, modelClasses);
+    public DefaultRemover defaultRemover(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultRemoverImpl(commonServices, modelDescriptors);
     }
 
     @Bean

@@ -10,10 +10,8 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
-import com.extremum.everything.support.CommonServices;
-import com.extremum.everything.support.ListBasedCommonServices;
+import com.extremum.everything.support.*;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
-import com.extremum.everything.support.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
@@ -86,18 +84,19 @@ class EverythingServicesTest {
                 MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
                 MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
         ));
+        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses);
 
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
-        DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelClasses);
+        DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelDescriptors);
         DefaultPatcher<Model> defaultPatcher = new DefaultPatcherImpl<>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 commonServices, modelClasses, defaultGetter,
                 ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
-        DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelClasses);
+        DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
                 defaultGetter, defaultPatcher, defaultRemover,
