@@ -1,4 +1,4 @@
-package com.extremum.everything.services;
+package com.extremum.everything.services.management;
 
 public interface Remover {
     void remove(String id);
