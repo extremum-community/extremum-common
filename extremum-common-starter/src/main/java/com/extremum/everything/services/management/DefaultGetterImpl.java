@@ -16,13 +16,12 @@ public class DefaultGetterImpl<M extends Model> implements DefaultGetter<M> {
 
     @Override
     public M get(String internalId) {
-        Class<? extends Model> modelClass = getModelByDescriptorId1(internalId);
-        CommonService<?, ? extends M> service = (CommonService<?, ? extends M>) commonServices.findServiceByModel(
-                modelClass);
+        Class<M> modelClass = getModelByDescriptorId1(internalId);
+        CommonService<? extends M> service = commonServices.findServiceByModel(modelClass);
         return service.get(internalId);
     }
 
-    private Class<? extends Model> getModelByDescriptorId1(String internalId) {
+    private Class<M> getModelByDescriptorId1(String internalId) {
         Descriptor descriptor = DescriptorService.loadByInternalId(internalId)
                 .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
 

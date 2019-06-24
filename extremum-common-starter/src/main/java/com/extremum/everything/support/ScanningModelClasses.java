@@ -33,10 +33,12 @@ public class ScanningModelClasses implements ModelClasses {
     }
 
     @Override
-    public Class<? extends Model> getClassByModelName(String modelName) {
-        return Optional.ofNullable(modelNameToClassMap.get(modelName))
+    public <M extends Model> Class<M> getClassByModelName(String modelName) {
+        @SuppressWarnings("unchecked")
+        Class<M> castResult = (Class<M>) Optional.ofNullable(modelNameToClassMap.get(modelName))
                 .orElseThrow(() -> new RuntimeException("Model with name " + modelName
                         + " is not known, probably it doesn't have @ModelName annotation"));
+        return castResult;
     }
 
 }

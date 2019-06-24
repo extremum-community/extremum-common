@@ -5,11 +5,11 @@ import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
-import com.extremum.everything.support.CommonServices;
-import com.extremum.everything.support.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.AbstractPatcherService;
 import com.extremum.everything.services.RequestDtoValidator;
+import com.extremum.everything.support.CommonServices;
+import com.extremum.everything.support.ModelClasses;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -35,7 +35,7 @@ class InternalDefaultPatcher<M extends Model> extends AbstractPatcherService<M> 
 
     @Override
     protected M persist(PatchPersistenceContext<M> context, String modelName) {
-        Class<? extends Model> modelClass = modelClasses.getClassByModelName(modelName);
+        Class<M> modelClass = modelClasses.getClassByModelName(modelName);
         RequestDto requestDto = context.getRequestDto();
         FromRequestDtoConverter<? extends M, ? extends RequestDto> converter = dtoConverters
                 .stream()
@@ -47,9 +47,7 @@ class InternalDefaultPatcher<M extends Model> extends AbstractPatcherService<M> 
         @SuppressWarnings("unchecked") M model = ((FromRequestDtoConverter<? extends M, RequestDto>) converter).convertFromRequest(requestDto);
         context.getOriginModel().copyServiceFieldsTo(model);
 
-//      We can eliminate this warning because we cast service generic to the base class
-        @SuppressWarnings("unchecked")
-        CommonService<?, M> commonService = (CommonService<?, M>) commonServices.findServiceByModel(model.getClass());
+        CommonService<M> commonService = commonServices.findServiceByModel(modelClass);
         return commonService.save(model);
     }
 

@@ -6,5 +6,5 @@ import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 /**
  * Common interface for Elasticsearch services.
  */
-public interface ElasticsearchCommonService<M extends ElasticsearchCommonModel> extends CommonService<String, M> {
+public interface ElasticsearchCommonService<M extends ElasticsearchCommonModel> extends CommonService<M> {
 }

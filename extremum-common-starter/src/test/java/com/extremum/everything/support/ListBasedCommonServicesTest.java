@@ -6,8 +6,6 @@ import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableList;
 
-import java.io.Serializable;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -27,7 +25,7 @@ class ListBasedCommonServicesTest {
 
     @Test
     void givenAServiceExists_whenGettingTheServiceByModelClass_thenItShouldBeFound() {
-        CommonService<Serializable, FirstModel> service = services.findServiceByModel(FirstModel.class);
+        CommonService<FirstModel> service = services.findServiceByModel(FirstModel.class);
 
         assertThat(service, is(notNullValue()));
         assertThat(service, is(sameInstance(firstModelService)));

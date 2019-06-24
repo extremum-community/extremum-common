@@ -2,7 +2,6 @@ package com.extremum.common.service;
 
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.response.Alert;
-import org.bson.types.ObjectId;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.Map;
 /**
  * Common interface for mongo services
  */
-public interface MongoCommonService<M extends MongoCommonModel> extends CommonService<ObjectId, M> {
+public interface MongoCommonService<M extends MongoCommonModel> extends CommonService<M> {
 
     List<M> listByParameters(Map<String, Object> parameters);
 

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-public interface CommonService<ID extends Serializable, M extends Model> {
+public interface CommonService<M extends Model> {
 
     M get(String id);
 

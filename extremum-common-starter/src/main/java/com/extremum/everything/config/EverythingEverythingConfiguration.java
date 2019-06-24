@@ -106,7 +106,7 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CommonServices commonServices(List<CommonService<?, ? extends Model>> services) {
+    public CommonServices commonServices(List<CommonService<? extends Model>> services) {
         return new ListBasedCommonServices(services);
     }
 

@@ -17,8 +17,10 @@ public class ConstantModelClasses implements ModelClasses {
     }
 
     @Override
-    public Class<? extends Model> getClassByModelName(String modelName) {
-        return modelNameToClassMap.get(modelName);
+    public <M extends Model> Class<M> getClassByModelName(String modelName) {
+        @SuppressWarnings("unchecked")
+        Class<M> castResult = (Class<M>) modelNameToClassMap.get(modelName);
+        return castResult;
     }
 
 }

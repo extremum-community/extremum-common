@@ -4,7 +4,6 @@ import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
 import com.google.common.collect.ImmutableMap;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +12,11 @@ import java.util.Map;
  * @author rpuch
  */
 public class ListBasedCommonServices implements CommonServices {
-    private final Map<Class<? extends Model>, CommonService<?, ? extends Model>> modelClassToServiceMap;
+    private final Map<Class<? extends Model>, CommonService<? extends Model>> modelClassToServiceMap;
 
-    public ListBasedCommonServices(List<CommonService<?, ? extends Model>> services) {
-        Map<Class<? extends Model>, CommonService<?, ? extends Model>> map = new HashMap<>();
-        for (CommonService<?, ? extends Model> service : services)  {
+    public ListBasedCommonServices(List<CommonService<? extends Model>> services) {
+        Map<Class<? extends Model>, CommonService<? extends Model>> map = new HashMap<>();
+        for (CommonService<? extends Model> service : services)  {
             Class<? extends Model> modelClass = CommonServiceUtils.findServiceModelClass(service);
             map.put(modelClass, service);
         }
@@ -25,10 +24,9 @@ public class ListBasedCommonServices implements CommonServices {
         modelClassToServiceMap = ImmutableMap.copyOf(map);
     }
 
-    public <ID extends Serializable, M extends Model> CommonService<ID, M> findServiceByModel(
-            Class<? extends M> modelClass) {
+    public <M extends Model> CommonService<M> findServiceByModel(Class<? extends M> modelClass) {
         @SuppressWarnings("unchecked")
-        CommonService<ID, M> service = (CommonService<ID, M>) modelClassToServiceMap.get(modelClass);
+        CommonService<M> service = (CommonService<M>) modelClassToServiceMap.get(modelClass);
         if (service == null) {
             throw new RuntimeException("Cannot find implementation of CommonService for model " + modelClass);
         }
