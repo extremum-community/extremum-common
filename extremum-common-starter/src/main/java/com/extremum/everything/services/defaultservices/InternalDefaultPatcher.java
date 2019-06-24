@@ -58,6 +58,7 @@ class InternalDefaultPatcher<M extends Model> extends AbstractPatcherService<M> 
 
     @Override
     public String getSupportedModel() {
-        return null;
+        throw new UnsupportedOperationException(
+                "This method should not be called, we only extend AbstractPatcherService for convenience");
     }
 }
