@@ -78,7 +78,7 @@ class EverythingServicesTest {
     void initEverythingServicesAndManagementService() {
         MongoCommonServiceImpl<MongoModelWithoutServices> commonServiceForMongoModelWithoutServices
                 = new MongoCommonServiceImpl<MongoModelWithoutServices>(commonDaoForModelWithoutServices) {};
-        CommonServices commonServices = new DefaultCommonServices(
+        CommonServices commonServices = new ListBasedCommonServices(
                 ImmutableList.of(commonServiceForMongoModelWithoutServices));
         ModelClasses modelClasses = new ConstantModelClasses(ImmutableMap.of(
                 MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,

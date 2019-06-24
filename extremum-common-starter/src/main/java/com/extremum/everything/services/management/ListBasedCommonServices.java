@@ -11,7 +11,7 @@ import java.util.List;
  * @author rpuch
  */
 @RequiredArgsConstructor
-public class DefaultCommonServices implements CommonServices {
+public class ListBasedCommonServices implements CommonServices {
     private final List<CommonService<?, ? extends Model>> services;
 
     public <ID extends Serializable, M extends Model> CommonService<ID, M> findServiceByModel(
