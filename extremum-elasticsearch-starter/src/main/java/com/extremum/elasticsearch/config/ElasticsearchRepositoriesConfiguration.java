@@ -46,8 +46,9 @@ public class ElasticsearchRepositoriesConfiguration {
     }
 
     @Bean
-    public ElasticsearchOperations elasticsearchTemplate(ObjectMapper objectMapper) {
-        return new ExtremumElasticsearchRestTemplate(elasticsearchClient(), objectMapper,
-                elasticsearchDescriptorFactory());
+    public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
+            ObjectMapper objectMapper, ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
+        return new ExtremumElasticsearchRestTemplate(elasticsearchClient, objectMapper,
+                elasticsearchDescriptorFactory);
     }
 }
