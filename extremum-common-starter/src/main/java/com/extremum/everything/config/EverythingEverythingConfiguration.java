@@ -18,7 +18,6 @@ import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import com.extremum.everything.config.listener.DefaultModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
-import com.extremum.everything.config.listener.ModelClassesInitializer;
 import com.extremum.everything.config.properties.DestroyerProperties;
 import com.extremum.everything.config.properties.ModelProperties;
 import com.extremum.everything.controllers.DefaultEverythingEverythingCollectionRestController;
@@ -182,12 +181,6 @@ public class EverythingEverythingConfiguration {
     public Converter<String, CollectionDescriptor> stringToCollectionDescriptorConverter(
             CollectionDescriptorService collectionDescriptorService) {
         return new StringToCollectionDescriptorConverter(collectionDescriptorService);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
-    public ModelClassesInitializer modelNameToClassInitializer() {
-        return new ModelClassesInitializer(modelProperties.getPackageNames());
     }
 
     @Bean

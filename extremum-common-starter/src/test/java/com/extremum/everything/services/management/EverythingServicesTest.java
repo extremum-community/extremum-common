@@ -11,7 +11,6 @@ import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
-import com.extremum.everything.config.listener.DefaultModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
@@ -73,14 +72,6 @@ class EverythingServicesTest {
     void initDescriptorDao() {
         oldDescriptorDao = DescriptorService.getDescriptorDao();
         DescriptorService.setDescriptorDao(descriptorDao);
-    }
-
-    @BeforeEach
-    void initModelClasses() {
-        DefaultModelClasses.setModelNameToClassMap(ImmutableMap.of(
-                MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
-                MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
-        ));
     }
 
     @BeforeEach

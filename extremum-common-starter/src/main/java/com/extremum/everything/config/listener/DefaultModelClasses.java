@@ -35,9 +35,6 @@ public class DefaultModelClasses implements ModelClasses {
         modelNameToClassMap = ImmutableMap.copyOf(modelClasses);
     }
 
-    public static void setModelNameToClassMap(Map<String, Class<? extends Model>> modelNameToClassMapIn) {
-    }
-
     @Override
     public Class<? extends Model> getClassByModelName(String modelName) {
         return Optional.ofNullable(modelNameToClassMap.get(modelName))

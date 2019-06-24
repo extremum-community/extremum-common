@@ -14,8 +14,6 @@ import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
 import com.extremum.jpa.models.PostgresBasicModel;
 import lombok.Getter;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,18 +46,6 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
     private UniversalDao universalDao;
     @Mock
     private DtoConversionService dtoConversionService;
-    private static ConfigurableApplicationContext context;
-
-    @BeforeAll
-    static void init() {
-        context = new AnnotationConfigApplicationContext(TestConfig.class);
-        context.start();
-    }
-
-    @AfterAll
-    static void clear() {
-        context.stop();
-    }
 
     @BeforeEach
     void setUp() {
