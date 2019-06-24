@@ -10,7 +10,6 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.config.listener.DefaultModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
@@ -99,11 +98,10 @@ class EverythingServicesTest {
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
-        DefaultGetter<? extends Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelClasses);
-        DefaultPatcher<? extends Model> defaultPatcher = new DefaultPatcherImpl<PersistableCommonModel<?>>(
+        DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelClasses);
+        DefaultPatcher<Model> defaultPatcher = new DefaultPatcherImpl<>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                ImmutableList.of(commonServiceForMongoModelWithoutServices),
-                commonServices, modelClasses,
+                commonServices, modelClasses, defaultGetter,
                 ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelClasses);

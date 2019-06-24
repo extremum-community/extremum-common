@@ -9,7 +9,6 @@ import com.extremum.common.collection.spring.StringToCollectionDescriptorConvert
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
-import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
 import com.extremum.common.urls.ApplicationUrls;
@@ -124,16 +123,16 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultPatcher<BasicModel<?>> defaultPatcher(
+    public DefaultPatcher<Model> defaultPatcher(
             DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
-            List<CommonService<?, ? extends BasicModel<?>>> services,
             CommonServices commonServices,
             ModelClasses modelClasses,
-            List<FromRequestDtoConverter<? extends BasicModel<?>, ? extends RequestDto>> dtoConverters
+            DefaultGetter<Model> defaultGetter,
+            List<FromRequestDtoConverter<? extends Model, ? extends RequestDto>> dtoConverters
     ) {
         return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                services, commonServices, modelClasses, dtoConverters);
+                commonServices, modelClasses, defaultGetter, dtoConverters);
     }
 
     @Bean
@@ -149,7 +148,7 @@ public class EverythingEverythingConfiguration {
             List<PatcherService<? extends Model>> patcherServices,
             List<RemovalService> removalServices,
             DefaultGetter<Model> defaultGetter,
-            DefaultPatcher<BasicModel<?>> defaultPatcher,
+            DefaultPatcher<Model> defaultPatcher,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
