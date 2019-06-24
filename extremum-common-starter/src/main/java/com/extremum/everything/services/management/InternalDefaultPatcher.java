@@ -6,6 +6,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
+import com.extremum.everything.config.listener.DefaultModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.AbstractPatcherService;
@@ -18,23 +19,27 @@ class InternalDefaultPatcher<M extends Model>
         extends AbstractPatcherService<M> implements DefaultService<M> {
     private final List<CommonService<?, ? extends M>> services;
     private final CommonServices commonServices;
+    private final ModelClasses modelClasses;
     private final List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters;
 
     InternalDefaultPatcher(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
             List<CommonService<?, ? extends M>> services,
             CommonServices commonServices,
+            ModelClasses modelClasses,
             List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters) {
         super(dtoConversionService, jsonMapper, emptyFieldDestroyer, dtoValidator);
         this.services = services;
         this.commonServices = commonServices;
+        this.modelClasses = modelClasses;
         this.dtoConverters = dtoConverters;
     }
 
 
     @Override
     protected M persist(PatchPersistenceContext<M> context, String modelName) {
-        Class<? extends BasicModel<?>> modelClass = (Class<? extends BasicModel<?>>) ModelClasses.getClassByModelName(modelName);
+        Class<? extends BasicModel<?>> modelClass = (Class<? extends BasicModel<?>>) modelClasses.getClassByModelName(
+                modelName);
         RequestDto requestDto = context.getRequestDto();
         FromRequestDtoConverter<? extends M, ? extends RequestDto> converter = dtoConverters
                 .stream()

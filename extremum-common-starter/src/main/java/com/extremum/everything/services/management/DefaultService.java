@@ -5,7 +5,7 @@ import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
-import com.extremum.everything.config.listener.ModelClasses;
+import com.extremum.everything.config.listener.DefaultModelClasses;
 
 import java.util.List;
 
@@ -28,6 +28,6 @@ public interface DefaultService<M extends Model> {
         Descriptor descriptor = DescriptorService.loadByInternalId(internalId)
                 .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
 
-        return ModelClasses.getClassByModelName(descriptor.getModelType());
+        return DefaultModelClasses.getInstance().getClassByModelName(descriptor.getModelType());
     }
 }

@@ -17,6 +17,8 @@ import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
+import com.extremum.everything.config.listener.DefaultModelClasses;
+import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.config.listener.ModelClassesInitializer;
 import com.extremum.everything.config.properties.DestroyerProperties;
 import com.extremum.everything.config.properties.ModelProperties;
@@ -110,6 +112,12 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ModelClasses modelClasses() {
+        return new DefaultModelClasses(modelProperties.getPackageNames());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public DefaultGetter<Model> defaultGetter(List<CommonService<?, ? extends Model>> commonServices) {
         return new DefaultGetter<>(commonServices);
     }
@@ -121,16 +129,17 @@ public class EverythingEverythingConfiguration {
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
             List<CommonService<?, ? extends BasicModel<?>>> services,
             CommonServices commonServices,
+            ModelClasses modelClasses,
             List<FromRequestDtoConverter<? extends BasicModel<?>, ? extends RequestDto>> dtoConverters
     ) {
         return new DefaultPatcher<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                services, commonServices, dtoConverters);
+                services, commonServices, modelClasses, dtoConverters);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultRemover<Model> defaultRemover(CommonServices commonServices) {
-        return new DefaultRemover<>(commonServices);
+    public DefaultRemover<Model> defaultRemover(CommonServices commonServices, ModelClasses modelClasses) {
+        return new DefaultRemover<>(commonServices, modelClasses);
     }
 
     @Bean

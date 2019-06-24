@@ -23,7 +23,7 @@ public class ModelClassesInitializer implements ApplicationListener<ContextRefre
             models.addAll(FindUtils.findClassesByAnnotation(Model.class, ModelName.class, packageName));
         }
 
-        ModelClasses.setModelNameToClassMap(
+        DefaultModelClasses.setModelNameToClassMap(
                 models.stream()
                         .collect(Collectors.toMap(
                                 ModelUtils::getModelName,

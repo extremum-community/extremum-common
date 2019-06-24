@@ -12,6 +12,7 @@ import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
+import com.extremum.everything.config.listener.DefaultModelClasses;
 import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
@@ -77,7 +78,7 @@ class EverythingServicesTest {
 
     @BeforeEach
     void initModelClasses() {
-        ModelClasses.setModelNameToClassMap(ImmutableMap.of(
+        DefaultModelClasses.setModelNameToClassMap(ImmutableMap.of(
                 MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
                 MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
         ));
@@ -89,6 +90,10 @@ class EverythingServicesTest {
                 = new MongoCommonServiceImpl<MongoModelWithoutServices>(commonDaoForModelWithoutServices) {};
         CommonServices commonServices = new DefaultCommonServices(
                 ImmutableList.of(commonServiceForMongoModelWithoutServices));
+        ModelClasses modelClasses = new ConstantModelClasses(ImmutableMap.of(
+                MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
+                MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
+        ));
 
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
@@ -100,11 +105,11 @@ class EverythingServicesTest {
         DefaultPatcher<? extends Model> defaultPatcher = new DefaultPatcher<PersistableCommonModel<?>>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 ImmutableList.of(commonServiceForMongoModelWithoutServices),
-                commonServices,
+                commonServices, modelClasses,
                 ImmutableList.of(new DtoConverterForModelWithoutServices())
         );
         DefaultRemover<? extends Model> defaultRemover = new DefaultRemover<>(
-                commonServices
+                commonServices, modelClasses
         );
 
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
