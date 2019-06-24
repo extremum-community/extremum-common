@@ -11,7 +11,7 @@ public class DefaultRemoverImpl implements DefaultRemover {
 
     @Override
     public void remove(String id) {
-        Class<? extends Model> modelClass = modelClasses.getModelByDescriptorId(id);
+        Class<? extends Model> modelClass = modelClasses.getModelClassByDescriptorId(id);
         commonServices.findServiceByModel(modelClass).delete(id);
     }
 }

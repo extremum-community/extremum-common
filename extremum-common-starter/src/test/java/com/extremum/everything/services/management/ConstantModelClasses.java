@@ -25,7 +25,7 @@ public class ConstantModelClasses implements ModelClasses {
     }
 
     @Override
-    public Class<? extends Model> getModelByDescriptorId(String internalId) {
+    public Class<? extends Model> getModelClassByDescriptorId(String internalId) {
         Descriptor descriptor = DescriptorService.loadByInternalId(internalId)
                 .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
 

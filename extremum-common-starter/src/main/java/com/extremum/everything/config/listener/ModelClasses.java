@@ -8,5 +8,5 @@ import com.extremum.common.models.Model;
 public interface ModelClasses {
     Class<? extends Model> getClassByModelName(String modelName);
 
-    Class<? extends Model> getModelByDescriptorId(String internalId);
+    Class<? extends Model> getModelClassByDescriptorId(String internalId);
 }
