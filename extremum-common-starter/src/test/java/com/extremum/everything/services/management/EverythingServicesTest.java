@@ -10,6 +10,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.MockedMapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
+import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.dao.UniversalDao;

@@ -1,6 +1,7 @@
-package com.extremum.everything.services.management;
+package com.extremum.everything.services.defaultservices;
 
 import com.extremum.common.models.Model;
+import com.extremum.everything.services.management.Patcher;
 import com.github.fge.jsonpatch.JsonPatch;
 
 /**

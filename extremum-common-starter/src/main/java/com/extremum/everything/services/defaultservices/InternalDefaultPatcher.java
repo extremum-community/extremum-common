@@ -1,4 +1,4 @@
-package com.extremum.everything.services.management;
+package com.extremum.everything.services.defaultservices;
 
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
