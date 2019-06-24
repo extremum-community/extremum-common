@@ -8,12 +8,8 @@ import org.springframework.core.ResolvableType;
  * @author rpuch
  */
 class CommonServiceUtils {
-    static boolean isCommonServiceOfModelClass(CommonService<?, ?> service, Class<? extends Model> modelClass) {
-        Class<?> serviceModelClass = findServiceModelClass(service);
-        return serviceModelClass == modelClass;
-    }
 
-    static Class<?> findServiceModelClass(CommonService<?, ?> service) {
+    static Class<Model> findServiceModelClass(CommonService<?, ?> service) {
         ResolvableType commonServiceInterface = findCommonServiceInterface(service);
         return findModelGeneric(commonServiceInterface, service);
     }
@@ -35,11 +31,13 @@ class CommonServiceUtils {
         return commonServiceInterface;
     }
 
-    private static Class<?> findModelGeneric(ResolvableType commonServiceInterface, CommonService<?, ?> service) {
+    private static Class<Model> findModelGeneric(ResolvableType commonServiceInterface, CommonService<?, ?> service) {
         for (ResolvableType generic : commonServiceInterface.getGenerics()) {
             Class<?> resolvedGeneric = generic.resolve();
             if (resolvedGeneric != null && Model.class.isAssignableFrom(resolvedGeneric)) {
-                return resolvedGeneric;
+                @SuppressWarnings("unchecked")
+                Class<Model> castGeneric = (Class<Model>) resolvedGeneric;
+                return castGeneric;
             }
         }
 
