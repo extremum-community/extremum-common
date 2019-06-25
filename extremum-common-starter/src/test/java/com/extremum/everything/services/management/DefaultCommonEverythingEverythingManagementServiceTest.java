@@ -14,11 +14,8 @@ import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
-import com.extremum.everything.services.management.config.TestConfig;
 import lombok.Getter;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +23,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,18 +53,6 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
 
     private static final ObjectId id1 = new ObjectId();
     private static final ObjectId id2 = new ObjectId();
-    private static ConfigurableApplicationContext context;
-
-    @BeforeAll
-    static void init() {
-        context = new AnnotationConfigApplicationContext(TestConfig.class);
-        context.start();
-    }
-
-    @AfterAll
-    static void clear() {
-        context.stop();
-    }
 
     @BeforeEach
     void setUp() {
@@ -77,6 +60,7 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
                 Collections.singletonList(streetGetterService),
                 Collections.emptyList(),
                 Collections.emptyList(),
+                null, null, null,
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,
                 universalDao

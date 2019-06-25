@@ -11,12 +11,14 @@ import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
-import com.extremum.everything.config.listener.ModelClasses;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.collection.CoordinatesHandler;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import com.extremum.everything.services.defaultservices.DefaultGetter;
+import com.extremum.everything.services.defaultservices.DefaultPatcher;
+import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -38,6 +39,9 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<GetterService<? extends Model>> getterServices;
     private final List<PatcherService<? extends Model>> patcherServices;
     private final List<RemovalService> removalServices;
+    private final DefaultGetter<? extends Model> defaultGetter;
+    private final DefaultPatcher<? extends Model> defaultPatcher;
+    private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
@@ -48,23 +52,38 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private Model retrieveModelObject(Descriptor id) {
-        String modelName = determineModelNameByIdOrThrow(id,
-                () -> new EverythingEverythingException(format("Can't determine a model name for the ID %s", id)));
-
-        GetterService getterService = findServiceForModelOrElseThrow(modelName, getterServices,
-                () -> new EverythingEverythingException(
-                        format("Not a single service of %d supports getting models with name '%s'",
-                                getterServices.size(), modelName)),
-                GetterService.class);
-
-        Model model = getterService.get(id.getInternalId());
+        String modelName = determineModelName(id);
+        Getter getter = findGetter(modelName);
+        Model model = getter.get(id.getInternalId());
 
         if (model != null) {
-            LOGGER.debug(format("Model with ID %s was be found of the %s service: %s", id, getterService, model));
+            LOGGER.debug(format("Model with ID '%s' was found by service '%s': '%s'", id, getter, model));
         } else {
-            LOGGER.debug(format("Model with ID %s wasn't be found of the %s service", id, getterService));
+            LOGGER.debug(format("Model with ID '%s' wasn't found by service '%s'", id, getter));
         }
         return model;
+    }
+
+    private String determineModelName(Descriptor id) {
+        requireNonNull(id, "ID can't be null");
+
+        String modelName = determineModelNameById(id);
+        if (modelName == null) {
+            LOGGER.error("Unable to determine a model name for id {}", id);
+            throw new EverythingEverythingException(format("Can't determine a model name for the ID '%s'", id));
+        } else {
+            LOGGER.debug("Model name for id {} is {}", id, modelName);
+            return modelName;
+        }
+    }
+
+    private Getter findGetter(String modelName) {
+        GetterService<Model> service = findServiceForModel(modelName, GetterService.class, getterServices);;
+        if (service != null) {
+            return new NonDefaultGetter<>(service);
+        }
+
+        return defaultGetter;
     }
 
     @Override
@@ -80,32 +99,38 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        String modelName = determineModelNameByIdOrThrow(id,
-                () -> new EverythingEverythingException(format("Can't determine a model name for the ID %s", id)));
+        String modelName = determineModelName(id);
 
-        PatcherService patcherService = findServiceForModelOrElseThrow(modelName, patcherServices,
-                () -> new EverythingEverythingException(
-                        format("No one service of %d doesn't support patching models with name %s",
-                                patcherServices.size(), modelName)),
-                PatcherService.class);
+        Patcher patcher = findPatcher(modelName);
 
-        Model patched = patcherService.patch(id.getInternalId(), patch);
+        Model patched = patcher.patch(id.getInternalId(), patch);
         return convertModelToResponseDto(patched, expand);
+    }
+
+    private Patcher findPatcher(String modelName) {
+        PatcherService<Model> service = findServiceForModel(modelName, PatcherService.class, patcherServices);
+        if (service != null) {
+            return new NonDefaultPatcher<>(service);
+        }
+
+        return defaultPatcher;
     }
 
     @Override
     public void remove(Descriptor id) {
-        String modelName = determineModelNameByIdOrThrow(id,
-                () -> new EverythingEverythingException(format("Can't determine a model name for the ID %s", id)));
+        String modelName = determineModelName(id);
+        Remover remover = findRemover(modelName);
+        remover.remove(id.getInternalId());
+        LOGGER.debug(format("Model with ID '%s' was removed by service '%s'", id, remover));
+    }
 
-        RemovalService removalService = findServiceForModelOrElseThrow(modelName, removalServices,
-                () -> new EverythingEverythingException(
-                        format("No one service of %d doesn't support removing models with name %s",
-                                removalServices.size(), modelName)),
-                RemovalService.class);
+    private Remover findRemover(String modelName) {
+        RemovalService removalService = findServiceForModel(modelName, RemovalService.class, removalServices);
+        if (removalService != null) {
+            return new NonDefaultRemover(removalService);
+        }
 
-        removalService.remove(id.getInternalId());
-        LOGGER.debug(format("Model with ID %s was removed from the %s service", id, removalService));
+        return defaultRemover;
     }
 
     private String determineModelNameById(Descriptor id) {
@@ -113,23 +138,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         return id.getModelType();
     }
 
-    private String determineModelNameByIdOrThrow(Descriptor id, Supplier<? extends RuntimeException> exceptionSupplier) {
-        requireNonNull(id, "ID can't be null");
-        requireNonNull(exceptionSupplier, "Supplier can't be null");
-
-        String modelName = determineModelNameById(id);
-        if (modelName == null) {
-            LOGGER.error("Unable to determine a model name for id {}", id);
-            throw exceptionSupplier.get();
-        } else {
-            LOGGER.debug("Model name for id {} is {}", id, modelName);
-            return modelName;
-        }
-    }
-
     private <T extends EverythingEverythingService> T findServiceForModel(String modelName,
-                                                                          Collection<? extends EverythingEverythingService> services,
-                                                                          Class<T> expectedServiceType) {
+            Class<T> expectedServiceType, Collection<? extends EverythingEverythingService> services) {
         requireNonNull(modelName, "Name of a model can't be null");
         requireNonNull(services, "Services list can't be null");
 
@@ -141,23 +151,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
                 .orElse(null);
     }
 
-    private <T extends EverythingEverythingService> T findServiceForModelOrElseThrow(String modelName,
-                                                                                     Collection<? extends EverythingEverythingService> services,
-                                                                                     Supplier<? extends RuntimeException> exceptionSupplier,
-                                                                                     Class<T> expectedServiceType) {
-        T result = findServiceForModel(modelName, services, expectedServiceType);
-
-        if (result == null) {
-            LOGGER.error("No services for a {} model support found. {} services was be verified", modelName, services.size());
-            throw exceptionSupplier.get();
-        } else {
-            return result;
-        }
-    }
-
     private Predicate<? super EverythingEverythingService> getIsServiceSupportsModelFilter(String modelName) {
-        Class<? extends Model> modelClass = ModelClasses.getClassByModelName(modelName);
-        return service -> service.isSupportedModel(modelClass) || modelName.equalsIgnoreCase(service.getSupportedModel());
+        return service -> modelName.equalsIgnoreCase(service.getSupportedModel());
     }
 
 

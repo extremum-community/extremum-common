@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 
 public abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<ID>>
-        implements CommonService<ID, M> {
+        implements CommonService<M> {
 
     private final CommonDao<M, ID> dao;
     private final Class<M> modelClass;

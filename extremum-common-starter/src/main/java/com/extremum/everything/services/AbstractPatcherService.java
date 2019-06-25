@@ -28,21 +28,18 @@ import static java.lang.String.format;
 @Setter
 @Slf4j
 public abstract class AbstractPatcherService<M extends Model> implements PatcherService<M> {
-    private DtoConversionService dtoConversionService;
-    private ObjectMapper jsonMapper;
-    private EmptyFieldDestroyer emptyFieldDestroyer = new PublicEmptyFieldDestroyer();
-    private RequestDtoValidator dtoValidator = new DefaultRequestDtoValidator();
+    private final DtoConversionService dtoConversionService;
+    private final ObjectMapper jsonMapper;
+    private final EmptyFieldDestroyer emptyFieldDestroyer;
+    private final RequestDtoValidator dtoValidator;
 
     protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
-        this.dtoConversionService = dtoConversionService;
-        this.jsonMapper = jsonMapper;
+        this(dtoConversionService, jsonMapper, new PublicEmptyFieldDestroyer());
     }
 
     protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
                                      EmptyFieldDestroyer emptyFieldDestroyer) {
-        this.dtoConversionService = dtoConversionService;
-        this.jsonMapper = jsonMapper;
-        this.emptyFieldDestroyer = emptyFieldDestroyer;
+        this(dtoConversionService, jsonMapper, emptyFieldDestroyer, new DefaultRequestDtoValidator());
     }
 
     protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,

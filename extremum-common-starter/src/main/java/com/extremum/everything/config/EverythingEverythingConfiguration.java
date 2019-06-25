@@ -6,14 +6,18 @@ import com.extremum.common.collection.conversion.CollectionMakeupImpl;
 import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
+import com.extremum.common.dto.RequestDto;
+import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
+import com.extremum.common.service.CommonService;
+import com.extremum.everything.services.defaultservices.*;
+import com.extremum.everything.support.*;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import com.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import com.extremum.everything.aop.EverythingEverythingExceptionHandler;
-import com.extremum.everything.config.listener.ModelClassesInitializer;
 import com.extremum.everything.config.properties.DestroyerProperties;
 import com.extremum.everything.config.properties.ModelProperties;
 import com.extremum.everything.controllers.DefaultEverythingEverythingCollectionRestController;
@@ -26,11 +30,9 @@ import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
-import com.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
-import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
-import com.extremum.everything.services.management.EverythingCollectionManagementService;
-import com.extremum.everything.services.management.EverythingEverythingManagementService;
+import com.extremum.everything.services.management.*;
 import com.extremum.starter.CommonConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -40,7 +42,6 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
 
@@ -49,7 +50,6 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties({DestroyerProperties.class, ModelProperties.class})
-@Import(DefaultServicesConfiguration.class)
 @AutoConfigureAfter(CommonConfiguration.class)
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class EverythingEverythingConfiguration {
@@ -97,20 +97,69 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(UniversalDao.class)
+    @ConditionalOnMissingBean
     public UniversalDao universalDao(MongoOperations mongoOperations) {
         return new SpringDataUniversalDao(mongoOperations);
     }
 
     @Bean
-    @ConditionalOnMissingBean(EverythingEverythingManagementService.class)
-    public EverythingEverythingManagementService everythingEverythingManagementService(List<GetterService<? extends Model>> getterServices,
-                                                                                       List<PatcherService<? extends Model>> patcherServices,
-                                                                                       List<RemovalService> removalServices,
-                                                                                       List<CollectionFetcher> collectionFetchers,
-                                                                                       DtoConversionService dtoConversionService,
-                                                                                       UniversalDao universalDao) {
+    @ConditionalOnMissingBean
+    public CommonServices commonServices(List<CommonService<? extends Model>> services) {
+        return new ListBasedCommonServices(services);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ModelClasses modelClasses() {
+        return new ScanningModelClasses(modelProperties.getPackageNames());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ModelDescriptors modelDescriptors(ModelClasses modelClasses) {
+        return new DefaultModelDescriptors(modelClasses);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultGetterImpl<>(commonServices, modelDescriptors);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultPatcher<Model> defaultPatcher(
+            DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
+            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
+            CommonServices commonServices,
+            ModelClasses modelClasses,
+            DefaultGetter<Model> defaultGetter,
+            List<FromRequestDtoConverter<? extends Model, ? extends RequestDto>> dtoConverters
+    ) {
+        return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
+                commonServices, modelClasses, defaultGetter, dtoConverters);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultRemover defaultRemover(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultRemoverImpl(commonServices, modelDescriptors);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EverythingEverythingManagementService everythingEverythingManagementService(
+            List<GetterService<? extends Model>> getterServices,
+            List<PatcherService<? extends Model>> patcherServices,
+            List<RemovalService> removalServices,
+            DefaultGetter<Model> defaultGetter,
+            DefaultPatcher<Model> defaultPatcher,
+            DefaultRemover defaultRemover,
+            List<CollectionFetcher> collectionFetchers,
+            DtoConversionService dtoConversionService,
+            UniversalDao universalDao) {
         return new DefaultEverythingEverythingManagementService(getterServices, patcherServices, removalServices,
+                defaultGetter, defaultPatcher, defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao);
     }
 
@@ -138,12 +187,6 @@ public class EverythingEverythingConfiguration {
     public Converter<String, CollectionDescriptor> stringToCollectionDescriptorConverter(
             CollectionDescriptorService collectionDescriptorService) {
         return new StringToCollectionDescriptorConverter(collectionDescriptorService);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "custom.model", value = "package-names")
-    public ModelClassesInitializer modelNameToClassInitializer() {
-        return new ModelClassesInitializer(modelProperties.getPackageNames());
     }
 
     @Bean

@@ -1,35 +1,41 @@
-package com.extremum.everything.services.mongo;
+package com.extremum.everything.services.defaultservices;
 
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
-import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.service.MongoCommonService;
-import com.extremum.everything.config.listener.ModelClasses;
+import com.extremum.common.service.CommonService;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.services.AbstractPatcherService;
 import com.extremum.everything.services.RequestDtoValidator;
+import com.extremum.everything.support.CommonServices;
+import com.extremum.everything.support.ModelClasses;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-public class DefaultMongoPatcherService<M extends MongoCommonModel> extends AbstractPatcherService<M> implements DefaultMongoService<M> {
-    private final List<MongoCommonService<? extends M>> services;
+class InternalDefaultPatcher<M extends Model> extends AbstractPatcherService<M> {
+    private final CommonServices commonServices;
+    private final ModelClasses modelClasses;
+    private final DefaultGetter<M> defaultGetter;
     private final List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters;
 
-    public DefaultMongoPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-                                      EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
-                                      List<MongoCommonService<? extends M>> services, List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters) {
+    InternalDefaultPatcher(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
+            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
+            CommonServices commonServices,
+            ModelClasses modelClasses,
+            DefaultGetter<M> defaultGetter,
+            List<FromRequestDtoConverter<? extends M, ? extends RequestDto>> dtoConverters) {
         super(dtoConversionService, jsonMapper, emptyFieldDestroyer, dtoValidator);
-        this.services = services;
+        this.commonServices = commonServices;
+        this.modelClasses = modelClasses;
+        this.defaultGetter = defaultGetter;
         this.dtoConverters = dtoConverters;
     }
 
-
     @Override
     protected M persist(PatchPersistenceContext<M> context, String modelName) {
-        Class<? extends Model> modelClass = ModelClasses.getClassByModelName(modelName);
+        Class<M> modelClass = modelClasses.getClassByModelName(modelName);
         RequestDto requestDto = context.getRequestDto();
         FromRequestDtoConverter<? extends M, ? extends RequestDto> converter = dtoConverters
                 .stream()
@@ -41,18 +47,18 @@ public class DefaultMongoPatcherService<M extends MongoCommonModel> extends Abst
         @SuppressWarnings("unchecked") M model = ((FromRequestDtoConverter<? extends M, RequestDto>) converter).convertFromRequest(requestDto);
         context.getOriginModel().copyServiceFieldsTo(model);
 
-//      We can eliminate this warning because we cast service generic to the base class
-        @SuppressWarnings("unchecked") M result = ((MongoCommonService<M>) findServiceByModel(services, model.getClass())).save(model);
-        return result;
+        CommonService<M> commonService = commonServices.findServiceByModel(modelClass);
+        return commonService.save(model);
     }
 
     @Override
     protected M findById(String internalId) {
-        return getById(services, internalId);
+        return defaultGetter.get(internalId);
     }
 
     @Override
     public String getSupportedModel() {
-        return null;
+        throw new UnsupportedOperationException(
+                "This method should not be called, we only extend AbstractPatcherService for convenience");
     }
 }
