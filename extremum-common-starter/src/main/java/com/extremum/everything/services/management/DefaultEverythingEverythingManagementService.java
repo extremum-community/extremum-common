@@ -80,7 +80,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private Getter findGetter(String modelName) {
         GetterService<Model> service = findServiceForModel(modelName, GetterService.class, getterServices);;
         if (service != null) {
-            return new GetterServiceGetter<>(service);
+            return new NonDefaultGetter<>(service);
         }
 
         return defaultGetter;
@@ -110,7 +110,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private Patcher findPatcher(String modelName) {
         PatcherService<Model> service = findServiceForModel(modelName, PatcherService.class, patcherServices);
         if (service != null) {
-            return new PatcherServicePatcher<>(service);
+            return new NonDefaultPatcher<>(service);
         }
 
         return defaultPatcher;
@@ -127,7 +127,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private Remover findRemover(String modelName) {
         RemovalService removalService = findServiceForModel(modelName, RemovalService.class, removalServices);
         if (removalService != null) {
-            return new RemovalServiceRemover(removalService);
+            return new NonDefaultRemover(removalService);
         }
 
         return defaultRemover;

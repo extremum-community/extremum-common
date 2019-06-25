@@ -4,12 +4,14 @@ import com.extremum.common.models.Model;
 import com.extremum.everything.services.GetterService;
 
 /**
+ * Uses GetterService to get an entity.
+ *
  * @author rpuch
  */
-class GetterServiceGetter<M extends Model> implements Getter<M> {
+class NonDefaultGetter<M extends Model> implements Getter<M> {
     private final GetterService<M> getterService;
 
-    GetterServiceGetter(GetterService<M> getterService) {
+    NonDefaultGetter(GetterService<M> getterService) {
         this.getterService = getterService;
     }
 

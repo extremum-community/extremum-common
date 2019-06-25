@@ -5,12 +5,14 @@ import com.extremum.everything.services.PatcherService;
 import com.github.fge.jsonpatch.JsonPatch;
 
 /**
+ * Uses PatcherService to patch an entity.
+ *
  * @author rpuch
  */
-class PatcherServicePatcher<M extends Model> implements Patcher<M> {
+class NonDefaultPatcher<M extends Model> implements Patcher<M> {
     private final PatcherService<M> patcherService;
 
-    PatcherServicePatcher(PatcherService<M> patcherService) {
+    NonDefaultPatcher(PatcherService<M> patcherService) {
         this.patcherService = patcherService;
     }
 

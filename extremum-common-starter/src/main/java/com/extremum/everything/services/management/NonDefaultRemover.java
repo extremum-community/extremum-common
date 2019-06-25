@@ -3,12 +3,14 @@ package com.extremum.everything.services.management;
 import com.extremum.everything.services.RemovalService;
 
 /**
+ * Uses RemovalService to remove an entity.
+ *
  * @author rpuch
  */
-class RemovalServiceRemover implements Remover {
+class NonDefaultRemover implements Remover {
     private final RemovalService removalService;
 
-    RemovalServiceRemover(RemovalService removalService) {
+    NonDefaultRemover(RemovalService removalService) {
         this.removalService = removalService;
     }
 
