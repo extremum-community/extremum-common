@@ -1,5 +1,7 @@
 package com.extremum.common.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
@@ -27,6 +29,11 @@ public interface PersistableCommonModel<ID extends Serializable> extends BasicMo
         to.setDeleted(this.getDeleted());
         to.setCreated(this.getCreated());
         to.setModified(this.getModified());
+    }
+
+    @JsonIgnore
+    default boolean isNotDeleted() {
+        return getDeleted() == null || !getDeleted();
     }
 
     enum FIELDS {

@@ -21,8 +21,7 @@ import java.io.Serializable;
  * like this:
  *
  * <pre>
- * &#064;EnableMongoRepositories(repositoryBaseClass = BaseMongoRepository.class,
-        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
+ * &#064;EnableMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
         basePackages = "com.cybernation.testservice.repositories")
  * </pre>
  *

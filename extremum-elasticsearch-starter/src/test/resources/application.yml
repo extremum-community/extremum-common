@@ -5,6 +5,9 @@ redis:
 mongo:
   dbName: test
 
+elasticsearch:
+  repository-packages: com.extremum.elasticsearch.dao
+
 descriptors:
   descriptorsMapName: descriptors
   internalIdsMapName: descriptors_internalId_idx
@@ -16,4 +19,5 @@ spring:
 
 logging:
   level:
-    org.springframework.web : DEBUG
+    org.springframework.web: DEBUG
+    tracer: TRACE

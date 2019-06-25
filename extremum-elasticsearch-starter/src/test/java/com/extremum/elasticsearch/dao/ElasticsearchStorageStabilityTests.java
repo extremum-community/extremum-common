@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-@SpringBootTest(classes = ElasticsearchCommonDaoConfiguration.class)
+@SpringBootTest(classes = RepositoryBasedElasticsearchDaoConfiguration.class)
 class ElasticsearchStorageStabilityTests extends TestWithServices {
     @Autowired
     private ElasticsearchProperties elasticsearchProperties;

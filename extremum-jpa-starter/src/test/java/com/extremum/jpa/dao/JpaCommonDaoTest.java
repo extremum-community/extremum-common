@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
 public class JpaCommonDaoTest extends TestWithServices {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestJpaModelDao dao;
 
