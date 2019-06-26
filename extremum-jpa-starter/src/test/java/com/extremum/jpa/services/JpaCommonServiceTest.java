@@ -5,10 +5,10 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
+import com.extremum.common.service.AddAlert;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.dao.TestJpaModelDao;
 import com.extremum.jpa.models.TestJpaModel;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -68,11 +68,11 @@ public class JpaCommonServiceTest {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestJpaModel resultModel = service.get(createdModel.getId().toString(), alertList);
+        TestJpaModel resultModel = service.get(createdModel.getId().toString(), new AddAlert(alertList));
         assertEquals(createdModel, resultModel);
         assertTrue(alertList.isEmpty());
 
-        resultModel = service.get(UUID.randomUUID().toString(), alertList);
+        resultModel = service.get(UUID.randomUUID().toString(), new AddAlert(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -80,7 +80,7 @@ public class JpaCommonServiceTest {
         assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
-        resultModel = service.get(null, alertList);
+        resultModel = service.get(null, new AddAlert(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -125,13 +125,13 @@ public class JpaCommonServiceTest {
 //        Mockito.when(dao.listByParameters(null)).thenReturn(Collections.singletonList(createdModel));
 //        Mockito.when(dao.listByParameters(params)).thenReturn(Collections.emptyList());
 //
-//        List<TestJpaModel> resultModelList = service.listByParameters(null, alertList);
+//        List<TestJpaModel> resultModelList = service.listByParameters(null, new AddAlert(alertList));
 //        assertTrue(alertList.isEmpty());
 //        assertNotNull(resultModelList);
 //        assertEquals(1, resultModelList.size());
 //        assertEquals(createdModel, resultModelList.get(0));
 //
-//        resultModelList = service.listByParameters(params, alertList);
+//        resultModelList = service.listByParameters(params, new AddAlert(alertList));
 //        assertTrue(alertList.isEmpty());
 //        assertNotNull(resultModelList);
 //        assertTrue(resultModelList.isEmpty());
@@ -166,13 +166,13 @@ public class JpaCommonServiceTest {
 //        Mockito.when(dao.listByFieldValue(version.name(), createdModel.getVersion()))
 //                .thenReturn(Collections.singletonList(createdModel));
 //
-//        List<TestJpaModel> resultModelList = service.listByFieldValue(version.name(), createdModel.getVersion(), alertList);
+//        List<TestJpaModel> resultModelList = service.listByFieldValue(version.name(), createdModel.getVersion(), new AddAlert(alertList));
 //        assertTrue(alertList.isEmpty());
 //        assertNotNull(resultModelList);
 //        assertEquals(1, resultModelList.size());
 //        assertEquals(createdModel, resultModelList.get(0));
 //
-//        resultModelList = service.listByFieldValue(null, null, alertList);
+//        resultModelList = service.listByFieldValue(null, null, new AddAlert(alertList));
 //        assertEquals(2, alertList.size());
 //        assertEquals("400", alertList.get(0).getCode());
 //        assertEquals("400", alertList.get(1).getCode());
@@ -219,13 +219,13 @@ public class JpaCommonServiceTest {
 //        Mockito.when(dao.listByParameters(params)).thenReturn(Collections.singletonList(createdModel));
 //
 //        List<TestJpaModel> resultModelList =
-//                service.listByFieldValue(version.name(), createdModel.getVersion(), 1, 1, alertList);
+//                service.listByFieldValue(version.name(), createdModel.getVersion(), 1, 1, new AddAlert(alertList));
 //        assertTrue(alertList.isEmpty());
 //        assertNotNull(resultModelList);
 //        assertEquals(1, resultModelList.size());
 //        assertEquals(createdModel, resultModelList.get(0));
 //
-//        resultModelList = service.listByFieldValue(null, null, 0, 0, alertList);
+//        resultModelList = service.listByFieldValue(null, null, 0, 0, new AddAlert(alertList));
 //
 //        assertEquals(2, alertList.size());
 //        assertTrue(alertList.get(0).isError());
@@ -273,7 +273,7 @@ public class JpaCommonServiceTest {
 //        assertEquals("404", alertList.get(0).getCode());
 //
 //        alertList = new ArrayList<>();
-//        resultModel = service.getSelectedFieldsById(null, alertList);
+//        resultModel = service.getSelectedFieldsById(null, new AddAlert(alertList));
 //
 //        assertNull(resultModel);
 //        assertEquals(2, alertList.size());
@@ -289,7 +289,7 @@ public class JpaCommonServiceTest {
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestJpaModel> resultModelList = service.list(alertList);
+        List<TestJpaModel> resultModelList = service.list(new AddAlert(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
@@ -316,11 +316,11 @@ public class JpaCommonServiceTest {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
 
-        TestJpaModel resultModel = service.create(new TestJpaModel(), alertList);
+        TestJpaModel resultModel = service.create(new TestJpaModel(), new AddAlert(alertList));
         assertTrue(alertList.isEmpty());
         assertEquals(createdModel, resultModel);
 
-        resultModel = service.create((TestJpaModel) null, alertList);
+        resultModel = service.create((TestJpaModel) null, new AddAlert(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -350,14 +350,14 @@ public class JpaCommonServiceTest {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestJpaModel> resultModels = service.create(Collections.singletonList(new TestJpaModel()), alertList);
+        List<TestJpaModel> resultModels = service.create(Collections.singletonList(new TestJpaModel()), new AddAlert(alertList));
 
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
         assertEquals(createdModel, resultModels.get(0));
 
-        resultModels = service.create((List<TestJpaModel>) null, alertList);
+        resultModels = service.create((List<TestJpaModel>) null, new AddAlert(alertList));
 
         assertNull(resultModels);
         assertEquals(1, alertList.size());
@@ -407,11 +407,11 @@ public class JpaCommonServiceTest {
         updatedModel.setId(createdModel.getId());
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
-        TestJpaModel resultModel = service.save(updatedModel, alertList);
+        TestJpaModel resultModel = service.save(updatedModel, new AddAlert(alertList));
         assertTrue(alertList.isEmpty());
         assertEquals(updatedModel, resultModel);
 
-        resultModel = service.save(null, alertList);
+        resultModel = service.save(null, new AddAlert(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
