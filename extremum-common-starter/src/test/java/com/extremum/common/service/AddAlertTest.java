@@ -1,4 +1,4 @@
-package com.extremum.common.service.impl;
+package com.extremum.common.service;
 
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.response.Alert;

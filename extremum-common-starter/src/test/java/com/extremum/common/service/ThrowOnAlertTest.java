@@ -1,8 +1,6 @@
-package com.extremum.common.service.impl;
+package com.extremum.common.service;
 
 import com.extremum.common.exceptions.CommonException;
-import com.extremum.common.service.Problems;
-import com.extremum.common.service.ThrowOnAlert;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
