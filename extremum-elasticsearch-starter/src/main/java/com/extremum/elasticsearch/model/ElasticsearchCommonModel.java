@@ -1,6 +1,7 @@
 package com.extremum.elasticsearch.model;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.models.Model;
 import com.extremum.common.models.PersistableCommonModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,4 +27,18 @@ public abstract class ElasticsearchCommonModel implements PersistableCommonModel
     private Boolean deleted;
     private Long seqNo;
     private Long primaryTerm;
+
+    @Override
+    public void copyServiceFieldsTo(Model to) {
+        if (!(to instanceof ElasticsearchCommonModel)) {
+            throw new IllegalStateException("I can only copy to a ElasticsearchCommonModel");
+        }
+
+        ElasticsearchCommonModel esTo = (ElasticsearchCommonModel) to;
+
+        PersistableCommonModel.super.copyServiceFieldsTo(esTo);
+
+        esTo.setSeqNo(this.getSeqNo());
+        esTo.setPrimaryTerm(this.getPrimaryTerm());
+    }
 }

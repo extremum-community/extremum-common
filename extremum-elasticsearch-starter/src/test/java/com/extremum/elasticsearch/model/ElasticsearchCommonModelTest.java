@@ -1,8 +1,6 @@
-package com.extremum.common.models;
+package com.extremum.elasticsearch.model;
 
 import com.extremum.common.descriptor.Descriptor;
-import lombok.Getter;
-import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
@@ -15,19 +13,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-class PersistableCommonModelTest {
+class ElasticsearchCommonModelTest {
     private final Descriptor descriptor = Descriptor.builder()
             .externalId(UUID.randomUUID().toString())
             .build();
-    private final TestPersistableModel from = new TestPersistableModel() {{
+    private final TestElasticsearchModel from = new TestElasticsearchModel() {{
         setUuid(descriptor);
-        setId(UUID.randomUUID());
+        setId(UUID.randomUUID().toString());
+
         setCreated(ZonedDateTime.now());
         setModified(ZonedDateTime.now());
         setVersion(1L);
         setDeleted(true);
+
+        setSeqNo(2L);
+        setPrimaryTerm(3L);
     }};
-    private final TestPersistableModel to = new TestPersistableModel();
+    private final TestElasticsearchModel to = new TestElasticsearchModel();
 
     @Test
     void testCopyServiceFieldsTo() {
@@ -35,21 +37,16 @@ class PersistableCommonModelTest {
 
         assertThat(to.getId(), is(sameInstance(from.getId())));
         assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
+
         assertThat(to.getCreated(), is(sameInstance(from.getCreated())));
         assertThat(to.getModified(), is(sameInstance(from.getModified())));
         assertThat(to.getVersion(), is(1L));
-        assertThat(to.getDeleted(), is(true));
+        assertThat(to.getDeleted(), is(sameInstance(from.getDeleted())));
+
+        assertThat(to.getSeqNo(), is(2L));
+        assertThat(to.getPrimaryTerm(), is(3L));
     }
 
-    @Getter
-    @Setter
-    private static class TestPersistableModel implements PersistableCommonModel<UUID> {
-        private Descriptor uuid;
-        private UUID id;
-
-        private ZonedDateTime created;
-        private ZonedDateTime modified;
-        private Long version;
-        private Boolean deleted = false;
+    private static class TestElasticsearchModel extends ElasticsearchCommonModel {
     }
 }
