@@ -1,6 +1,5 @@
 package com.extremum.everything.services.collection;
 
-import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * @author rpuch
  */
-abstract class AbstractPagePicker<T extends BasicModel> implements PagePicker {
+abstract class AbstractPagePicker<T extends Model> implements PagePicker {
     @Override
     public final CollectionFragment<Model> getModelsFromModelsCollection(Collection<?> nonEmptyCollection,
             Projection projection, Model host, String hostAttributeName) {
