@@ -9,10 +9,10 @@ import java.util.Objects;
 /**
  * @author rpuch
  */
-public final class AddAlert implements Problems {
+public final class AlertsCollector implements Problems {
     private final Collection<Alert> alerts;
 
-    public AddAlert(Collection<Alert> alerts) {
+    public AlertsCollector(Collection<Alert> alerts) {
         Objects.requireNonNull(alerts, "Alerts collection cannot be null");
 
         this.alerts = alerts;

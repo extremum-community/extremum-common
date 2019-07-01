@@ -2,7 +2,6 @@ package com.extremum.common.service;
 
 import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.response.Alert;
-import com.extremum.common.service.AddAlert;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,11 +14,11 @@ import static org.hamcrest.Matchers.hasSize;
 /**
  * @author rpuch
  */
-public class AddAlertTest {
+public class AlertsCollectorTest {
     @Test
     public void whenAnExceptionIsConsumed_thenAnAlertShouldBeAddedToTheCollection() {
         List<Alert> alertsList = new ArrayList<>();
-        AddAlert alerts = new AddAlert(alertsList);
+        AlertsCollector alerts = new AlertsCollector(alertsList);
 
         alerts.accept(new CommonException("test", 200));
 

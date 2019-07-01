@@ -5,7 +5,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
-import com.extremum.common.service.AddAlert;
+import com.extremum.common.service.AlertsCollector;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.dao.TestJpaModelDao;
 import com.extremum.jpa.models.TestJpaModel;
@@ -68,11 +68,11 @@ public class JpaCommonServiceTest {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestJpaModel resultModel = service.get(createdModel.getId().toString(), new AddAlert(alertList));
+        TestJpaModel resultModel = service.get(createdModel.getId().toString(), new AlertsCollector(alertList));
         assertEquals(createdModel, resultModel);
         assertTrue(alertList.isEmpty());
 
-        resultModel = service.get(UUID.randomUUID().toString(), new AddAlert(alertList));
+        resultModel = service.get(UUID.randomUUID().toString(), new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -80,7 +80,7 @@ public class JpaCommonServiceTest {
         assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
-        resultModel = service.get(null, new AddAlert(alertList));
+        resultModel = service.get(null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -289,7 +289,7 @@ public class JpaCommonServiceTest {
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestJpaModel> resultModelList = service.list(new AddAlert(alertList));
+        List<TestJpaModel> resultModelList = service.list(new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
@@ -316,11 +316,11 @@ public class JpaCommonServiceTest {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
 
-        TestJpaModel resultModel = service.create(new TestJpaModel(), new AddAlert(alertList));
+        TestJpaModel resultModel = service.create(new TestJpaModel(), new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertEquals(createdModel, resultModel);
 
-        resultModel = service.create((TestJpaModel) null, new AddAlert(alertList));
+        resultModel = service.create((TestJpaModel) null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -350,14 +350,14 @@ public class JpaCommonServiceTest {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestJpaModel> resultModels = service.create(Collections.singletonList(new TestJpaModel()), new AddAlert(alertList));
+        List<TestJpaModel> resultModels = service.create(Collections.singletonList(new TestJpaModel()), new AlertsCollector(alertList));
 
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
         assertEquals(createdModel, resultModels.get(0));
 
-        resultModels = service.create((List<TestJpaModel>) null, new AddAlert(alertList));
+        resultModels = service.create((List<TestJpaModel>) null, new AlertsCollector(alertList));
 
         assertNull(resultModels);
         assertEquals(1, alertList.size());
@@ -407,11 +407,11 @@ public class JpaCommonServiceTest {
         updatedModel.setId(createdModel.getId());
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
-        TestJpaModel resultModel = service.save(updatedModel, new AddAlert(alertList));
+        TestJpaModel resultModel = service.save(updatedModel, new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertEquals(updatedModel, resultModel);
 
-        resultModel = service.save(null, new AddAlert(alertList));
+        resultModel = service.save(null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
