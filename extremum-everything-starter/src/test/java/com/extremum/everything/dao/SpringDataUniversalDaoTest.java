@@ -1,6 +1,6 @@
 package com.extremum.everything.dao;
 
-import com.extremum.common.test.TestWithServices;
+import com.extremum.everything.TestWithServices;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.starter.CommonConfiguration;

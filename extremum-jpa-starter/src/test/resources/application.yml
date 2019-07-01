@@ -15,8 +15,6 @@ jpa:
 descriptors:
   descriptorsMapName: descriptors
   internalIdsMapName: descriptors_internalId_idx
-  collectionDescriptorsMapName: collection_descriptors
-  collectionCoordinatesMapName: collection_descriptors_coordinates_idx
 
 
 spring:
@@ -28,7 +26,3 @@ spring:
             non_contextual_creation: true
   main:
     allow-bean-definition-overriding: true
-
-logging:
-  level:
-    org.springframework.web : DEBUG
