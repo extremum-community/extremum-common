@@ -3,7 +3,6 @@ package com.extremum.common.service.impl;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
 import com.extremum.common.service.Problems;
 import com.extremum.common.service.ThrowOnAlert;
@@ -37,10 +36,6 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     @Override
     public List<M> listByParameters(Map<String, Object> parameters) {
         return listByParameters(parameters, new ThrowOnAlert());
-    }
-
-    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
-        Objects.requireNonNull(alerts, "Alerts collection must not be null");
     }
 
     private void checkThatProblemsIsNotNull(Problems problems) {
