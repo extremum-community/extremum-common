@@ -1,5 +1,7 @@
 package com.extremum.everything;
 
+import com.extremum.testcontainers.CoreServices;
+
 /**
  * Extend this class in your test to make sure that services are started
  * once per all test classes.
@@ -8,5 +10,5 @@ package com.extremum.everything;
  */
 public abstract class TestWithServices {
     @SuppressWarnings("unused")
-    private static final CommonServices services = new CommonServices();
+    private static final CoreServices services = new CoreServices();
 }

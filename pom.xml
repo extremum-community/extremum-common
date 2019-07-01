@@ -12,6 +12,7 @@
         <module>extremum-jpa-starter</module>
         <module>extremum-elasticsearch-starter</module>
         <module>extremum-everything-starter</module>
+        <module>extremum-test-containers</module>
     </modules>
 
     <scm>
@@ -83,6 +84,11 @@
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-everything-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.extremum</groupId>
+                <artifactId>extremum-test-containers</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -159,12 +165,6 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

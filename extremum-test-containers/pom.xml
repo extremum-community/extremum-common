@@ -8,20 +8,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>extremum-everything-starter</artifactId>
-    <description>Spring Boot starter that adds support for everything-everything framework to
-        a Spring Boot application</description>
+    <artifactId>extremum-test-containers</artifactId>
+    <description>Contains test containers infrastructure common for other modules</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.extremum</groupId>
-            <artifactId>extremum-common-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.extremum</groupId>
-            <artifactId>extremum-test-containers</artifactId>
-            <scope>test</scope>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
         </dependency>
     </dependencies>
 

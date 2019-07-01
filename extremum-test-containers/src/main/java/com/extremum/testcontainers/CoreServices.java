@@ -1,4 +1,4 @@
-package com.extremum.everything;
+package com.extremum.testcontainers;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -8,8 +8,8 @@ import org.testcontainers.containers.GenericContainer;
 /**
  * @author rpuch
  */
-public class CommonServices {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommonServices.class);
+public class CoreServices {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreServices.class);
 
     static {
         startMongo();
