@@ -78,7 +78,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private Getter findGetter(String modelName) {
-        GetterService<Model> service = findServiceForModel(modelName, GetterService.class, getterServices);;
+        GetterService<Model> service = findServiceForModel(modelName, GetterService.class, getterServices);
         if (service != null) {
             return new NonDefaultGetter<>(service);
         }
