@@ -74,11 +74,6 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
     }
 
     @Override
-    public List<T> search(String queryString) {
-        return search(queryString, SearchOptions.defaultOptions());
-    }
-
-    @Override
     public List<T> search(String queryString, SearchOptions searchOptions) {
         QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(queryString);
         if (searchOptions.isExactFieldValueMatch()) {

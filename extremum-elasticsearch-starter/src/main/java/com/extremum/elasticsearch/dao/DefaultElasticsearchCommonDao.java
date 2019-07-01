@@ -132,11 +132,6 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public List<Model> search(String queryString) {
-        return search(queryString, SearchOptions.defaultOptions());
-    }
-
-    @Override
     public List<Model> search(String queryString, SearchOptions searchOptions) {
         final SearchRequest request = new SearchRequest(indexName);
 

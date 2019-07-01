@@ -8,8 +8,6 @@ import java.util.Map;
 
 public interface ElasticsearchCommonDao<M extends ElasticsearchCommonModel> extends CommonDao<M, String> {
 
-    List<M> search(String queryString);
-
     List<M> search(String queryString, SearchOptions searchOptions);
 
     boolean patch(String id, String painlessScript);
