@@ -10,4 +10,8 @@ import lombok.Getter;
 @Getter
 public class SearchOptions {
     private final boolean exactFieldValueMatch;
+
+    public static SearchOptions defaultOptions() {
+        return SearchOptions.builder().build();
+    }
 }

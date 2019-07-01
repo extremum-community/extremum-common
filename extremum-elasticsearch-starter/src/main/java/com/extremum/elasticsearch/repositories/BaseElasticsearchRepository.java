@@ -75,7 +75,7 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     @Override
     public List<T> search(String queryString) {
-        return search(queryString, SearchOptions.builder().build());
+        return search(queryString, SearchOptions.defaultOptions());
     }
 
     @Override
