@@ -31,10 +31,8 @@ final class PersistablePagePicker extends AbstractPagePicker<PersistableCommonMo
     private PersistableCommonModel convertElementToPersistableModel(Object element, Model host,
             String hostAttributeName) {
         if (!(element instanceof PersistableCommonModel)) {
-            String name = ModelUtils.getModelName(host);
-            String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
-                            " ObjectId, or PersistableCommonModel instances, but encountered '%s'",
-                    name, hostAttributeName, element.getClass());
+            String message = DatePickers.unsupportedCollectionElementClassMessage(element, PersistableCommonModel.class,
+                    host, hostAttributeName);
             throw new EverythingEverythingException(message);
         }
 

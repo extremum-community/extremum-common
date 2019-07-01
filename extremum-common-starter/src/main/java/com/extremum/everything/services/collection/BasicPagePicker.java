@@ -30,10 +30,8 @@ final class BasicPagePicker extends AbstractPagePicker<BasicModel> {
 
     private BasicModel convertElementToBasicModel(Object element, Model host, String hostAttributeName) {
         if (!(element instanceof BasicModel)) {
-            String name = ModelUtils.getModelName(host);
-            String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
-                            " ObjectId, or BasicModel instances, but encountered '%s'", name, hostAttributeName,
-                    element.getClass());
+            String message = DatePickers.unsupportedCollectionElementClassMessage(element, BasicModel.class, host,
+                    hostAttributeName);
             throw new EverythingEverythingException(message);
         }
 

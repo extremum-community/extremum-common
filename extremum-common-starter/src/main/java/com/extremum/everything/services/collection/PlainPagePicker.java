@@ -1,7 +1,6 @@
 package com.extremum.everything.services.collection;
 
 import com.extremum.common.models.Model;
-import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 
@@ -28,10 +27,8 @@ final class PlainPagePicker extends AbstractPagePicker<Model> {
 
     private Model convertElementToModel(Object element, Model host, String hostAttributeName) {
         if (!(element instanceof Model)) {
-            String name = ModelUtils.getModelName(host);
-            String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
-                            " ObjectId, or Model instances, but encountered '%s'", name, hostAttributeName,
-                    element.getClass());
+            String message = DatePickers.unsupportedCollectionElementClassMessage(element, Model.class,
+                    host, hostAttributeName);
             throw new EverythingEverythingException(message);
         }
 

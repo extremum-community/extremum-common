@@ -1,6 +1,7 @@
 package com.extremum.everything.services.collection;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.utils.ModelUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,5 +15,14 @@ class DatePickers {
         List<T> sortedFullList = new ArrayList<>(fullList);
         sortedFullList.sort(comparator);
         return sortedFullList;
+    }
+
+    static String unsupportedCollectionElementClassMessage(Object collectionElement,
+            Class<? extends Model> expectedModelClassBound, Model host,
+            String hostAttributeName) {
+        String name = ModelUtils.getModelName(host);
+        return String.format("For entity '%s', field name '%s', collection elements must be String," +
+                        " ObjectId, or %s instances, but encountered '%s'", name, hostAttributeName,
+                expectedModelClassBound.getSimpleName(), collectionElement.getClass());
     }
 }
