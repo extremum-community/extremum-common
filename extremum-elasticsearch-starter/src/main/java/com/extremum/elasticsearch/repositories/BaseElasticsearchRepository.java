@@ -3,11 +3,13 @@ package com.extremum.elasticsearch.repositories;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.dao.ElasticsearchCommonDao;
+import com.extremum.elasticsearch.dao.SearchOptions;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.springframework.data.domain.Sort;
@@ -32,6 +34,8 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
     private static final String PAINLESS_LANGUAGE = "painless";
 
     private static final String MODIFIED = ElasticsearchCommonModel.FIELDS.modified.name();
+
+    private static final String ANALYZER_KEYWORD = "keyword";
 
     private final ElasticsearchEntityInformation<T, String> metadata;
 
@@ -71,7 +75,17 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     @Override
     public List<T> search(String queryString) {
-        Iterable<T> results = search(QueryBuilders.queryStringQuery(queryString));
+        return search(queryString, SearchOptions.builder().build());
+    }
+
+    @Override
+    public List<T> search(String queryString, SearchOptions searchOptions) {
+        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(queryString);
+        if (searchOptions.isExactFieldValueMatch()) {
+            query.analyzer(ANALYZER_KEYWORD);
+        }
+
+        Iterable<T> results = search(query);
         return iterableToList(results);
     }
 

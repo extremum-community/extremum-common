@@ -3,6 +3,8 @@ package com.extremum.elasticsearch.dao;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.*;
 
 import java.io.IOException;
@@ -35,6 +37,14 @@ class TestElasticsearchClient {
         } catch (IOException e) {
             throw new RuntimeException("Unable to get data by id " + id +
                     " from index " + indexName, e);
+        }
+    }
+
+    SearchResponse search(SearchRequest searchRequest) {
+        try (RestHighLevelClient client = getClient()) {
+            return client.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

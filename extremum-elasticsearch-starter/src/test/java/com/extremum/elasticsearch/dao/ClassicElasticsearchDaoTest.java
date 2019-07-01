@@ -396,6 +396,38 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         assertThat(results.get(0).getId(), is(equalTo(notDeleted.getId())));
     }
 
+    @Test
+    void given1ExactFieldMatchAnd2NonExactMatchesExist_whenSearchingWithExactSemantics_then1ResultShouldBeFound() {
+        String uniqueName = UUID.randomUUID().toString();
+        TestElasticsearchModel exact = modelWithName(uniqueName);
+        TestElasticsearchModel reversed = modelWithName(splitByDashesAndReverse(uniqueName));
+        TestElasticsearchModel longer = modelWithName(uniqueName + "-abc");
+
+        dao.saveAll(Arrays.asList(exact, reversed, longer));
+
+        List<TestElasticsearchModel> resultsByNonExact = dao.search(uniqueName);
+        assertThat(resultsByNonExact, hasSize(3));
+
+        List<TestElasticsearchModel> resultsByExact = dao.search(uniqueName,
+                SearchOptions.builder().exactFieldValueMatch(true).build());
+        assertThat(resultsByExact, hasSize(1));
+        assertThat(resultsByExact.get(0).getId(), is(equalTo(exact.getId())));
+    }
+
+    @NotNull
+    private TestElasticsearchModel modelWithName(String name) {
+        TestElasticsearchModel model1 = new TestElasticsearchModel();
+        model1.setName(name);
+        return model1;
+    }
+
+    private String splitByDashesAndReverse(String uniqueName) {
+        List<String> fragments = Arrays.stream(uniqueName.split("-"))
+                .collect(Collectors.toList());
+        Collections.reverse(fragments);
+        return String.join("-", fragments);
+    }
+
     @NotNull
     private String searchByFullString(String query) {
         return "*" + query + "*";

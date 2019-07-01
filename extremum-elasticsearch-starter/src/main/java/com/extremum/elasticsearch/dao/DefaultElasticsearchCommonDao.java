@@ -63,6 +63,8 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted";
 
+    private static final String ANALYZER_KEYWORD = "keyword";
+
     private RestClientBuilder restClientBuilder;
     private ElasticsearchDescriptorFactory elasticsearchDescriptorFactory;
 
@@ -131,9 +133,14 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     @Override
     public List<Model> search(String queryString) {
+        return search(queryString, SearchOptions.builder().build());
+    }
+
+    @Override
+    public List<Model> search(String queryString, SearchOptions searchOptions) {
         final SearchRequest request = new SearchRequest(indexName);
 
-        QueryStringQueryBuilder contentQuery = QueryBuilders.queryStringQuery(queryString);
+        QueryStringQueryBuilder contentQuery = createContentQuery(queryString, searchOptions);
         QueryBuilder totalQuery = QueryBuilders.boolQuery()
                 .must(contentQuery)
                 .mustNot(QueryBuilders.queryStringQuery("true").field(DELETED).defaultOperator(Operator.AND));
@@ -145,6 +152,14 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         );
 
         return doSearch(queryString, request);
+    }
+
+    private QueryStringQueryBuilder createContentQuery(String queryString, SearchOptions searchOptions) {
+        QueryStringQueryBuilder contentQuery = QueryBuilders.queryStringQuery(queryString);
+        if (searchOptions.isExactFieldValueMatch()) {
+            contentQuery.analyzer(ANALYZER_KEYWORD);
+        }
+        return contentQuery;
     }
 
     protected List<Model> doSearch(String queryString, SearchRequest request) {
