@@ -167,8 +167,7 @@ public class FetchByOwnedCoordinates {
             return new BasicPagePicker();
         }
 
-        throw new EverythingEverythingException(
-                "Only instances of BasicModel are supported as elements of a collection");
+        return new PlainPagePicker();
     }
 
 }

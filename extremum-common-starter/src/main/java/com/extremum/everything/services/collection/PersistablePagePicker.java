@@ -23,6 +23,11 @@ final class PersistablePagePicker extends AbstractPagePicker<PersistableCommonMo
                 .collect(Collectors.toList());
     }
 
+    @Override
+    List<PersistableCommonModel> sortModelsIfPossible(List<PersistableCommonModel> fullList) {
+        return DatePickers.sortModels(fullList, modelsComparator());
+    }
+
     private PersistableCommonModel convertElementToPersistableModel(Object element, Model host,
             String hostAttributeName) {
         if (!(element instanceof PersistableCommonModel)) {
@@ -36,15 +41,14 @@ final class PersistablePagePicker extends AbstractPagePicker<PersistableCommonMo
         return (PersistableCommonModel) element;
     }
 
-    @Override
-    Comparator<PersistableCommonModel> createModelsComparator() {
+    private Comparator<PersistableCommonModel> modelsComparator() {
         Comparator<PersistableCommonModel> compareByCreated = Comparator.comparing(PersistableCommonModel::getCreated,
                 Comparator.nullsFirst(Comparator.naturalOrder()));
         return compareByCreated
                 .thenComparing(BasicModel::getId, Comparator.nullsFirst(new IdComparator()));
     }
 
-    final List<Model> filter(List<PersistableCommonModel> nonEmptyFullList, Projection projection) {
+    final List<Model> filterIsPossible(List<PersistableCommonModel> nonEmptyFullList, Projection projection) {
         return nonEmptyFullList.stream()
                 .filter(projection::accepts)
                 .filter(PersistableCommonModel::isNotDeleted)

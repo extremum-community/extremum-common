@@ -23,6 +23,11 @@ final class BasicPagePicker extends AbstractPagePicker<BasicModel> {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    List<BasicModel> sortModelsIfPossible(List<BasicModel> fullList) {
+        return DatePickers.sortModels(fullList, modelsComparator());
+    }
+
     private BasicModel convertElementToBasicModel(Object element, Model host, String hostAttributeName) {
         if (!(element instanceof BasicModel)) {
             String name = ModelUtils.getModelName(host);
@@ -35,12 +40,11 @@ final class BasicPagePicker extends AbstractPagePicker<BasicModel> {
         return (BasicModel) element;
     }
 
-    @Override
-    Comparator<BasicModel> createModelsComparator() {
+    private Comparator<BasicModel> modelsComparator() {
         return Comparator.comparing(BasicModel::getId, Comparator.nullsFirst(new IdComparator()));
     }
 
-    final List<Model> filter(List<BasicModel> nonEmptyFullList, Projection projection) {
+    final List<Model> filterIsPossible(List<BasicModel> nonEmptyFullList, Projection projection) {
         if (projection.definesFilteringOnCreationDate()) {
             throw new EverythingEverythingException(
                     "Cannot filter BasicModel instances on creation date; please do not specify since/until");
