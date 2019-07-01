@@ -20,6 +20,6 @@ public final class AddAlert implements Problems {
 
     @Override
     public void accept(CommonException e) {
-        alerts.add(e.getFirstAlert());
+        alerts.addAll(e.getAlerts());
     }
 }
