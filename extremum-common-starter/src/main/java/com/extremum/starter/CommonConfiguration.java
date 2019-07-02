@@ -10,9 +10,9 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
 import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
-import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
@@ -105,8 +105,8 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao, DescriptorService descriptorService) {
-        return new DescriptorServiceConfigurator(descriptorDao, descriptorService);
+    public DescriptorServiceConfigurator configurator(DescriptorService descriptorService) {
+        return new DescriptorServiceConfigurator(descriptorService);
     }
 
     @Bean

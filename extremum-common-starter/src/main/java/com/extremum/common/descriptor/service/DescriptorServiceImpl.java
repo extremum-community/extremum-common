@@ -16,18 +16,6 @@ public final class DescriptorServiceImpl implements DescriptorService {
 
     private static volatile DescriptorService instance;
 
-    /**
-     * This is only used for tests.
-     *
-     * @return current dao
-     */
-    public static DescriptorDao getDescriptorDao() {
-        return null;
-    }
-
-    public static void setDescriptorDao(DescriptorDao descriptorDao) {
-    }
-
     public static DescriptorService getInstance() {
         return instance;
     }
