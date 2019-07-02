@@ -2,6 +2,7 @@ package com.extremum.common.descriptor.service;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,9 +10,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class DescriptorServiceImpl {
+@RequiredArgsConstructor
+public final class DescriptorServiceImpl implements DescriptorService {
+    private final DescriptorDao descriptorDao;
 
-    private static volatile DescriptorDao descriptorDao;
+    private static volatile DescriptorService instance;
 
     /**
      * This is only used for tests.
@@ -19,35 +22,47 @@ public final class DescriptorServiceImpl {
      * @return current dao
      */
     public static DescriptorDao getDescriptorDao() {
-        return descriptorDao;
+        return null;
     }
 
     public static void setDescriptorDao(DescriptorDao descriptorDao) {
-        DescriptorServiceImpl.descriptorDao = descriptorDao;
+    }
+
+    public static DescriptorService getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(DescriptorService instance) {
+        DescriptorServiceImpl.instance = instance;
     }
 
     public static String createExternalId() {
         return UUID.randomUUID().toString();
     }
 
-    public static Descriptor store(Descriptor descriptor) {
+    @Override
+    public Descriptor store(Descriptor descriptor) {
         return descriptorDao.store(descriptor);
     }
 
-    public static Optional<Descriptor> loadByExternalId(String uuid) {
+    @Override
+    public Optional<Descriptor> loadByExternalId(String uuid) {
         return descriptorDao.retrieveByExternalId(uuid);
     }
 
-    public static Optional<Descriptor> loadByInternalId(String internalId) {
+    @Override
+    public Optional<Descriptor> loadByInternalId(String internalId) {
         return descriptorDao.retrieveByInternalId(internalId);
     }
 
-    public static Map<String, String> loadMapByExternalIds(Collection<String> externalIds) {
+    @Override
+    public Map<String, String> loadMapByExternalIds(Collection<String> externalIds) {
         Objects.requireNonNull(externalIds, "List of external ids can't be null");
         return descriptorDao.retrieveMapByExternalIds(externalIds);
     }
 
-    public static Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
+    @Override
+    public Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
         Objects.requireNonNull(internalIds, "List of internal ids can't be null");
         return descriptorDao.retrieveMapByInternalIds(internalIds);
     }

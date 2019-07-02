@@ -6,7 +6,9 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
@@ -97,9 +99,14 @@ public class CommonConfiguration {
     }
 
     @Bean
+    public DescriptorService descriptorService(DescriptorDao descriptorDao) {
+        return new DescriptorServiceImpl(descriptorDao);
+    }
+
+    @Bean
     @ConditionalOnMissingBean
-    public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao) {
-        return new DescriptorServiceConfigurator(descriptorDao);
+    public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao, DescriptorService descriptorService) {
+        return new DescriptorServiceConfigurator(descriptorDao, descriptorService);
     }
 
     @Bean

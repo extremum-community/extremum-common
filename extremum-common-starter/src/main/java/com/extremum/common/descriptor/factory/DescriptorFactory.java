@@ -49,7 +49,7 @@ public class DescriptorFactory {
                 .storageType(storageType)
                 .build();
 
-        return DescriptorServiceImpl.store(descriptor);
+        return DescriptorServiceImpl.getInstance().store(descriptor);
     }
 
     protected static Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
@@ -60,6 +60,6 @@ public class DescriptorFactory {
                 .storageType(storageType)
                 .build();
 
-        return DescriptorServiceImpl.store(descriptor);
+        return DescriptorServiceImpl.getInstance().store(descriptor);
     }
 }

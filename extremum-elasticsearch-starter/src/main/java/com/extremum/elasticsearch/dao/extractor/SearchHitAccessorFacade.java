@@ -1,19 +1,19 @@
 package com.extremum.elasticsearch.dao.extractor;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.search.SearchHit;
 
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class SearchHitAccessorFacade extends AccessorFacade {
-    private SearchHit response;
-
-    public SearchHitAccessorFacade(SearchHit response) {
-        this.response = response;
-    }
+    private final SearchHit response;
+    private final DescriptorService descriptorService;
 
     @Override
     public String getId() {
@@ -22,7 +22,9 @@ public class SearchHitAccessorFacade extends AccessorFacade {
 
     @Override
     public Descriptor getUuid() {
-        return DescriptorServiceImpl.loadByInternalId(response.getId()).get();
+        return descriptorService.loadByInternalId(response.getId())
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format("Did not find a descriptor by id '%s'", response.getId())));
     }
 
     @Override

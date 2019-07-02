@@ -6,6 +6,7 @@ import com.extremum.common.collection.conversion.CollectionMakeupImpl;
 import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
@@ -116,8 +117,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelDescriptors modelDescriptors(ModelClasses modelClasses) {
-        return new DefaultModelDescriptors(modelClasses);
+    public ModelDescriptors modelDescriptors(ModelClasses modelClasses, DescriptorService descriptorService) {
+        return new DefaultModelDescriptors(modelClasses, descriptorService);
     }
 
     @Bean

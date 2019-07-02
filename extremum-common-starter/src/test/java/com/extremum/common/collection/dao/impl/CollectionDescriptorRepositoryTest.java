@@ -2,6 +2,7 @@ package com.extremum.common.collection.dao.impl;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;
@@ -36,6 +37,8 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
     private CollectionDescriptorRepository repository;
 
     @Autowired
+    private DescriptorService descriptorService;
+    @Autowired
     private MongoClient mongoClient;
     @Autowired
     private MongoProperties mongoProperties;
@@ -49,7 +52,7 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
                 .build();
-        DescriptorServiceImpl.store(hostId);
+        descriptorService.store(hostId);
 
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "the-field");
 

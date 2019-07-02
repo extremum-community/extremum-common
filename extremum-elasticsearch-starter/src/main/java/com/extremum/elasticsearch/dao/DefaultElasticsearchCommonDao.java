@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
@@ -66,20 +66,23 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     private static final String ANALYZER_KEYWORD = "keyword";
 
     private RestClientBuilder restClientBuilder;
+    private final DescriptorService descriptorService;
     private ElasticsearchDescriptorFactory elasticsearchDescriptorFactory;
 
-    private ElasticsearchProperties elasticProps;
-    private ObjectMapper mapper;
-    private String indexName;
-    private String indexType;
+    private final ElasticsearchProperties elasticProps;
+    private final ObjectMapper mapper;
+    private final String indexName;
+    private final String indexType;
 
     private Class<? extends Model> modelClass;
 
     public DefaultElasticsearchCommonDao(Class<Model> modelClass, ElasticsearchProperties elasticsearchProperties,
-                                   ElasticsearchDescriptorFactory descriptorFactory, ObjectMapper mapper, String indexName,
-                                   String indexType) {
+            DescriptorService descriptorService,
+            ElasticsearchDescriptorFactory descriptorFactory, ObjectMapper mapper, String indexName,
+            String indexType) {
         this.modelClass = modelClass;
         this.elasticProps = elasticsearchProperties;
+        this.descriptorService = descriptorService;
         this.elasticsearchDescriptorFactory = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
@@ -88,9 +91,12 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         initRest();
     }
 
-    protected DefaultElasticsearchCommonDao(ElasticsearchProperties elasticsearchProperties, ElasticsearchDescriptorFactory descriptorFactory,
-                                      ObjectMapper mapper, String indexName, String indexType) {
+    protected DefaultElasticsearchCommonDao(ElasticsearchProperties elasticsearchProperties,
+            DescriptorService descriptorService,
+            ElasticsearchDescriptorFactory descriptorFactory,
+            ObjectMapper mapper, String indexName, String indexType) {
         this.elasticProps = elasticsearchProperties;
+        this.descriptorService = descriptorService;
         this.elasticsearchDescriptorFactory = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
@@ -176,7 +182,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
 
         return StreamUtils.fromIterable(response.getHits())
-                .map(hit -> extract(new SearchHitAccessorFacade(hit)))
+                .map(hit -> extract(new SearchHitAccessorFacade(hit, descriptorService)))
                 .collect(Collectors.toList());
     }
 
@@ -213,7 +219,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         if (sourceMap.getOrDefault(FIELDS.deleted.name(), false).equals(true)) {
             return Optional.empty();
         } else {
-            return Optional.ofNullable(extract(new GetResponseAccessorFacade(response)));
+            return Optional.ofNullable(extract(new GetResponseAccessorFacade(response, descriptorService)));
         }
     }
 
@@ -318,7 +324,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
             return model.getUuid();
         } else {
             Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
-            return DescriptorServiceImpl.store(descriptor);
+            return descriptorService.store(descriptor);
         }
     }
 
