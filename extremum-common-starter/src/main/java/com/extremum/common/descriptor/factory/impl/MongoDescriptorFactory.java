@@ -2,6 +2,7 @@ package com.extremum.common.descriptor.factory.impl;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
+import com.extremum.common.descriptor.factory.DescriptorResolver;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -47,7 +48,7 @@ public final class MongoDescriptorFactory {
     }
 
     public ObjectId resolve(Descriptor descriptor) {
-        String internalId = DescriptorFactory.resolve(descriptor, STORAGE_TYPE);
+        String internalId = DescriptorResolver.resolve(descriptor, STORAGE_TYPE);
         return new ObjectId(internalId);
     }
 }

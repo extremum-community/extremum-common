@@ -2,6 +2,7 @@ package com.extremum.common.descriptor.factory.impl;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
+import com.extremum.common.descriptor.factory.DescriptorResolver;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 
 import java.util.UUID;
@@ -32,7 +33,7 @@ public abstract class UUIDDescriptorFactory {
     }
 
     public UUID resolve(Descriptor descriptor) {
-        String internalId = DescriptorFactory.resolve(descriptor, storageType());
+        String internalId = DescriptorResolver.resolve(descriptor, storageType());
         return UUID.fromString(internalId);
     }
 }

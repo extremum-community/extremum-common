@@ -3,7 +3,7 @@ package com.extremum.common.descriptor.factory;
 import com.extremum.common.descriptor.Descriptor;
 import org.apache.commons.lang3.StringUtils;
 
-public class DescriptorFactory {
+public final class DescriptorFactory {
     public static Descriptor fromExternalId(String externalId) {
         return externalId != null ? new Descriptor(externalId) : null;
     }
@@ -27,14 +27,6 @@ public class DescriptorFactory {
                 .build();
     }
 
-    public static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
-        String internalId = descriptor.getInternalId();
-        Descriptor.StorageType currentType = descriptor.getStorageType();
-
-        if (currentType != storageType) {
-            throw new IllegalStateException("Wrong descriptor storage type " + currentType);
-        }
-
-        return internalId;
+    private DescriptorFactory() {
     }
 }
