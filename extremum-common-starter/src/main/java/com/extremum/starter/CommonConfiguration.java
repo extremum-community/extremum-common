@@ -4,13 +4,15 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import com.extremum.common.descriptor.service.DescriptorLoader;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.descriptor.service.DBDescriptorLoader;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.DescriptorServiceImpl;
-import com.extremum.common.descriptor.service.StaticDescriptorServiceAccessorConfigurator;
+import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessorConfigurator;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
@@ -108,9 +110,15 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StaticDescriptorServiceAccessorConfigurator staticDescriptorServiceAccessorConfigurator(
-            DescriptorService descriptorService) {
-        return new StaticDescriptorServiceAccessorConfigurator(descriptorService);
+    public DescriptorLoader descriptorLoader(DescriptorService descriptorService) {
+        return new DBDescriptorLoader(descriptorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public StaticDescriptorLoaderAccessorConfigurator staticDescriptorLoaderAccessorConfigurator(
+            DescriptorLoader descriptorLoader) {
+        return new StaticDescriptorLoaderAccessorConfigurator(descriptorLoader);
     }
 
     @Bean

@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import javax.annotation.PostConstruct;
 
 @RequiredArgsConstructor
-public class StaticDescriptorServiceAccessorConfigurator {
-    private final DescriptorService descriptorService;
+public class StaticDescriptorLoaderAccessorConfigurator {
+    private final DescriptorLoader descriptorLoader;
 
     @PostConstruct
     public void init() {
-        StaticDescriptorServiceAccessor.setDescriptorService(descriptorService);
+        StaticDescriptorLoaderAccessor.setDescriptorLoader(descriptorLoader);
     }
 
 }

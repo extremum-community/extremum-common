@@ -16,8 +16,8 @@ public final class DescriptorServiceImpl implements DescriptorService {
     }
 
     @Override
-    public Optional<Descriptor> loadByExternalId(String uuid) {
-        return descriptorDao.retrieveByExternalId(uuid);
+    public Optional<Descriptor> loadByExternalId(String externalId) {
+        return descriptorDao.retrieveByExternalId(externalId);
     }
 
     @Override

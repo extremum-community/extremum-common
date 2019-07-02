@@ -3,8 +3,8 @@ package com.extremum.everything.services.management;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.Descriptor.StorageType;
-import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.descriptor.service.StaticDescriptorServiceAccessor;
+import com.extremum.common.descriptor.service.DescriptorLoader;
+import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
@@ -56,23 +56,23 @@ class EverythingServicesTest {
     @Mock
     private MongoCommonDao<MongoModelWithoutServices> commonDaoForModelWithoutServices;
     @Mock
-    private DescriptorService descriptorService;
+    private DescriptorLoader descriptorLoader;
     @Spy
     private RemovalService mongoWithServicesRemovalService = new MongoWithServicesRemovalService();
     @Spy
     private PatcherService<MongoModelWithServices> mongoWithServicesPatcherService
             = new MongoWithServicesPatcherService(dtoConversionService, objectMapper);
 
-    private DescriptorService oldDescriptorService;
+    private DescriptorLoader oldDescriptorLoader;
 
     private final Descriptor descriptor = new Descriptor("external-id");
     private final ObjectId objectId = new ObjectId();
     private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
 
     @BeforeEach
-    void initDescriptorService() {
-        oldDescriptorService = StaticDescriptorServiceAccessor.getDescriptorService();
-        StaticDescriptorServiceAccessor.setDescriptorService(descriptorService);
+    void initDescriptorLoader() {
+        oldDescriptorLoader = StaticDescriptorLoaderAccessor.getDescriptorLoader();
+        StaticDescriptorLoaderAccessor.setDescriptorLoader(descriptorLoader);
     }
 
     @BeforeEach
@@ -85,7 +85,7 @@ class EverythingServicesTest {
                 MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
                 MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
         ));
-        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
+        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorLoader);
 
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
@@ -106,8 +106,8 @@ class EverythingServicesTest {
     }
 
     @AfterEach
-    void restoreDescriptorDao() {
-        StaticDescriptorServiceAccessor.setDescriptorService(oldDescriptorService);
+    void restoreDescriptorLoader() {
+        StaticDescriptorLoaderAccessor.setDescriptorLoader(oldDescriptorLoader);
     }
 
     @Test
@@ -126,7 +126,7 @@ class EverythingServicesTest {
 
     private void whenGetDescriptorByExternalIdThenReturnOne(String modelName) {
         Descriptor descriptor = buildDescriptor(modelName);
-        when(descriptorService.loadByExternalId("external-id")).thenReturn(Optional.of(descriptor));
+        when(descriptorLoader.loadByExternalId("external-id")).thenReturn(Optional.of(descriptor));
     }
 
     private Descriptor buildDescriptor(String modelName) {
@@ -152,7 +152,7 @@ class EverythingServicesTest {
 
     private void whenGetDescriptorByInternalIdThenReturnOne(String modelName) {
         Descriptor descriptor = buildDescriptor(modelName);
-        when(descriptorService.loadByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
+        when(descriptorLoader.loadByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
     }
     
     private void assertThatDtoIsForModelWithoutServices(ResponseDto dto) {

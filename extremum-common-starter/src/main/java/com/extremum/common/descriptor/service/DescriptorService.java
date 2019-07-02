@@ -15,7 +15,7 @@ public interface DescriptorService {
 
     Descriptor store(Descriptor descriptor);
 
-    Optional<Descriptor> loadByExternalId(String uuid);
+    Optional<Descriptor> loadByExternalId(String externalId);
 
     Optional<Descriptor> loadByInternalId(String internalId);
 

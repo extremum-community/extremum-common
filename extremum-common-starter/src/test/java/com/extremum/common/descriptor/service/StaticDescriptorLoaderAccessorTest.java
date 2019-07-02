@@ -10,12 +10,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-class StaticDescriptorServiceAccessorTest {
+class StaticDescriptorLoaderAccessorTest {
     @Test
     void test() {
-        DescriptorService descriptorService = Mockito.mock(DescriptorService.class);
-        StaticDescriptorServiceAccessor.setDescriptorService(descriptorService);
+        DescriptorLoader descriptorLoader = Mockito.mock(DescriptorLoader.class);
+        StaticDescriptorLoaderAccessor.setDescriptorLoader(descriptorLoader);
 
-        assertThat(StaticDescriptorServiceAccessor.getDescriptorService(), is(sameInstance(descriptorService)));
+        assertThat(StaticDescriptorLoaderAccessor.getDescriptorLoader(), is(sameInstance(descriptorLoader)));
     }
 }
