@@ -1,18 +1,20 @@
 package com.extremum.jpa.factory;
 
+import com.extremum.common.descriptor.factory.DescriptorFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author rpuch
  */
-public class StaticPostgresqlDescriptorFactoryAccessorTest {
+class StaticPostgresqlDescriptorFactoryAccessorTest {
+    private static final DescriptorFactory NOT_USED = null;
+
     @Test
-    public void test() {
-        PostgresqlDescriptorFactory factory = mock(PostgresqlDescriptorFactory.class);
+    void test() {
+        PostgresqlDescriptorFactory factory = new PostgresqlDescriptorFactory(NOT_USED);
 
         StaticPostgresqlDescriptorFactoryAccessor.setFactory(factory);
 

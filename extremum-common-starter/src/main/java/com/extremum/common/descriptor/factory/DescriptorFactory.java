@@ -1,12 +1,14 @@
 package com.extremum.common.descriptor.factory;
 
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.UUID;
-
+@RequiredArgsConstructor
 public class DescriptorFactory {
+    private final DescriptorService descriptorService;
 
     public static Descriptor fromExternalId(String externalId) {
         return externalId != null ? new Descriptor(externalId) : null;
@@ -16,12 +18,12 @@ public class DescriptorFactory {
         return fromInternalIdOrNull(internalId, null);
     }
 
-    protected static Descriptor fromInternalIdOrNull(String internalId, Descriptor.StorageType storageType) {
+    public static Descriptor fromInternalIdOrNull(String internalId, Descriptor.StorageType storageType) {
         return StringUtils.isBlank(internalId) ? null :
                 Descriptor.builder().internalId(internalId).storageType(storageType).build();
     }
 
-    protected static Descriptor fromInternalId(String internalId, Descriptor.StorageType storageType) {
+    public static Descriptor fromInternalId(String internalId, Descriptor.StorageType storageType) {
         if (StringUtils.isBlank(internalId)) {
             throw new IllegalArgumentException("Empty internal id detected");
         }
@@ -31,7 +33,7 @@ public class DescriptorFactory {
                 .build();
     }
 
-    protected static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
+    public static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
         String internalId = descriptor.getInternalId();
         Descriptor.StorageType currentType = descriptor.getStorageType();
 
@@ -42,7 +44,7 @@ public class DescriptorFactory {
         return internalId;
     }
 
-    protected static Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
+    public Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(internalId)
@@ -50,6 +52,6 @@ public class DescriptorFactory {
                 .storageType(storageType)
                 .build();
 
-        return DescriptorServiceImpl.getInstance().store(descriptor);
+        return descriptorService.store(descriptor);
     }
 }
