@@ -9,7 +9,7 @@ import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
+import com.extremum.common.descriptor.service.StaticDescriptorServiceAccessorConfigurator;
 import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
@@ -108,8 +108,9 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorServiceConfigurator configurator(DescriptorService descriptorService) {
-        return new DescriptorServiceConfigurator(descriptorService);
+    public StaticDescriptorServiceAccessorConfigurator staticDescriptorServiceAccessorConfigurator(
+            DescriptorService descriptorService) {
+        return new StaticDescriptorServiceAccessorConfigurator(descriptorService);
     }
 
     @Bean

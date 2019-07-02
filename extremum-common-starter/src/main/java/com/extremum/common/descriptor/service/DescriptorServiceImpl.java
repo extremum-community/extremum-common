@@ -4,25 +4,11 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 public final class DescriptorServiceImpl implements DescriptorService {
     private final DescriptorDao descriptorDao;
-
-    private static volatile DescriptorService instance;
-
-    public static DescriptorService getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(DescriptorService instance) {
-        DescriptorServiceImpl.instance = instance;
-    }
 
     public static String createExternalId() {
         return UUID.randomUUID().toString();

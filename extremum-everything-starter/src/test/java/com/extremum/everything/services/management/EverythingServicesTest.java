@@ -4,7 +4,7 @@ import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.Descriptor.StorageType;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.StaticDescriptorServiceAccessor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
@@ -71,8 +71,8 @@ class EverythingServicesTest {
 
     @BeforeEach
     void initDescriptorService() {
-        oldDescriptorService = DescriptorServiceImpl.getInstance();
-        DescriptorServiceImpl.setInstance(descriptorService);
+        oldDescriptorService = StaticDescriptorServiceAccessor.getDescriptorService();
+        StaticDescriptorServiceAccessor.setDescriptorService(descriptorService);
     }
 
     @BeforeEach
@@ -107,7 +107,7 @@ class EverythingServicesTest {
 
     @AfterEach
     void restoreDescriptorDao() {
-        DescriptorServiceImpl.setInstance(oldDescriptorService);
+        StaticDescriptorServiceAccessor.setDescriptorService(oldDescriptorService);
     }
 
     @Test

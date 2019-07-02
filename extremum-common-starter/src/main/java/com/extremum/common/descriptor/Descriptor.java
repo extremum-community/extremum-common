@@ -1,7 +1,7 @@
 package com.extremum.common.descriptor;
 
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.StaticDescriptorServiceAccessor;
 import com.extremum.common.stucts.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -101,7 +101,7 @@ public class Descriptor implements Serializable {
     }
 
     private void fillByInternalId() {
-        DescriptorServiceImpl.getInstance().loadByInternalId(internalId)
+        StaticDescriptorServiceAccessor.getDescriptorService().loadByInternalId(internalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.externalId != null)
                 .orElseThrow(() -> new DescriptorNotFoundException(
@@ -111,7 +111,7 @@ public class Descriptor implements Serializable {
     }
 
     private void fillByExternalId() {
-        DescriptorServiceImpl.getInstance().loadByExternalId(this.externalId)
+        StaticDescriptorServiceAccessor.getDescriptorService().loadByExternalId(this.externalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.internalId != null)
                 .orElseThrow(() -> new DescriptorNotFoundException("Internal ID was not found for external ID " + this.externalId));
