@@ -108,7 +108,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     @Test
     void testCreateModelWithVersionConflict() {
         TestElasticsearchModel model = new TestElasticsearchModel();
-        model = dao.save(model);
+        model = makeSureModelHasSeqNumberMoreThanZero(model);
 
         model.setSeqNo(0L);
         model.setName(UUID.randomUUID().toString());
@@ -118,6 +118,13 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         } catch (ElasticsearchStatusException e) {
             assertThat(e.getMessage(), containsString("version conflict"));
         }
+    }
+
+    @NotNull
+    private TestElasticsearchModel makeSureModelHasSeqNumberMoreThanZero(TestElasticsearchModel model) {
+        model = dao.save(model);
+        model = dao.save(model);
+        return model;
     }
 
     @Test

@@ -3,8 +3,9 @@ package com.extremum.common.service.impl;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.response.Alert;
 import com.extremum.common.service.MongoCommonService;
+import com.extremum.common.service.Problems;
+import com.extremum.common.service.ThrowOnAlert;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -37,17 +38,13 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
         return listByParameters(parameters, new ThrowOnAlert());
     }
 
+    private void checkThatProblemsIsNotNull(Problems problems) {
+        Objects.requireNonNull(problems, "Problems must not be null");
+    }
+
     @Override
-    public List<M> listByParameters(Map<String, Object> parameters, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return listByParameters(parameters, new AddAlert(alerts));
-    }
-
-    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
-        Objects.requireNonNull(alerts, "Alerts collection must not be null");
-    }
-
-    private List<M> listByParameters(Map<String, Object> parameters, Problems problems) {
+    public List<M> listByParameters(Map<String, Object> parameters, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Getting list of models of type {} by parameters {}", modelTypeName,
@@ -64,12 +61,8 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     }
 
     @Override
-    public List<M> listByFieldValue(String fieldName, Object fieldValue, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return listByFieldValue(fieldName, fieldValue, new AddAlert(alerts));
-    }
-
-    private List<M> listByFieldValue(String fieldName, Object fieldValue, Problems problems) {
+    public List<M> listByFieldValue(String fieldName, Object fieldValue, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Get list of models of type {} by field {} with value {}", modelTypeName, fieldName, fieldValue);
 
         if(!checkFieldNameAndValue(fieldName, fieldValue, problems)) {
@@ -84,13 +77,8 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     }
 
     @Override
-    public List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit,
-            Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return listByFieldValue(fieldName, fieldValue, offset, limit, new AddAlert(alerts));
-    }
-
-    private List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Problems problems) {
+    public List<M> listByFieldValue(String fieldName, Object fieldValue, int offset, int limit, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Get list of models of type {} by field {} with value {} using offset {} and limit {}",
                 modelTypeName, fieldName, fieldValue, offset, limit);
 
@@ -124,12 +112,8 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
     }
 
     @Override
-    public M getSelectedFieldsById(String id, Collection<Alert> alerts, String... fieldNames) {
-        checkThatAlertsIsNotNull(alerts);
-        return getSelectedFieldsById(id, new AddAlert(alerts), fieldNames);
-    }
-
-    private M getSelectedFieldsById(String id, Problems problems, String... fieldNames) {
+    public M getSelectedFieldsById(String id, Problems problems, String... fieldNames) {
+        checkThatProblemsIsNotNull(problems);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Get fields {} by id {} of model {}", Stream.of(fieldNames).map(Object::toString)
                             .collect(Collectors.joining(", ")), id, modelTypeName);
