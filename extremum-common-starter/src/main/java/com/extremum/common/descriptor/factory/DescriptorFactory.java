@@ -42,16 +42,6 @@ public class DescriptorFactory {
         return internalId;
     }
 
-    protected static Descriptor create(UUID uuid, Descriptor.StorageType storageType) {
-        Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
-                .internalId(uuid.toString())
-                .storageType(storageType)
-                .build();
-
-        return DescriptorServiceImpl.getInstance().store(descriptor);
-    }
-
     protected static Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(DescriptorServiceImpl.createExternalId())
