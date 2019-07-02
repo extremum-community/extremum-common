@@ -1,14 +1,9 @@
 package com.extremum.common.descriptor.factory;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-@RequiredArgsConstructor
 public class DescriptorFactory {
-    private final DescriptorService descriptorService;
-
     public static Descriptor fromExternalId(String externalId) {
         return externalId != null ? new Descriptor(externalId) : null;
     }
@@ -41,16 +36,5 @@ public class DescriptorFactory {
         }
 
         return internalId;
-    }
-
-    public Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
-        Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
-                .internalId(internalId)
-                .modelType(modelType)
-                .storageType(storageType)
-                .build();
-
-        return descriptorService.store(descriptor);
     }
 }

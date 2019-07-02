@@ -1,6 +1,6 @@
 package com.extremum.jpa.factory;
 
-import com.extremum.common.descriptor.factory.DescriptorFactory;
+import com.extremum.common.descriptor.factory.DescriptorSaver;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -10,7 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author rpuch
  */
 class StaticPostgresqlDescriptorFactoryAccessorTest {
-    private static final DescriptorFactory NOT_USED = null;
+    private static final DescriptorSaver NOT_USED = null;
 
     @Test
     void test() {

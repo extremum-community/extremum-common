@@ -2,6 +2,7 @@ package com.extremum.common.descriptor.factory.impl;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
+import com.extremum.common.descriptor.factory.DescriptorSaver;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 
@@ -12,10 +13,10 @@ import java.util.stream.Collectors;
 public final class MongoDescriptorFactory {
     private static final Descriptor.StorageType STORAGE_TYPE = Descriptor.StorageType.MONGO;
 
-    private final DescriptorFactory descriptorFactory;
+    private final DescriptorSaver descriptorSaver;
 
     public Descriptor create(ObjectId id, String modelType) {
-        return descriptorFactory.create(id.toString(), modelType, STORAGE_TYPE);
+        return descriptorSaver.create(id.toString(), modelType, STORAGE_TYPE);
     }
 
     public static Descriptor fromInternalId(ObjectId internalId) {

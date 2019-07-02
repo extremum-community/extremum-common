@@ -2,20 +2,21 @@ package com.extremum.common.descriptor.factory.impl;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
+import com.extremum.common.descriptor.factory.DescriptorSaver;
 
 import java.util.UUID;
 
 public abstract class UUIDDescriptorFactory {
-    private final DescriptorFactory descriptorFactory;
+    private final DescriptorSaver descriptorSaver;
 
-    protected UUIDDescriptorFactory(DescriptorFactory descriptorFactory) {
-        this.descriptorFactory = descriptorFactory;
+    protected UUIDDescriptorFactory(DescriptorSaver descriptorSaver) {
+        this.descriptorSaver = descriptorSaver;
     }
 
     public abstract Descriptor.StorageType storageType();
 
     public Descriptor create(UUID uuid, String modelType) {
-        return descriptorFactory.create(uuid.toString(), modelType, storageType());
+        return descriptorSaver.create(uuid.toString(), modelType, storageType());
     }
 
     public Descriptor fromInternalId(UUID uuid) {
