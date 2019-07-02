@@ -12,6 +12,7 @@ import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,10 +25,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -212,6 +210,20 @@ class FetchByOwnedCoordinatesTest {
         }
     }
 
+    @Test
+    void givenCollectionElementsAreNotBasicModels_whenFetchingCollection_thenTheCollectionShouldBeReturned() {
+        CollectionFragment<Model> items = fetcher.fetchCollection(new HasCollectionOfNonBasicModel(), "items",
+                Projection.empty());
+
+        assertThat(items.elements(), hasSize(2));
+        assertThat(items.total(), is(OptionalLong.of(2)));
+        Iterator<Model> iterator = items.elements().iterator();
+        NonBasicModel first = (NonBasicModel) iterator.next();
+        NonBasicModel second = (NonBasicModel) iterator.next();
+        assertThat(first.getName(), is("first"));
+        assertThat(second.getName(), is("second"));
+    }
+
     @ModelName("House")
     private static class House extends MongoCommonModel {
     }
@@ -264,5 +276,17 @@ class FetchByOwnedCoordinatesTest {
         public List<String> getHouses() {
             return houses;
         }
+    }
+
+    @ModelName("NonBasicModel")
+    @RequiredArgsConstructor
+    @Getter
+    public static class NonBasicModel implements Model {
+        private final String name;
+    }
+
+    @Getter
+    public static class HasCollectionOfNonBasicModel extends MongoCommonModel {
+        private List<NonBasicModel> items = Arrays.asList(new NonBasicModel("first"), new NonBasicModel("second"));
     }
 }

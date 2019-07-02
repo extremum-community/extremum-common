@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
+ * Compares IDs: if they are Comparable, uses natural order comparison,
+ * otherwise compares by IDs key representation obtained via toString().
+ *
  * @author rpuch
  */
 final class IdComparator implements Comparator<Serializable> {

@@ -23,28 +23,30 @@ final class PersistablePagePicker extends AbstractPagePicker<PersistableCommonMo
                 .collect(Collectors.toList());
     }
 
+    @Override
+    List<PersistableCommonModel> sortModelsIfPossible(List<PersistableCommonModel> fullList) {
+        return DatePickers.sortModels(fullList, modelsComparator());
+    }
+
     private PersistableCommonModel convertElementToPersistableModel(Object element, Model host,
             String hostAttributeName) {
         if (!(element instanceof PersistableCommonModel)) {
-            String name = ModelUtils.getModelName(host);
-            String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
-                            " ObjectId, or PersistableCommonModel instances, but encountered '%s'",
-                    name, hostAttributeName, element.getClass());
+            String message = DatePickers.unsupportedCollectionElementClassMessage(element, PersistableCommonModel.class,
+                    host, hostAttributeName);
             throw new EverythingEverythingException(message);
         }
 
         return (PersistableCommonModel) element;
     }
 
-    @Override
-    Comparator<PersistableCommonModel> createModelsComparator() {
+    private Comparator<PersistableCommonModel> modelsComparator() {
         Comparator<PersistableCommonModel> compareByCreated = Comparator.comparing(PersistableCommonModel::getCreated,
                 Comparator.nullsFirst(Comparator.naturalOrder()));
         return compareByCreated
                 .thenComparing(BasicModel::getId, Comparator.nullsFirst(new IdComparator()));
     }
 
-    final List<Model> filter(List<PersistableCommonModel> nonEmptyFullList, Projection projection) {
+    final List<Model> filterIsPossible(List<PersistableCommonModel> nonEmptyFullList, Projection projection) {
         return nonEmptyFullList.stream()
                 .filter(projection::accepts)
                 .filter(PersistableCommonModel::isNotDeleted)

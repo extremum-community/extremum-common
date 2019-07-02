@@ -23,24 +23,26 @@ final class BasicPagePicker extends AbstractPagePicker<BasicModel> {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    List<BasicModel> sortModelsIfPossible(List<BasicModel> fullList) {
+        return DatePickers.sortModels(fullList, modelsComparator());
+    }
+
     private BasicModel convertElementToBasicModel(Object element, Model host, String hostAttributeName) {
         if (!(element instanceof BasicModel)) {
-            String name = ModelUtils.getModelName(host);
-            String message = String.format("For entity '%s', field name '%s', collection elements must be String," +
-                            " ObjectId, or BasicModel instances, but encountered '%s'", name, hostAttributeName,
-                    element.getClass());
+            String message = DatePickers.unsupportedCollectionElementClassMessage(element, BasicModel.class, host,
+                    hostAttributeName);
             throw new EverythingEverythingException(message);
         }
 
         return (BasicModel) element;
     }
 
-    @Override
-    Comparator<BasicModel> createModelsComparator() {
+    private Comparator<BasicModel> modelsComparator() {
         return Comparator.comparing(BasicModel::getId, Comparator.nullsFirst(new IdComparator()));
     }
 
-    final List<Model> filter(List<BasicModel> nonEmptyFullList, Projection projection) {
+    final List<Model> filterIsPossible(List<BasicModel> nonEmptyFullList, Projection projection) {
         if (projection.definesFilteringOnCreationDate()) {
             throw new EverythingEverythingException(
                     "Cannot filter BasicModel instances on creation date; please do not specify since/until");
