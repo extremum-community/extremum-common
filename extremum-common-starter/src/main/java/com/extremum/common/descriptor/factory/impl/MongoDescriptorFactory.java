@@ -46,7 +46,7 @@ public final class MongoDescriptorFactory {
                 .collect(Collectors.toList());
     }
 
-    public static ObjectId resolve(Descriptor descriptor) {
+    public ObjectId resolve(Descriptor descriptor) {
         String internalId = DescriptorFactory.resolve(descriptor, STORAGE_TYPE);
         return new ObjectId(internalId);
     }

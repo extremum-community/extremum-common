@@ -29,7 +29,7 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
     
     private void fillRequiredFields(MongoCommonModel model) {
         if (model.getId() == null && model.getUuid() != null) {
-            model.setId(MongoDescriptorFactory.resolve(model.getUuid()));
+            model.setId(mongoDescriptorFactory.resolve(model.getUuid()));
         }
     }
 
