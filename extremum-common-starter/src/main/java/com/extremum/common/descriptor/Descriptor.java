@@ -114,7 +114,9 @@ public class Descriptor implements Serializable {
         StaticDescriptorServiceAccessor.getDescriptorService().loadByExternalId(this.externalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.internalId != null)
-                .orElseThrow(() -> new DescriptorNotFoundException("Internal ID was not found for external ID " + this.externalId));
+                .orElseThrow(() -> new DescriptorNotFoundException(
+                        "Internal ID was not found for external ID " + this.externalId)
+                );
     }
 
 
