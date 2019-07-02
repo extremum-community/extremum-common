@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
@@ -318,7 +318,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
             return model.getUuid();
         } else {
             Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
-            return DescriptorService.store(descriptor);
+            return DescriptorServiceImpl.store(descriptor);
         }
     }
 

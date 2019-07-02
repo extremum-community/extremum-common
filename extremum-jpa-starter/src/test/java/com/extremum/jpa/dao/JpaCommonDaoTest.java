@@ -2,13 +2,10 @@ package com.extremum.jpa.dao;
 
 import com.extremum.jpa.TestWithServices;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.models.TestJpaModel;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +18,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
@@ -306,7 +302,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     private static TestJpaModel getTestModel() {
         TestJpaModel model = new TestJpaModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

@@ -1,7 +1,7 @@
 package common.dao.mongo;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
 import models.TestMongoModel;
@@ -366,7 +366,7 @@ class MongoCommonDaoTest extends TestWithServices {
     private static TestMongoModel getTestModel() {
         TestMongoModel model = new TestMongoModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(new ObjectId().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.MONGO)

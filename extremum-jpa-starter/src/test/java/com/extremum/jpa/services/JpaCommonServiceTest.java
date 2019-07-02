@@ -1,7 +1,7 @@
 package com.extremum.jpa.services;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
@@ -36,7 +36,7 @@ public class JpaCommonServiceTest {
         model.setId(UUID.randomUUID());
 
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(model.getId().toString())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.dao.extractor;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import org.elasticsearch.action.get.GetResponse;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public class GetResponseAccessorFacade extends AccessorFacade {
 
     @Override
     public Descriptor getUuid() {
-        return DescriptorService.loadByInternalId(response.getId()).get();
+        return DescriptorServiceImpl.loadByInternalId(response.getId()).get();
     }
 
     @Override

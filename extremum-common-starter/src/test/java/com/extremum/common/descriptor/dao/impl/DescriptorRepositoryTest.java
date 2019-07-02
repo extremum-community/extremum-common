@@ -1,7 +1,7 @@
 package com.extremum.common.descriptor.dao.impl;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
@@ -57,7 +57,7 @@ public class DescriptorRepositoryTest extends TestWithServices {
 
     private Descriptor newDescriptor(String internalId) {
         return Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)

@@ -1,7 +1,7 @@
 package com.extremum.common.descriptor.factory;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.UUID;
@@ -44,22 +44,22 @@ public class DescriptorFactory {
 
     protected static Descriptor create(UUID uuid, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(uuid.toString())
                 .storageType(storageType)
                 .build();
 
-        return DescriptorService.store(descriptor);
+        return DescriptorServiceImpl.store(descriptor);
     }
 
     protected static Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(internalId)
                 .modelType(modelType)
                 .storageType(storageType)
                 .build();
 
-        return DescriptorService.store(descriptor);
+        return DescriptorServiceImpl.store(descriptor);
     }
 }

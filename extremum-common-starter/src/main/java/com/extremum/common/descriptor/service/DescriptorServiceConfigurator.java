@@ -11,7 +11,7 @@ public class DescriptorServiceConfigurator {
 
     @PostConstruct
     public void init() {
-        DescriptorService.setDescriptorDao(descriptorDao);
+        DescriptorServiceImpl.setDescriptorDao(descriptorDao);
 //        TODO bson hooks?
     }
 

@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class DescriptorService {
+public final class DescriptorServiceImpl {
 
     private static volatile DescriptorDao descriptorDao;
 
@@ -23,7 +23,7 @@ public final class DescriptorService {
     }
 
     public static void setDescriptorDao(DescriptorDao descriptorDao) {
-        DescriptorService.descriptorDao = descriptorDao;
+        DescriptorServiceImpl.descriptorDao = descriptorDao;
     }
 
     public static String createExternalId() {

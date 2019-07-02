@@ -2,7 +2,7 @@ package com.extremum.common.collection.dao.impl;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
@@ -44,12 +44,12 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
     void whenCollectionDescriptorIsSaved_thenANewDocumentShouldAppearInMongo() {
         String internalId = new ObjectId().toString();
         Descriptor hostId = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(DescriptorServiceImpl.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
                 .build();
-        DescriptorService.store(hostId);
+        DescriptorServiceImpl.store(hostId);
 
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "the-field");
 
