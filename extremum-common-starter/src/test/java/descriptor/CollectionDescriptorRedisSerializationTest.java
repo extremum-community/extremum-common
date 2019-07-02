@@ -40,6 +40,8 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
     private RedisProperties redisProperties;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
+    @Autowired
+    private MongoDescriptorFactory mongoDescriptorFactory;
 
     private CollectionDescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -95,7 +97,7 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
 
     private String createADescriptor() {
         ObjectId objectId = new ObjectId();
-        Descriptor hostDescriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor hostDescriptor = mongoDescriptorFactory.create(objectId, "test_model");
         return hostDescriptor.getExternalId();
     }
 }

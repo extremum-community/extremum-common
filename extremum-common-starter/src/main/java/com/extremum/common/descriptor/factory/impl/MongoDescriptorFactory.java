@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public final class MongoDescriptorFactory extends DescriptorFactory {
     private static Descriptor.StorageType storageType = Descriptor.StorageType.MONGO;
 
-    public static Descriptor create(ObjectId id, String modelType) {
+    public Descriptor create(ObjectId id, String modelType) {
         return DescriptorFactory.create(id.toString(), modelType, storageType);
     }
 

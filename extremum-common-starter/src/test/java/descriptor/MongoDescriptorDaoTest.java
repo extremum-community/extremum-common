@@ -44,6 +44,8 @@ class MongoDescriptorDaoTest extends TestWithServices {
     private RedisProperties redisProperties;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
+    @Autowired
+    private MongoDescriptorFactory mongoDescriptorFactory;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -67,13 +69,13 @@ class MongoDescriptorDaoTest extends TestWithServices {
 
     private Descriptor createADescriptor() {
         ObjectId objectId = new ObjectId();
-        return MongoDescriptorFactory.create(objectId, "test_model");
+        return mongoDescriptorFactory.create(objectId, "test_model");
     }
 
     @Test
     void testRetrieveByInternalId() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -86,7 +88,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testRetrieveMapByExternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -99,7 +101,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testRetrieveMapByInternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFactory.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);

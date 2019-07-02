@@ -29,12 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     @Autowired
     private CollectionDescriptorDao collectionDescriptorDao;
-
     @Autowired
     private CollectionDescriptorService collectionDescriptorService;
-
     @Autowired
     private CollectionDescriptorRepository collectionDescriptorRepository;
+    @Autowired
+    private MongoDescriptorFactory mongoDescriptorFactory;
 
     @Test
     public void testRetrieveByExternalId() {
@@ -71,7 +71,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
 
     private String createADescriptor() {
         ObjectId objectId = new ObjectId();
-        Descriptor hostDescriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor hostDescriptor = mongoDescriptorFactory.create(objectId, "test_model");
         return hostDescriptor.getExternalId();
     }
 

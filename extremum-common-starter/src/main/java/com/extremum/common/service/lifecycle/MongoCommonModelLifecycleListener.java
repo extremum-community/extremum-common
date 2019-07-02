@@ -12,6 +12,12 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
  * @author rpuch
  */
 public class MongoCommonModelLifecycleListener extends AbstractMongoEventListener<MongoCommonModel> {
+    private final MongoDescriptorFactory mongoDescriptorFactory;
+
+    public MongoCommonModelLifecycleListener(MongoDescriptorFactory mongoDescriptorFactory) {
+        this.mongoDescriptorFactory = mongoDescriptorFactory;
+    }
+
     @Override
     public void onBeforeConvert(BeforeConvertEvent<MongoCommonModel> event) {
         super.onBeforeConvert(event);
@@ -39,7 +45,7 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
     private void createDescriptorIfNeeded(MongoCommonModel model) {
         String name = ModelUtils.getModelName(model.getClass());
         if (model.getUuid() == null) {
-            model.setUuid(MongoDescriptorFactory.create(model.getId(), name));
+            model.setUuid(mongoDescriptorFactory.create(model.getId(), name));
         }
     }
 
