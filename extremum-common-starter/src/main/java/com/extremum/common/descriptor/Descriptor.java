@@ -1,5 +1,6 @@
 package com.extremum.common.descriptor;
 
+import com.extremum.common.annotation.UsesStaticDependencies;
 import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.StaticDescriptorServiceAccessor;
 import com.extremum.common.stucts.Display;
@@ -100,6 +101,7 @@ public class Descriptor implements Serializable {
         }
     }
 
+    @UsesStaticDependencies
     private void fillByInternalId() {
         StaticDescriptorServiceAccessor.getDescriptorService().loadByInternalId(internalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
@@ -110,6 +112,7 @@ public class Descriptor implements Serializable {
                 );
     }
 
+    @UsesStaticDependencies
     private void fillByExternalId() {
         StaticDescriptorServiceAccessor.getDescriptorService().loadByExternalId(this.externalId)
                 .map(this::copyFieldsFromAnotherDescriptor)

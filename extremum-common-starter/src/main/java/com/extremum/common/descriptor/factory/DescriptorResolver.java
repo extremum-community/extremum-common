@@ -1,5 +1,6 @@
 package com.extremum.common.descriptor.factory;
 
+import com.extremum.common.annotation.UsesStaticDependencies;
 import com.extremum.common.descriptor.Descriptor;
 
 /**
@@ -7,6 +8,7 @@ import com.extremum.common.descriptor.Descriptor;
  */
 public final class DescriptorResolver {
 
+    @UsesStaticDependencies
     public static String resolve(Descriptor descriptor, Descriptor.StorageType storageType) {
         String internalId = descriptor.getInternalId();
         Descriptor.StorageType currentType = descriptor.getStorageType();
