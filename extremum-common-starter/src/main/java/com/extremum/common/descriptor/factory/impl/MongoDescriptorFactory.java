@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 @Component
 public final class MongoDescriptorFactory extends DescriptorFactory {
-    private static final Descriptor.StorageType storageType = Descriptor.StorageType.MONGO;
+    private static final Descriptor.StorageType STORAGE_TYPE = Descriptor.StorageType.MONGO;
 
     public Descriptor create(ObjectId id, String modelType) {
-        return DescriptorFactory.create(id.toString(), modelType, storageType);
+        return DescriptorFactory.create(id.toString(), modelType, STORAGE_TYPE);
     }
 
     public static Descriptor fromInternalId(ObjectId internalId) {
@@ -21,7 +21,7 @@ public final class MongoDescriptorFactory extends DescriptorFactory {
     }
 
     public static Descriptor fromInternalId(String internalId) {
-        return DescriptorFactory.fromInternalId(internalId, storageType);
+        return DescriptorFactory.fromInternalId(internalId, STORAGE_TYPE);
     }
 
     public List<String> getInternalIdList(List<Descriptor> descriptors) {
@@ -31,7 +31,7 @@ public final class MongoDescriptorFactory extends DescriptorFactory {
     }
 
     private Descriptor fromInternalIdOrNull(String internalId) {
-        return DescriptorFactory.fromInternalIdOrNull(internalId, storageType);
+        return DescriptorFactory.fromInternalIdOrNull(internalId, STORAGE_TYPE);
     }
 
     public List<Descriptor> fromInternalIdListOrNull(List<String> internalIdList) {
@@ -44,7 +44,7 @@ public final class MongoDescriptorFactory extends DescriptorFactory {
     }
 
     public static ObjectId resolve(Descriptor descriptor) {
-        String internalId = DescriptorFactory.resolve(descriptor, storageType);
+        String internalId = DescriptorFactory.resolve(descriptor, STORAGE_TYPE);
         return new ObjectId(internalId);
     }
 }
