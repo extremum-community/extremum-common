@@ -49,7 +49,7 @@ class ElasticsearchExactSearchTests {
     }
 
     void assertThatInexactSearchYields3Results(String exactName) {
-        List<TestElasticsearchModel> resultsByNonExact = dao.search(exactName, SearchOptions.defaultOptions());
+        List<TestElasticsearchModel> resultsByNonExact = dao.search(exactName, SearchOptions.defaults());
 
         assertThat(resultsByNonExact, hasSize(3));
     }
