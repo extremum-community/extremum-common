@@ -99,6 +99,7 @@ public class CommonConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public DescriptorService descriptorService(DescriptorDao descriptorDao) {
         return new DescriptorServiceImpl(descriptorDao);
     }
