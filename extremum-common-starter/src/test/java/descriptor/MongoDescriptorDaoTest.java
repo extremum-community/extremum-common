@@ -4,7 +4,7 @@ import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.*;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.DescriptorDaoFactory;
@@ -115,7 +115,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     void testRetrieveFromMongo() {
         String internalId = new ObjectId().toString();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
+                .externalId(DescriptorService.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
@@ -133,7 +133,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testSaveDisplayFieldAsNull() {
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorServiceImpl.createExternalId();
+        String externalId = DescriptorService.createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
@@ -151,7 +151,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testSaveDisplayFieldAsString() {
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorServiceImpl.createExternalId();
+        String externalId = DescriptorService.createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
@@ -185,7 +185,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
         );
 
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorServiceImpl.createExternalId();
+        String externalId = DescriptorService.createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)

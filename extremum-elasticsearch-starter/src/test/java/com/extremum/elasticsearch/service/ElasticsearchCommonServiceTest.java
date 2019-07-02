@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.service;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
@@ -49,7 +49,7 @@ class ElasticsearchCommonServiceTest {
         model.setId(UUID.randomUUID().toString());
 
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
+                .externalId(DescriptorService.createExternalId())
                 .internalId(model.getId())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

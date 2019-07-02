@@ -2,7 +2,6 @@ package com.extremum.common.descriptor.factory;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,7 +45,7 @@ public class DescriptorFactory {
 
     public Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
+                .externalId(DescriptorService.createExternalId())
                 .internalId(internalId)
                 .modelType(modelType)
                 .storageType(storageType)

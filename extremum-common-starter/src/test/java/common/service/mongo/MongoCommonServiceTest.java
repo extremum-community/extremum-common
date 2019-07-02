@@ -1,7 +1,7 @@
 package common.service.mongo;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
@@ -486,7 +486,7 @@ public class MongoCommonServiceTest {
         String modelName = ModelUtils.getModelName(model.getClass());
 
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
+                .externalId(DescriptorService.createExternalId())
                 .internalId(model.getId().toString())
                 .modelType(modelName)
                 .storageType(Descriptor.StorageType.MONGO)

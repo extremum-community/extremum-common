@@ -10,10 +10,6 @@ import java.util.*;
 public final class DescriptorServiceImpl implements DescriptorService {
     private final DescriptorDao descriptorDao;
 
-    public static String createExternalId() {
-        return UUID.randomUUID().toString();
-    }
-
     @Override
     public Descriptor store(Descriptor descriptor) {
         return descriptorDao.store(descriptor);

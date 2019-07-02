@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
 import com.extremum.common.utils.ModelUtils;
@@ -418,7 +418,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
     private static TestElasticsearchModel createModelWithExternalDescriptor() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
+                .externalId(DescriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.ELASTICSEARCH)

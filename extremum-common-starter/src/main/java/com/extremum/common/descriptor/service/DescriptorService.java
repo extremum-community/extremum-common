@@ -5,8 +5,13 @@ import com.extremum.common.descriptor.Descriptor;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface DescriptorService {
+
+    static String createExternalId() {
+        return UUID.randomUUID().toString();
+    }
 
     Descriptor store(Descriptor descriptor);
 

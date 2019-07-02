@@ -1,8 +1,8 @@
 package com.extremum.jpa.dao;
 
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.jpa.TestWithServices;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorServiceImpl;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.models.TestJpaModel;
 import org.jetbrains.annotations.NotNull;
@@ -302,7 +302,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     private static TestJpaModel getTestModel() {
         TestJpaModel model = new TestJpaModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorServiceImpl.createExternalId())
+                .externalId(DescriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)
