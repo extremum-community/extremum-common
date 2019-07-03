@@ -66,5 +66,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.extremum</groupId>
+            <artifactId>extremum-test-containers</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

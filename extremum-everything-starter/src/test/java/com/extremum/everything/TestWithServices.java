@@ -1,5 +1,4 @@
-package com.extremum.common.test;
-
+package com.extremum.everything;
 
 import com.extremum.testcontainers.CoreServices;
 

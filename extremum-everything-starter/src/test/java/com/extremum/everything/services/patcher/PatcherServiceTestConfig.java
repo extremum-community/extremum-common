@@ -6,7 +6,7 @@ import com.extremum.common.dto.converters.services.DefaultDtoConversionService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
-import com.extremum.common.mapper.MockedMapperDependencies;
+import com.extremum.everything.MockedMapperDependencies;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

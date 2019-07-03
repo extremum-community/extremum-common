@@ -22,7 +22,17 @@
         <dependency>
             <groupId>com.extremum</groupId>
             <artifactId>extremum-common-starter</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.extremum</groupId>
+            <artifactId>extremum-test-containers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.extremum</groupId>
+            <artifactId>extremum-everything-starter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
