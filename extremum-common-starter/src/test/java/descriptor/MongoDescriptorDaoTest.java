@@ -12,6 +12,7 @@ import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.RedisProperties;
 import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
@@ -115,7 +116,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     void testRetrieveFromMongo() {
         String internalId = new ObjectId().toString();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
@@ -130,10 +131,15 @@ class MongoDescriptorDaoTest extends TestWithServices {
         assertEquals(descriptor, retrievedDescriptor.get());
     }
 
+    @NotNull
+    private String createExternalId() {
+        return DescriptorService.createExternalId();
+    }
+
     @Test
     void testSaveDisplayFieldAsNull() {
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorService.createExternalId();
+        String externalId = createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
@@ -151,7 +157,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testSaveDisplayFieldAsString() {
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorService.createExternalId();
+        String externalId = createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
@@ -185,7 +191,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
         );
 
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorService.createExternalId();
+        String externalId = createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
