@@ -3,7 +3,9 @@ package com.extremum.everything.services.management;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.Descriptor.StorageType;
+import com.extremum.common.descriptor.service.DBDescriptorLoader;
 import com.extremum.common.descriptor.service.DescriptorLoader;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,12 +59,14 @@ class EverythingServicesTest {
     @Mock
     private MongoCommonDao<MongoModelWithoutServices> commonDaoForModelWithoutServices;
     @Mock
-    private DescriptorLoader descriptorLoader;
+    private DescriptorService descriptorService;
     @Spy
     private RemovalService mongoWithServicesRemovalService = new MongoWithServicesRemovalService();
     @Spy
     private PatcherService<MongoModelWithServices> mongoWithServicesPatcherService
             = new MongoWithServicesPatcherService(dtoConversionService, objectMapper);
+    @InjectMocks
+    private DBDescriptorLoader descriptorLoader;
 
     private DescriptorLoader oldDescriptorLoader;
 
@@ -85,7 +90,7 @@ class EverythingServicesTest {
                 MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
                 MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
         ));
-        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorLoader);
+        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
 
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
@@ -126,7 +131,7 @@ class EverythingServicesTest {
 
     private void whenGetDescriptorByExternalIdThenReturnOne(String modelName) {
         Descriptor descriptor = buildDescriptor(modelName);
-        when(descriptorLoader.loadByExternalId("external-id")).thenReturn(Optional.of(descriptor));
+        when(descriptorService.loadByExternalId("external-id")).thenReturn(Optional.of(descriptor));
     }
 
     private Descriptor buildDescriptor(String modelName) {
@@ -152,7 +157,7 @@ class EverythingServicesTest {
 
     private void whenGetDescriptorByInternalIdThenReturnOne(String modelName) {
         Descriptor descriptor = buildDescriptor(modelName);
-        when(descriptorLoader.loadByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
+        when(descriptorService.loadByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
     }
     
     private void assertThatDtoIsForModelWithoutServices(ResponseDto dto) {
