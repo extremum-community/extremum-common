@@ -3,7 +3,7 @@
     <parent>
         <artifactId>extremum-common-parent</artifactId>
         <groupId>com.extremum</groupId>
-        <version>1.0.5</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
