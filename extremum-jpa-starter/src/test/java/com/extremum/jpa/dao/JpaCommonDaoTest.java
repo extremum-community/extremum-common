@@ -1,9 +1,9 @@
 package com.extremum.jpa.dao;
 
-import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.jpa.TestWithServices;
 import com.extremum.common.descriptor.Descriptor;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.jpa.TestWithServices;
 import com.extremum.jpa.models.TestJpaModel;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
@@ -19,11 +19,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
@@ -31,6 +33,9 @@ public class JpaCommonDaoTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestJpaModelDao dao;
+
+    @Autowired
+    private DescriptorService descriptorService;
 
     @Test
     public void testCreateModel() {
@@ -70,7 +75,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     public void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestJpaModel> modelList = Stream
-                .generate(JpaCommonDaoTest::getTestModel)
+                .generate(this::getTestModel)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
 
@@ -293,16 +298,16 @@ public class JpaCommonDaoTest extends TestWithServices {
         dao.deleteInBatch(Arrays.asList(model1, model2));
     }
 
-    private static TestJpaModel getDeletedTestModel() {
+    private TestJpaModel getDeletedTestModel() {
         TestJpaModel model = getTestModel();
         model.setDeleted(true);
         return model;
     }
 
-    private static TestJpaModel getTestModel() {
+    private TestJpaModel getTestModel() {
         TestJpaModel model = new TestJpaModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

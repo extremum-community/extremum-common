@@ -11,9 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
@@ -30,6 +30,8 @@ class DescriptorSaverTest {
 
     @Test
     void whenCreatingADescriptor_thenCorrectDataShouldBeSavedWithDescriptorService() {
+        when(descriptorService.createExternalId()).thenReturn("external-id");
+
         descriptorSaver.create("internal-id", "Test", Descriptor.StorageType.MONGO);
 
         verify(descriptorService).store(descriptorCaptor.capture());
@@ -39,8 +41,7 @@ class DescriptorSaverTest {
     }
 
     private void assertThatSavedDescriptorWithCorrectData(Descriptor savedDescriptor) {
-        assertThat(savedDescriptor.getExternalId(), is(notNullValue()));
-        assertThat(savedDescriptor.getExternalId().length(), is(36));
+        assertThat(savedDescriptor.getExternalId(), is("external-id"));
         assertThat(savedDescriptor.getInternalId(), is("internal-id"));
         assertThat(savedDescriptor.getModelType(), is("Test"));
         assertThat(savedDescriptor.getStorageType(), is(Descriptor.StorageType.MONGO));

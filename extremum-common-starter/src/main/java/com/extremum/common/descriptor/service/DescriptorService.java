@@ -9,9 +9,7 @@ import java.util.UUID;
 
 public interface DescriptorService {
 
-    static String createExternalId() {
-        return UUID.randomUUID().toString();
-    }
+    String createExternalId();
 
     Descriptor store(Descriptor descriptor);
 

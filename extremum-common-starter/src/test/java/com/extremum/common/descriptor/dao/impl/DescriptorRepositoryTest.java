@@ -34,6 +34,8 @@ import static org.hamcrest.Matchers.hasSize;
 class DescriptorRepositoryTest extends TestWithServices {
     @Autowired
     private DescriptorRepository descriptorRepository;
+    @Autowired
+    private DescriptorService descriptorService;
 
     @Autowired
     private MongoClient mongoClient;
@@ -57,7 +59,7 @@ class DescriptorRepositoryTest extends TestWithServices {
 
     private Descriptor newDescriptor(String internalId) {
         return Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)

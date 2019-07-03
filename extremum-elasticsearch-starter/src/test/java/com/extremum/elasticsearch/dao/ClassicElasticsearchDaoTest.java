@@ -46,6 +46,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
     private ClassicTestElasticsearchModelDao dao;
     @Autowired
     private ElasticsearchProperties elasticsearchProperties;
+    @Autowired
+    private DescriptorService descriptorService;
 
     private TestElasticsearchClient client;
 
@@ -415,10 +417,10 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         tests.assertThatExactSearchYields1Result(exactName);
     }
 
-    private static TestElasticsearchModel createModelWithExternalDescriptor() {
+    private TestElasticsearchModel createModelWithExternalDescriptor() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.ELASTICSEARCH)

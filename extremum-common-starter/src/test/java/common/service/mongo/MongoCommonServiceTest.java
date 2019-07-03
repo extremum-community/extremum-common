@@ -1,13 +1,14 @@
 package common.service.mongo;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.AlertsCollector;
 import com.extremum.common.service.Problems;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import common.dao.mongo.TestMongoModelDao;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
@@ -21,12 +22,19 @@ import java.util.*;
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MongoCommonServiceTest {
 
-    private TestMongoModelDao dao = Mockito.mock(TestMongoModelDao.class);
-    private TestMongoModelService service = new TestMongoModelService(dao);
+    private final TestMongoModelDao dao = Mockito.mock(TestMongoModelDao.class);
+    private final TestMongoModelService service = new TestMongoModelService(dao);
+
+    private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
 
     @Test
     public void testGet() {
@@ -475,7 +483,7 @@ public class MongoCommonServiceTest {
         }
     }
 
-    private static TestMongoModel getTestModel() {
+    private TestMongoModel getTestModel() {
         TestMongoModel model = new TestMongoModel();
 
         model.setCreated(ZonedDateTime.now());
@@ -486,7 +494,7 @@ public class MongoCommonServiceTest {
         String modelName = ModelUtils.getModelName(model.getClass());
 
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId().toString())
                 .modelType(modelName)
                 .storageType(Descriptor.StorageType.MONGO)

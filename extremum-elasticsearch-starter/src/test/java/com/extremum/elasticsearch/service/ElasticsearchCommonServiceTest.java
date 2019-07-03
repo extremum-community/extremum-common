@@ -1,12 +1,13 @@
 package com.extremum.elasticsearch.service;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.AlertsCollector;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import com.extremum.elasticsearch.dao.SearchOptions;
 import com.extremum.elasticsearch.dao.TestElasticsearchModelDao;
 import com.extremum.elasticsearch.model.TestElasticsearchModel;
@@ -40,7 +41,9 @@ class ElasticsearchCommonServiceTest {
     @InjectMocks
     private TestElasticsearchModelService service;
 
-    private static TestElasticsearchModel getTestModel() {
+    private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
+
+    private TestElasticsearchModel getTestModel() {
         TestElasticsearchModel model = new TestElasticsearchModel();
 
         model.setCreated(ZonedDateTime.now());
@@ -49,7 +52,7 @@ class ElasticsearchCommonServiceTest {
         model.setId(UUID.randomUUID().toString());
 
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

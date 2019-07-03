@@ -1,12 +1,13 @@
 package com.extremum.jpa.services;
 
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.service.AlertsCollector;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import com.extremum.jpa.dao.TestJpaModelDao;
 import com.extremum.jpa.models.TestJpaModel;
 import org.junit.jupiter.api.Test;
@@ -24,10 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JpaCommonServiceTest {
 
-    private TestJpaModelDao dao = Mockito.mock(TestJpaModelDao.class);
-    private TestJpaModelService service = new TestJpaModelService(dao);
+    private final TestJpaModelDao dao = Mockito.mock(TestJpaModelDao.class);
+    private final TestJpaModelService service = new TestJpaModelService(dao);
 
-    private static TestJpaModel getTestModel() {
+    private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
+
+    private TestJpaModel getTestModel() {
         TestJpaModel model = new TestJpaModel();
 
         model.setCreated(ZonedDateTime.now());
@@ -36,7 +39,7 @@ public class JpaCommonServiceTest {
         model.setId(UUID.randomUUID());
 
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId().toString())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

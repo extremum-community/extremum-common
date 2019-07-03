@@ -18,6 +18,8 @@ import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
@@ -96,6 +98,11 @@ public class CommonConfiguration {
     }
 
     @Bean
+    public UUIDGenerator uuidGenerator() {
+        return new StandardUUIDGenerator();
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
         return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
@@ -104,8 +111,8 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorService descriptorService(DescriptorDao descriptorDao) {
-        return new DescriptorServiceImpl(descriptorDao);
+    public DescriptorService descriptorService(DescriptorDao descriptorDao, UUIDGenerator uuidGenerator) {
+        return new DescriptorServiceImpl(descriptorDao, uuidGenerator);
     }
 
     @Bean

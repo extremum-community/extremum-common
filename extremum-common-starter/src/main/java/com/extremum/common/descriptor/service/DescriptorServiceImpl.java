@@ -2,6 +2,7 @@ package com.extremum.common.descriptor.service;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
+import com.extremum.common.uuid.UUIDGenerator;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
@@ -9,6 +10,12 @@ import java.util.*;
 @RequiredArgsConstructor
 public final class DescriptorServiceImpl implements DescriptorService {
     private final DescriptorDao descriptorDao;
+    private final UUIDGenerator uuidGenerator;
+
+    @Override
+    public String createExternalId() {
+        return uuidGenerator.generateUUID();
+    }
 
     @Override
     public Descriptor store(Descriptor descriptor) {

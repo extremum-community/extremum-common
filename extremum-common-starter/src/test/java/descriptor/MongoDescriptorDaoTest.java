@@ -40,6 +40,8 @@ class MongoDescriptorDaoTest extends TestWithServices {
     private DescriptorRepository descriptorRepository;
 
     @Autowired
+    private DescriptorService descriptorService;
+    @Autowired
     private RedissonClient redissonClient;
     @Autowired
     private RedisProperties redisProperties;
@@ -133,7 +135,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
 
     @NotNull
     private String createExternalId() {
-        return DescriptorService.createExternalId();
+        return descriptorService.createExternalId();
     }
 
     @Test
