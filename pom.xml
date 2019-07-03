@@ -5,7 +5,7 @@
     <groupId>com.extremum</groupId>
     <artifactId>extremum-common-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5</version>
 
     <modules>
         <module>extremum-common-starter</module>
@@ -19,7 +19,7 @@
         <url>https://github.com/smekalka/extremum-common</url>
         <connection>scm:git:git@github.com:smekalka/extremum-common.git</connection>
         <developerConnection>scm:git:git@github.com:smekalka/extremum-common.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>extremum-common-parent-1.0.5</tag>
     </scm>
 
     <build>
