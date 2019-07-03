@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.config;
 
 import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.elasticsearch.repositories.EnableExtremumElasticsearchRepositories;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepositoryFactoryBean;
@@ -31,8 +31,8 @@ public class ElasticsearchRepositoriesConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
 
     @Bean
-    public ElasticsearchDescriptorFactory elasticsearchDescriptorFactory(DescriptorSaver descriptorSaver) {
-        return new ElasticsearchDescriptorFactory(descriptorSaver);
+    public ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory(DescriptorSaver descriptorSaver) {
+        return new ElasticsearchDescriptorFacilities(descriptorSaver);
     }
 
     @Bean
@@ -48,7 +48,7 @@ public class ElasticsearchRepositoriesConfiguration {
 
     @Bean
     public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
-            ObjectMapper objectMapper, ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
+            ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         return new ExtremumElasticsearchRestTemplate(elasticsearchClient, objectMapper,
                 elasticsearchDescriptorFactory);
     }

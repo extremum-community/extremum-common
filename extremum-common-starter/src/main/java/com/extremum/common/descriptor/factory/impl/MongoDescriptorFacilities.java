@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public final class MongoDescriptorFactory {
+public final class MongoDescriptorFacilities {
     private static final Descriptor.StorageType STORAGE_TYPE = Descriptor.StorageType.MONGO;
 
     private final DescriptorSaver descriptorSaver;

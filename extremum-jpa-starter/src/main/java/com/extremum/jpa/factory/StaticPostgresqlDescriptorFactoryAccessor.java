@@ -4,13 +4,13 @@ package com.extremum.jpa.factory;
  * @author rpuch
  */
 public class StaticPostgresqlDescriptorFactoryAccessor {
-    private static volatile PostgresqlDescriptorFactory FACTORY_INSTANCE;
+    private static volatile PostgresqlDescriptorFacilities FACTORY_INSTANCE;
 
-    public static PostgresqlDescriptorFactory getFactory() {
+    public static PostgresqlDescriptorFacilities getFactory() {
         return FACTORY_INSTANCE;
     }
 
-    public static void setFactory(PostgresqlDescriptorFactory factory) {
+    public static void setFactory(PostgresqlDescriptorFacilities factory) {
         FACTORY_INSTANCE = factory;
     }
 }

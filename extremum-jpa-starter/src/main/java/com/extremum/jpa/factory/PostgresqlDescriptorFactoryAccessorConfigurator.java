@@ -6,7 +6,7 @@ import javax.annotation.PostConstruct;
 
 @RequiredArgsConstructor
 public class PostgresqlDescriptorFactoryAccessorConfigurator {
-    private final PostgresqlDescriptorFactory postgresqlDescriptorFactory;
+    private final PostgresqlDescriptorFacilities postgresqlDescriptorFactory;
 
     @PostConstruct
     public void init() {

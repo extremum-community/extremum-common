@@ -2,10 +2,10 @@ package com.extremum.jpa.factory;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFactory;
+import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFacilities;
 
-public final class PostgresqlDescriptorFactory extends UUIDDescriptorFactory {
-    public PostgresqlDescriptorFactory(DescriptorSaver descriptorSaver) {
+public final class PostgresqlDescriptorFacilities extends UUIDDescriptorFacilities {
+    public PostgresqlDescriptorFacilities(DescriptorSaver descriptorSaver) {
         super(descriptorSaver);
     }
 

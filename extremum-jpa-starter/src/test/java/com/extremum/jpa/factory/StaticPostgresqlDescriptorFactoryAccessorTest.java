@@ -14,7 +14,7 @@ class StaticPostgresqlDescriptorFactoryAccessorTest {
 
     @Test
     void test() {
-        PostgresqlDescriptorFactory factory = new PostgresqlDescriptorFactory(NOT_USED);
+        PostgresqlDescriptorFacilities factory = new PostgresqlDescriptorFacilities(NOT_USED);
 
         StaticPostgresqlDescriptorFactoryAccessor.setFactory(factory);
 

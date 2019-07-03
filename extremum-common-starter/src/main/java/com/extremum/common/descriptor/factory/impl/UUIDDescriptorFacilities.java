@@ -7,10 +7,10 @@ import com.extremum.common.descriptor.factory.DescriptorSaver;
 
 import java.util.UUID;
 
-public abstract class UUIDDescriptorFactory {
+public abstract class UUIDDescriptorFacilities {
     private final DescriptorSaver descriptorSaver;
 
-    protected UUIDDescriptorFactory(DescriptorSaver descriptorSaver) {
+    protected UUIDDescriptorFacilities(DescriptorSaver descriptorSaver) {
         this.descriptorSaver = descriptorSaver;
     }
 

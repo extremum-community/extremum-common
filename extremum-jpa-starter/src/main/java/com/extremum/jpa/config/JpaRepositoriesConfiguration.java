@@ -1,7 +1,7 @@
 package com.extremum.jpa.config;
 
 import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.jpa.factory.PostgresqlDescriptorFactory;
+import com.extremum.jpa.factory.PostgresqlDescriptorFacilities;
 import com.extremum.jpa.factory.PostgresqlDescriptorFactoryAccessorConfigurator;
 import com.extremum.jpa.properties.JpaProperties;
 import com.extremum.jpa.repositories.EnableExtremumJpaRepositories;
@@ -37,14 +37,14 @@ public class JpaRepositoriesConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PostgresqlDescriptorFactory postgresqlDescriptorFactory(DescriptorSaver descriptorSaver) {
-        return new PostgresqlDescriptorFactory(descriptorSaver);
+    public PostgresqlDescriptorFacilities postgresqlDescriptorFactory(DescriptorSaver descriptorSaver) {
+        return new PostgresqlDescriptorFacilities(descriptorSaver);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public PostgresqlDescriptorFactoryAccessorConfigurator postgresqlDescriptorFactoryAccessorConfigurator(
-            PostgresqlDescriptorFactory postgresqlDescriptorFactory) {
+            PostgresqlDescriptorFacilities postgresqlDescriptorFactory) {
         return new PostgresqlDescriptorFactoryAccessorConfigurator(postgresqlDescriptorFactory);
     }
 

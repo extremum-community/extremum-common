@@ -3,7 +3,7 @@ package descriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.stucts.*;
 import com.extremum.common.test.TestWithServices;
@@ -46,7 +46,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Autowired
     private DescriptorsProperties descriptorsProperties;
     @Autowired
-    private MongoDescriptorFactory mongoDescriptorFactory;
+    private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -70,13 +70,13 @@ class MongoDescriptorDaoTest extends TestWithServices {
 
     private Descriptor createADescriptor() {
         ObjectId objectId = new ObjectId();
-        return mongoDescriptorFactory.create(objectId, "test_model");
+        return mongoDescriptorFacilities.create(objectId, "test_model");
     }
 
     @Test
     void testRetrieveByInternalId() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -89,7 +89,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testRetrieveMapByExternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -102,7 +102,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testRetrieveMapByInternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = mongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);

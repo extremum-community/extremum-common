@@ -1,6 +1,6 @@
 package com.extremum.elasticsearch.repositories;
 
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -72,7 +72,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
             ObjectMapper objectMapper,
-            ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
+            ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         super(client,
                 new ExtremumResultMapper(
                         new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
