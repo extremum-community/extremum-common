@@ -20,11 +20,11 @@ public final class MongoDescriptorFactory {
         return descriptorSaver.create(id.toString(), modelType, STORAGE_TYPE);
     }
 
-    public static Descriptor fromInternalId(ObjectId internalId) {
+    public Descriptor fromInternalId(ObjectId internalId) {
         return fromInternalId(internalId.toString());
     }
 
-    public static Descriptor fromInternalId(String internalId) {
+    public Descriptor fromInternalId(String internalId) {
         return DescriptorFactory.fromInternalId(internalId, STORAGE_TYPE);
     }
 

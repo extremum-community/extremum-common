@@ -59,6 +59,6 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
     }
     
     private void resolveDescriptor(MongoCommonModel model) {
-        model.setUuid(MongoDescriptorFactory.fromInternalId(model.getId()));
+        model.setUuid(mongoDescriptorFactory.fromInternalId(model.getId()));
     }
 }
