@@ -1,5 +1,6 @@
 package com.extremum.elasticsearch.config;
 
+import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
@@ -31,8 +32,9 @@ public class ElasticsearchRepositoriesConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
 
     @Bean
-    public ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory(DescriptorSaver descriptorSaver) {
-        return new ElasticsearchDescriptorFacilities(descriptorSaver);
+    public ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory(DescriptorFactory descriptorFactory,
+            DescriptorSaver descriptorSaver) {
+        return new ElasticsearchDescriptorFacilities(descriptorFactory, descriptorSaver);
     }
 
     @Bean

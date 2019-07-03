@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public final class MongoDescriptorFacilities {
     private static final Descriptor.StorageType STORAGE_TYPE = Descriptor.StorageType.MONGO;
 
+    private final DescriptorFactory descriptorFactory;
     private final DescriptorSaver descriptorSaver;
 
     public Descriptor create(ObjectId id, String modelType) {
@@ -25,7 +26,7 @@ public final class MongoDescriptorFacilities {
     }
 
     public Descriptor fromInternalId(String internalId) {
-        return DescriptorFactory.fromInternalId(internalId, STORAGE_TYPE);
+        return descriptorFactory.fromInternalId(internalId, STORAGE_TYPE);
     }
 
     public List<String> getInternalIdList(List<Descriptor> descriptors) {
@@ -35,7 +36,7 @@ public final class MongoDescriptorFacilities {
     }
 
     private Descriptor fromInternalIdOrNull(String internalId) {
-        return DescriptorFactory.fromInternalIdOrNull(internalId, STORAGE_TYPE);
+        return descriptorFactory.fromInternalIdOrNull(internalId, STORAGE_TYPE);
     }
 
     public List<Descriptor> fromInternalIdListOrNull(List<String> internalIdList) {

@@ -8,9 +8,12 @@ import com.extremum.common.descriptor.factory.DescriptorSaver;
 import java.util.UUID;
 
 public abstract class UUIDDescriptorFacilities {
+    private final DescriptorFactory descriptorFactory;
     private final DescriptorSaver descriptorSaver;
 
-    protected UUIDDescriptorFacilities(DescriptorSaver descriptorSaver) {
+    protected UUIDDescriptorFacilities(DescriptorFactory descriptorFactory,
+            DescriptorSaver descriptorSaver) {
+        this.descriptorFactory = descriptorFactory;
         this.descriptorSaver = descriptorSaver;
     }
 
@@ -25,11 +28,11 @@ public abstract class UUIDDescriptorFacilities {
     }
 
     public Descriptor fromInternalId(String uuid) {
-        return DescriptorFactory.fromInternalId(uuid, storageType());
+        return descriptorFactory.fromInternalId(uuid, storageType());
     }
 
     public Descriptor fromInternalIdOrNull(String uuid) {
-        return DescriptorFactory.fromInternalIdOrNull(uuid, storageType());
+        return descriptorFactory.fromInternalIdOrNull(uuid, storageType());
     }
 
     public UUID resolve(Descriptor descriptor) {
