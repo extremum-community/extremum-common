@@ -1,5 +1,7 @@
 package com.extremum.common.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
@@ -20,13 +22,25 @@ public interface PersistableCommonModel<ID extends Serializable> extends BasicMo
 
     void setDeleted(Boolean deleted);
 
-    default <SELF extends PersistableCommonModel<ID>> void copyServiceFieldsTo(SELF to) {
-        BasicModel.super.copyServiceFieldsTo(to);
+    @Override
+    default void copyServiceFieldsTo(Model to) {
+        if (!(to instanceof PersistableCommonModel)) {
+            throw new IllegalStateException("I can only copy to a PersistableCommonModel");
+        }
 
-        to.setVersion(this.getVersion());
-        to.setDeleted(this.getDeleted());
-        to.setCreated(this.getCreated());
-        to.setModified(this.getModified());
+        PersistableCommonModel<ID> persistableTo = (PersistableCommonModel<ID>) to;
+
+        BasicModel.super.copyServiceFieldsTo(persistableTo);
+
+        persistableTo.setVersion(this.getVersion());
+        persistableTo.setDeleted(this.getDeleted());
+        persistableTo.setCreated(this.getCreated());
+        persistableTo.setModified(this.getModified());
+    }
+
+    @JsonIgnore
+    default boolean isNotDeleted() {
+        return getDeleted() == null || !getDeleted();
     }
 
     enum FIELDS {

@@ -11,19 +11,5 @@ descriptors:
   internalIdsMapName: descriptors_internalId_idx
 
 spring:
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          lob:
-            non_contextual_creation: true
   main:
     allow-bean-definition-overriding: true
-
-logging:
-  level:
-    org.springframework.web : DEBUG
-
-custom:
-  field-destroyer:
-    analyzable-package-prefix: com.cybernation.testservice

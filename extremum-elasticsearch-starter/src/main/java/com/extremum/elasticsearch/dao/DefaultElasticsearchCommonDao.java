@@ -1,18 +1,19 @@
 package com.extremum.elasticsearch.dao;
 
-import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
-import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
-import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
+import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.models.PersistableCommonModel.FIELDS;
 import com.extremum.common.utils.CollectionUtils;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.common.utils.StreamUtils;
+import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
+import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,15 +32,14 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 
@@ -56,7 +56,14 @@ import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
 public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<Model> {
-    private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted; ctx._source.modified = params.modified";
+    private static final String MODIFIED = ElasticsearchCommonModel.FIELDS.modified.name();
+    private static final String DELETED = ElasticsearchCommonModel.FIELDS.deleted.name();
+
+    private static final String PAINLESS_LANGUAGE = "painless";
+
+    private static final String DELETE_DOCUMENT_PAINLESS_SCRIPT = "ctx._source.deleted = params.deleted";
+
+    private static final String ANALYZER_KEYWORD = "keyword";
 
     private RestClientBuilder restClientBuilder;
     private ElasticsearchDescriptorFactory elasticsearchDescriptorFactory;
@@ -93,7 +100,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         initModelClass();
     }
 
-    protected void initModelClass() {
+    private void initModelClass() {
         modelClass = (Class<Model>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
@@ -102,21 +109,21 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
             log.error("Unable to configure {} because list of hosts is empty", RestClientBuilder.class.getName());
             throw new RuntimeException("Unable to configure " + RestClientBuilder.class.getName() +
                     " because list of hosts is empty");
-        } else {
-            List<HttpHost> httpHosts = elasticProps.getHosts().stream()
-                    .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
-                    .collect(Collectors.toList());
+        }
 
-            this.restClientBuilder = RestClient.builder(httpHosts.toArray(new HttpHost[]{}));
+        List<HttpHost> httpHosts = elasticProps.getHosts().stream()
+                .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
+                .collect(Collectors.toList());
 
-            if (elasticProps.getUsername() != null && elasticProps.getPassword() != null) {
-                CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY,
-                        new UsernamePasswordCredentials(elasticProps.getUsername(), elasticProps.getPassword()));
+        this.restClientBuilder = RestClient.builder(httpHosts.toArray(new HttpHost[]{}));
 
-                this.restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
-                        httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-            }
+        if (elasticProps.getUsername() != null && elasticProps.getPassword() != null) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY,
+                    new UsernamePasswordCredentials(elasticProps.getUsername(), elasticProps.getPassword()));
+
+            this.restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
+                    httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         }
     }
 
@@ -125,38 +132,52 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public List<Model> search(String queryString) {
+    public List<Model> search(String queryString, SearchOptions searchOptions) {
         final SearchRequest request = new SearchRequest(indexName);
 
+        QueryStringQueryBuilder contentQuery = createContentQuery(queryString, searchOptions);
+        QueryBuilder totalQuery = QueryBuilders.boolQuery()
+                .must(contentQuery)
+                .mustNot(QueryBuilders.queryStringQuery("true").field(DELETED).defaultOperator(Operator.AND));
         request.source(
                 new SearchSourceBuilder()
-                        .query(
-                                QueryBuilders.queryStringQuery(queryString)));
+                        .query(totalQuery)
+                        .version(true)
+                        .seqNoAndPrimaryTerm(true)
+        );
 
         return doSearch(queryString, request);
     }
 
+    private QueryStringQueryBuilder createContentQuery(String queryString, SearchOptions searchOptions) {
+        QueryStringQueryBuilder contentQuery = QueryBuilders.queryStringQuery(queryString);
+        if (searchOptions.isExactFieldValueMatch()) {
+            contentQuery.analyzer(ANALYZER_KEYWORD);
+        }
+        return contentQuery;
+    }
+
     protected List<Model> doSearch(String queryString, SearchRequest request) {
         try (RestHighLevelClient client = getClient()) {
-            SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-
-            if (HttpStatus.SC_OK == response.status().getStatus()) {
-                List<Model> results = new ArrayList<>();
-
-                for (SearchHit hit : response.getHits()) {
-                    Model data = extract(new SearchHitAccessorFacade(hit));
-                    results.add(data);
-                }
-
-                return results;
-            } else {
-                log.error("Unable to perform search by query {}: {}", queryString, response.status());
-                throw new RuntimeException("Nothing found by query " + queryString);
-            }
+            return executeSearch(queryString, request, client);
         } catch (IOException e) {
             log.error("Unable to search by query {}", queryString, e);
             throw new RuntimeException("Unable to search by query " + queryString, e);
         }
+    }
+
+    private List<Model> executeSearch(String queryString, SearchRequest request,
+            RestHighLevelClient client) throws IOException {
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+
+        if (HttpStatus.SC_OK != response.status().getStatus()) {
+            log.error("Unable to perform search by query {}: {}", queryString, response.status());
+            throw new RuntimeException("Nothing found by query " + queryString);
+        }
+
+        return StreamUtils.fromIterable(response.getHits())
+                .map(hit -> extract(new SearchHitAccessorFacade(hit)))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -169,22 +190,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     @Override
     public Optional<Model> findById(String id) {
         try (RestHighLevelClient client = getClient()) {
-            GetResponse response = client.get(
-                    new GetRequest(indexName, id),
-                    RequestOptions.DEFAULT
-            );
-
-            if (response.isExists()) {
-                Map<String, Object> sourceMap = response.getSourceAsMap();
-
-                if (sourceMap.getOrDefault(FIELDS.deleted.name(), false).equals(true)) {
-                    return Optional.empty();
-                } else {
-                    return Optional.ofNullable(extract(new GetResponseAccessorFacade(response)));
-                }
-            } else {
-                return Optional.empty();
-            }
+            return executeFindById(id, client);
         } catch (IOException e) {
             log.error("Unable to get data by id {} from index {} with type {}",
                     id, indexName, indexType, e);
@@ -195,91 +201,124 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
+    private Optional<Model> executeFindById(String id, RestHighLevelClient client) throws IOException {
+        GetResponse response = client.get(new GetRequest(indexName, id), RequestOptions.DEFAULT);
+
+        if (!response.isExists()) {
+            return Optional.empty();
+        }
+
+        Map<String, Object> sourceMap = response.getSourceAsMap();
+
+        if (sourceMap.getOrDefault(FIELDS.deleted.name(), false).equals(true)) {
+            return Optional.empty();
+        } else {
+            return Optional.ofNullable(extract(new GetResponseAccessorFacade(response)));
+        }
+    }
+
     @Override
     public boolean existsById(String id) {
-        if (isDocumentExists(id)) {
-            try {
-                final Optional<Model> data = findById(id);
-                boolean doesNotExist = data.map(ElasticsearchCommonModel::getDeleted).orElse(true);
-                return !doesNotExist;
-            } catch (ModelNotFoundException e) {
-                return false;
-            }
-        } else {
+        if (!isDocumentExists(id)) {
             return false;
         }
+
+        return findById(id)
+                .map(PersistableCommonModel::isNotDeleted)
+                .orElse(false);
     }
 
     protected boolean isDocumentExists(String id) {
         try (RestHighLevelClient client = getClient()) {
-            GetRequest getRequest = new GetRequest(indexName, id);
-            getRequest.fetchSourceContext(FetchSourceContext.DO_NOT_FETCH_SOURCE);
-            getRequest.storedFields("_none_");
-
-            GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-            return response.isExists();
+            return executeExists(id, client);
         } catch (IOException e) {
             log.error("Unable to check exists data by id {}", id, e);
             throw new RuntimeException("Unable to check data exists by id " + id, e);
         }
     }
 
+    private boolean executeExists(String id, RestHighLevelClient client) throws IOException {
+        GetRequest getRequest = new GetRequest(indexName, id);
+        getRequest.fetchSourceContext(FetchSourceContext.DO_NOT_FETCH_SOURCE);
+        getRequest.storedFields("_none_");
+
+        GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
+        return response.isExists();
+    }
+
     @Override
     public <N extends Model> N save(N model) {
         preSave(model);
-
-        return doSave(model);
+        N saved = doSave(model);
+        refreshIndex();
+        return saved;
     }
 
     protected <N extends Model> N doSave(N model) {
-        String rawData = serializeModel(model);
-
         try (RestHighLevelClient client = getClient()) {
-            final IndexRequest request = new IndexRequest();
-            request.index(indexName);
-            request.id(model.getId());
-
-            request.source(rawData, XContentType.JSON);
-
-            if (model.getSeqNo() != null && model.getPrimaryTerm() != null) {
-                request.setIfSeqNo(model.getSeqNo());
-                request.setIfPrimaryTerm(model.getPrimaryTerm());
-            }
-
-            final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-
-            if (asList(SC_OK, SC_CREATED).contains(response.status().getStatus())) {
-                model.setSeqNo(response.getSeqNo());
-                model.setPrimaryTerm(response.getPrimaryTerm());
-                model.setVersion(response.getVersion());
-                return model;
-            } else {
-                log.error("Document don't be indexed, status {}", response.status());
-                throw new RuntimeException("Document don't be indexed");
-            }
+            return executeSave(model, client);
         } catch (IOException e) {
             log.error("Unable to add data to index", e);
             throw new RuntimeException("Unable to add data to index", e);
         }
     }
 
+    private <N extends Model> N executeSave(N model, RestHighLevelClient client) throws IOException {
+        final IndexRequest request = Requests.indexRequest(indexName).id(model.getId());
+
+        request.source(serializeModel(model), XContentType.JSON);
+
+        if (model.getSeqNo() != null && model.getPrimaryTerm() != null) {
+            request.setIfSeqNo(model.getSeqNo());
+            request.setIfPrimaryTerm(model.getPrimaryTerm());
+        }
+
+        final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+
+        if (!asList(SC_OK, SC_CREATED).contains(response.status().getStatus())) {
+            log.error("Document don't be indexed, status {}", response.status());
+            throw new RuntimeException("Document don't be indexed");
+        }
+
+        model.setSeqNo(response.getSeqNo());
+        model.setPrimaryTerm(response.getPrimaryTerm());
+        model.setVersion(response.getVersion());
+        return model;
+    }
+
     protected void preSave(Model model) {
         if (model.getId() == null) {
-            String name = ModelUtils.getModelName(model.getClass());
-            final Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
-            final Descriptor stored = DescriptorService.store(descriptor);
-            model.setUuid(stored);
-            model.setId(stored.getInternalId());
+            final Descriptor descriptor = getOrCreateDescriptor(model);
+
+            model.setUuid(descriptor);
+            model.setId(descriptor.getInternalId());
             ZonedDateTime now = ZonedDateTime.now();
             model.setCreated(now);
             model.setModified(now);
             model.setDeleted(false);
+        } else if (existsById(model.getId())) {
+            model.setModified(ZonedDateTime.now());
         } else {
-            if (existsById(model.getId())) {
-                model.setModified(ZonedDateTime.now());
-            } else {
-                throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
-            }
+            throw new RuntimeException("Document " + model.getId() + " has been deleted and can't be updated");
+        }
+    }
+
+    protected void refreshIndex() {
+        try (RestHighLevelClient client = getClient()) {
+            client.indices().refresh(Requests.refreshRequest(indexName), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot refresh index", e);
+        }
+    }
+
+    private Descriptor getOrCreateDescriptor(Model model) {
+        String name = ModelUtils.getModelName(model.getClass());
+
+        if (model.getUuid() != null) {
+            return model.getUuid();
+        } else {
+            Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
+            return DescriptorService.store(descriptor);
         }
     }
 
@@ -303,47 +342,82 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     @Override
     public <N extends Model> List<N> saveAll(Iterable<N> entities) {
-        entities.forEach(this::save);
+        entities.forEach(model -> {
+            preSave(model);
+            doSave(model);
+        });
+
+        refreshIndex();
+        
         return StreamUtils.fromIterable(entities).collect(Collectors.toList());
     }
 
     @Override
     public void deleteById(String id) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put(FIELDS.deleted.name(), Boolean.TRUE);
-        parameters.put(FIELDS.modified.name(), DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now()));
+        parameters.put(FIELDS.deleted.name(), true);
+        parameters.put(FIELDS.modified.name(), getNowAsString());
 
         patch(id, DELETE_DOCUMENT_PAINLESS_SCRIPT, parameters);
     }
 
     @Override
-    public boolean patch(String id, String painlessQuery) {
-        return patch(id, painlessQuery, null);
+    public boolean patch(String id, String painlessScript) {
+        return patch(id, painlessScript, Collections.emptyMap());
     }
 
     @Override
-    public boolean patch(String id, String painlessScript, Map<String, Object> params) {
-        if (existsById(id)) {
-            final UpdateRequest request = new UpdateRequest(indexName, id);
-
-            request.script(new Script(ScriptType.INLINE, "painless", painlessScript, params));
-
-            try (final RestHighLevelClient client = getClient()) {
-                final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
-
-                if (SC_OK == response.status().getStatus()) {
-                    return true;
-                } else {
-                    log.warn("Document {} is not patched, status {}", id, response.status());
-                    return false;
-                }
-            } catch (IOException e) {
-                log.error("Unable to patch document {}", id, e);
-                throw new RuntimeException("Unable to patch document " + id, e);
-            }
-        } else {
+    public boolean patch(String id, String painlessScript, Map<String, Object> scriptParams) {
+        if (!existsById(id)) {
             throw new ModelNotFoundException("Not found " + id);
         }
+
+        final UpdateRequest request = new UpdateRequest(indexName, id);
+        request.script(createScript(painlessScript, scriptParams));
+
+        try (final RestHighLevelClient client = getClient()) {
+            return executeUpdate(request, client);
+        } catch (IOException e) {
+            log.error("Unable to patch document {}", id, e);
+            throw new RuntimeException("Unable to patch document " + id, e);
+        }
+    }
+
+    private boolean executeUpdate(UpdateRequest request, RestHighLevelClient client) throws IOException {
+        final UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
+
+        if (SC_OK == response.status().getStatus()) {
+            refreshIndex();
+            return true;
+        } else {
+            log.warn("Document {} is not patched, status {}", request.id(), response.status());
+            return false;
+        }
+    }
+
+    private Script createScript(String painlessScript, Map<String, Object> params) {
+        String scriptWithModificationTimeChange = amendWithModificationTimeChange(painlessScript);
+        Map<String, Object> paramsWithModificationTimeChange = amendWithModificationTime(params);
+        return new Script(ScriptType.INLINE, PAINLESS_LANGUAGE, scriptWithModificationTimeChange,
+                paramsWithModificationTimeChange);
+    }
+
+    private String amendWithModificationTimeChange(String painlessScript) {
+        return painlessScript + changeModificationTimeScriptSuffix();
+    }
+
+    private String changeModificationTimeScriptSuffix() {
+        return "; ctx._source." + MODIFIED + " = params." + MODIFIED;
+    }
+
+    private Map<String, Object> amendWithModificationTime(Map<String, Object> params) {
+        Map<String, Object> paramsWithModificationTimeChange = new HashMap<>(params);
+        paramsWithModificationTimeChange.put(MODIFIED, getNowAsString());
+        return paramsWithModificationTimeChange;
+    }
+
+    private String getNowAsString() {
+        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
     }
 
     private Model extract(AccessorFacade accessor) {
@@ -359,7 +433,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         final Boolean deleted = ofNullable(sourceAsMap)
                 .map(m -> m.get(FIELDS.deleted.name()))
                 .map(Boolean.class::cast)
-                .orElse(Boolean.FALSE);
+                .orElse(false);
 
         model.setDeleted(deleted);
 

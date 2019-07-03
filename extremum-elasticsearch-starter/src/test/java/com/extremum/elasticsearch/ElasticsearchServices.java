@@ -1,59 +1,52 @@
 package com.extremum.elasticsearch;
 
-import org.jetbrains.annotations.NotNull;
+import com.extremum.testcontainers.CoreServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 /**
  * @author rpuch
  */
-class ElasticsearchServices {
+class ElasticsearchServices extends CoreServices {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchServices.class);
 
     static {
-        startMongo();
-        startRedis();
-        startElasticsearch();
+        startElasticsearchIfNeeded();
     }
 
-    private static void startMongo() {
-        GenericContainer mongo = startGenericContainer("mongo:3.4-xenial", 27017);
-        String mongoUri = "mongodb://" + mongo.getContainerIpAddress() + ":" + mongo.getFirstMappedPort();
-        System.setProperty("mongo.uri", mongoUri);
-        LOGGER.info("MongoDB uri is {}", mongoUri);
-    }
+    private static void startElasticsearchIfNeeded() {
+        workaroundElasticsearchClientStartupQuirk();
 
-    private static void startRedis() {
-        GenericContainer redis = startGenericContainer("redis:5.0.4", 6379);
-        String redisUri = String.format("redis://%s:%d", redis.getContainerIpAddress(), redis.getFirstMappedPort());
-        System.setProperty("redis.uri", redisUri);
-        LOGGER.info("Redis uri is {}", redisUri);
-    }
-
-    private static void startElasticsearch() {
-        if ("true".equals(System.getProperty("start.elasticsearch", "true"))) {
-            ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
-            elasticSearch.start();
-
-            System.setProperty("elasticsearch.hosts[0].host", elasticSearch.getContainerIpAddress());
-            System.setProperty("elasticsearch.hosts[0].port", Integer.toString(elasticSearch.getFirstMappedPort()));
-            System.setProperty("elasticsearch.hosts[0].protocol", "http");
-
-            LOGGER.info("Elasticsearch host:port are {}:{}",
-                    elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+        if (shouldStartOurOwnElasticsearch()) {
+            startElasticsearch();
         } else {
-            System.setProperty("elasticsearch.hosts[0].host", "localhost");
-            System.setProperty("elasticsearch.hosts[0].port", "9200");
-            System.setProperty("elasticsearch.hosts[0].protocol", "http");
+            setElasticsearchEndpointProperties("localhost", 9200);
         }
     }
 
-    @NotNull
-    private static GenericContainer startGenericContainer(String dockerImageName, int portToExpose) {
-        GenericContainer container = new GenericContainer(dockerImageName).withExposedPorts(portToExpose);
-        container.start();
-        return container;
+    private static void workaroundElasticsearchClientStartupQuirk() {
+        System.setProperty("es.set.netty.runtime.available.processors", "false");
     }
+
+    private static boolean shouldStartOurOwnElasticsearch() {
+        return "true".equals(System.getProperty("start.elasticsearch", "true"));
+    }
+
+    private static void startElasticsearch() {
+        ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
+        elasticSearch.start();
+
+        setElasticsearchEndpointProperties(elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+
+        LOGGER.info("Elasticsearch host:port are {}:{}",
+                elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+    }
+
+    private static void setElasticsearchEndpointProperties(String host, Integer port) {
+        System.setProperty("elasticsearch.hosts[0].host", host);
+        System.setProperty("elasticsearch.hosts[0].port", Integer.toString(port));
+        System.setProperty("elasticsearch.hosts[0].protocol", "http");
+    }
+
 }

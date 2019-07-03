@@ -13,6 +13,15 @@ public final class DescriptorService {
 
     private static volatile DescriptorDao descriptorDao;
 
+    /**
+     * This is only used for tests.
+     *
+     * @return current dao
+     */
+    public static DescriptorDao getDescriptorDao() {
+        return descriptorDao;
+    }
+
     public static void setDescriptorDao(DescriptorDao descriptorDao) {
         DescriptorService.descriptorDao = descriptorDao;
     }

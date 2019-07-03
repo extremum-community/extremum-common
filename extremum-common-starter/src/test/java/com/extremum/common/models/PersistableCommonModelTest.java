@@ -37,8 +37,8 @@ class PersistableCommonModelTest {
         assertThat(to.getUuid(), is(sameInstance(from.getUuid())));
         assertThat(to.getCreated(), is(sameInstance(from.getCreated())));
         assertThat(to.getModified(), is(sameInstance(from.getModified())));
-        assertThat(to.getVersion(), is(sameInstance(from.getVersion())));
-        assertThat(to.getDeleted(), is(sameInstance(from.getDeleted())));
+        assertThat(to.getVersion(), is(1L));
+        assertThat(to.getDeleted(), is(true));
     }
 
     @Getter

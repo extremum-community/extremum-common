@@ -5,6 +5,8 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;
+import com.extremum.common.service.AlertsCollector;
+import com.extremum.common.service.Problems;
 import com.extremum.common.utils.ModelUtils;
 import common.dao.mongo.TestMongoModelDao;
 import models.TestMongoModel;
@@ -18,13 +20,8 @@ import java.util.*;
 
 import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MongoCommonServiceTest {
 
@@ -56,11 +53,11 @@ public class MongoCommonServiceTest {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
-        TestMongoModel resultModel = service.get(createdModel.getId().toString(), alertList);
+        TestMongoModel resultModel = service.get(createdModel.getId().toString(), new AlertsCollector(alertList));
         assertEquals(createdModel, resultModel);
         assertTrue(alertList.isEmpty());
 
-        resultModel = service.get(new ObjectId().toString(), alertList);
+        resultModel = service.get(new ObjectId().toString(), new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -68,7 +65,7 @@ public class MongoCommonServiceTest {
         assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
-        resultModel = service.get(null, alertList);
+        resultModel = service.get(null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -93,7 +90,7 @@ public class MongoCommonServiceTest {
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestMongoModel> resultModelList = service.list(alertList);
+        List<TestMongoModel> resultModelList = service.list(new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
@@ -125,13 +122,13 @@ public class MongoCommonServiceTest {
         Mockito.when(dao.listByParameters(null)).thenReturn(Collections.singletonList(createdModel));
         Mockito.when(dao.listByParameters(params)).thenReturn(Collections.emptyList());
 
-        List<TestMongoModel> resultModelList = service.listByParameters(null, alertList);
+        List<TestMongoModel> resultModelList = service.listByParameters(null, new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
         assertEquals(createdModel, resultModelList.get(0));
 
-        resultModelList = service.listByParameters(params, alertList);
+        resultModelList = service.listByParameters(params, new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertTrue(resultModelList.isEmpty());
@@ -166,13 +163,13 @@ public class MongoCommonServiceTest {
         Mockito.when(dao.listByFieldValue(version.name(), createdModel.getVersion()))
                 .thenReturn(Collections.singletonList(createdModel));
 
-        List<TestMongoModel> resultModelList = service.listByFieldValue(version.name(), createdModel.getVersion(), alertList);
+        List<TestMongoModel> resultModelList = service.listByFieldValue(version.name(), createdModel.getVersion(), new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
         assertEquals(createdModel, resultModelList.get(0));
 
-        resultModelList = service.listByFieldValue(null, null, alertList);
+        resultModelList = service.listByFieldValue(null, null, new AlertsCollector(alertList));
         assertEquals(2, alertList.size());
         assertEquals("400", alertList.get(0).getCode());
         assertEquals("400", alertList.get(1).getCode());
@@ -219,13 +216,13 @@ public class MongoCommonServiceTest {
         Mockito.when(dao.listByParameters(params)).thenReturn(Collections.singletonList(createdModel));
 
         List<TestMongoModel> resultModelList =
-                service.listByFieldValue(version.name(), createdModel.getVersion(), 1, 1, alertList);
+                service.listByFieldValue(version.name(), createdModel.getVersion(), 1, 1, new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModelList);
         assertEquals(1, resultModelList.size());
         assertEquals(createdModel, resultModelList.get(0));
 
-        resultModelList = service.listByFieldValue(null, null, 0, 0, alertList);
+        resultModelList = service.listByFieldValue(null, null, 0, 0, new AlertsCollector(alertList));
 
         assertEquals(2, alertList.size());
         assertTrue(alertList.get(0).isError());
@@ -265,7 +262,7 @@ public class MongoCommonServiceTest {
     @Test
     public void testGetSelectedFieldsByIdWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
-        TestMongoModel resultModel = service.getSelectedFieldsById(new ObjectId().toString(), alertList, version.name());
+        TestMongoModel resultModel = service.getSelectedFieldsById(new ObjectId().toString(), new AlertsCollector(alertList), version.name());
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -273,7 +270,7 @@ public class MongoCommonServiceTest {
         assertEquals("404", alertList.get(0).getCode());
 
         alertList = new ArrayList<>();
-        resultModel = service.getSelectedFieldsById(null, alertList);
+        resultModel = service.getSelectedFieldsById(null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(2, alertList.size());
@@ -303,11 +300,11 @@ public class MongoCommonServiceTest {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestMongoModel.class))).thenReturn(createdModel);
 
-        TestMongoModel resultModel = service.create(new TestMongoModel(), alertList);
+        TestMongoModel resultModel = service.create(new TestMongoModel(), new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertEquals(createdModel, resultModel);
 
-        resultModel = service.create((TestMongoModel) null, alertList);
+        resultModel = service.create((TestMongoModel) null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -337,14 +334,14 @@ public class MongoCommonServiceTest {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
-        List<TestMongoModel> resultModels = service.create(Collections.singletonList(new TestMongoModel()), alertList);
+        List<TestMongoModel> resultModels = service.create(Collections.singletonList(new TestMongoModel()), new AlertsCollector(alertList));
 
         assertTrue(alertList.isEmpty());
         assertNotNull(resultModels);
         assertEquals(1, resultModels.size());
         assertEquals(createdModel, resultModels.get(0));
 
-        resultModels = service.create((List<TestMongoModel>) null, alertList);
+        resultModels = service.create((List<TestMongoModel>) null, new AlertsCollector(alertList));
 
         assertNull(resultModels);
         assertEquals(1, alertList.size());
@@ -394,11 +391,11 @@ public class MongoCommonServiceTest {
         updatedModel.setId(createdModel.getId());
         Mockito.when(dao.save(updatedModel)).thenReturn(updatedModel);
 
-        TestMongoModel resultModel = service.save(updatedModel, alertList);
+        TestMongoModel resultModel = service.save(updatedModel, new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
         assertEquals(updatedModel, resultModel);
 
-        resultModel = service.save(null, alertList);
+        resultModel = service.save(null, new AlertsCollector(alertList));
 
         assertNull(resultModel);
         assertEquals(1, alertList.size());
@@ -466,7 +463,7 @@ public class MongoCommonServiceTest {
     @Test
     public void whenNullCollectionAlertsIsPassedToGetSelectedFieldsById_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
-                () -> service.getSelectedFieldsById("id", (Collection<Alert>) null));
+                () -> service.getSelectedFieldsById("id", (Problems) null));
     }
 
     private void makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(Runnable runnable) {
@@ -474,7 +471,7 @@ public class MongoCommonServiceTest {
             runnable.run();
             fail("An exception should be thrown");
         } catch (NullPointerException e) {
-            assertThat(e.getMessage(), is("Alerts collection must not be null"));
+            assertThat(e.getMessage(), is("Problems must not be null"));
         }
     }
 

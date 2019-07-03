@@ -3,7 +3,7 @@
     <parent>
         <artifactId>extremum-common-parent</artifactId>
         <groupId>com.extremum</groupId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -65,6 +65,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.extremum</groupId>
+            <artifactId>extremum-test-containers</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

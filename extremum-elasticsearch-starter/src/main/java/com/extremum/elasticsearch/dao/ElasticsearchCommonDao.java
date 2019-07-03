@@ -6,13 +6,11 @@ import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import java.util.List;
 import java.util.Map;
 
-public interface ElasticsearchCommonDao<Model extends ElasticsearchCommonModel> extends CommonDao<Model, String> {
+public interface ElasticsearchCommonDao<M extends ElasticsearchCommonModel> extends CommonDao<M, String> {
 
-    List<Model> search(String queryString);
+    List<M> search(String queryString, SearchOptions searchOptions);
 
-    <N extends Model> N save(N model);
+    boolean patch(String id, String painlessScript);
 
-    boolean patch(String id, String painlessQuery);
-
-    boolean patch(String id, String painlessScript, Map<String, Object> params);
+    boolean patch(String id, String painlessScript, Map<String, Object> scriptParams);
 }

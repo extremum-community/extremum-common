@@ -5,8 +5,9 @@ import com.extremum.common.exceptions.CommonException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.models.BasicModel;
-import com.extremum.common.response.Alert;
 import com.extremum.common.service.CommonService;
+import com.extremum.common.service.Problems;
+import com.extremum.common.service.ThrowOnAlert;
 import com.extremum.common.utils.StreamUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 
 public abstract class CommonServiceImpl<ID extends Serializable, M extends BasicModel<ID>>
-        implements CommonService<ID, M> {
+        implements CommonService<M> {
 
     private final CommonDao<M, ID> dao;
     private final Class<M> modelClass;
@@ -38,22 +38,18 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
 
     protected abstract ID stringToId(String id);
 
+    private void checkThatProblemsIsNotNull(Problems problems) {
+        Objects.requireNonNull(problems, "Problems must not be null");
+    }
+
     @Override
     public M get(String id) {
         return get(id, new ThrowOnAlert());
     }
 
     @Override
-    public M get(String id, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return get(id, new AddAlert(alerts));
-    }
-
-    private void checkThatAlertsIsNotNull(Collection<Alert> alerts) {
-        Objects.requireNonNull(alerts, "Alerts collection must not be null");
-    }
-
-    private M get(String id, Problems problems) {
+    public M get(String id, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Get model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, problems)) {
@@ -69,12 +65,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public List<M> list(Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return list(new AddAlert(alerts));
-    }
-
-    private List<M> list(Problems problems) {
+    public List<M> list(Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Get list of models of type {}", modelTypeName);
         return dao.findAll();
     }
@@ -85,12 +77,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public M create(M data, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return create(data, new AddAlert(alerts));
-    }
-
-    private M create(M data, Problems problems) {
+    public M create(M data, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Create model {}", data);
 
         if(data == null) {
@@ -106,12 +94,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public List<M> create(List<M> data, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return create(data, new AddAlert(alerts));
-    }
-    
-    private List<M> create(List<M> data, Problems problems) {
+    public List<M> create(List<M> data, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
@@ -131,12 +115,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public M save(M data, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        return save(data, new AddAlert(alerts));
-    }
-
-    private M save(M data, Problems problems) {
+    public M save(M data, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Save model {}", modelTypeName);
 
         if (data == null) {
@@ -174,12 +154,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public void delete(String id, Collection<Alert> alerts) {
-        checkThatAlertsIsNotNull(alerts);
-        delete(id, new AddAlert(alerts));
-    }
-    
-    private void delete(String id, Problems problems) {
+    public void delete(String id, Problems problems) {
+        checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, problems)) {

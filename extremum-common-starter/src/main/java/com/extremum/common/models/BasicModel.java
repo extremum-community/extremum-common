@@ -13,9 +13,16 @@ public interface BasicModel<ID extends Serializable> extends Model {
 
     void setId(ID id);
 
-    default <SELF extends BasicModel<ID>> void copyServiceFieldsTo(SELF to) {
-        to.setId(this.getId());
-        to.setUuid(this.getUuid());
+    @Override
+    default void copyServiceFieldsTo(Model to) {
+        if (!(to instanceof BasicModel)) {
+            throw new IllegalStateException("I can only copy to a BasicModel");
+        }
+
+        BasicModel<ID> basicTo = (BasicModel<ID>) to;
+
+        basicTo.setId(this.getId());
+        basicTo.setUuid(this.getUuid());
     }
 
     enum FIELDS {
