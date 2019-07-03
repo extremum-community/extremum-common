@@ -241,13 +241,17 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
-        List<TestElasticsearchModel> searchResult = dao.search(searchByFullString(model.getId()));
+        List<TestElasticsearchModel> searchResult = dao.search(model.getId(), exactMatchSearch());
         assertThat(searchResult, hasSize(1));
         TestElasticsearchModel resultModel = searchResult.get(0);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
         assertThat(resultModel.getSeqNo(), is(notNullValue()));
         assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+    }
+
+    private SearchOptions exactMatchSearch() {
+        return SearchOptions.builder().exactFieldValueMatch(true).build();
     }
 
     @Test
@@ -366,7 +370,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         
         model = dao.save(model);
 
-        List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
+        List<TestElasticsearchModel> results = dao.search(uniqueName, exactMatchSearch());
         assertThat(results.size(), is(1));
 
         assertThat(results.get(0).getName(), is(equalTo(model.getName())));
@@ -379,7 +383,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
 
         model = dao.save(model);
 
-        List<TestElasticsearchModel> results = dao.search(searchByFullString(model.getUuid().getExternalId()));
+        List<TestElasticsearchModel> results = dao.search(model.getUuid().getExternalId(), exactMatchSearch());
         assertThat(results.size(), is(1));
 
         assertThat(results.get(0).getName(), is(equalTo(model.getName())));
@@ -512,7 +516,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         String uniqueName = UUID.randomUUID().toString();
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        List<TestElasticsearchModel> results = dao.search(searchByFullString(uniqueName));
+        List<TestElasticsearchModel> results = dao.search(uniqueName, exactMatchSearch());
 
         assertThat(results, hasSize(1));
     }
@@ -522,7 +526,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         String uniqueName = UUID.randomUUID().toString();
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
+        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(uniqueName).analyzer("keyword");
         Iterable<TestElasticsearchModel> iterable = dao.search(query);
         List<TestElasticsearchModel> results = iterableToList(iterable);
 
@@ -534,7 +538,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         String uniqueName = UUID.randomUUID().toString();
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
+        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(uniqueName).analyzer("keyword");
         Iterable<TestElasticsearchModel> iterable = dao.search(query, Pageable.unpaged());
         List<TestElasticsearchModel> results = iterableToList(iterable);
 
@@ -551,7 +555,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         String uniqueName = UUID.randomUUID().toString();
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        QueryStringQueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchByFullString(uniqueName));
+        QueryStringQueryBuilder queryBuilder = QueryBuilders.queryStringQuery(uniqueName).analyzer("keyword");
         NativeSearchQuery query = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
         Iterable<TestElasticsearchModel> iterable = dao.search(query);
         List<TestElasticsearchModel> results = iterableToList(iterable);
@@ -571,9 +575,13 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         assertThat(countAfter - countBefore, is(1L));
     }
 
-    @NotNull
-    private String searchByFullString(String query) {
-        return "*" + query + "*";
+    @Test
+    void given1ExactFieldMatchAnd2NonExactMatchesExist_whenSearchingWithExactSemantics_then1ResultShouldBeFound() {
+        ElasticsearchExactSearchTests tests = new ElasticsearchExactSearchTests(dao);
+        String exactName = tests.generate1ModelWithExactNameAnd2ModelsWithReversedAndAmendedNamesAndReturnExactName();
+
+        tests.assertThatInexactSearchYields3Results(exactName);
+        tests.assertThatExactSearchYields1Result(exactName);
     }
 
     @NotNull

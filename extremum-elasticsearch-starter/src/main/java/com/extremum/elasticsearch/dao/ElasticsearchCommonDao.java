@@ -6,9 +6,9 @@ import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import java.util.List;
 import java.util.Map;
 
-public interface ElasticsearchCommonDao<Model extends ElasticsearchCommonModel> extends CommonDao<Model, String> {
+public interface ElasticsearchCommonDao<M extends ElasticsearchCommonModel> extends CommonDao<M, String> {
 
-    List<Model> search(String queryString);
+    List<M> search(String queryString, SearchOptions searchOptions);
 
     boolean patch(String id, String painlessScript);
 
