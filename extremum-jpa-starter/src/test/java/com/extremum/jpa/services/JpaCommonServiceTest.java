@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JpaCommonServiceTest {
+class JpaCommonServiceTest {
 
     private final TestJpaModelDao dao = Mockito.mock(TestJpaModelDao.class);
     private final TestJpaModelService service = new TestJpaModelService(dao);
@@ -51,7 +51,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
@@ -60,17 +60,17 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testGetWithNullId() {
+    void testGetWithNullId() {
         assertThrows(WrongArgumentException.class, () -> service.get(null));
     }
 
     @Test
-    public void testGetWithException() {
+    void testGetWithException() {
         assertThrows(ModelNotFoundException.class, () -> service.get(UUID.randomUUID().toString()));
     }
 
     @Test
-    public void testGetWithAlerts() {
+    void testGetWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
@@ -96,7 +96,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testList() {
+    void testList() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
@@ -107,7 +107,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testListWithAlerts() {
+    void testListWithAlerts() {
         TestJpaModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
@@ -120,7 +120,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
 
@@ -129,12 +129,12 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testCreateWithNullData() {
+    void testCreateWithNullData() {
         assertThrows(WrongArgumentException.class, () -> service.create((TestJpaModel) null));
     }
 
     @Test
-    public void testCreateWithAlerts() {
+    void testCreateWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
@@ -152,7 +152,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testCreateList() {
+    void testCreateList() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
@@ -163,12 +163,12 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testCreateListWithNullData() {
+    void testCreateListWithNullData() {
         assertThrows(WrongArgumentException.class, () -> service.create((List<TestJpaModel>) null));
     }
 
     @Test
-    public void testCreateListWithAlerts() {
+    void testCreateListWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
@@ -189,7 +189,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testSaveNewModel() {
+    void testSaveNewModel() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestJpaModel.class))).thenReturn(createdModel);
 
@@ -201,7 +201,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testSaveUpdatedModel() {
+    void testSaveUpdatedModel() {
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
@@ -216,12 +216,12 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testSaveWithNullData() {
+    void testSaveWithNullData() {
         assertThrows(WrongArgumentException.class, () -> service.save(null));
     }
 
     @Test
-    public void testSaveModelWithAlerts() {
+    void testSaveModelWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestJpaModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
@@ -243,7 +243,7 @@ public class JpaCommonServiceTest {
     }
 
     @Test
-    public void testDeleteWithNullId() {
+    void testDeleteWithNullId() {
         assertThrows(WrongArgumentException.class, () -> service.delete(null));
     }
 }

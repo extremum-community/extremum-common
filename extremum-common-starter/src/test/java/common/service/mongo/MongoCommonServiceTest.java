@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class MongoCommonServiceTest {
+class MongoCommonServiceTest {
 
     private final TestMongoModelDao dao = Mockito.mock(TestMongoModelDao.class);
     private final TestMongoModelService service = new TestMongoModelService(dao);
@@ -37,7 +37,7 @@ public class MongoCommonServiceTest {
     private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
 
     @Test
-    public void testGet() {
+    void testGet() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
@@ -46,17 +46,17 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testGetWithNullId() {
+    void testGetWithNullId() {
         assertThrows(WrongArgumentException.class, () -> service.get(null));
     }
 
     @Test
-    public void testGetWithException() {
+    void testGetWithException() {
         assertThrows(ModelNotFoundException.class, () -> service.get(new ObjectId().toString()));
     }
 
     @Test
-    public void testGetWithAlerts() {
+    void testGetWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
@@ -82,7 +82,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testList() {
+    void testList() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
 
@@ -93,7 +93,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListWithAlerts() {
+    void testListWithAlerts() {
         TestMongoModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
@@ -106,7 +106,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListWithParameters() {
+    void testListWithParameters() {
         TestMongoModel createdModel = getTestModel();
         Map<String, Object> params = Collections.singletonMap("offset", 1);
         Mockito.when(dao.listByParameters(null)).thenReturn(Collections.singletonList(createdModel));
@@ -123,7 +123,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListWithParametersWithAlerts() {
+    void testListWithParametersWithAlerts() {
         TestMongoModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
         Map<String, Object> params = Collections.singletonMap("offset", 1);
@@ -143,7 +143,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListByFieldValue() {
+    void testListByFieldValue() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.listByFieldValue(version.name(), createdModel.getVersion()))
                 .thenReturn(Collections.singletonList(createdModel));
@@ -155,17 +155,17 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListByFieldValueWithNullName() {
+    void testListByFieldValueWithNullName() {
         assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(null, ""));
     }
 
     @Test
-    public void testListByFieldValueWithNullValue() {
+    void testListByFieldValueWithNullValue() {
         assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(version.name(), null));
     }
 
     @Test
-    public void testListByFieldValueWithAlerts() {
+    void testListByFieldValueWithAlerts() {
         TestMongoModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
         Mockito.when(dao.listByFieldValue(version.name(), createdModel.getVersion()))
@@ -187,7 +187,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListByFieldValueWithLimitOffset() {
+    void testListByFieldValueWithLimitOffset() {
         TestMongoModel createdModel = getTestModel();
         Map<String, Object> params = new HashMap<>();
         params.put("limit", 1);
@@ -203,17 +203,17 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testListByFieldValueWithLimitOffsetWithNullName() {
+    void testListByFieldValueWithLimitOffsetWithNullName() {
         assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(null, "", 0, 0));
     }
 
     @Test
-    public void testListByFieldValueWithLimitOffsetWithNullValue() {
+    void testListByFieldValueWithLimitOffsetWithNullValue() {
         assertThrows(WrongArgumentException.class, () -> service.listByFieldValue(version.name(), null, 0, 0));
     }
 
     @Test
-    public void testListByFieldValueWithLimitOffsetWithAlerts() {
+    void testListByFieldValueWithLimitOffsetWithAlerts() {
         TestMongoModel createdModel = getTestModel();
         List<Alert> alertList = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
@@ -243,7 +243,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testGetSelectedFieldsById() {
+    void testGetSelectedFieldsById() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.getSelectedFieldsById(createdModel.getId(), version.name())).thenReturn(
                 Optional.of(createdModel));
@@ -253,22 +253,22 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testGetSelectedFieldsByIdWithNullId() {
+    void testGetSelectedFieldsByIdWithNullId() {
         assertThrows(WrongArgumentException.class, () -> service.getSelectedFieldsById(null, version.name()));
     }
 
     @Test
-    public void testGetSelectedFieldsByIdWithNullFields() {
+    void testGetSelectedFieldsByIdWithNullFields() {
         assertThrows(WrongArgumentException.class, () -> service.getSelectedFieldsById(new ObjectId().toString()));
     }
 
     @Test
-    public void testGetSelectedFieldsByIdWithException() {
+    void testGetSelectedFieldsByIdWithException() {
         assertThrows(ModelNotFoundException.class, () -> service.getSelectedFieldsById(new ObjectId().toString(), version.name()));
     }
 
     @Test
-    public void testGetSelectedFieldsByIdWithAlerts() {
+    void testGetSelectedFieldsByIdWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestMongoModel resultModel = service.getSelectedFieldsById(new ObjectId().toString(), new AlertsCollector(alertList), version.name());
 
@@ -289,7 +289,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestMongoModel.class))).thenReturn(createdModel);
 
@@ -298,12 +298,12 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testCreateWithNullData() {
+    void testCreateWithNullData() {
         assertThrows(WrongArgumentException.class, () -> service.create((TestMongoModel) null));
     }
 
     @Test
-    public void testCreateWithAlerts() {
+    void testCreateWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestMongoModel.class))).thenReturn(createdModel);
@@ -321,7 +321,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testCreateList() {
+    void testCreateList() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
 
@@ -332,12 +332,12 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testCreateListWithNullData() {
+    void testCreateListWithNullData() {
         assertThrows(WrongArgumentException.class, () -> service.create((List<TestMongoModel>) null));
     }
 
     @Test
-    public void testCreateListWithAlerts() {
+    void testCreateListWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
@@ -358,7 +358,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testSaveNewModel() {
+    void testSaveNewModel() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.save(ArgumentMatchers.any(TestMongoModel.class))).thenReturn(createdModel);
 
@@ -370,7 +370,7 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testSaveUpdatedModel() {
+    void testSaveUpdatedModel() {
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
 
@@ -385,12 +385,12 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testSaveWithNullData() {
+    void testSaveWithNullData() {
         assertThrows(WrongArgumentException.class, () -> service.save(null));
     }
 
     @Test
-    public void testSaveModelWithAlerts() {
+    void testSaveModelWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestMongoModel createdModel = getTestModel();
         Mockito.when(dao.findById(createdModel.getId())).thenReturn(Optional.of(createdModel));
@@ -412,64 +412,64 @@ public class MongoCommonServiceTest {
     }
 
     @Test
-    public void testDeleteWithNullId() {
+    void testDeleteWithNullId() {
         assertThrows(WrongArgumentException.class, () -> service.delete(null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToGet_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToGet_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.get("id", null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToList_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToList_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.list(null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToCreate_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToCreate_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.create(new TestMongoModel(), null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToCreateList_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToCreateList_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.create(Collections.emptyList(), null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToSave_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToSave_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.save(new TestMongoModel(), null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToDelete_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToDelete_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.delete("id", null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToListByParameters_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToListByParameters_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.listByParameters(Collections.emptyMap(), null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToListByFieldValue_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToListByFieldValue_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.listByFieldValue("key", "value", null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToListByFieldValueWithPaging_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToListByFieldValueWithPaging_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.listByFieldValue("key", "value", 0, 10, null));
     }
 
     @Test
-    public void whenNullCollectionAlertsIsPassedToGetSelectedFieldsById_thenAnExceptionShouldBeThrown() {
+    void whenNullCollectionAlertsIsPassedToGetSelectedFieldsById_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(
                 () -> service.getSelectedFieldsById("id", (Problems) null));
     }
