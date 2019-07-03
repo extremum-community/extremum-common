@@ -5,7 +5,7 @@
     <groupId>com.extremum</groupId>
     <artifactId>extremum-common-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.6-SNAPSHOT</version>
+    <version>1.0.6</version>
 
     <modules>
         <module>extremum-common-starter</module>
@@ -19,7 +19,7 @@
         <url>https://github.com/smekalka/extremum-common</url>
         <connection>scm:git:git@github.com:smekalka/extremum-common.git</connection>
         <developerConnection>scm:git:git@github.com:smekalka/extremum-common.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>extremum-common-parent-1.0.6</tag>
     </scm>
 
     <build>
@@ -69,27 +69,27 @@
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-common-starter</artifactId>
-                <version>1.0.6-SNAPSHOT</version>
+                <version>1.0.6</version>
             </dependency>
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-jpa-starter</artifactId>
-                <version>1.0.6-SNAPSHOT</version>
+                <version>1.0.6</version>
             </dependency>
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-elasticsearch-starter</artifactId>
-                <version>1.0.6-SNAPSHOT</version>
+                <version>1.0.6</version>
             </dependency>
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-everything-starter</artifactId>
-                <version>1.0.6-SNAPSHOT</version>
+                <version>1.0.6</version>
             </dependency>
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-test-containers</artifactId>
-                <version>1.0.6-SNAPSHOT</version>
+                <version>1.0.6</version>
             </dependency>
 
             <dependency>
