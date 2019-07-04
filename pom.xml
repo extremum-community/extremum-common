@@ -13,6 +13,7 @@
         <module>extremum-elasticsearch-starter</module>
         <module>extremum-everything-starter</module>
         <module>extremum-test-containers</module>
+        <module>extremum-shared-models</module>
     </modules>
 
     <scm>
