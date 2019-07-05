@@ -15,7 +15,7 @@ import java.util.List;
 @DocumentationName("Address")
 public class Address {
     @NotNull
-    private StringOrMultilingual string;
+    private StringOrMultilingual name;
 
     @NotNull
     private List<Locator> locality;
