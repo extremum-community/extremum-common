@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.Set;
 
 @DocumentationName("Signal")
@@ -13,7 +12,7 @@ public class Signal {
     public static final String MODEL_NAME = "Signal";
 
     @JsonProperty("sent")
-    public Date sent = new Date();
+    public ZonedDateTime sent = ZonedDateTime.now();
 
     @JsonProperty("locale")
     public String locale;
