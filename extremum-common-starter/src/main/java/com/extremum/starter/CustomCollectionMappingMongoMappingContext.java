@@ -95,7 +95,7 @@ class CustomCollectionMappingMongoMappingContext extends MongoMappingContext {
         }
     }
 
-    @Document("descriptor-identifiers")
+    @Document(Descriptor.COLLECTION)
     private static class DescriptorMirror {
         @Id
         private String externalId;
