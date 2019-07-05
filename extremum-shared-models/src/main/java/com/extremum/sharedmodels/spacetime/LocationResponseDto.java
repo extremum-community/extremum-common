@@ -9,6 +9,8 @@ import java.util.List;
 
 @DocumentationName("Location")
 public class LocationResponseDto extends CommonResponseDto {
+    public static final String MODEL_NAME = "Location";
+
     public String type;
     public Status status;
     public String slug;
@@ -18,4 +20,9 @@ public class LocationResponseDto extends CommonResponseDto {
     public ComplexAddress address;
     public Coordinates coordinates;
     public List<Coordinates> boundary;
+
+    @Override
+    public String getModel() {
+        return MODEL_NAME;
+    }
 }

@@ -7,16 +7,11 @@ import com.extremum.sharedmodels.annotation.DocumentationName;
 import java.time.ZonedDateTime;
 
 @DocumentationName("Object")
-public class CommonResponseDto implements ResponseDto {
+public abstract class CommonResponseDto implements ResponseDto {
     /**
      * The unique ID of the object
      */
     public Descriptor id;
-
-    /**
-     * The name of model that specifies the object structure (see Common Models)
-     */
-    public String model;
 
     /**
      * Date/time of object creation in ISO-8601 format (yyyy-MM-dd'T'HH:mm:ss.SSSZ)
@@ -51,10 +46,5 @@ public class CommonResponseDto implements ResponseDto {
     @Override
     public ZonedDateTime getModified() {
         return modified;
-    }
-
-    @Override
-    public String getModel() {
-        return model;
     }
 }

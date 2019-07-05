@@ -10,7 +10,7 @@ import java.util.Set;
 
 
 @DocumentationName("Subscriber")
-public class SubscriberDtoRequest implements RequestDto {
+public class SubscriberRequestDto implements RequestDto {
     @NotNull @NotEmpty
     public String name;
     @NotNull @Size(min = 1)
