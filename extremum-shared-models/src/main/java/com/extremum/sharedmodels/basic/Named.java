@@ -16,12 +16,12 @@ public interface Named {
     /**
      * The display name of the object.
      */
-    MultilingualObject getName();
-    void setName(MultilingualObject name);
+    StringOrMultilingual getName();
+    void setName(StringOrMultilingual name);
 
     /**
      * A brief description of the object. Markdown is very welcome for formatting 🤗
      */
-    MultilingualObject getDescription();
-    void setDescription(MultilingualObject description);
+    StringOrMultilingual getDescription();
+    void setDescription(StringOrMultilingual description);
 }

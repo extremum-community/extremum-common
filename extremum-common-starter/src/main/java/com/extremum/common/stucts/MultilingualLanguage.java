@@ -3,7 +3,7 @@ package com.extremum.common.stucts;
 /**
  * IETF language tags in the format defined by RFC 5646 (language-TERRITORY).
  */
-public enum Multilingual {
+public enum MultilingualLanguage {
     /**
      * Unknown language
      */
@@ -156,7 +156,7 @@ public enum Multilingual {
 
     private final String value;
 
-    Multilingual(String value) {
+    MultilingualLanguage(String value) {
         this.value = value;
     }
 
@@ -164,9 +164,9 @@ public enum Multilingual {
         return value;
     }
 
-    public static Multilingual fromString(String value) {
+    public static MultilingualLanguage fromString(String value) {
         if (value != null) {
-            for (Multilingual item : Multilingual.values()) {
+            for (MultilingualLanguage item : MultilingualLanguage.values()) {
                 if (value.equalsIgnoreCase(item.getValue())) {
                     return item;
                 }

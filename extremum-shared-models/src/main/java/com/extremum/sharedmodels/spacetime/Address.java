@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.spacetime;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,7 +15,7 @@ import java.util.List;
 @DocumentationName("Address")
 public class Address {
     @NotNull
-    private MultilingualObject string;
+    private StringOrMultilingual string;
 
     @NotNull
     private List<Locator> locality;

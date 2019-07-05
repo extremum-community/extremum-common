@@ -2,7 +2,7 @@ package models.deserialization;
 
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
-import com.extremum.common.stucts.Multilingual;
+import com.extremum.common.stucts.MultilingualLanguage;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
@@ -41,10 +41,10 @@ public class MultilingualObjectDeserializerTest {
         assertFalse(ml.map.isEmpty());
         assertEquals(2, ml.map.size());
 
-        String ru_RU_text = ml.map.get(Multilingual.ru_RU);
+        String ru_RU_text = ml.map.get(MultilingualLanguage.ru_RU);
         assertEquals("В лесу родилась ёлочка", ru_RU_text);
 
-        String en_US_text = ml.map.get(Multilingual.en_US);
+        String en_US_text = ml.map.get(MultilingualLanguage.en_US);
         assertEquals("The forest raised a christmas tree", en_US_text);
     }
 }

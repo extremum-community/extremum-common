@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.fundamental;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 
 /**
  * @author rpuch
@@ -38,12 +38,12 @@ public interface Resource {
     /**
      * The display name of the object as a Resource.
      */
-    MultilingualObject getName();
-    void setName(MultilingualObject name);
+    StringOrMultilingual getName();
+    void setName(StringOrMultilingual name);
 
     /**
      * A brief description of the object as a Resource. Markdown is very welcome for formatting 🤗
      */
-    MultilingualObject getDescription();
-    void setDescription(MultilingualObject description);
+    StringOrMultilingual getDescription();
+    void setDescription(StringOrMultilingual description);
 }

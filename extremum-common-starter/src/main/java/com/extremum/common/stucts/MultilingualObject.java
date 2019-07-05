@@ -10,9 +10,9 @@ import java.util.Map;
 public class MultilingualObject implements Serializable {
     public Type type;
     public String text;
-    public Map<Multilingual, String> map;
+    public Map<MultilingualLanguage, String> map;
 
-    public MultilingualObject(Type type, String text, Map<Multilingual, String> map) {
+    public MultilingualObject(Type type, String text, Map<MultilingualLanguage, String> map) {
         this.type = type;
         this.text = text;
         this.map = map;
@@ -27,7 +27,7 @@ public class MultilingualObject implements Serializable {
         this.text = text;
     }
 
-    public MultilingualObject(Map<Multilingual, String> map) {
+    public MultilingualObject(Map<MultilingualLanguage, String> map) {
         type = Type.MAP;
         this.map = map;
     }

@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.spacetime;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.Data;
 public class Locator {
     private String code;
     private Type type;
-    private MultilingualObject name;
+    private StringOrMultilingual name;
     
     public enum Type {
         POSTCODE("postcode"),

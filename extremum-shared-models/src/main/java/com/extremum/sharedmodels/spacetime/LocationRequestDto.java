@@ -2,7 +2,7 @@ package com.extremum.sharedmodels.spacetime;
 
 import com.extremum.common.dto.RequestDto;
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.basic.Status;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +20,8 @@ public class LocationRequestDto implements RequestDto {
     private Status status;
     private String slug;
     private String uri;
-    private MultilingualObject name;
-    private MultilingualObject description;
+    private StringOrMultilingual name;
+    private StringOrMultilingual description;
     private ComplexAddress address;
     @Valid
     private Coordinates coordinates;

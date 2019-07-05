@@ -1,6 +1,6 @@
 package com.extremum.sharedmodels.spacetime;
 
-import com.extremum.sharedmodels.basic.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,7 +11,7 @@ import lombok.ToString;
 public class ComplexAddress {
     private Type type;
     private String string;
-    private MultilingualObject multilingual;
+    private StringOrMultilingual multilingual;
     private Address address;
 
     public ComplexAddress() {

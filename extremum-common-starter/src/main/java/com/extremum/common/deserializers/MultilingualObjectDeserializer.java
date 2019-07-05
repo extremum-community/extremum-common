@@ -1,7 +1,7 @@
 package com.extremum.common.deserializers;
 
 import com.extremum.common.exceptions.DeserializationException;
-import com.extremum.common.stucts.Multilingual;
+import com.extremum.common.stucts.MultilingualLanguage;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,12 +41,12 @@ public class MultilingualObjectDeserializer extends StdDeserializer<Multilingual
             }
 
             Map<String, String> errors = new HashMap<>();
-            Map<Multilingual, String> multilingualMap = new HashMap<>();
+            Map<MultilingualLanguage, String> multilingualMap = new HashMap<>();
 
             Iterator keysIterator = json.keys();
             while (keysIterator.hasNext()) {
                 String key = (String) keysIterator.next();
-                Multilingual multilingual = Multilingual.fromString(key);
+                MultilingualLanguage multilingual = MultilingualLanguage.fromString(key);
 
                 if (multilingual == null) {
                     errors.put(key, "Invalid language. Use RFC 5646");

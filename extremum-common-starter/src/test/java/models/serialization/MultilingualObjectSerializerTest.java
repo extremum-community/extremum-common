@@ -2,7 +2,7 @@ package models.serialization;
 
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
-import com.extremum.common.stucts.Multilingual;
+import com.extremum.common.stucts.MultilingualLanguage;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,9 +35,9 @@ public class MultilingualObjectSerializerTest {
         String expectedText_en = "The forest raised a christmas tree";
         String expectedLang_en = "en-US";
 
-        Map<Multilingual, String> map = new HashMap<>();
-        map.put(Multilingual.ru_RU, expectedText_ru);
-        map.put(Multilingual.en_US, expectedText_en);
+        Map<MultilingualLanguage, String> map = new HashMap<>();
+        map.put(MultilingualLanguage.ru_RU, expectedText_ru);
+        map.put(MultilingualLanguage.en_US, expectedText_en);
 
         MultilingualObject ml = new MultilingualObject(map);
         String json = mapper.writeValueAsString(ml);

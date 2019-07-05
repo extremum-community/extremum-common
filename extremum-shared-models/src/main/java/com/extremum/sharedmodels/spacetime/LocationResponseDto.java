@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.spacetime;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.basic.Status;
 import com.extremum.sharedmodels.fundamental.CommonResponseDto;
 import lombok.Getter;
@@ -21,8 +21,8 @@ public class LocationResponseDto extends CommonResponseDto {
     private Status status;
     private String slug;
     private String uri;
-    private MultilingualObject name;
-    private MultilingualObject description;
+    private StringOrMultilingual name;
+    private StringOrMultilingual description;
     private ComplexAddress address;
     private Coordinates coordinates;
     private List<Coordinates> boundary;

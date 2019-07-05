@@ -1,6 +1,6 @@
 package com.extremum.common.serializers;
 
-import com.extremum.common.stucts.Multilingual;
+import com.extremum.common.stucts.MultilingualLanguage;
 import com.extremum.common.stucts.MultilingualObject;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -22,7 +22,7 @@ public class MultilingualObjectSerializer extends StdSerializer<MultilingualObje
         } else if (value.type == MultilingualObject.Type.MAP) {
             gen.writeStartObject();
 
-            for (Map.Entry<Multilingual, String> entry : value.map.entrySet()) {
+            for (Map.Entry<MultilingualLanguage, String> entry : value.map.entrySet()) {
                 gen.writeStringField(entry.getKey().getValue(), entry.getValue());
             }
 
