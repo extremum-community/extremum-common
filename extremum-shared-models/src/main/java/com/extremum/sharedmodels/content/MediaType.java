@@ -1,4 +1,4 @@
-package com.extremum.common.stucts;
+package com.extremum.sharedmodels.content;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

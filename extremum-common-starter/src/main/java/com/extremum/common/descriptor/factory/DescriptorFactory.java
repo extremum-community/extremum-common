@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor.factory;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import org.apache.commons.lang3.StringUtils;
 
 public final class DescriptorFactory {

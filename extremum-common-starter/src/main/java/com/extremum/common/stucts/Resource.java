@@ -1,6 +1,7 @@
 package com.extremum.common.stucts;
 
 import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.sharedmodels.basic.MultilingualLanguage;
 
 import java.io.Serializable;
 

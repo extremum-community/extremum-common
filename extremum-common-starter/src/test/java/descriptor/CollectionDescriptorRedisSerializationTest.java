@@ -5,7 +5,7 @@ import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.CollectionDescriptorDaoFactory;

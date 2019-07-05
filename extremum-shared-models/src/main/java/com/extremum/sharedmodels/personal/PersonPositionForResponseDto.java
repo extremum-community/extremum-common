@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.personal;
 
-import com.extremum.common.stucts.IdOrObjectStruct;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.spacetime.LocationResponseDto;
 import com.extremum.sharedmodels.spacetime.TimeFrame;
 import lombok.Getter;
@@ -15,9 +15,9 @@ import lombok.ToString;
 @Setter
 @ToString
 public class PersonPositionForResponseDto {
-    private MultilingualObject company;
-    private MultilingualObject title;
-    private MultilingualObject description;
+    private StringOrMultilingual company;
+    private StringOrMultilingual title;
+    private StringOrMultilingual description;
     private TimeFrame timeframe;
     private IdOrObjectStruct<String, LocationResponseDto> location;
 }

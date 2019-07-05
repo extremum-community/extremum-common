@@ -1,6 +1,5 @@
 package com.extremum.sharedmodels.content;
 
-import com.extremum.common.stucts.Media;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;

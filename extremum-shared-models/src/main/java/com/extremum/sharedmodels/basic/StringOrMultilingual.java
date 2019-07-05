@@ -1,6 +1,5 @@
 package com.extremum.sharedmodels.basic;
 
-import com.extremum.common.stucts.MultilingualLanguage;
 import lombok.Data;
 
 import java.util.HashMap;

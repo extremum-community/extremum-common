@@ -1,9 +1,9 @@
 package models.deserialization;
 
-import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
-import com.extremum.common.stucts.MultilingualLanguage;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
+import com.extremum.sharedmodels.basic.MultilingualLanguage;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -15,36 +15,36 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class MultilingualObjectDeserializerTest {
+public class StringOrMultilingualDeserializerTest {
     private static final String PATH_TO_JSON = "json-files/";
     private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
     @Test
     public void deserializeSimpleTextTest() throws IOException {
         String json = TestUtils.loadAsStringFromResource(PATH_TO_JSON + "multilingual-text-simple.json");
-        MultilingualObject ml = mapper.readValue(json, MultilingualObject.class);
+        StringOrMultilingual ml = mapper.readValue(json, StringOrMultilingual.class);
 
         assertNotNull(ml);
-        assertEquals(MultilingualObject.Type.TEXT, ml.type);
-        assertEquals("В лесу родилась ёлочка", ml.text);
-        assertNull(ml.map);
+        assertEquals(StringOrMultilingual.Type.TEXT, ml.getType());
+        assertEquals("В лесу родилась ёлочка", ml.getText());
+        assertNull(ml.getMap());
     }
 
     @Test
     public void deserializeComplexObjectTest() throws IOException {
         String json = TestUtils.loadAsStringFromResource(PATH_TO_JSON + "multilingual-text-complex.json");
-        MultilingualObject ml = mapper.readValue(json, MultilingualObject.class);
+        StringOrMultilingual ml = mapper.readValue(json, StringOrMultilingual.class);
 
         assertNotNull(ml);
-        assertEquals(MultilingualObject.Type.MAP, ml.type);
-        assertNull(ml.text);
-        assertFalse(ml.map.isEmpty());
-        assertEquals(2, ml.map.size());
+        assertEquals(StringOrMultilingual.Type.MAP, ml.getType());
+        assertNull(ml.getText());
+        assertFalse(ml.getMap().isEmpty());
+        assertEquals(2, ml.getMap().size());
 
-        String ru_RU_text = ml.map.get(MultilingualLanguage.ru_RU);
+        String ru_RU_text = ml.getMap().get(MultilingualLanguage.ru_RU);
         assertEquals("В лесу родилась ёлочка", ru_RU_text);
 
-        String en_US_text = ml.map.get(MultilingualLanguage.en_US);
+        String en_US_text = ml.getMap().get(MultilingualLanguage.en_US);
         assertEquals("The forest raised a christmas tree", en_US_text);
     }
 }

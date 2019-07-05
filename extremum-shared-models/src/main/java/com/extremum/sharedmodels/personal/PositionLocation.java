@@ -1,6 +1,6 @@
 package com.extremum.sharedmodels.personal;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.time.ZonedDateTime;
 

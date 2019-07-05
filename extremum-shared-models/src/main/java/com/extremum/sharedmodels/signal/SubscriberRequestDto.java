@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.signal;
 
-import com.extremum.common.dto.RequestDto;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import com.extremum.sharedmodels.dto.RequestDto;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

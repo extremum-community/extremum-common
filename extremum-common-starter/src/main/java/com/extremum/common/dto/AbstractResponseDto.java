@@ -1,6 +1,7 @@
 package com.extremum.common.dto;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 

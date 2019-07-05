@@ -1,8 +1,8 @@
 package com.extremum.common.serializers;
 
-import com.extremum.common.stucts.Display;
-import com.extremum.common.stucts.Media;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.Media;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -27,7 +27,7 @@ public class DisplaySerializer extends StdSerializer<Display> {
             } else if (display.isObject()) {
                 gen.writeStartObject();
 
-                MultilingualObject caption = display.getCaption();
+                StringOrMultilingual caption = display.getCaption();
                 if (caption != null) {
                     gen.writeObjectField(Display.FIELDS.caption.name(), caption);
                 }

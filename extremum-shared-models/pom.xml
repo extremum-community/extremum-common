@@ -13,8 +13,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.extremum</groupId>
-            <artifactId>extremum-common-starter</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
         </dependency>
     </dependencies>
 

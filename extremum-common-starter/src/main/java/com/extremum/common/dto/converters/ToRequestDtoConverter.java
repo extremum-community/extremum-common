@@ -1,6 +1,6 @@
 package com.extremum.common.dto.converters;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.models.Model;
 
 public interface ToRequestDtoConverter<M extends Model, D extends RequestDto> extends DtoConverter {

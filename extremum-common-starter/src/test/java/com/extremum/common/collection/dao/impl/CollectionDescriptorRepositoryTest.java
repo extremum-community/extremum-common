@@ -1,7 +1,7 @@
 package com.extremum.common.collection.dao.impl;
 
 import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.common.uuid.StandardUUIDGenerator;

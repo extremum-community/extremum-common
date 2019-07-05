@@ -1,4 +1,4 @@
-package com.extremum.common.stucts;
+package com.extremum.sharedmodels.basic;
 
 
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package com.extremum.sharedmodels.personal;
 
-import com.extremum.common.stucts.Media;
 import com.extremum.sharedmodels.annotation.DocumentationName;
 import com.extremum.sharedmodels.basic.StringOrObject;
+import com.extremum.sharedmodels.content.Media;
 import com.extremum.sharedmodels.fundamental.CommonResponseDto;
 import com.extremum.sharedmodels.spacetime.CategorizedAddress;
 import lombok.AllArgsConstructor;

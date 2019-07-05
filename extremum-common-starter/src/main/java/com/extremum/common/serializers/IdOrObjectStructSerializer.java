@@ -1,6 +1,6 @@
 package com.extremum.common.serializers;
 
-import com.extremum.common.stucts.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IdOrObjectStruct;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;

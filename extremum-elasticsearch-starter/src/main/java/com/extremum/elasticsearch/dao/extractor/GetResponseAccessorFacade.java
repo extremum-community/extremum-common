@@ -1,6 +1,6 @@
 package com.extremum.elasticsearch.dao.extractor;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.get.GetResponse;

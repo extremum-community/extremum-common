@@ -1,11 +1,10 @@
 package com.extremum.common.descriptor.service;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface DescriptorService {
 

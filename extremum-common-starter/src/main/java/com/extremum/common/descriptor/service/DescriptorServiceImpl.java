@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor.service;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.uuid.UUIDGenerator;
 import lombok.RequiredArgsConstructor;

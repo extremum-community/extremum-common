@@ -1,6 +1,6 @@
 package com.extremum.sharedmodels.fundamental;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.annotation.DocumentationName;
 import lombok.Getter;
 import lombok.Setter;

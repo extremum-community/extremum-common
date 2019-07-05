@@ -1,6 +1,6 @@
 package descriptor;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import com.extremum.common.test.TestWithServices;
 import com.mongodb.client.model.Filters;

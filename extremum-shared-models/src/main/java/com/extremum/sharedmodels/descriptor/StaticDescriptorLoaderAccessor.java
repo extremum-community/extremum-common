@@ -1,4 +1,4 @@
-package com.extremum.common.descriptor.service;
+package com.extremum.sharedmodels.descriptor;
 
 /**
  * @author rpuch

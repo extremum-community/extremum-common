@@ -1,6 +1,7 @@
 package com.extremum.common.descriptor.service;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.DescriptorLoader;
 
 import java.util.Optional;
 

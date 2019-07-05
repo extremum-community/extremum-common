@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor.dao.impl;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;

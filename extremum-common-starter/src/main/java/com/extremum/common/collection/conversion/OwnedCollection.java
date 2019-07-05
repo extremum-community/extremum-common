@@ -1,8 +1,8 @@
 package com.extremum.common.collection.conversion;
 
 import com.extremum.common.collection.CollectionReference;
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.spacetime;
 
-import com.extremum.common.stucts.IntegerOrString;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import com.extremum.sharedmodels.basic.IntegerOrString;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

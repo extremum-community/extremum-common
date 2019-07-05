@@ -1,5 +1,6 @@
-package com.extremum.common.stucts;
+package com.extremum.sharedmodels.content;
 
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class Display implements Serializable {
     private String stringValue;
 
     @JsonProperty("caption")
-    private MultilingualObject caption;
+    private StringOrMultilingual caption;
 
     @JsonProperty("icon")
     private Media icon;
@@ -31,7 +32,7 @@ public class Display implements Serializable {
         stringValue = value;
     }
 
-    public Display(MultilingualObject caption, Media icon, Media splash) {
+    public Display(StringOrMultilingual caption, Media icon, Media splash) {
         type = Type.OBJECT;
         this.caption = caption;
         this.icon = icon;

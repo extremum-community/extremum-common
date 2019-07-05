@@ -1,10 +1,9 @@
 package com.extremum.common.deserializers;
 
 import com.extremum.common.exceptions.DeserializationException;
-import com.extremum.common.stucts.MultilingualLanguage;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.sharedmodels.basic.MultilingualLanguage;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -18,20 +17,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class MultilingualObjectDeserializer extends StdDeserializer<MultilingualObject> {
-    public MultilingualObjectDeserializer() {
-        super(MultilingualObject.class);
+public class StringOrMultilingualDeserializer extends StdDeserializer<StringOrMultilingual> {
+    public StringOrMultilingualDeserializer() {
+        super(StringOrMultilingual.class);
     }
 
     @Override
-    public MultilingualObject deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public StringOrMultilingual deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         TreeNode tree = p.getCodec().readTree(p);
 
-        MultilingualObject model = new MultilingualObject();
-
         if (tree instanceof TextNode) {
-            model = new MultilingualObject(((TextNode) tree).textValue());
-        } else if (tree instanceof ObjectNode) {
+            return new StringOrMultilingual(((TextNode) tree).textValue());
+        }
+
+        if (tree instanceof ObjectNode) {
             String nodeTextValue = tree.toString();
             JSONObject json;
             try {
@@ -63,11 +62,9 @@ public class MultilingualObjectDeserializer extends StdDeserializer<Multilingual
                 throw new DeserializationException(errors);
             }
 
-            model = new MultilingualObject(multilingualMap);
+            return new StringOrMultilingual(multilingualMap);
         } else {
-            throw new DeserializationException("MultilingualObject", "must be in a simple text format of multilingual object");
+            throw new DeserializationException("StringOrMultilingual", "must be in a simple text format of multilingual object");
         }
-
-        return model;
     }
 }

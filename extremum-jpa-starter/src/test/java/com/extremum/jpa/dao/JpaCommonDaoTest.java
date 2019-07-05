@@ -1,6 +1,6 @@
 package com.extremum.jpa.dao;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.TestWithServices;

@@ -1,5 +1,6 @@
-package com.extremum.common.stucts;
+package com.extremum.sharedmodels.content;
 
+import com.extremum.sharedmodels.basic.IntegerOrString;
 import lombok.Getter;
 import lombok.Setter;
 

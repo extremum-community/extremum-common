@@ -1,6 +1,6 @@
 package com.extremum.everything.services;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.dto.converters.DtoConverter;
 import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;

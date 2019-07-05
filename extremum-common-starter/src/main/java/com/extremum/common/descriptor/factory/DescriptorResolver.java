@@ -1,7 +1,7 @@
 package com.extremum.common.descriptor.factory;
 
-import com.extremum.common.annotation.UsesStaticDependencies;
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 
 /**
  * @author rpuch

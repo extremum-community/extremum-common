@@ -1,9 +1,9 @@
 package com.extremum.sharedmodels.spacetime;
 
-import com.extremum.common.dto.RequestDto;
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.basic.Status;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import com.extremum.sharedmodels.dto.RequestDto;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

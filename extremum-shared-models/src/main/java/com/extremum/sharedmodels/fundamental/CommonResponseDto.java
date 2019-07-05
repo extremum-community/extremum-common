@@ -1,8 +1,8 @@
 package com.extremum.sharedmodels.fundamental;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Setter;
 import lombok.ToString;
 

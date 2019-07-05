@@ -1,7 +1,7 @@
 package com.extremum.everything.support;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.Model;
 import lombok.RequiredArgsConstructor;

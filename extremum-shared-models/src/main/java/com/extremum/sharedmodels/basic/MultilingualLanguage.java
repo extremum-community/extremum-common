@@ -1,4 +1,4 @@
-package com.extremum.common.stucts;
+package com.extremum.sharedmodels.basic;
 
 /**
  * IETF language tags in the format defined by RFC 5646 (language-TERRITORY).

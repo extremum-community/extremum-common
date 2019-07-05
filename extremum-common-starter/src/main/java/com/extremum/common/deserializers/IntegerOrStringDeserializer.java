@@ -1,6 +1,6 @@
 package com.extremum.common.deserializers;
 
-import com.extremum.common.stucts.IntegerOrString;
+import com.extremum.sharedmodels.basic.IntegerOrString;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;

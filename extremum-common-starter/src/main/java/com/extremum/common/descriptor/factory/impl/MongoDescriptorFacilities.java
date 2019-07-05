@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor.factory.impl;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorResolver;
 import com.extremum.common.descriptor.factory.DescriptorSaver;

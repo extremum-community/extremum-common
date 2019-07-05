@@ -1,9 +1,7 @@
-package com.extremum.common.descriptor;
+package com.extremum.sharedmodels.descriptor;
 
-import com.extremum.common.annotation.UsesStaticDependencies;
-import com.extremum.common.descriptor.exceptions.DescriptorNotFoundException;
-import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessor;
-import com.extremum.common.stucts.Display;
+import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
+import com.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;

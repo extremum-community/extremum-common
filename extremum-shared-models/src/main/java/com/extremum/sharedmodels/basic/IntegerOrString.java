@@ -1,4 +1,4 @@
-package com.extremum.common.stucts;
+package com.extremum.sharedmodels.basic;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

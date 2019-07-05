@@ -1,7 +1,7 @@
 package com.extremum.starter;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.stucts.Display;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.content.Display;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;

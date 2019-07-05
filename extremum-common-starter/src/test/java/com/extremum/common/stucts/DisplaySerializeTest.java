@@ -1,7 +1,12 @@
 package com.extremum.common.stucts;
 
-import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
+import com.extremum.sharedmodels.basic.IntegerOrString;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.Media;
+import com.extremum.sharedmodels.content.MediaType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
@@ -54,7 +59,7 @@ public class DisplaySerializeTest {
         splash.setDuration(new IntegerOrString(10));
 
         Display display = new Display(
-                new MultilingualObject("caption value"),
+                new StringOrMultilingual("caption value"),
                 icon,
                 splash);
 

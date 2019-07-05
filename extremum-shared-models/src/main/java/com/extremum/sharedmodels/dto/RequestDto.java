@@ -1,4 +1,4 @@
-package com.extremum.common.dto;
+package com.extremum.sharedmodels.dto;
 
 /**
  * Base interface describes a request DTO

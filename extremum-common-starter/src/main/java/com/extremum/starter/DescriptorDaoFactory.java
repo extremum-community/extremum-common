@@ -1,6 +1,6 @@
 package com.extremum.starter;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.BaseDescriptorDaoImpl;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
