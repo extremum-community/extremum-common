@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class Address {
     private MultilingualObject string;
 
     @NotNull
-    private Locator locality;
+    private List<Locator> locality;
 
     public enum FIELDS {
         string, locality
