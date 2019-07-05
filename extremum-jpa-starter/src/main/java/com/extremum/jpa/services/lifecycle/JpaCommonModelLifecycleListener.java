@@ -2,8 +2,8 @@ package com.extremum.jpa.services.lifecycle;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.jpa.factory.PostgresqlDescriptorFacilities;
-import com.extremum.jpa.factory.StaticPostgresqlDescriptorFactoryAccessor;
+import com.extremum.jpa.facilities.PostgresqlDescriptorFacilities;
+import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFactoryAccessor;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -31,7 +31,7 @@ public class JpaCommonModelLifecycleListener {
     }
 
     private PostgresqlDescriptorFacilities descriptorFactory() {
-        return StaticPostgresqlDescriptorFactoryAccessor.getFactory();
+        return StaticPostgresqlDescriptorFactoryAccessor.getFacilities();
     }
 
     @PostPersist

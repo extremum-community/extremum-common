@@ -1,4 +1,4 @@
-package com.extremum.jpa.factory;
+package com.extremum.jpa.facilities;
 
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;

@@ -32,7 +32,7 @@ public class ElasticsearchRepositoriesConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
 
     @Bean
-    public ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory(DescriptorFactory descriptorFactory,
+    public ElasticsearchDescriptorFacilities elasticsearchDescriptorFacilities(DescriptorFactory descriptorFactory,
             DescriptorSaver descriptorSaver) {
         return new ElasticsearchDescriptorFacilities(descriptorFactory, descriptorSaver);
     }

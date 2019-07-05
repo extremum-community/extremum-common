@@ -1,4 +1,4 @@
-package com.extremum.jpa.factory;
+package com.extremum.jpa.facilities;
 
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
@@ -17,8 +17,8 @@ class StaticPostgresqlDescriptorFactoryAccessorTest {
     void test() {
         PostgresqlDescriptorFacilities factory = new PostgresqlDescriptorFacilities(new DescriptorFactory(), NOT_USED);
 
-        StaticPostgresqlDescriptorFactoryAccessor.setFactory(factory);
+        StaticPostgresqlDescriptorFactoryAccessor.setFacilities(factory);
 
-        assertThat(StaticPostgresqlDescriptorFactoryAccessor.getFactory(), is(factory));
+        assertThat(StaticPostgresqlDescriptorFactoryAccessor.getFacilities(), is(factory));
     }
 }

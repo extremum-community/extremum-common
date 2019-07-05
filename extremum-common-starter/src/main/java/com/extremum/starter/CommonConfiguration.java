@@ -170,7 +170,7 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public MongoDescriptorFacilities mongoDescriptorFactory(DescriptorFactory descriptorFactory,
+    public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
             DescriptorSaver descriptorSaver) {
         return new MongoDescriptorFacilities(descriptorFactory, descriptorSaver);
     }
