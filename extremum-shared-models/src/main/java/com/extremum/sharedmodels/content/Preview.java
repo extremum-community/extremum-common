@@ -12,14 +12,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class Preview {
     /**
-     * Timestamp of the Preview in ISO-8601 format (yyyy-MM-dd'T'HH:mm:ss.SSSZ).
-     */
-    private String timestamp;
-
-    /**
      * A plain text caption that represents the object.
      */
-
     @NotNull
     @NotEmpty
     private String caption;
