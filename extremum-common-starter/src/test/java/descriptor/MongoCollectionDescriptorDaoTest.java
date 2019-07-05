@@ -6,7 +6,7 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.test.TestWithServices;
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import org.bson.types.ObjectId;
@@ -29,12 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     @Autowired
     private CollectionDescriptorDao collectionDescriptorDao;
-
     @Autowired
     private CollectionDescriptorService collectionDescriptorService;
-
     @Autowired
     private CollectionDescriptorRepository collectionDescriptorRepository;
+    @Autowired
+    private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     @Test
     public void testRetrieveByExternalId() {
@@ -71,7 +71,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
 
     private String createADescriptor() {
         ObjectId objectId = new ObjectId();
-        Descriptor hostDescriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor hostDescriptor = mongoDescriptorFacilities.create(objectId, "test_model");
         return hostDescriptor.getExternalId();
     }
 

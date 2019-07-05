@@ -1,6 +1,8 @@
 package com.extremum.common.service.lifecycle;
 
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.models.MongoCommonModel;
+import com.extremum.common.utils.ModelUtils;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
@@ -10,13 +12,25 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
  * @author rpuch
  */
 public class MongoCommonModelLifecycleListener extends AbstractMongoEventListener<MongoCommonModel> {
+    private final MongoDescriptorFacilities mongoDescriptorFacilities;
+
+    public MongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
+        this.mongoDescriptorFacilities = mongoDescriptorFacilities;
+    }
+
     @Override
     public void onBeforeConvert(BeforeConvertEvent<MongoCommonModel> event) {
         super.onBeforeConvert(event);
 
         MongoCommonModel model = event.getSource();
 
-        model.fillRequiredFields();
+        fillRequiredFields(model);
+    }
+    
+    private void fillRequiredFields(MongoCommonModel model) {
+        if (model.getId() == null && model.getUuid() != null) {
+            model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
+        }
     }
 
     @Override
@@ -25,7 +39,14 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
         
         MongoCommonModel model = event.getSource();
 
-        model.createDescriptorIfNeeded();
+        createDescriptorIfNeeded(model);
+    }
+
+    private void createDescriptorIfNeeded(MongoCommonModel model) {
+        String name = ModelUtils.getModelName(model.getClass());
+        if (model.getUuid() == null) {
+            model.setUuid(mongoDescriptorFacilities.create(model.getId(), name));
+        }
     }
 
     @Override
@@ -34,6 +55,10 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
 
         MongoCommonModel model = event.getSource();
 
-        model.resolveDescriptor();
+        resolveDescriptor(model);
+    }
+    
+    private void resolveDescriptor(MongoCommonModel model) {
+        model.setUuid(mongoDescriptorFacilities.fromInternalId(model.getId()));
     }
 }

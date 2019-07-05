@@ -6,13 +6,13 @@ import com.extremum.common.collection.conversion.CollectionMakeupImpl;
 import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
+import com.extremum.common.descriptor.service.DescriptorLoader;
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
-import com.extremum.everything.services.defaultservices.*;
-import com.extremum.everything.support.*;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
@@ -30,7 +30,12 @@ import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
-import com.extremum.everything.services.management.*;
+import com.extremum.everything.services.defaultservices.*;
+import com.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
+import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
+import com.extremum.everything.services.management.EverythingCollectionManagementService;
+import com.extremum.everything.services.management.EverythingEverythingManagementService;
+import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -116,8 +121,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelDescriptors modelDescriptors(ModelClasses modelClasses) {
-        return new DefaultModelDescriptors(modelClasses);
+    public ModelDescriptors modelDescriptors(ModelClasses modelClasses, DescriptorService descriptorService) {
+        return new DefaultModelDescriptors(modelClasses, descriptorService);
     }
 
     @Bean

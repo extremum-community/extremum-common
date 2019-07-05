@@ -9,10 +9,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DefaultModelDescriptors implements ModelDescriptors {
     private final ModelClasses modelClasses;
+    private final DescriptorService descriptorService;
 
     @Override
     public <M extends Model> Class<M> getModelClassByDescriptorId(String internalId) {
-        Descriptor descriptor = DescriptorService.loadByInternalId(internalId)
+        Descriptor descriptor = descriptorService.loadByInternalId(internalId)
                 .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
 
         return modelClasses.getClassByModelName(descriptor.getModelType());

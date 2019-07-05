@@ -3,7 +3,7 @@ package descriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.DescriptorDaoFactory;
 import com.extremum.starter.properties.DescriptorsProperties;
@@ -32,6 +32,8 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     private RedisProperties redisProperties;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
+    @Autowired
+    private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -69,7 +71,7 @@ class DescriptorRedisSerializationTest extends TestWithServices {
 
     private Descriptor createADescriptor() {
         ObjectId objectId = new ObjectId();
-        return MongoDescriptorFactory.create(objectId, "test_model");
+        return mongoDescriptorFacilities.create(objectId, "test_model");
     }
 
 }

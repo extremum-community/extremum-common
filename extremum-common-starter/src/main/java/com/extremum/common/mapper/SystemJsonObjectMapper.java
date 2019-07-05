@@ -12,7 +12,7 @@ public class SystemJsonObjectMapper extends BasicJsonObjectMapper {
     public SystemJsonObjectMapper(MapperDependencies dependencies) {
         this.dependencies = dependencies;
 
-        registerModule(new DescriptorsModule());
+        registerModule(new DescriptorsModule(dependencies));
         registerModule(new CollectionDescriptorsModule(dependencies));
     }
 

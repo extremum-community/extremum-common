@@ -3,19 +3,21 @@ package com.extremum.everything.services.management;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.Descriptor.StorageType;
-import com.extremum.common.descriptor.dao.DescriptorDao;
+import com.extremum.common.descriptor.service.DBDescriptorLoader;
+import com.extremum.common.descriptor.service.DescriptorLoader;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
-import com.extremum.everything.MockedMapperDependencies;
-import com.extremum.everything.services.defaultservices.*;
-import com.extremum.everything.support.*;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
+import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
+import com.extremum.everything.services.defaultservices.*;
+import com.extremum.everything.support.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.google.common.collect.ImmutableList;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,23 +59,25 @@ class EverythingServicesTest {
     @Mock
     private MongoCommonDao<MongoModelWithoutServices> commonDaoForModelWithoutServices;
     @Mock
-    private DescriptorDao descriptorDao;
+    private DescriptorService descriptorService;
     @Spy
     private RemovalService mongoWithServicesRemovalService = new MongoWithServicesRemovalService();
     @Spy
     private PatcherService<MongoModelWithServices> mongoWithServicesPatcherService
             = new MongoWithServicesPatcherService(dtoConversionService, objectMapper);
+    @InjectMocks
+    private DBDescriptorLoader descriptorLoader;
 
-    private DescriptorDao oldDescriptorDao;
+    private DescriptorLoader oldDescriptorLoader;
 
     private final Descriptor descriptor = new Descriptor("external-id");
     private final ObjectId objectId = new ObjectId();
     private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
 
     @BeforeEach
-    void initDescriptorDao() {
-        oldDescriptorDao = DescriptorService.getDescriptorDao();
-        DescriptorService.setDescriptorDao(descriptorDao);
+    void initDescriptorLoader() {
+        oldDescriptorLoader = StaticDescriptorLoaderAccessor.getDescriptorLoader();
+        StaticDescriptorLoaderAccessor.setDescriptorLoader(descriptorLoader);
     }
 
     @BeforeEach
@@ -85,7 +90,7 @@ class EverythingServicesTest {
                 MongoModelWithServices.class.getSimpleName(), MongoModelWithServices.class,
                 MongoModelWithoutServices.class.getSimpleName(), MongoModelWithoutServices.class
         ));
-        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses);
+        ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
 
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
@@ -106,8 +111,8 @@ class EverythingServicesTest {
     }
 
     @AfterEach
-    void restoreDescriptorDao() {
-        DescriptorService.setDescriptorDao(oldDescriptorDao);
+    void restoreDescriptorLoader() {
+        StaticDescriptorLoaderAccessor.setDescriptorLoader(oldDescriptorLoader);
     }
 
     @Test
@@ -126,7 +131,7 @@ class EverythingServicesTest {
 
     private void whenGetDescriptorByExternalIdThenReturnOne(String modelName) {
         Descriptor descriptor = buildDescriptor(modelName);
-        when(descriptorDao.retrieveByExternalId("external-id")).thenReturn(Optional.of(descriptor));
+        when(descriptorService.loadByExternalId("external-id")).thenReturn(Optional.of(descriptor));
     }
 
     private Descriptor buildDescriptor(String modelName) {
@@ -152,7 +157,7 @@ class EverythingServicesTest {
 
     private void whenGetDescriptorByInternalIdThenReturnOne(String modelName) {
         Descriptor descriptor = buildDescriptor(modelName);
-        when(descriptorDao.retrieveByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
+        when(descriptorService.loadByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
     }
     
     private void assertThatDtoIsForModelWithoutServices(ResponseDto dto) {

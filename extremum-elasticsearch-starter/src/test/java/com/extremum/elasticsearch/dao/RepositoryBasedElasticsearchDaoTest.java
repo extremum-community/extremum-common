@@ -54,6 +54,8 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     private TestElasticsearchModelDao dao;
     @Autowired
     private ElasticsearchProperties elasticsearchProperties;
+    @Autowired
+    private DescriptorService descriptorService;
 
     private TestElasticsearchClient client;
 
@@ -596,10 +598,10 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         return Arrays.asList(notDeleted, deleted);
     }
 
-    private static TestElasticsearchModel createModelWithExternalDescriptor() {
+    private TestElasticsearchModel createModelWithExternalDescriptor() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.ELASTICSEARCH)

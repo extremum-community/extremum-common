@@ -4,14 +4,23 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import com.extremum.common.descriptor.factory.DescriptorFactory;
+import com.extremum.common.descriptor.service.DescriptorLoader;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.descriptor.service.DescriptorServiceConfigurator;
+import com.extremum.common.descriptor.factory.DescriptorSaver;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
+import com.extremum.common.descriptor.service.DBDescriptorLoader;
+import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.descriptor.service.DescriptorServiceImpl;
+import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessorConfigurator;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
-import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.MapperDependenciesImpl;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.MongoProperties;
 import com.extremum.starter.properties.RedisProperties;
@@ -90,6 +99,11 @@ public class CommonConfiguration {
     }
 
     @Bean
+    public UUIDGenerator uuidGenerator() {
+        return new StandardUUIDGenerator();
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
         return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
@@ -98,8 +112,21 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorServiceConfigurator configurator(DescriptorDao descriptorDao) {
-        return new DescriptorServiceConfigurator(descriptorDao);
+    public DescriptorService descriptorService(DescriptorDao descriptorDao, UUIDGenerator uuidGenerator) {
+        return new DescriptorServiceImpl(descriptorDao, uuidGenerator);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DescriptorLoader descriptorLoader(DescriptorService descriptorService) {
+        return new DBDescriptorLoader(descriptorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public StaticDescriptorLoaderAccessorConfigurator staticDescriptorLoaderAccessorConfigurator(
+            DescriptorLoader descriptorLoader) {
+        return new StaticDescriptorLoaderAccessorConfigurator(descriptorLoader);
     }
 
     @Bean
@@ -118,8 +145,9 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public MapperDependencies mapperDependencies(CollectionDescriptorService collectionDescriptorService) {
-        return new MapperDependenciesImpl(collectionDescriptorService);
+    public MapperDependencies mapperDependencies(DescriptorFactory descriptorFactory,
+            CollectionDescriptorService collectionDescriptorService) {
+        return new MapperDependenciesImpl(descriptorFactory, collectionDescriptorService);
     }
 
     @Bean
@@ -129,7 +157,27 @@ public class CommonConfiguration {
     }
 
     @Bean
-    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener() {
-        return new MongoCommonModelLifecycleListener();
+    @ConditionalOnMissingBean
+    public DescriptorFactory descriptorFactory() {
+        return new DescriptorFactory();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DescriptorSaver descriptorSaver(DescriptorService descriptorService) {
+        return new DescriptorSaver(descriptorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
+            DescriptorSaver descriptorSaver) {
+        return new MongoDescriptorFacilities(descriptorFactory, descriptorSaver);
+    }
+
+    @Bean
+    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener(
+            MongoDescriptorFacilities mongoDescriptorFacilities) {
+        return new MongoCommonModelLifecycleListener(mongoDescriptorFacilities);
     }
 }

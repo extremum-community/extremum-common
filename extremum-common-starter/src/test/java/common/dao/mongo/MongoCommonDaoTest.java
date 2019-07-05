@@ -41,6 +41,8 @@ class MongoCommonDaoTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestMongoModelDao dao;
+    @Autowired
+    private DescriptorService descriptorService;
 
     @Test
     void testCreateModel() {
@@ -69,7 +71,7 @@ class MongoCommonDaoTest extends TestWithServices {
     void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestMongoModel> modelList = Stream
-                .generate(MongoCommonDaoTest::getTestModel)
+                .generate(this::getTestModel)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
 
@@ -363,10 +365,10 @@ class MongoCommonDaoTest extends TestWithServices {
         return model;
     }
 
-    private static TestMongoModel getTestModel() {
+    private TestMongoModel getTestModel() {
         TestMongoModel model = new TestMongoModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.MONGO)

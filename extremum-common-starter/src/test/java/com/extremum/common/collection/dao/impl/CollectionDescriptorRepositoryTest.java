@@ -4,6 +4,8 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Filters;
@@ -36,20 +38,24 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
     private CollectionDescriptorRepository repository;
 
     @Autowired
+    private DescriptorService descriptorService;
+    @Autowired
     private MongoClient mongoClient;
     @Autowired
     private MongoProperties mongoProperties;
+
+    private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
 
     @Test
     void whenCollectionDescriptorIsSaved_thenANewDocumentShouldAppearInMongo() {
         String internalId = new ObjectId().toString();
         Descriptor hostId = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
                 .build();
-        DescriptorService.store(hostId);
+        descriptorService.store(hostId);
 
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "the-field");
 

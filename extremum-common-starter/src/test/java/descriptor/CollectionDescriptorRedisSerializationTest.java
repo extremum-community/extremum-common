@@ -6,7 +6,7 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.CollectionDescriptorDaoFactory;
 import com.extremum.starter.properties.DescriptorsProperties;
@@ -40,6 +40,8 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
     private RedisProperties redisProperties;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
+    @Autowired
+    private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     private CollectionDescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -95,7 +97,7 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
 
     private String createADescriptor() {
         ObjectId objectId = new ObjectId();
-        Descriptor hostDescriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor hostDescriptor = mongoDescriptorFacilities.create(objectId, "test_model");
         return hostDescriptor.getExternalId();
     }
 }

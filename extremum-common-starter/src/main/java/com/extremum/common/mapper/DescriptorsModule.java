@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * @author rpuch
  */
 public class DescriptorsModule extends SimpleModule {
-    public DescriptorsModule() {
+    public DescriptorsModule(MapperDependencies dependencies) {
         addSerializer(Descriptor.class, new ToStringSerializer());
-        addDeserializer(Descriptor.class, new DescriptorDeserializer());
+        addDeserializer(Descriptor.class, new DescriptorDeserializer(dependencies.descriptorFactory()));
     }
 }
