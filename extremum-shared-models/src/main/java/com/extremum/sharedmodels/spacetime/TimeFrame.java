@@ -25,16 +25,6 @@ public class TimeFrame {
     private IntegerOrString duration;
 
     public enum FIELDS {
-        START("start"), END("end");
-
-        private final String value;
-
-        FIELDS(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
+        start, end, duration
     }
 }
