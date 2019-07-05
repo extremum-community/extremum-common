@@ -8,12 +8,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -23,12 +17,11 @@ import java.util.Objects;
 @Getter
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Document("descriptor-identifiers")
 public class Descriptor implements Serializable {
-    @Id
+    public static final String COLLECTION = "descriptor-identifiers";
+
     @JsonProperty("externalId")
     private String externalId;
-    @Indexed
     @JsonProperty("internalId")
     private String internalId;
     @JsonProperty("modelType")
@@ -37,12 +30,9 @@ public class Descriptor implements Serializable {
     private StorageType storageType;
 
     @JsonProperty("created")
-    @CreatedDate
     private ZonedDateTime created;
     @JsonProperty("modified")
-    @LastModifiedDate
     private ZonedDateTime modified;
-    @Version
     @JsonProperty("version")
     private Long version;
 
