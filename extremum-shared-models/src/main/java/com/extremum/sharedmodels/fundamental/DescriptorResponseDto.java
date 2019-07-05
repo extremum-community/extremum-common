@@ -5,6 +5,8 @@ import com.extremum.sharedmodels.annotation.DocumentationName;
 import com.extremum.sharedmodels.content.Preview;
 import lombok.Data;
 
+import java.time.ZonedDateTime;
+
 /**
  * An object descriptior represents some Object referenced by an attribute in another Object. The descriptor has the
  * id and url that allow to fetch the referenced object, plus it also contains display attributes that allow to build
@@ -27,6 +29,16 @@ public class DescriptorResponseDto<T> {
      * The URL of the described object, which should be used for fetching its contents.
      */
     private String url;
+
+    /**
+     * The model that specifies the structure of the object referenced and described by the Descriptor.
+     */
+    private String model;
+
+    /**
+     * Timestamp of the Descriptor in ISO-8601 format YYYY-MM-DD'T'hh:mm:ss.ffffffZ.
+     */
+    private ZonedDateTime timestamp;
 
     /**
      * Some descriptive information that represents the object referenced and described by the ViewDescriptor.
