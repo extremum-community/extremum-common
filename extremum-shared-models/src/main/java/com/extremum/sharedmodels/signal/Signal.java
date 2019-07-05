@@ -1,5 +1,6 @@
 package com.extremum.sharedmodels.signal;
 
+import com.extremum.common.descriptor.Descriptor;
 import com.extremum.sharedmodels.annotation.DocumentationName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -14,11 +15,10 @@ import java.time.ZonedDateTime;
 public class Signal {
     public static final String MODEL_NAME = "Signal";
 
+    private Descriptor id;
+
     @JsonProperty("sent")
     private ZonedDateTime sent = ZonedDateTime.now();
-
-    @JsonProperty("locale")
-    private String locale;
 
     @JsonProperty("type")
     private String type;
@@ -38,6 +38,6 @@ public class Signal {
     private Object data;
 
     public enum FIELDS {
-        sent, locale, type, initiated, clue, data
+        id, sent, type, initiated, effective, clue, data
     }
 }
