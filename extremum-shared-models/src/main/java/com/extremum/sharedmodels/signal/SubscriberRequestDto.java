@@ -2,6 +2,9 @@ package com.extremum.sharedmodels.signal;
 
 import com.extremum.common.dto.RequestDto;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -9,12 +12,15 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 
+@Getter
+@Setter
+@ToString
 @DocumentationName("Subscriber")
 public class SubscriberRequestDto implements RequestDto {
     @NotNull @NotEmpty
-    public String name;
+    private String name;
     @NotNull @Size(min = 1)
-    public Set<String> signals;
+    private Set<String> signals;
     @NotNull @NotEmpty
-    public String url;
+    private String url;
 }

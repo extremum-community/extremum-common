@@ -4,21 +4,27 @@ import com.extremum.common.dto.RequestDto;
 import com.extremum.sharedmodels.annotation.DocumentationName;
 import com.extremum.sharedmodels.basic.MultilingualObject;
 import com.extremum.sharedmodels.basic.Status;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.Valid;
 import java.util.List;
 
+@Getter
+@Setter
+@ToString
 @DocumentationName("Location")
 public class LocationRequestDto implements RequestDto {
-    public String type;
-    public Status status;
-    public String slug;
-    public String uri;
-    public MultilingualObject name;
-    public MultilingualObject description;
-    public ComplexAddress address;
+    private String type;
+    private Status status;
+    private String slug;
+    private String uri;
+    private MultilingualObject name;
+    private MultilingualObject description;
+    private ComplexAddress address;
     @Valid
-    public Coordinates coordinates;
+    private Coordinates coordinates;
     @Valid
-    public List<Coordinates> boundary;
+    private List<Coordinates> boundary;
 }

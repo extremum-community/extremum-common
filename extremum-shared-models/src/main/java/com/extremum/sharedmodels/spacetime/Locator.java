@@ -4,12 +4,14 @@ import com.extremum.sharedmodels.annotation.DocumentationName;
 import com.extremum.sharedmodels.basic.MultilingualObject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Data;
 
+@Data
 @DocumentationName("Locator")
 public class Locator {
-    public String code;
-    public Type type;
-    public MultilingualObject name;
+    private String code;
+    private Type type;
+    private MultilingualObject name;
     
     public enum Type {
         POSTCODE("postcode"),

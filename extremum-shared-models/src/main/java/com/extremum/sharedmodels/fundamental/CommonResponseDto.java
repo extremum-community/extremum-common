@@ -3,30 +3,34 @@ package com.extremum.sharedmodels.fundamental;
 import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.dto.ResponseDto;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.ZonedDateTime;
 
+@Setter
+@ToString
 @DocumentationName("Object")
 public abstract class CommonResponseDto implements ResponseDto {
     /**
      * The unique ID of the object
      */
-    public Descriptor id;
+    private Descriptor id;
 
     /**
      * Date/time of object creation in ISO-8601 format (yyyy-MM-dd'T'HH:mm:ss.SSSZ)
      */
-    public ZonedDateTime created;
+    private ZonedDateTime created;
 
     /**
      * Date/time of object's last modification in ISO-8601 format (yyyy-MM-dd'T'HH:mm:ss.SSSZ)
      */
-    public ZonedDateTime modified;
+    private ZonedDateTime modified;
 
     /**
      * The object's version
      */
-    public Long version;
+    private Long version;
 
     @Override
     public Descriptor getId() {

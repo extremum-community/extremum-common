@@ -2,17 +2,19 @@ package com.extremum.sharedmodels.basic;
 
 import com.extremum.common.stucts.Multilingual;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Data
 @DocumentationName("Multilingual")
 public class MultilingualObject {
-    public Type type;
-    public String text;
-    public Map<Multilingual, String> map;
+    private Type type;
+    private String text;
+    private Map<Multilingual, String> map;
 
-    public MultilingualObject(Type type, String text, Map<Multilingual, String> map) {
+    private MultilingualObject(Type type, String text, Map<Multilingual, String> map) {
         this.type = type;
         this.text = text;
         this.map = map;

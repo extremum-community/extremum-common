@@ -2,6 +2,7 @@ package com.extremum.sharedmodels.spacetime;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
@@ -9,35 +10,36 @@ import java.time.ZonedDateTime;
 /**
  * Created by vov4a on 07.09.17.
  */
+@Data
 @DocumentationName("Position")
 public class Position {
 
     @NotNull
     @JsonProperty("timestamp")
-    public ZonedDateTime timestamp;
+    private ZonedDateTime timestamp;
 
     @NotNull
     @JsonProperty("latitude")
-    public Number latitude;
+    private Number latitude;
 
     @NotNull
     @JsonProperty("longitude")
-    public Number longitude;
+    private Number longitude;
 
     @JsonProperty("accuracy")
-    public Number accuracy;
+    private Number accuracy;
 
     @JsonProperty("altitude")
-    public Number altitude;
+    private Number altitude;
 
     @JsonProperty("altitudeAccuracy")
-    public Number altitudeAccuracy;
+    private Number altitudeAccuracy;
 
     @JsonProperty("heading")
-    public Number heading;
+    private Number heading;
 
     @JsonProperty("speed")
-    public Number speed;
+    private Number speed;
 
     public enum FIELDS {
         timestamp, latitude, longitude, accuracy, altitude, altitudeAccuracy, heading, speed
