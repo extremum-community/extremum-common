@@ -35,6 +35,7 @@ class CustomCollectionMappingMongoMappingContext extends MongoMappingContext {
         if (typeInformation.getType() == Descriptor.class) {
             return new CustomCollectionMappingMongoPersistentEntity<>(typeInformation);
         }
+        
         return super.createPersistentEntity(typeInformation);
     }
 
@@ -45,29 +46,26 @@ class CustomCollectionMappingMongoMappingContext extends MongoMappingContext {
             return new CachingMongoPersistentProperty(property, owner, simpleTypeHolder, fieldNamingStrategy) {
                 @Override
                 public <A extends Annotation> A findAnnotation(Class<A> annotationType) {
-                    return AnnotatedElementUtils.findMergedAnnotation(findMirrorField(), annotationType);
+                    Field mirrorField = findDescriptorMirrorField(property);
+                    return AnnotatedElementUtils.findMergedAnnotation(mirrorField, annotationType);
                 }
 
                 @Override
                 public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
                     return findAnnotation(annotationType) != null;
                 }
-
-                @Override
-                public <A extends Annotation> A findPropertyOrOwnerAnnotation(Class<A> annotationType) {
-                    return super.findPropertyOrOwnerAnnotation(annotationType);
-                }
-
-                private Field findMirrorField() {
-                    try {
-                        return DescriptorMirror.class.getDeclaredField(property.getName());
-                    } catch (NoSuchFieldException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
             };
         }
+
         return super.createPersistentProperty(property, owner, simpleTypeHolder);
+    }
+
+    private Field findDescriptorMirrorField(Property property) {
+        try {
+            return DescriptorMirror.class.getDeclaredField(property.getName());
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class CustomCollectionMappingMongoPersistentEntity<T> extends BasicMongoPersistentEntity<T> {
