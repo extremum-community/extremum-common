@@ -65,72 +65,67 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     private static final String ANALYZER_KEYWORD = "keyword";
 
-    private RestClientBuilder restClientBuilder;
+    private final RestClientBuilder restClientBuilder;
     private final DescriptorService descriptorService;
-    private ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory;
+    private final ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory;
 
-    private final ElasticsearchProperties elasticProps;
     private final ObjectMapper mapper;
     private final String indexName;
     private final String indexType;
 
-    private Class<? extends Model> modelClass;
+    private final Class<? extends Model> modelClass;
 
-    public DefaultElasticsearchCommonDao(Class<Model> modelClass, ElasticsearchProperties elasticsearchProperties,
+    protected DefaultElasticsearchCommonDao(Class<Model> modelClass, ElasticsearchProperties elasticsearchProperties,
             DescriptorService descriptorService,
             ElasticsearchDescriptorFacilities descriptorFactory, ObjectMapper mapper, String indexName,
             String indexType) {
         this.modelClass = modelClass;
-        this.elasticProps = elasticsearchProperties;
         this.descriptorService = descriptorService;
         this.elasticsearchDescriptorFactory = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
 
-        initRest();
+        restClientBuilder = initRest(elasticsearchProperties);
     }
 
     protected DefaultElasticsearchCommonDao(ElasticsearchProperties elasticsearchProperties,
             DescriptorService descriptorService,
             ElasticsearchDescriptorFacilities descriptorFactory,
             ObjectMapper mapper, String indexName, String indexType) {
-        this.elasticProps = elasticsearchProperties;
         this.descriptorService = descriptorService;
         this.elasticsearchDescriptorFactory = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
 
-        initRest();
-        initModelClass();
+        restClientBuilder = initRest(elasticsearchProperties);
+        this.modelClass = (Class<Model>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
-    private void initModelClass() {
-        modelClass = (Class<Model>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-    }
-
-    protected void initRest() {
-        if (CollectionUtils.isNullOrEmpty(elasticProps.getHosts())) {
+    private static RestClientBuilder initRest(ElasticsearchProperties properties) {
+        if (CollectionUtils.isNullOrEmpty(properties.getHosts())) {
             log.error("Unable to configure {} because list of hosts is empty", RestClientBuilder.class.getName());
             throw new RuntimeException("Unable to configure " + RestClientBuilder.class.getName() +
                     " because list of hosts is empty");
         }
 
-        List<HttpHost> httpHosts = elasticProps.getHosts().stream()
+        List<HttpHost> httpHosts = properties.getHosts().stream()
                 .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
                 .collect(Collectors.toList());
 
-        this.restClientBuilder = RestClient.builder(httpHosts.toArray(new HttpHost[]{}));
+        RestClientBuilder restClientBuilder = RestClient.builder(httpHosts.toArray(new HttpHost[]{}));
 
-        if (elasticProps.getUsername() != null && elasticProps.getPassword() != null) {
+        if (properties.getUsername() != null && properties.getPassword() != null) {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY,
-                    new UsernamePasswordCredentials(elasticProps.getUsername(), elasticProps.getPassword()));
+                    new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword()));
 
-            this.restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
+            restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
                     httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         }
+
+        return restClientBuilder;
     }
 
     private RestHighLevelClient getClient() {
