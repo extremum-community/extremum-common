@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.time.ZonedDateTime;
-import java.util.Set;
 
 @DocumentationName("Signal")
 public class Signal {
@@ -34,9 +33,7 @@ public class Signal {
     @JsonProperty("data")
     public Object data;
 
-    public Set<String> personages;
-
     public enum FIELDS {
-        sent, locale, type, initiated, clue, data, personages
+        sent, locale, type, initiated, clue, data
     }
 }
