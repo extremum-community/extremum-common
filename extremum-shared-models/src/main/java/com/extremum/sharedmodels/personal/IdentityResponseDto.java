@@ -20,7 +20,7 @@ public class IdentityResponseDto extends CommonResponseDto {
     private boolean verified;
     private Locale locale;
     private String timezone;
-    private IdOrObjectStruct<Descriptor, Person> person;
+    private IdOrObjectStruct<Descriptor, PersonResponseDto> person;
 
     @Override
     public String getModel() {

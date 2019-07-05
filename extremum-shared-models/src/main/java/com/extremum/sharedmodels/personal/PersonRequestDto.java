@@ -1,10 +1,10 @@
 package com.extremum.sharedmodels.personal;
 
-import com.extremum.common.stucts.IdOrObjectStruct;
+import com.extremum.common.dto.RequestDto;
 import com.extremum.common.stucts.Media;
 import com.extremum.sharedmodels.annotation.DocumentationName;
+import com.extremum.sharedmodels.basic.StringOrObject;
 import com.extremum.sharedmodels.spacetime.CategorizedAddress;
-import com.extremum.sharedmodels.spacetime.Position;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @DocumentationName("Person")
-public class Person {
-    private IdOrObjectStruct<String, Name> name;
+public class PersonRequestDto implements RequestDto {
+    private StringOrObject<Name> name;
     private Gender gender;
     private int age;
     private Birth birth;
@@ -27,7 +27,7 @@ public class Person {
     private String hometown;
     private List<CategorizedAddress> addresses;
     private List<Contact> contacts;
-    private List<Position> positions;
+    private List<PersonPositionForRequestDto> positions;
     private String relationship;
     private List<Media> images;
     private List<Object> documents;
