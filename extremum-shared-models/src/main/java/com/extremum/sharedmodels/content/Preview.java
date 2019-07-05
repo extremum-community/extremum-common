@@ -1,8 +1,8 @@
 package com.extremum.sharedmodels.content;
 
 import com.extremum.common.stucts.Media;
-import com.extremum.sharedmodels.annotation.NotEmpty;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
