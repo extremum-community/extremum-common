@@ -20,7 +20,7 @@ public abstract class UUIDDescriptorFacilities {
     public abstract Descriptor.StorageType storageType();
 
     public Descriptor create(UUID uuid, String modelType) {
-        return descriptorSaver.create(uuid.toString(), modelType, storageType());
+        return descriptorSaver.createAndSave(uuid.toString(), modelType, storageType());
     }
 
     public Descriptor fromInternalId(UUID uuid) {

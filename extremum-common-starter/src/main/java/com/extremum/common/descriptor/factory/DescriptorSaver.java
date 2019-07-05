@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public class DescriptorSaver {
     private final DescriptorService descriptorService;
 
-    public Descriptor create(String internalId, String modelType, Descriptor.StorageType storageType) {
+    public Descriptor createAndSave(String internalId, String modelType, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .internalId(internalId)

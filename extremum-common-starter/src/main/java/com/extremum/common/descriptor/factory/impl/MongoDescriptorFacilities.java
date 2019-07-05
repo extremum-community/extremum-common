@@ -18,7 +18,7 @@ public final class MongoDescriptorFacilities {
     private final DescriptorSaver descriptorSaver;
 
     public Descriptor create(ObjectId id, String modelType) {
-        return descriptorSaver.create(id.toString(), modelType, STORAGE_TYPE);
+        return descriptorSaver.createAndSave(id.toString(), modelType, STORAGE_TYPE);
     }
 
     public Descriptor fromInternalId(ObjectId internalId) {

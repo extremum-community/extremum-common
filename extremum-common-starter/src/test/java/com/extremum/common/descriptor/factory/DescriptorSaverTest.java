@@ -32,7 +32,7 @@ class DescriptorSaverTest {
     void whenCreatingADescriptor_thenCorrectDataShouldBeSavedWithDescriptorService() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
 
-        descriptorSaver.create("internal-id", "Test", Descriptor.StorageType.MONGO);
+        descriptorSaver.createAndSave("internal-id", "Test", Descriptor.StorageType.MONGO);
 
         verify(descriptorService).store(descriptorCaptor.capture());
         Descriptor savedDescriptor = descriptorCaptor.getValue();
