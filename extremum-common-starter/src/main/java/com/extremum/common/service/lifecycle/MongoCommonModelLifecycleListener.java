@@ -3,6 +3,7 @@ package com.extremum.common.service.lifecycle;
 import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
@@ -29,6 +30,11 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
     
     private void fillRequiredFields(MongoCommonModel model) {
         if (model.getId() == null && model.getUuid() != null) {
+            model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
+        } else if (model.getUuid() == null) {
+            String modelName = ModelUtils.getModelName(model);
+            Descriptor descriptor = mongoDescriptorFacilities.createWithNewInternalId(modelName);
+            model.setUuid(descriptor);
             model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
         }
     }
