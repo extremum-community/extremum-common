@@ -2,6 +2,8 @@ package com.extremum.common.descriptor.factory.impl;
 
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ReflectionUtils;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
@@ -13,9 +15,11 @@ import java.util.UUID;
  * @author rpuch
  */
 public class InMemoryDescriptorService implements DescriptorService {
+    private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
+
     @Override
     public String createExternalId() {
-        return UUID.randomUUID().toString();
+        return uuidGenerator.generateUUID();
     }
 
     @Override
