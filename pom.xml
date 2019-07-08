@@ -76,9 +76,9 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                </rule>
+                            <rule>
+                                <element>BUNDLE</element>
+                            </rule>
                             </rules>
                         </configuration>
                     </execution>

@@ -43,17 +43,9 @@
                 <configuration>
                     <rules>
                         <rule>
-                            <element>BUNDLE</element>
                             <limits>
                                 <limit>
-                                    <counter>INSTRUCTION</counter>
-                                    <value>COVEREDRATIO</value>
                                     <minimum>0.57</minimum>
-                                </limit>
-                                <limit>
-                                    <counter>CLASS</counter>
-                                    <value>MISSEDCOUNT</value>
-                                    <maximum>2</maximum>
                                 </limit>
                             </limits>
                         </rule>
