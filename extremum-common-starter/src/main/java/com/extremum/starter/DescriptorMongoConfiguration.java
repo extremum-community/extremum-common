@@ -99,7 +99,7 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     public MongoMappingContext mongoMappingContext() {
-        return new CustomCollectionMappingMongoMappingContext();
+        return new CustomCollectionMappingContext();
     }
 
 }

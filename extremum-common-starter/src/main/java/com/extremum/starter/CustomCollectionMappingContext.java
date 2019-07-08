@@ -21,7 +21,7 @@ import java.time.ZonedDateTime;
 /**
  * @author rpuch
  */
-class CustomCollectionMappingMongoMappingContext extends MongoMappingContext {
+class CustomCollectionMappingContext extends MongoMappingContext {
     private FieldNamingStrategy fieldNamingStrategy;
 
     @Override
