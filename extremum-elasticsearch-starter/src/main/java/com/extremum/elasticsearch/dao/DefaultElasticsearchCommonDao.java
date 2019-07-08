@@ -318,7 +318,8 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         if (model.getUuid() != null) {
             return model.getUuid();
         } else {
-            Descriptor descriptor = elasticsearchDescriptorFactory.create(UUID.randomUUID(), name);
+            UUID internalId = UUID.randomUUID();
+            Descriptor descriptor = elasticsearchDescriptorFactory.create(internalId, name);
             return descriptorService.store(descriptor);
         }
     }
