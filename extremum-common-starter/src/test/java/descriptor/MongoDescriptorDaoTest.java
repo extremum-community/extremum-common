@@ -2,7 +2,7 @@ package descriptor;
 
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
+import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.sharedmodels.basic.IntegerOrString;

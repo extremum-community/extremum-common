@@ -2,7 +2,8 @@ package com.extremum.common.service.lifecycle;
 
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
+import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilitiesImpl;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
@@ -39,7 +40,7 @@ class MongoCommonModelLifecycleListenerTest {
 
     @BeforeEach
     void createListener() {
-        MongoDescriptorFacilities facilities = new MongoDescriptorFacilities(new DescriptorFactory(),
+        MongoDescriptorFacilities facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(),
                 new DescriptorSaver(descriptorService));
         listener = new MongoCommonModelLifecycleListener(facilities);
     }

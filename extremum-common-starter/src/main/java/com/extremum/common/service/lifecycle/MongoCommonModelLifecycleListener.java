@@ -1,6 +1,6 @@
 package com.extremum.common.service.lifecycle;
 
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
+import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.utils.ModelUtils;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
