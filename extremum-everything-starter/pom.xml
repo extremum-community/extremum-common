@@ -11,6 +11,10 @@
     <description>Spring Boot starter that adds support for everything-everything framework to
         a Spring Boot application</description>
 
+    <properties>
+        <min.level>0.78</min.level>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.extremum</groupId>
@@ -23,24 +27,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <rules>
-                        <rule>
-                            <limits>
-                                <limit>
-                                    <minimum>0.78</minimum>
-                                </limit>
-                            </limits>
-                        </rule>
-                    </rules>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

@@ -10,6 +10,10 @@
     <artifactId>extremum-test-containers</artifactId>
     <description>Contains test containers infrastructure common for other modules</description>
 
+    <properties>
+        <min.level>0.90</min.level>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.testcontainers</groupId>

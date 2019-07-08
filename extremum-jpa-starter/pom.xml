@@ -9,6 +9,10 @@
 
     <artifactId>extremum-jpa-starter</artifactId>
 
+    <properties>
+        <min.level>0.57</min.level>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -35,23 +39,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <rules>
-                        <rule>
-                            <limits>
-                                <limit>
-                                    <minimum>0.57</minimum>
-                                </limit>
-                            </limits>
-                        </rule>
-                    </rules>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
