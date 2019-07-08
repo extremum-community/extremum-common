@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 /**
  * @author rpuch
  */
-public class MongoCommonModelLifecycleListener extends AbstractMongoEventListener<MongoCommonModel> {
+public final class MongoCommonModelLifecycleListener extends AbstractMongoEventListener<MongoCommonModel> {
     private final MongoDescriptorFacilities mongoDescriptorFacilities;
 
     public MongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
