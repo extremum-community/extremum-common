@@ -10,7 +10,7 @@
     <artifactId>extremum-common-starter</artifactId>
 
     <properties>
-        <testcoverage.minimum>0.65</testcoverage.minimum>
+        <testcoverage.minimum>0.64</testcoverage.minimum>
     </properties>
 
     <dependencies>
