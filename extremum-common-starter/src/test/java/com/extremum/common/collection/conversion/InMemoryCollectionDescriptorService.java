@@ -2,11 +2,12 @@ package com.extremum.common.collection.conversion;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.service.CollectionDescriptorService;
+import com.extremum.common.uuid.StandardUUIDGenerator;
+import com.extremum.common.uuid.UUIDGenerator;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -15,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryCollectionDescriptorService implements CollectionDescriptorService {
     private final Map<String, CollectionDescriptor> externalIdsToDescriptors = new ConcurrentHashMap<>();
     private final Map<String, CollectionDescriptor> coordinatesToDescriptors = new ConcurrentHashMap<>();
+
+    private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
 
     @Override
     public Optional<CollectionDescriptor> retrieveByExternalId(String externalId) {
@@ -28,7 +31,7 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
 
     @Override
     public void store(CollectionDescriptor descriptor) {
-        String externalId = UUID.randomUUID().toString();
+        String externalId = uuidGenerator.generateUUID();
         setCollectionDescriptorId(descriptor, externalId);
 
         externalIdsToDescriptors.put(descriptor.getExternalId(), descriptor);
