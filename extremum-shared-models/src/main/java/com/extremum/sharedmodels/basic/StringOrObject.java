@@ -21,7 +21,7 @@ public class StringOrObject<T> {
     @Valid
     private T object;
     
-    public StringOrObject(Type type, String id, T object) {
+    private StringOrObject(Type type, String id, T object) {
         this.type = type;
         this.id = id;
         this.object = object;
