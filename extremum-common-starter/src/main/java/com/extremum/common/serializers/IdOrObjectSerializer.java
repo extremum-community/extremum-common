@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class IdOrObjectStructSerializer extends StdSerializer<IdOrObjectStruct> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IdOrObjectStructSerializer.class);
+public class IdOrObjectSerializer extends StdSerializer<IdOrObjectStruct> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdOrObjectSerializer.class);
 
     private final ObjectMapper mapper;
 
-    public IdOrObjectStructSerializer(ObjectMapper mapper) {
+    public IdOrObjectSerializer(ObjectMapper mapper) {
         super(IdOrObjectStruct.class);
 
         this.mapper = mapper;

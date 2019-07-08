@@ -1,19 +1,19 @@
 package com.extremum.common.serializers;
 
-import com.extremum.common.stucts.IdListOrObjectListStruct;
+import com.extremum.common.stucts.IdListOrObjectList;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 
-public class IdListOrObjectListStructSerializer extends StdSerializer<IdListOrObjectListStruct> {
-    public IdListOrObjectListStructSerializer() {
-        super(IdListOrObjectListStruct.class);
+public class IdListOrObjectListSerializer extends StdSerializer<IdListOrObjectList> {
+    public IdListOrObjectListSerializer() {
+        super(IdListOrObjectList.class);
     }
 
     @Override
-    public void serialize(IdListOrObjectListStruct value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(IdListOrObjectList value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (value == null || !value.isContainsIdList()) {
             gen.writeNull();
         } else {

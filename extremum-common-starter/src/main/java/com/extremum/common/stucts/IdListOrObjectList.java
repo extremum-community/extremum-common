@@ -12,32 +12,32 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-public class IdListOrObjectListStruct<ID extends Serializable, T> {
+public class IdListOrObjectList<ID extends Serializable, T> {
     public Type type;
     @Valid
     public List<ID> idList;
     @Valid
     public List<T> objectList;
 
-    public IdListOrObjectListStruct(List<T> objectList) {
+    public IdListOrObjectList(List<T> objectList) {
         this.objectList = objectList;
     }
 
-    public IdListOrObjectListStruct(Type type, List<ID> idList, List<T> objectList) {
+    public IdListOrObjectList(Type type, List<ID> idList, List<T> objectList) {
         this.type = type;
         this.idList = idList;
         this.objectList = objectList;
     }
 
-    public static <ID extends Serializable, T> IdListOrObjectListStruct<ID, T> createContainsIdList(List<ID> ids) {
-        return new IdListOrObjectListStruct<>(Type.idList, ids, null);
+    public static <ID extends Serializable, T> IdListOrObjectList<ID, T> createContainsIdList(List<ID> ids) {
+        return new IdListOrObjectList<>(Type.idList, ids, null);
     }
 
-    public static <ID extends Serializable, T> IdListOrObjectListStruct<ID, T> createContainsObjectList(List<T> objects) {
-        return new IdListOrObjectListStruct<>(Type.objectList, null, objects);
+    public static <ID extends Serializable, T> IdListOrObjectList<ID, T> createContainsObjectList(List<T> objects) {
+        return new IdListOrObjectList<>(Type.objectList, null, objects);
     }
 
-    public IdListOrObjectListStruct() {
+    public IdListOrObjectList() {
         this(Type.unknown, new ArrayList<>(), new ArrayList<>());
     }
 
