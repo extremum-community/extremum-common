@@ -9,11 +9,7 @@
 
     <artifactId>extremum-test-containers</artifactId>
     <description>Contains test containers infrastructure common for other modules</description>
-
-    <properties>
-        <testcoverage.minimum>0.90</testcoverage.minimum>
-    </properties>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.testcontainers</groupId>
