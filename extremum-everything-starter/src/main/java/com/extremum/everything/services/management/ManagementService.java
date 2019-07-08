@@ -1,6 +1,6 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.everything.services.EverythingEverythingService;
 
 import java.util.Collection;

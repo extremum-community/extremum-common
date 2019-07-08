@@ -1,6 +1,6 @@
 package com.extremum.jpa.models;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.models.BasicModel;
 import com.extremum.jpa.services.lifecycle.JpaCommonModelLifecycleListener;
 import lombok.Getter;

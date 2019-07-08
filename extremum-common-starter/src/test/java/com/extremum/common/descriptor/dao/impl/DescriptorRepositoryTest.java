@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor.dao.impl;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;
@@ -31,9 +31,11 @@ import static org.hamcrest.Matchers.hasSize;
  */
 @DataMongoTest
 @ContextConfiguration(classes = MongoCommonDaoConfiguration.class)
-public class DescriptorRepositoryTest extends TestWithServices {
+class DescriptorRepositoryTest extends TestWithServices {
     @Autowired
     private DescriptorRepository descriptorRepository;
+    @Autowired
+    private DescriptorService descriptorService;
 
     @Autowired
     private MongoClient mongoClient;
@@ -41,7 +43,7 @@ public class DescriptorRepositoryTest extends TestWithServices {
     private MongoProperties mongoProperties;
 
     @Test
-    public void whenDescriptorIsSaved_thenANewDocumentShouldAppearInMongo() {
+    void whenDescriptorIsSaved_thenANewDocumentShouldAppearInMongo() {
         String internalId = new ObjectId().toString();
         Descriptor descriptor = newDescriptor(internalId);
 
@@ -57,7 +59,7 @@ public class DescriptorRepositoryTest extends TestWithServices {
 
     private Descriptor newDescriptor(String internalId) {
         return Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
@@ -81,7 +83,7 @@ public class DescriptorRepositoryTest extends TestWithServices {
     }
 
     @Test
-    public void whenDescriptorClassInMongoIsNotAvailable_thenDescriptorShouldBeLoadedSuccessfully() {
+    void whenDescriptorClassInMongoIsNotAvailable_thenDescriptorShouldBeLoadedSuccessfully() {
         String internalId = new ObjectId().toString();
         Descriptor descriptor = newDescriptor(internalId);
 
@@ -99,12 +101,13 @@ public class DescriptorRepositoryTest extends TestWithServices {
         assertThatADescriptorWasFound(retrievedDescriptorOpt, descriptor);
     }
 
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalGetWithoutIsPresent"})
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
     private void assertThatADescriptorWasFound(Optional<Descriptor> retrievedDescriptorOpt,
                                                Descriptor expectedDescriptor) {
         assertThat(retrievedDescriptorOpt.isPresent(), is(true));
 
-        Descriptor retrievedDescriptor = retrievedDescriptorOpt.get();
+        Descriptor retrievedDescriptor = retrievedDescriptorOpt
+                .orElseThrow(() -> new AssertionError("Retrieved nothing"));
 
         assertThat(retrievedDescriptor.getExternalId(), is(equalTo(expectedDescriptor.getExternalId())));
         assertThat(retrievedDescriptor.getInternalId(), is(equalTo(expectedDescriptor.getInternalId())));

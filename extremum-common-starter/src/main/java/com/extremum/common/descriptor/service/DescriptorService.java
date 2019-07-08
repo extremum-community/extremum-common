@@ -1,54 +1,22 @@
 package com.extremum.common.descriptor.service;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.dao.DescriptorDao;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
-public final class DescriptorService {
+public interface DescriptorService {
 
-    private static volatile DescriptorDao descriptorDao;
+    String createExternalId();
 
-    /**
-     * This is only used for tests.
-     *
-     * @return current dao
-     */
-    public static DescriptorDao getDescriptorDao() {
-        return descriptorDao;
-    }
+    Descriptor store(Descriptor descriptor);
 
-    public static void setDescriptorDao(DescriptorDao descriptorDao) {
-        DescriptorService.descriptorDao = descriptorDao;
-    }
+    Optional<Descriptor> loadByExternalId(String externalId);
 
-    public static String createExternalId() {
-        return UUID.randomUUID().toString();
-    }
+    Optional<Descriptor> loadByInternalId(String internalId);
 
-    public static Descriptor store(Descriptor descriptor) {
-        return descriptorDao.store(descriptor);
-    }
+    Map<String, String> loadMapByExternalIds(Collection<String> externalIds);
 
-    public static Optional<Descriptor> loadByExternalId(String uuid) {
-        return descriptorDao.retrieveByExternalId(uuid);
-    }
-
-    public static Optional<Descriptor> loadByInternalId(String internalId) {
-        return descriptorDao.retrieveByInternalId(internalId);
-    }
-
-    public static Map<String, String> loadMapByExternalIds(Collection<String> externalIds) {
-        Objects.requireNonNull(externalIds, "List of external ids can't be null");
-        return descriptorDao.retrieveMapByExternalIds(externalIds);
-    }
-
-    public static Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
-        Objects.requireNonNull(internalIds, "List of internal ids can't be null");
-        return descriptorDao.retrieveMapByInternalIds(internalIds);
-    }
+    Map<String, String> loadMapByInternalIds(Collection<String> internalIds);
 }

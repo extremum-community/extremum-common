@@ -1,9 +1,9 @@
 package common.dao.mongo;
 
-import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -35,12 +35,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 class MongoCommonDaoTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestMongoModelDao dao;
+    @Autowired
+    private DescriptorService descriptorService;
 
     @Test
     void testCreateModel() {
@@ -69,7 +70,7 @@ class MongoCommonDaoTest extends TestWithServices {
     void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestMongoModel> modelList = Stream
-                .generate(MongoCommonDaoTest::getTestModel)
+                .generate(this::getTestModel)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
 
@@ -89,7 +90,8 @@ class MongoCommonDaoTest extends TestWithServices {
         TestMongoModel model = getTestModel();
         dao.save(model);
 
-        TestMongoModel resultModel = dao.findById(model.getId()).get();
+        TestMongoModel resultModel = dao.findById(model.getId())
+                .orElseThrow(() -> new AssertionError("Did not find"));
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
@@ -363,10 +365,10 @@ class MongoCommonDaoTest extends TestWithServices {
         return model;
     }
 
-    private static TestMongoModel getTestModel() {
+    private TestMongoModel getTestModel() {
         TestMongoModel model = new TestMongoModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.MONGO)

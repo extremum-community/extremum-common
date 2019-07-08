@@ -1,7 +1,7 @@
 package com.extremum.everything.controllers;
 
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.response.Response;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import com.extremum.everything.services.management.EverythingEverythingManagementService;

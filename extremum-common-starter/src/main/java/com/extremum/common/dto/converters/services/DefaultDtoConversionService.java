@@ -1,7 +1,7 @@
 package com.extremum.common.dto.converters.services;
 
-import com.extremum.common.dto.RequestDto;
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.dto.RequestDto;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.*;
 import com.extremum.common.models.Model;
 import com.extremum.common.utils.ModelUtils;

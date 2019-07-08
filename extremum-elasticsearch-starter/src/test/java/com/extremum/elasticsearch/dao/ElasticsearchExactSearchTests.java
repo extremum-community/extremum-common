@@ -24,7 +24,7 @@ class ElasticsearchExactSearchTests {
     }
 
     String generate1ModelWithExactNameAnd2ModelsWithReversedAndAmendedNamesAndReturnExactName() {
-        String exactName = UUID.randomUUID().toString();
+        String exactName = generateStringWith2UniqueComponentsSeparatedWithDash();
         TestElasticsearchModel exact = modelWithName(exactName);
         TestElasticsearchModel reversed = modelWithName(splitByDashesAndReverse(exactName));
         TestElasticsearchModel longer = modelWithName(exactName + "-abc");
@@ -32,6 +32,18 @@ class ElasticsearchExactSearchTests {
         dao.saveAll(Arrays.asList(exact, reversed, longer));
 
         return exactName;
+    }
+
+    @NotNull
+    private String generateStringWith2UniqueComponentsSeparatedWithDash() {
+        String component1 = generateUniqueStringInOneToken();
+        String component2 = generateUniqueStringInOneToken();
+        return component1 + "-" + component2;
+    }
+
+    @NotNull
+    private String generateUniqueStringInOneToken() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     @NotNull

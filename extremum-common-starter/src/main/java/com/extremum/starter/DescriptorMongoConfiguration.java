@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.ArrayList;
@@ -95,4 +96,10 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
     public CollectionDescriptorLifecycleListener collectionDescriptorLifecycleListener() {
         return new CollectionDescriptorLifecycleListener();
     }
+
+    @Override
+    public MongoMappingContext mongoMappingContext() {
+        return new CustomCollectionMappingContext();
+    }
+
 }

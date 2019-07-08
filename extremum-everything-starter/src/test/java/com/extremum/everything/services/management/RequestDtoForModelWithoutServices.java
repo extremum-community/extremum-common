@@ -1,6 +1,6 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 
 /**
  * @author rpuch

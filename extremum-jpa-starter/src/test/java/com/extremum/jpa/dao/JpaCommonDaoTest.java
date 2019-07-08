@@ -1,14 +1,11 @@
 package com.extremum.jpa.dao;
 
-import com.extremum.jpa.TestWithServices;
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.jpa.TestWithServices;
 import com.extremum.jpa.models.TestJpaModel;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,23 +18,27 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
-public class JpaCommonDaoTest extends TestWithServices {
+class JpaCommonDaoTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestJpaModelDao dao;
 
+    @Autowired
+    private DescriptorService descriptorService;
+
     @Test
-    public void testCreateModel() {
+    void testCreateModel() {
         TestJpaModel model = new TestJpaModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
@@ -53,7 +54,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testCreateModelWithWrongVersion() {
+    void testCreateModelWithWrongVersion() {
         TestJpaModel model = getTestModel();
         model = dao.save(model);
         model.setName(UUID.randomUUID().toString());
@@ -64,17 +65,17 @@ public class JpaCommonDaoTest extends TestWithServices {
         model.setVersion(0L);
         try {
             dao.save(model);
-            fail("An optimistick locking failure should have occured");
+            fail("An optimistic locking failure should have occurred");
         } catch (OptimisticLockingFailureException e) {
             // expected
         }
     }
 
     @Test
-    public void testCreateModelList() {
+    void testCreateModelList() {
         int modelsToCreate = 10;
         List<TestJpaModel> modelList = Stream
-                .generate(JpaCommonDaoTest::getTestModel)
+                .generate(this::getTestModel)
                 .limit(modelsToCreate)
                 .collect(Collectors.toList());
 
@@ -90,11 +91,12 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         TestJpaModel model = getTestModel();
         dao.save(model);
 
-        TestJpaModel resultModel = dao.findById(model.getId()).get();
+        TestJpaModel resultModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
@@ -113,7 +115,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
     // TODO: restore?
 //    @Test
-//    public void testGetByFieldValue() {
+//    void testGetByFieldValue() {
 //        TestJpaModel model = getTestModel();
 //        dao.save(model);
 //
@@ -137,7 +139,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
     // TODO: restore?
 //    @Test
-//    public void testGetSelectedFieldsById() {
+//    void testGetSelectedFieldsById() {
 //        TestJpaModel model = getTestModel();
 //        dao.save(model);
 //
@@ -157,7 +159,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 //    }
 
     @Test
-    public void testListAll() {
+    void testListAll() {
         int initCount = dao.findAll().size();
         int modelsToCreate = 10;
 
@@ -177,7 +179,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
     // TODO: restore?
 //    @Test
-//    public void testListByParameters() {
+//    void testListByParameters() {
 //        int initCount = dao.listByParameters(null).size();
 //        int modelsToCreate = 15;
 //        // limit = 0 означает выбор всего. Такая проверка выполняется отдельно
@@ -218,7 +220,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 //    }
 
     @Test
-    public void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
+    void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -229,7 +231,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
     @Test
     @Disabled("Restore when we have a decent mechanism to ignore softly-deleted records on Spring Data level")
-    public void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+    void testThatSpringDataMagicQueryMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -239,7 +241,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
+    void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -249,7 +251,7 @@ public class JpaCommonDaoTest extends TestWithServices {
 
     @Test
     @Disabled("Restore when we have a decent mechanism to ignore softly-deleted records on Spring Data level")
-    public void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
+    void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -270,7 +272,7 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testAllInBatchDeletionIsDisabled() {
+    void testAllInBatchDeletionIsDisabled() {
         try {
             dao.deleteAllInBatch();
         } catch (UnsupportedOperationException e) {
@@ -279,34 +281,40 @@ public class JpaCommonDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testGetModelNameAnnotation_OnHibernateProxy_AndOriginalClass() {
+    void testGetModelNameAnnotation_OnHibernateProxy_AndOriginalClass() {
         TestJpaModel testModel = getTestModel();
         testModel.setName("test");
         dao.save(testModel);
         TestJpaModel proxy = dao.getOne(testModel.getId());
-        TestJpaModel model = dao.findById(testModel.getId()).get();
+        TestJpaModel model = dao.findById(testModel.getId())
+                .orElseThrow(this::didNotFindAnything);
         assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
         assertThat(ModelUtils.getModelName(proxy), is("TestJpaModel"));
     }
 
+    @NotNull
+    private AssertionError didNotFindAnything() {
+        return new AssertionError("Did not find");
+    }
+
     @Test
-    public void testDeletionOfAListInBatch() {
+    void testDeletionOfAListInBatch() {
         TestJpaModel model1 = dao.save(new TestJpaModel());
         TestJpaModel model2 = dao.save(new TestJpaModel());
 
         dao.deleteInBatch(Arrays.asList(model1, model2));
     }
 
-    private static TestJpaModel getDeletedTestModel() {
+    private TestJpaModel getDeletedTestModel() {
         TestJpaModel model = getTestModel();
         model.setDeleted(true);
         return model;
     }
 
-    private static TestJpaModel getTestModel() {
+    private TestJpaModel getTestModel() {
         TestJpaModel model = new TestJpaModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model))
                 .storageType(Descriptor.StorageType.POSTGRES)

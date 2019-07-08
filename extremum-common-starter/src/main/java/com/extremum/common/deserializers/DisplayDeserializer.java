@@ -1,8 +1,8 @@
 package com.extremum.common.deserializers;
 
-import com.extremum.common.stucts.Display;
-import com.extremum.common.stucts.Media;
-import com.extremum.common.stucts.MultilingualObject;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.Media;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
@@ -32,7 +32,7 @@ public class DisplayDeserializer extends StdDeserializer<Display> {
         } else if (tree.isValueNode()) {
             return new Display(((TextNode) tree).textValue());
         } else {
-            MultilingualObject caption = extractCaption(tree);
+            StringOrMultilingual caption = extractCaption(tree);
             Media icon = extractMedia(tree, Display.FIELDS.icon.name());
             Media splash = extractMedia(tree, Display.FIELDS.splash.name());
 
@@ -55,13 +55,13 @@ public class DisplayDeserializer extends StdDeserializer<Display> {
         }
     }
 
-    private MultilingualObject extractCaption(TreeNode tree) {
+    private StringOrMultilingual extractCaption(TreeNode tree) {
         TreeNode treeNode = tree.get(Display.FIELDS.caption.name());
         if (treeNode == null) {
             return null;
         } else {
             try {
-                return mapper.treeToValue(treeNode, MultilingualObject.class);
+                return mapper.treeToValue(treeNode, StringOrMultilingual.class);
             } catch (JsonProcessingException e) {
                 log.error("Unable to deserialize Display#{}", Display.FIELDS.caption.name(), e);
                 return null;

@@ -1,6 +1,7 @@
 package com.extremum.common.stucts;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 
 /**

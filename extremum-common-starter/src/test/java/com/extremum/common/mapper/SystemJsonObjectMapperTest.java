@@ -1,13 +1,13 @@
 package com.extremum.common.mapper;
 
 import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.common.response.Alert;
 import com.extremum.common.response.AlertLevelEnum;
 import com.extremum.common.response.Pagination;
-import com.extremum.common.stucts.Display;
-import com.extremum.common.stucts.MediaType;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
