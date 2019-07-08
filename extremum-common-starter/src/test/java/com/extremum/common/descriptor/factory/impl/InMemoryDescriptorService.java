@@ -9,7 +9,6 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * @author rpuch
@@ -26,7 +25,7 @@ public class InMemoryDescriptorService implements DescriptorService {
     public Descriptor store(Descriptor descriptor) {
         String externalId = ReflectionUtils.getFieldValue(descriptor, "externalId");
         if (externalId == null) {
-            ReflectionUtils.setFieldValue(descriptor, "externalId", UUID.randomUUID().toString());
+            ReflectionUtils.setFieldValue(descriptor, "externalId", externalId);
         }
         return descriptor;
     }
