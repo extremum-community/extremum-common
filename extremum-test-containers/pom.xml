@@ -11,7 +11,7 @@
     <description>Contains test containers infrastructure common for other modules</description>
 
     <properties>
-        <min.level>0.90</min.level>
+        <testcoverage.minimum>0.90</testcoverage.minimum>
     </properties>
 
     <dependencies>

@@ -12,7 +12,7 @@
         a Spring Boot application</description>
 
     <properties>
-        <min.level>0.78</min.level>
+        <testcoverage.minimum>0.78</testcoverage.minimum>
     </properties>
 
     <dependencies>
