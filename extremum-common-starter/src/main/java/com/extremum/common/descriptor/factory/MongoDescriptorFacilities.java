@@ -11,8 +11,6 @@ import java.util.List;
 public interface MongoDescriptorFacilities {
     Descriptor create(ObjectId id, String modelType);
 
-    Descriptor createWithNewInternalId(String modelType);
-
     Descriptor fromInternalId(ObjectId internalId);
 
     List<String> getInternalIdList(List<Descriptor> descriptors);

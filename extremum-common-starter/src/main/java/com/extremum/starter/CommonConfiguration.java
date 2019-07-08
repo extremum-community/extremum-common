@@ -4,9 +4,9 @@ import com.extremum.common.collection.dao.CollectionDescriptorDao;
 import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.service.CollectionDescriptorServiceImpl;
-import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilitiesImpl;
@@ -172,8 +172,8 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
-            DescriptorSaver descriptorSaver, DescriptorService descriptorService) {
-        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver, descriptorService);
+            DescriptorSaver descriptorSaver) {
+        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
     }
 
     @Bean

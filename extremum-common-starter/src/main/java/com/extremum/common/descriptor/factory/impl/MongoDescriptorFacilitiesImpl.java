@@ -1,11 +1,10 @@
 package com.extremum.common.descriptor.factory.impl;
 
-import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
-import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorResolver;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
+import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 
@@ -18,23 +17,10 @@ public final class MongoDescriptorFacilitiesImpl implements MongoDescriptorFacil
 
     private final DescriptorFactory descriptorFactory;
     private final DescriptorSaver descriptorSaver;
-    private final DescriptorService descriptorService;
 
     @Override
     public Descriptor create(ObjectId id, String modelType) {
         return descriptorSaver.createAndSave(id.toString(), modelType, STORAGE_TYPE);
-    }
-
-    @Override
-    public Descriptor createWithNewInternalId(String modelType) {
-        ObjectId objectId = new ObjectId();
-        Descriptor descriptor = Descriptor.builder()
-                .externalId(descriptorService.createExternalId())
-                .internalId(objectId.toString())
-                .modelType(modelType)
-                .storageType(STORAGE_TYPE)
-                .build();
-        return descriptorService.store(descriptor);
     }
 
     @Override
