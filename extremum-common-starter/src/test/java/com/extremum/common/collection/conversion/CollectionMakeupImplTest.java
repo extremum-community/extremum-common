@@ -10,6 +10,7 @@ import com.extremum.common.urls.TestApplicationUrls;
 import com.extremum.sharedmodels.basic.IdOrObjectStruct;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,16 +65,24 @@ class CollectionMakeupImplTest {
         outerResponseDtoWithObjectTyping = new OuterResponseDtoWithObjectTyping("outer-id", "inner-id", buildings);
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldBeFilledAndSaved() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        assertThat(streetDto.buildings.getId(), is(notNullValue()));
-        CollectionDescriptor descriptor = collectionDescriptorService.retrieveByExternalId(streetDto.buildings.getId())
-                .get();
+        String collectionId = streetDto.buildings.getId();
+        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptor(collectionId);
 
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
+    }
+
+    @NotNull
+    private CollectionDescriptor retrieveNonNullCollectionDescriptor(String collectionId) {
+        assertThat(collectionId, is(notNullValue()));
+
+        CollectionDescriptor descriptor = collectionDescriptorService.retrieveByExternalId(collectionId)
+                .orElse(null);
+        assertThat(descriptor, is(notNullValue()));
+        return descriptor;
     }
 
     private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor,
@@ -97,14 +106,11 @@ class CollectionMakeupImplTest {
         verify(collectionDescriptorService, never()).store(any());
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = collectionDescriptorService
-                .retrieveByExternalId(streetDto.privateBuildings.getId())
-                .get();
+        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptor(streetDto.privateBuildings.getId());
 
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-private-buildings");
     }
@@ -126,14 +132,12 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(streetDto);
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void givenHostAttributeNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostAttributeNameShouldBeDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = collectionDescriptorService
-                .retrieveByExternalId(streetDto.buildingsWithDefaultName.getId())
-                .get();
+        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptor(
+                streetDto.buildingsWithDefaultName.getId());
 
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "buildingsWithDefaultName");
     }
@@ -156,23 +160,18 @@ class CollectionMakeupImplTest {
                 is("https://example.com/collection/" + collectionId));
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void givenACollectionIsInsideANestedDto_whenMakeupIsApplied_thenInternalIdShouldBeSavedAsHostId() {
         collectionMakeup.applyCollectionMakeup(outerDto);
 
         String collectionDescriptorId = outerDto.innerDto.buildings.getId();
-        assertThat(collectionDescriptorId, is(notNullValue()));
-        CollectionDescriptor collectionDescriptor = collectionDescriptorService
-                .retrieveByExternalId(collectionDescriptorId)
-                .get();
+        CollectionDescriptor collectionDescriptor = retrieveNonNullCollectionDescriptor(collectionDescriptorId);
 
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
         assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void givenACollectionIsInsideA2LevelNestedDto_whenMakeupIsApplied_thenInternalIdShouldBeSavedAsHostId() {
         ContainerResponseDto top = new ContainerResponseDto("top-id", outerDto);
@@ -180,17 +179,13 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(top);
 
         String collectionDescriptorId = outerDto.innerDto.buildings.getId();
-        assertThat(collectionDescriptorId, is(notNullValue()));
-        CollectionDescriptor collectionDescriptor = collectionDescriptorService
-                .retrieveByExternalId(collectionDescriptorId)
-                .get();
+        CollectionDescriptor collectionDescriptor = retrieveNonNullCollectionDescriptor(collectionDescriptorId);
 
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
         assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
     
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void givenACollectionIsInsideANestedDtoViaObjectTypedField_whenMakeupIsApplied_thenTheMakeupShouldBeApplied() {
         InnerResponseDto innerDto = (InnerResponseDto) outerResponseDtoWithObjectTyping.innerDto;
@@ -198,10 +193,7 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(outerResponseDtoWithObjectTyping);
 
         String collectionDescriptorId = innerDto.buildings.getId();
-        assertThat(collectionDescriptorId, is(notNullValue()));
-        CollectionDescriptor collectionDescriptor = collectionDescriptorService
-                .retrieveByExternalId(collectionDescriptorId)
-                .get();
+        CollectionDescriptor collectionDescriptor = retrieveNonNullCollectionDescriptor(collectionDescriptorId);
 
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
         assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));

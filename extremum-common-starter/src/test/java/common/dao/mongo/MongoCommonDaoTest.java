@@ -1,9 +1,9 @@
 package common.dao.mongo;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
 class MongoCommonDaoTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -91,7 +90,8 @@ class MongoCommonDaoTest extends TestWithServices {
         TestMongoModel model = getTestModel();
         dao.save(model);
 
-        TestMongoModel resultModel = dao.findById(model.getId()).get();
+        TestMongoModel resultModel = dao.findById(model.getId())
+                .orElseThrow(() -> new AssertionError("Did not find"));
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());

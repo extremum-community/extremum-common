@@ -39,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 @SpringBootTest(classes = ClassicElasticsearchDaoConfiguration.class)
 class ClassicElasticsearchDaoTest extends TestWithServices {
     @Autowired
@@ -183,7 +182,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
-        TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel resultModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
@@ -223,7 +223,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
-        TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel resultModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
         assertThat(resultModel.getSeqNo(), is(notNullValue()));
@@ -304,7 +305,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         boolean patched = dao.patch(model.getId(), "ctx._source.name = \"new name\"");
         assertThat(patched, is(true));
 
-        TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel foundModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThat(foundModel.getName(), is("new name"));
     }
@@ -325,7 +327,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
                 Collections.singletonMap("name", "new name"));
         assertThat(patched, is(true));
 
-        TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel foundModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThat(foundModel.getName(), is("new name"));
     }
@@ -344,7 +347,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
 
         dao.patch(originalModel.getId(), "ctx._source.name = \"new name\"");
 
-        TestElasticsearchModel foundModel = dao.findById(originalModel.getId()).get();
+        TestElasticsearchModel foundModel = dao.findById(originalModel.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThatFoundModelModificationTimeIsAfterTheOriginalModelModificationTime(originalModel, foundModel);
     }
@@ -366,8 +370,14 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
                 .map(this::parseJsonWithOurObjectMapper);
         assertThat("Present", foundModelOpt.isPresent(), is(true));
 
-        TestElasticsearchModel parsedModel = foundModelOpt.get();
+        TestElasticsearchModel parsedModel = foundModelOpt
+                .orElseThrow(this::didNotFindAnything);
         assertThat("Marked as deleted", parsedModel.getDeleted(), is(true));
+    }
+
+    @NotNull
+    private AssertionError didNotFindAnything() {
+        return new AssertionError("Did not find");
     }
 
     private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) {

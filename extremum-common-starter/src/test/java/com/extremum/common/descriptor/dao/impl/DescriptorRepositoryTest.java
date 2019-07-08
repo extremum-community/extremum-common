@@ -101,12 +101,13 @@ class DescriptorRepositoryTest extends TestWithServices {
         assertThatADescriptorWasFound(retrievedDescriptorOpt, descriptor);
     }
 
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalGetWithoutIsPresent"})
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
     private void assertThatADescriptorWasFound(Optional<Descriptor> retrievedDescriptorOpt,
                                                Descriptor expectedDescriptor) {
         assertThat(retrievedDescriptorOpt.isPresent(), is(true));
 
-        Descriptor retrievedDescriptor = retrievedDescriptorOpt.get();
+        Descriptor retrievedDescriptor = retrievedDescriptorOpt
+                .orElseThrow(() -> new AssertionError("Retrieved nothing"));
 
         assertThat(retrievedDescriptor.getExternalId(), is(equalTo(expectedDescriptor.getExternalId())));
         assertThat(retrievedDescriptor.getInternalId(), is(equalTo(expectedDescriptor.getInternalId())));
