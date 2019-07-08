@@ -4,8 +4,8 @@ import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.uuid.StandardUUIDGenerator;
 import com.extremum.common.uuid.UUIDGenerator;
+import com.extremum.common.utils.ReflectionUtils;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,28 +38,7 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
         coordinatesToDescriptors.put(descriptor.toCoordinatesString(), descriptor);
     }
 
-    private void setCollectionDescriptorId(CollectionDescriptor descriptor,
-            String externalId) {
-        Field field = findIdField();
-        field.setAccessible(true);
-        setIdValue(descriptor, field, externalId);
-    }
-
-    private void setIdValue(CollectionDescriptor descriptor, Field field, String externalId) {
-        try {
-            field.set(descriptor, externalId);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Cannot set ID value", e);
-        }
-    }
-
-    private Field findIdField() {
-        Field field;
-        try {
-            field = CollectionDescriptor.class.getDeclaredField("externalId");
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException("No such field, probaly a typo", e);
-        }
-        return field;
+    private void setCollectionDescriptorId(CollectionDescriptor descriptor, String externalId) {
+        ReflectionUtils.setFieldValue(descriptor, "externalId", externalId);
     }
 }

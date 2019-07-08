@@ -41,7 +41,7 @@ class MongoCommonModelLifecycleListenerTest {
     @BeforeEach
     void createListener() {
         MongoDescriptorFacilities facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(),
-                new DescriptorSaver(descriptorService));
+                new DescriptorSaver(descriptorService), descriptorService);
         listener = new MongoCommonModelLifecycleListener(facilities);
     }
 

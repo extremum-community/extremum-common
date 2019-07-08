@@ -1,7 +1,11 @@
 package com.extremum.common.utils;
 
+import com.extremum.common.collection.CollectionDescriptor;
+
 import java.lang.reflect.*;
+import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * @author iPolyakov on 02.04.15.
@@ -98,6 +102,39 @@ public class ReflectionUtils {
             return method.invoke(target, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Cannot invoke a method", e);
+        }
+    }
+
+    public static <T> T getFieldValue(Object target, String fieldName) {
+        Field field = findExactlyOneField(target, fieldName);
+        field.setAccessible(true);
+        @SuppressWarnings("unchecked") T castValue = (T) getFieldValue(field, target);
+        return castValue;
+    }
+
+    public static void setFieldValue(Object target, String fieldName, Object valueToSet) {
+        Field field = findExactlyOneField(target, fieldName);
+        field.setAccessible(true);
+        setFieldValue(target, field, valueToSet);
+    }
+
+    private static Field findExactlyOneField(Object target, String fieldName) {
+        List<Field> fields = new InstanceFields(target.getClass()).stream()
+                .filter(field -> field.getName().equals(fieldName))
+                .collect(Collectors.toList());
+        if (fields.size() != 1) {
+            String message = String.format("Expected to find exactly 1 field named '%s' but found %d",
+                    fieldName, fields.size());
+            throw new RuntimeException(message);
+        }
+        return fields.get(0);
+    }
+
+    private static void setFieldValue(Object target, Field field, Object valueToSet) {
+        try {
+            field.set(target, valueToSet);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Cannot set field value", e);
         }
     }
 }
