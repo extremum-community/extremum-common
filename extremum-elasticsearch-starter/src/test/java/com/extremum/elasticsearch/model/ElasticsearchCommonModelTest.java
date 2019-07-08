@@ -1,6 +1,6 @@
 package com.extremum.elasticsearch.model;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;

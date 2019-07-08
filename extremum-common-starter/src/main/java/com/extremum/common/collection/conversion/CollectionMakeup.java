@@ -1,6 +1,6 @@
 package com.extremum.common.collection.conversion;
 
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.dto.ResponseDto;
 
 /**
  * @author rpuch

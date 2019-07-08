@@ -1,6 +1,6 @@
 package com.extremum.elasticsearch.dao;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.mapper.BasicJsonObjectMapper;
@@ -39,13 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 @SpringBootTest(classes = ClassicElasticsearchDaoConfiguration.class)
 class ClassicElasticsearchDaoTest extends TestWithServices {
     @Autowired
     private ClassicTestElasticsearchModelDao dao;
     @Autowired
     private ElasticsearchProperties elasticsearchProperties;
+    @Autowired
+    private DescriptorService descriptorService;
 
     private TestElasticsearchClient client;
 
@@ -181,7 +182,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
-        TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel resultModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
@@ -221,7 +223,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model);
 
-        TestElasticsearchModel resultModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel resultModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
         assertThat(resultModel.getSeqNo(), is(notNullValue()));
@@ -302,7 +305,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         boolean patched = dao.patch(model.getId(), "ctx._source.name = \"new name\"");
         assertThat(patched, is(true));
 
-        TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel foundModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThat(foundModel.getName(), is("new name"));
     }
@@ -323,7 +327,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
                 Collections.singletonMap("name", "new name"));
         assertThat(patched, is(true));
 
-        TestElasticsearchModel foundModel = dao.findById(model.getId()).get();
+        TestElasticsearchModel foundModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThat(foundModel.getName(), is("new name"));
     }
@@ -342,7 +347,8 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
 
         dao.patch(originalModel.getId(), "ctx._source.name = \"new name\"");
 
-        TestElasticsearchModel foundModel = dao.findById(originalModel.getId()).get();
+        TestElasticsearchModel foundModel = dao.findById(originalModel.getId())
+                .orElseThrow(this::didNotFindAnything);
 
         assertThatFoundModelModificationTimeIsAfterTheOriginalModelModificationTime(originalModel, foundModel);
     }
@@ -364,8 +370,14 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
                 .map(this::parseJsonWithOurObjectMapper);
         assertThat("Present", foundModelOpt.isPresent(), is(true));
 
-        TestElasticsearchModel parsedModel = foundModelOpt.get();
+        TestElasticsearchModel parsedModel = foundModelOpt
+                .orElseThrow(this::didNotFindAnything);
         assertThat("Marked as deleted", parsedModel.getDeleted(), is(true));
+    }
+
+    @NotNull
+    private AssertionError didNotFindAnything() {
+        return new AssertionError("Did not find");
     }
 
     private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) {
@@ -415,10 +427,10 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         tests.assertThatExactSearchYields1Result(exactName);
     }
 
-    private static TestElasticsearchModel createModelWithExternalDescriptor() {
+    private TestElasticsearchModel createModelWithExternalDescriptor() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(Descriptor.StorageType.ELASTICSEARCH)

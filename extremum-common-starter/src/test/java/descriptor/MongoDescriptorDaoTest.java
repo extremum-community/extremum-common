@@ -1,17 +1,22 @@
 package descriptor;
 
-import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFactory;
+import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.stucts.*;
 import com.extremum.common.test.TestWithServices;
+import com.extremum.sharedmodels.basic.IntegerOrString;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.Media;
+import com.extremum.sharedmodels.content.MediaType;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.starter.DescriptorDaoFactory;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.RedisProperties;
 import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
@@ -39,11 +44,15 @@ class MongoDescriptorDaoTest extends TestWithServices {
     private DescriptorRepository descriptorRepository;
 
     @Autowired
+    private DescriptorService descriptorService;
+    @Autowired
     private RedissonClient redissonClient;
     @Autowired
     private RedisProperties redisProperties;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
+    @Autowired
+    private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -67,13 +76,13 @@ class MongoDescriptorDaoTest extends TestWithServices {
 
     private Descriptor createADescriptor() {
         ObjectId objectId = new ObjectId();
-        return MongoDescriptorFactory.create(objectId, "test_model");
+        return mongoDescriptorFacilities.create(objectId, "test_model");
     }
 
     @Test
     void testRetrieveByInternalId() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -86,7 +95,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testRetrieveMapByExternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -99,7 +108,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testRetrieveMapByInternalIds() {
         ObjectId objectId = new ObjectId();
-        Descriptor descriptor = MongoDescriptorFactory.create(objectId, "test_model");
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -113,7 +122,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     void testRetrieveFromMongo() {
         String internalId = new ObjectId().toString();
         Descriptor descriptor = Descriptor.builder()
-                .externalId(DescriptorService.createExternalId())
+                .externalId(createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
                 .storageType(Descriptor.StorageType.MONGO)
@@ -128,10 +137,15 @@ class MongoDescriptorDaoTest extends TestWithServices {
         assertEquals(descriptor, retrievedDescriptor.get());
     }
 
+    @NotNull
+    private String createExternalId() {
+        return descriptorService.createExternalId();
+    }
+
     @Test
     void testSaveDisplayFieldAsNull() {
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorService.createExternalId();
+        String externalId = createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
@@ -149,7 +163,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
     @Test
     void testSaveDisplayFieldAsString() {
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorService.createExternalId();
+        String externalId = createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)
@@ -177,13 +191,13 @@ class MongoDescriptorDaoTest extends TestWithServices {
         iconObj.setDuration(new IntegerOrString(20));
 
         Display displayObj = new Display(
-                new MultilingualObject("aaa"),
+                new StringOrMultilingual("aaa"),
                 iconObj,
                 iconObj
         );
 
         String internalId = new ObjectId().toString();
-        String externalId = DescriptorService.createExternalId();
+        String externalId = createExternalId();
         Descriptor descriptor = Descriptor.builder()
                 .externalId(externalId)
                 .internalId(internalId)

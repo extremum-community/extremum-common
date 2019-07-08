@@ -1,6 +1,6 @@
 package com.extremum.common.models;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;

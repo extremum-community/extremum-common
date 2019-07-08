@@ -2,6 +2,9 @@ package com.extremum.common.stucts;
 
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.mapper.MockedMapperDependencies;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.Media;
+import com.extremum.sharedmodels.content.MediaType;
 import models.TestUtils;
 import org.junit.jupiter.api.Test;
 

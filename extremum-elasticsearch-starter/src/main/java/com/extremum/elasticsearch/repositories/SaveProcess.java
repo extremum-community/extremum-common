@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.repositories;
 
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.index.IndexResponse;
 
@@ -12,12 +12,12 @@ import java.util.UUID;
  * @author rpuch
  */
 class SaveProcess {
-    private final ElasticsearchDescriptorFactory elasticsearchDescriptorFactory;
+    private final ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory;
 
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final VersionOperations versionOperations = new VersionOperations();
 
-    SaveProcess(ElasticsearchDescriptorFactory elasticsearchDescriptorFactory) {
+    SaveProcess(ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         this.elasticsearchDescriptorFactory = elasticsearchDescriptorFactory;
     }
 

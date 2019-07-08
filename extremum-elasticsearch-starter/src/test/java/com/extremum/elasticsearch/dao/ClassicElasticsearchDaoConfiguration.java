@@ -1,7 +1,8 @@
 package com.extremum.elasticsearch.dao;
 
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.elasticsearch.config.ElasticsearchRepositoriesConfiguration;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFactory;
+import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +19,10 @@ public class ClassicElasticsearchDaoConfiguration {
     @Bean
     public ClassicTestElasticsearchModelDao classicTestElasticsearchModelDao(
             ElasticsearchProperties elasticsearchProperties,
-            ElasticsearchDescriptorFactory elasticsearchDescriptorFactory,
+            DescriptorService descriptorService,
+            ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory,
             ObjectMapper objectMapper) {
-        return new ClassicTestElasticsearchModelDao(elasticsearchProperties, elasticsearchDescriptorFactory,
-                objectMapper);
+        return new ClassicTestElasticsearchModelDao(elasticsearchProperties, descriptorService,
+                elasticsearchDescriptorFactory, objectMapper);
     }
 }

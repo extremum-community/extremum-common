@@ -1,6 +1,6 @@
 package com.extremum.everything.services;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 
 import javax.validation.ConstraintViolation;
 import java.util.Set;

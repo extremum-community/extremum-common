@@ -1,10 +1,10 @@
 package com.extremum.common.collection.conversion;
 
 import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.collection.CollectionReference;
+import com.extremum.sharedmodels.fundamental.CollectionReference;
 import com.extremum.common.collection.service.CollectionDescriptorService;
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.utils.attribute.*;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +17,8 @@ import java.util.Optional;
  */
 @Service
 public class CollectionMakeupImpl implements CollectionMakeup {
+    private static final String COLLECTION_URI_FORMAT = "/collection/%s";
+    
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
     private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
@@ -66,19 +68,27 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) attribute.value();
 
+        CollectionDescriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
+        reference.setId(collectionDescriptorToUse.getExternalId());
+
+        String collectionUri = String.format(COLLECTION_URI_FORMAT, reference.getId());
+        String externalUrl = applicationUrls.createExternalUrl(collectionUri);
+        reference.setUrl(externalUrl);
+    }
+
+    private CollectionDescriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
         CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostAttributeName(attribute));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
+        CollectionDescriptor collectionDescriptorToUse;
         if (existingDescriptor.isPresent()) {
-            reference.setId(existingDescriptor.get());
+            collectionDescriptorToUse = existingDescriptor.get();
         } else {
             collectionDescriptorService.store(newDescriptor);
-            reference.setId(newDescriptor);
+            collectionDescriptorToUse = newDescriptor;
         }
-
-        String externalUrl = applicationUrls.createExternalUrl("/collection/" + reference.getId());
-        reference.setUrl(externalUrl);
+        return collectionDescriptorToUse;
     }
 
     private String getHostAttributeName(Attribute attribute) {
