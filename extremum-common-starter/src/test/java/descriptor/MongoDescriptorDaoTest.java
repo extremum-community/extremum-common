@@ -1,12 +1,16 @@
 package descriptor;
 
-import com.extremum.common.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.stucts.*;
 import com.extremum.common.test.TestWithServices;
+import com.extremum.sharedmodels.basic.IntegerOrString;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import com.extremum.sharedmodels.content.Display;
+import com.extremum.sharedmodels.content.Media;
+import com.extremum.sharedmodels.content.MediaType;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.starter.DescriptorDaoFactory;
 import com.extremum.starter.properties.DescriptorsProperties;
 import com.extremum.starter.properties.RedisProperties;
@@ -187,7 +191,7 @@ class MongoDescriptorDaoTest extends TestWithServices {
         iconObj.setDuration(new IntegerOrString(20));
 
         Display displayObj = new Display(
-                new MultilingualObject("aaa"),
+                new StringOrMultilingual("aaa"),
                 iconObj,
                 iconObj
         );

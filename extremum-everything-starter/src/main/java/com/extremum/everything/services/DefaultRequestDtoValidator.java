@@ -1,6 +1,6 @@
 package com.extremum.everything.services;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.ConstraintViolation;

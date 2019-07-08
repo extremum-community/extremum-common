@@ -1,5 +1,7 @@
 package com.extremum.common.descriptor.service;
 
+import com.extremum.sharedmodels.descriptor.DescriptorLoader;
+import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

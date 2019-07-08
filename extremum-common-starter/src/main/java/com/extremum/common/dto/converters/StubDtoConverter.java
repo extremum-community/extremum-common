@@ -1,7 +1,7 @@
 package com.extremum.common.dto.converters;
 
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.models.Model;
 import org.springframework.stereotype.Service;
 

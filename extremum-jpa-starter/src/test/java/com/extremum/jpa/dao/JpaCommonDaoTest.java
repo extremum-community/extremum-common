@@ -1,6 +1,6 @@
 package com.extremum.jpa.dao;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.TestWithServices;
@@ -90,13 +90,13 @@ class JpaCommonDaoTest extends TestWithServices {
         assertEquals(modelsToCreate, validCreated);
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void testGet() {
         TestJpaModel model = getTestModel();
         dao.save(model);
 
-        TestJpaModel resultModel = dao.findById(model.getId()).get();
+        TestJpaModel resultModel = dao.findById(model.getId())
+                .orElseThrow(this::didNotFindAnything);
         assertEquals(model.getId(), resultModel.getId());
         assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
         assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
@@ -280,16 +280,21 @@ class JpaCommonDaoTest extends TestWithServices {
         }
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void testGetModelNameAnnotation_OnHibernateProxy_AndOriginalClass() {
         TestJpaModel testModel = getTestModel();
         testModel.setName("test");
         dao.save(testModel);
         TestJpaModel proxy = dao.getOne(testModel.getId());
-        TestJpaModel model = dao.findById(testModel.getId()).get();
+        TestJpaModel model = dao.findById(testModel.getId())
+                .orElseThrow(this::didNotFindAnything);
         assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
         assertThat(ModelUtils.getModelName(proxy), is("TestJpaModel"));
+    }
+
+    @NotNull
+    private AssertionError didNotFindAnything() {
+        return new AssertionError("Did not find");
     }
 
     @Test

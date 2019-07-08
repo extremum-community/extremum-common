@@ -1,6 +1,6 @@
 package com.extremum.everything.dao;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.dao.DescriptorDao;
 
 import java.util.Collection;

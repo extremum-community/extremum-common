@@ -1,6 +1,6 @@
 package com.extremum.jpa.services;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.exceptions.WrongArgumentException;
 import com.extremum.common.response.Alert;

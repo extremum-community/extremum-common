@@ -1,6 +1,6 @@
 package com.extremum.starter;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
 

@@ -1,6 +1,7 @@
 package com.extremum.common.stucts;
 
 import com.extremum.common.models.PersistableCommonModel;
+import com.extremum.sharedmodels.basic.MultilingualLanguage;
 
 import java.io.Serializable;
 
@@ -32,7 +33,7 @@ public abstract class Resource<ID extends Serializable> implements PersistableCo
     /**
      * The title of the object as a Resource (or its display name)
      * May be a {@link String} (The value of the attribute given in current locale determined by context of the API request)
-     * or {@link Multilingual} object (Multilingual set of strings. For specifying locales please use IETF language
+     * or {@link MultilingualLanguage} object (Multilingual set of strings. For specifying locales please use IETF language
      * tags in the format defined by RFC 5646 (language-TERRITORY).)
      */
     public Object name;
@@ -40,7 +41,7 @@ public abstract class Resource<ID extends Serializable> implements PersistableCo
     /**
      * A brief description of the object as a Resource. Markdown is very welcome for formatting
      * May be a string (The value of the attribute given in current locale determined by context of the API request)
-     * or {@link Multilingual} object (Multilingual set of strings. For specifying locales please use IETF language
+     * or {@link MultilingualLanguage} object (Multilingual set of strings. For specifying locales please use IETF language
      * tags in the format defined by RFC 5646 (language-TERRITORY))
      */
     public Object description;

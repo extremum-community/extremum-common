@@ -1,6 +1,6 @@
 package com.extremum.everything.services.patcher;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

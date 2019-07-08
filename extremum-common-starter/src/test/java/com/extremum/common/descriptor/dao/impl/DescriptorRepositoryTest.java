@@ -1,6 +1,6 @@
 package com.extremum.common.descriptor.dao.impl;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.test.TestWithServices;
 import com.extremum.starter.properties.MongoProperties;
@@ -101,12 +101,13 @@ class DescriptorRepositoryTest extends TestWithServices {
         assertThatADescriptorWasFound(retrievedDescriptorOpt, descriptor);
     }
 
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalGetWithoutIsPresent"})
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
     private void assertThatADescriptorWasFound(Optional<Descriptor> retrievedDescriptorOpt,
                                                Descriptor expectedDescriptor) {
         assertThat(retrievedDescriptorOpt.isPresent(), is(true));
 
-        Descriptor retrievedDescriptor = retrievedDescriptorOpt.get();
+        Descriptor retrievedDescriptor = retrievedDescriptorOpt
+                .orElseThrow(() -> new AssertionError("Retrieved nothing"));
 
         assertThat(retrievedDescriptor.getExternalId(), is(equalTo(expectedDescriptor.getExternalId())));
         assertThat(retrievedDescriptor.getInternalId(), is(equalTo(expectedDescriptor.getInternalId())));

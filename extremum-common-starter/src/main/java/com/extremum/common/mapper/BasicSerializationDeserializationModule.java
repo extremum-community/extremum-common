@@ -3,7 +3,13 @@ package com.extremum.common.mapper;
 import com.extremum.common.deserializers.*;
 import com.extremum.common.response.Pagination;
 import com.extremum.common.serializers.*;
-import com.extremum.common.stucts.*;
+import com.extremum.common.stucts.DurationVariativeValue;
+import com.extremum.common.stucts.IdListOrObjectList;
+import com.extremum.common.stucts.IntegerRangeOrValue;
+import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IntegerOrString;
+import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import com.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
@@ -29,10 +35,10 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         addSerializer(Enum.class, new EnumSerializer());
         addDeserializer(ObjectId.class, new ObjectIdDeserializer());
 
-        addSerializer(MultilingualObject.class, new MultilingualObjectSerializer());
-        addDeserializer(MultilingualObject.class, new MultilingualObjectDeserializer());
+        addSerializer(StringOrMultilingual.class, new StringOrMultilingualSerializer());
+        addDeserializer(StringOrMultilingual.class, new StringOrMultilingualDeserializer());
 
-        addSerializer(IdListOrObjectListStruct.class, new IdListOrObjectListStructSerializer());
+        addSerializer(IdListOrObjectList.class, new IdListOrObjectListSerializer());
 
         addDeserializer(IntegerRangeOrValue.class, new IntegerRangeOrValueDeserializer());
         addSerializer(IntegerRangeOrValue.class, new IntegerRangeOrValueSerializer());
@@ -46,7 +52,7 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
         addDeserializer(IntegerOrString.class, new IntegerOrStringDeserializer());
 
-        addSerializer(IdOrObjectStruct.class, new IdOrObjectStructSerializer(mapper));
+        addSerializer(IdOrObjectStruct.class, new IdOrObjectSerializer(mapper));
 
         addDeserializer(Pagination.class, new PaginationDeserializer(mapper));
     }

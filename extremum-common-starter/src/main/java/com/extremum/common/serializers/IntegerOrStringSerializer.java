@@ -1,6 +1,6 @@
 package com.extremum.common.serializers;
 
-import com.extremum.common.stucts.IntegerOrString;
+import com.extremum.sharedmodels.basic.IntegerOrString;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;

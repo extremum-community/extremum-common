@@ -1,6 +1,6 @@
 package com.extremum.everything.services.collection;
 
-import com.extremum.common.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.PersistableCommonModel;

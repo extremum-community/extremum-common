@@ -1,13 +1,8 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.dao.MongoCommonDao;
-import com.extremum.common.descriptor.Descriptor;
-import com.extremum.common.descriptor.Descriptor.StorageType;
 import com.extremum.common.descriptor.service.DBDescriptorLoader;
-import com.extremum.common.descriptor.service.DescriptorLoader;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.descriptor.service.StaticDescriptorLoaderAccessor;
-import com.extremum.common.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.models.Model;
@@ -18,6 +13,10 @@ import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.descriptor.DescriptorLoader;
+import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.google.common.collect.ImmutableList;
@@ -138,7 +137,7 @@ class EverythingServicesTest {
         return Descriptor.builder()
                 .externalId("external-id")
                 .internalId(objectId.toString())
-                .storageType(StorageType.MONGO)
+                .storageType(Descriptor.StorageType.MONGO)
                 .modelType(modelName)
                 .build();
     }

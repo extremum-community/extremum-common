@@ -13,6 +13,7 @@
         <module>extremum-elasticsearch-starter</module>
         <module>extremum-everything-starter</module>
         <module>extremum-test-containers</module>
+        <module>extremum-shared-models</module>
     </modules>
 
     <scm>
@@ -138,6 +139,11 @@
             <dependency>
                 <groupId>com.extremum</groupId>
                 <artifactId>extremum-test-containers</artifactId>
+                <version>1.0.7-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.extremum</groupId>
+                <artifactId>extremum-shared-models</artifactId>
                 <version>1.0.7-SNAPSHOT</version>
             </dependency>
 

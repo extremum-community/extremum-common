@@ -3,7 +3,7 @@ package com.extremum.everything.services.management;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
-import com.extremum.common.dto.ResponseDto;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.response.Pagination;
 import com.extremum.common.response.Response;
 import com.extremum.everything.collection.CollectionFragment;

@@ -16,3 +16,8 @@ descriptors:
 spring:
   main:
     allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    tracer: TRACE

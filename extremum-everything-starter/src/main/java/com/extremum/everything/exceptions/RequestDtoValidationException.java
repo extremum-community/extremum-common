@@ -1,6 +1,6 @@
 package com.extremum.everything.exceptions;
 
-import com.extremum.common.dto.RequestDto;
+import com.extremum.sharedmodels.dto.RequestDto;
 import lombok.Getter;
 import lombok.Setter;
 
