@@ -10,11 +10,11 @@ import java.util.List;
  */
 @Getter
 public class CollectionReference<T> {
-    private CollectionDescriptor id;
+    private String id;
 
     private String url;
-    private Long count;
-    private List<T> top;
+    private final Long count;
+    private final List<T> top;
 
     public CollectionReference() {
         this(Collections.emptyList());
@@ -29,7 +29,7 @@ public class CollectionReference<T> {
         this.top = top;
     }
 
-    public void setId(CollectionDescriptor id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -66,19 +66,26 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) attribute.value();
 
+        CollectionDescriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
+        reference.setId(collectionDescriptorToUse.getExternalId());
+
+        String externalUrl = applicationUrls.createExternalUrl("/collection/" + reference.getId());
+        reference.setUrl(externalUrl);
+    }
+
+    private CollectionDescriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
         CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostAttributeName(attribute));
         Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
                 newDescriptor.toCoordinatesString());
 
+        CollectionDescriptor collectionDescriptorToUse;
         if (existingDescriptor.isPresent()) {
-            reference.setId(existingDescriptor.get());
+            collectionDescriptorToUse = existingDescriptor.get();
         } else {
             collectionDescriptorService.store(newDescriptor);
-            reference.setId(newDescriptor);
+            collectionDescriptorToUse = newDescriptor;
         }
-
-        String externalUrl = applicationUrls.createExternalUrl("/collection/" + reference.getId());
-        reference.setUrl(externalUrl);
+        return collectionDescriptorToUse;
     }
 
     private String getHostAttributeName(Attribute attribute) {
