@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -94,5 +93,19 @@ class MongoCommonModelLifecycleListenerTest {
         assertThat(model.getId(), is(objectId));
 
         verify(descriptorService).store(model.getUuid());
+    }
+
+    @Test
+    void givenAnEntityHasBothIdAndUUID_whenItIsSaved_thenNothingShouldHappen() {
+        TestMongoModel model = new TestMongoModel();
+        model.setId(objectId);
+        model.setUuid(descriptor);
+
+        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
+
+        assertThat(model.getUuid(), is(sameInstance(descriptor)));
+        assertThat(model.getId(), is(objectId));
+
+        verify(descriptorService, never()).store(any());
     }
 }
