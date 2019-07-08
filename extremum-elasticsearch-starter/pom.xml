@@ -54,6 +54,12 @@
             <groupId>com.extremum</groupId>
             <artifactId>extremum-test-containers</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
