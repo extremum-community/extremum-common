@@ -17,6 +17,8 @@ import java.util.Optional;
  */
 @Service
 public class CollectionMakeupImpl implements CollectionMakeup {
+    private static final String COLLECTION_URI_FORMAT = "/collection/%s";
+    
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
     private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
@@ -69,7 +71,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         CollectionDescriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
         reference.setId(collectionDescriptorToUse.getExternalId());
 
-        String externalUrl = applicationUrls.createExternalUrl("/collection/" + reference.getId());
+        String collectionUri = String.format(COLLECTION_URI_FORMAT, reference.getId());
+        String externalUrl = applicationUrls.createExternalUrl(collectionUri);
         reference.setUrl(externalUrl);
     }
 
