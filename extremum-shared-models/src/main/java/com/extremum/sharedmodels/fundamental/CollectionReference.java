@@ -1,5 +1,6 @@
-package com.extremum.common.collection;
+package com.extremum.sharedmodels.fundamental;
 
+import com.extremum.sharedmodels.annotation.DocumentationName;
 import lombok.Getter;
 
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.List;
  * @author rpuch
  */
 @Getter
+@DocumentationName("Collection")
 public class CollectionReference<T> {
     private String id;
 

@@ -1,6 +1,6 @@
 package com.extremum.common.collection.conversion;
 
-import com.extremum.common.collection.CollectionReference;
+import com.extremum.sharedmodels.fundamental.CollectionReference;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 

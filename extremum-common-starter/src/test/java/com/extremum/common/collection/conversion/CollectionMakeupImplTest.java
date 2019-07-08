@@ -1,7 +1,7 @@
 package com.extremum.common.collection.conversion;
 
 import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.collection.CollectionReference;
+import com.extremum.sharedmodels.fundamental.CollectionReference;
 import com.extremum.common.collection.OwnedCoordinates;
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.AbstractResponseDto;
