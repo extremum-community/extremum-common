@@ -33,9 +33,14 @@ public final class MongoCommonModelLifecycleListener extends AbstractMongoEventL
             model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
         } else if (model.getUuid() == null) {
             String modelName = ModelUtils.getModelName(model);
-            Descriptor descriptor = mongoDescriptorFacilities.createWithNewInternalId(modelName);
-            model.setUuid(descriptor);
-            model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
+            if (model.getId() == null) {
+                Descriptor descriptor = mongoDescriptorFacilities.createWithNewInternalId(modelName);
+                model.setUuid(descriptor);
+                model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
+            } else {
+                Descriptor descriptor = mongoDescriptorFacilities.create(model.getId(), modelName);
+                model.setUuid(descriptor);
+            }
         }
     }
 

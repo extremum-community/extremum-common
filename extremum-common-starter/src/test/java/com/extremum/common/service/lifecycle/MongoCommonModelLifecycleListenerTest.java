@@ -16,11 +16,14 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,28 +54,45 @@ class MongoCommonModelLifecycleListenerTest {
     }
 
     @Test
-    void givenAnEntityHasNeitherIdNorUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedAndAssignedToUuidAndItsInternalIdAssignedToId() {
+    void givenAnEntityHasNeitherIdNorUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedWithNewObjectIdAndAssignedToUuidAndItsInternalIdAssignedToId() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
-        TestMongoModel modelToSave = new TestMongoModel();
+        TestMongoModel model = new TestMongoModel();
         
-        listener.onBeforeConvert(new BeforeConvertEvent<>(modelToSave, "does-not-matter"));
+        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
 
-        assertThat(modelToSave.getUuid().getExternalId(), is("external-id"));
-        assertThat(modelToSave.getId(), is(notNullValue()));
+        assertThat(model.getUuid().getExternalId(), is("external-id"));
+        assertThat(model.getUuid().getInternalId(), is(not(objectId.toString())));
+        assertThat(model.getId(), is(notNullValue()));
+        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
 
-        verify(descriptorService).store(modelToSave.getUuid());
+        verify(descriptorService).store(model.getUuid());
     }
 
     @Test
-    void givenAnEntityHasNoIdButHasUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedAndAssignedToUuidAndItsInternalIdAssignedToId() {
-        TestMongoModel modelToSave = new TestMongoModel();
-        modelToSave.setUuid(descriptor);
+    void givenAnEntityHasNoIdButHasUUID_whenItIsSaved_thenDescriptorShouldNotBeGeneratedButUUIDsInternalIdAssignedToId() {
+        TestMongoModel model = new TestMongoModel();
+        model.setUuid(descriptor);
 
-        listener.onBeforeConvert(new BeforeConvertEvent<>(modelToSave, "does-not-matter"));
+        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
 
-        assertThat(modelToSave.getUuid(), is(sameInstance(descriptor)));
-        assertThat(modelToSave.getId(), is(objectId));
+        assertThat(model.getUuid(), is(sameInstance(descriptor)));
+        assertThat(model.getId(), is(objectId));
 
         verify(descriptorService, never()).store(any());
+    }
+
+    @Test
+    void givenAnEntityHasIdButNoUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedForThatIdAndAssignedToUuid() {
+        when(descriptorService.createExternalId()).thenReturn("external-id");
+        TestMongoModel model = new TestMongoModel();
+        model.setId(objectId);
+
+        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
+
+        assertThat(model.getUuid().getExternalId(), is("external-id"));
+        assertThat(model.getUuid().getInternalId(), is(objectId.toString()));
+        assertThat(model.getId(), is(objectId));
+
+        verify(descriptorService).store(model.getUuid());
     }
 }
