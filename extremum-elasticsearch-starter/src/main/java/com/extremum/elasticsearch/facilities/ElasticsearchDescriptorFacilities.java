@@ -12,6 +12,8 @@ public interface ElasticsearchDescriptorFacilities {
 
     Descriptor fromInternalId(UUID uuid);
 
+    Descriptor fromInternalId(String internalId);
+
     Descriptor fromInternalIdOrNull(String uuid);
 
     UUID resolve(Descriptor descriptor);

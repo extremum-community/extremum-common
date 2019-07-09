@@ -28,7 +28,8 @@ public final class MongoDescriptorFacilitiesImpl implements MongoDescriptorFacil
         return fromInternalId(internalId.toString());
     }
 
-    private Descriptor fromInternalId(String internalId) {
+    @Override
+    public Descriptor fromInternalId(String internalId) {
         return descriptorFactory.fromInternalId(internalId, STORAGE_TYPE);
     }
 

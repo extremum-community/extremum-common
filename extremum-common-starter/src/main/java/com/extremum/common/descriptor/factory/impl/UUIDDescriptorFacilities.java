@@ -27,7 +27,7 @@ public abstract class UUIDDescriptorFacilities {
         return fromInternalId(uuid.toString());
     }
 
-    private Descriptor fromInternalId(String uuid) {
+    public Descriptor fromInternalId(String uuid) {
         return descriptorFactory.fromInternalId(uuid, storageType());
     }
 

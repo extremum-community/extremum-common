@@ -13,6 +13,8 @@ public interface MongoDescriptorFacilities {
 
     Descriptor fromInternalId(ObjectId internalId);
 
+    Descriptor fromInternalId(String internalId);
+
     List<String> getInternalIdList(List<Descriptor> descriptors);
 
     List<Descriptor> fromInternalIdListOrNull(List<String> internalIdList);
