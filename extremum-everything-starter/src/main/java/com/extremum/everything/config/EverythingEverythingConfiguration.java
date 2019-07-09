@@ -164,7 +164,7 @@ public class EverythingEverythingConfiguration {
             UniversalDao universalDao) {
         return new DefaultEverythingEverythingManagementService(getterServices, patcherServices, removalServices,
                 defaultGetter, defaultPatcher, defaultRemover,
-                collectionFetchers, dtoConversionService, universalDao);
+                collectionFetchers, dtoConversionService, universalDao, null);
     }
 
     @Bean

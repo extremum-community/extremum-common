@@ -46,6 +46,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
+    private final EverythingSecurity security;
 
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
         ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
@@ -89,6 +90,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
+        security.checkRolesAllowCurrentUserToGet(id);
+
         Model model = retrieveModelObject(id);
 
         if (model == null) {

@@ -67,7 +67,8 @@ class DefaultEverythingEverythingManagementServiceTest {
                 null, null, null,
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,
-                universalDao
+                universalDao,
+                new NullSecurity()
         );
     }
 

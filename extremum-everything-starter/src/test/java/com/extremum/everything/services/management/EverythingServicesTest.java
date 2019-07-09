@@ -106,7 +106,7 @@ class EverythingServicesTest {
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
                 defaultGetter, defaultPatcher, defaultRemover,
                 Collections.emptyList(),
-                dtoConversionService, NOT_USED);
+                dtoConversionService, NOT_USED, new NullSecurity());
     }
 
     @AfterEach
