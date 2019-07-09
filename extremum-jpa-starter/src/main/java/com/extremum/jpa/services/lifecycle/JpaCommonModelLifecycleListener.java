@@ -2,8 +2,9 @@ package com.extremum.jpa.services.lifecycle;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.jpa.facilities.PostgresqlDescriptorFacilities;
-import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFactoryAccessor;
+import com.extremum.jpa.facilities.PostgresDescriptorFacilities;
+import com.extremum.jpa.facilities.StaticPostgresDescriptorFacilitiesAccessor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -17,36 +18,59 @@ public class JpaCommonModelLifecycleListener {
 
     @PrePersist
     public void fillRequiredFields(BasicModel<UUID> model) {
-        ensureFactoryIsAvailable();
+        ensureFacilitiesAreAvailable();
 
-        if (model.getId() == null && model.getUuid() != null) {
-            model.setId(descriptorFactory().resolve(model.getUuid()));
+        final boolean internalIdGiven = model.getId() != null;
+        final boolean uuidGiven = model.getUuid() != null;
+
+        if (uuidGiven && !internalIdGiven) {
+            model.setId(getInternalIdFromDescriptor(model));
+        } else if (!uuidGiven && internalIdGiven) {
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(model.getId(), model);
+            model.setUuid(descriptor);
+        } else if (!uuidGiven && !internalIdGiven) {
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(newEntityId(), model);
+            model.setUuid(descriptor);
+            model.setId(getInternalIdFromDescriptor(model));
         }
     }
 
-    private void ensureFactoryIsAvailable() {
-        if (descriptorFactory() == null) {
-            throw new IllegalStateException("PostgresqlDescriptorFactory is not available");
+    private void ensureFacilitiesAreAvailable() {
+        if (descriptorFacilities() == null) {
+            throw new IllegalStateException("PostgresqlDescriptorFacilities is not available");
         }
     }
 
-    private PostgresqlDescriptorFacilities descriptorFactory() {
-        return StaticPostgresqlDescriptorFactoryAccessor.getFacilities();
+    private PostgresDescriptorFacilities descriptorFacilities() {
+        return StaticPostgresDescriptorFacilitiesAccessor.getFacilities();
+    }
+
+    private UUID getInternalIdFromDescriptor(BasicModel<UUID> model) {
+        return descriptorFacilities().resolve(model.getUuid());
+    }
+
+    private Descriptor createAndSaveDescriptorWithGivenInternalId(UUID internalId, BasicModel<UUID> model) {
+        String modelName = ModelUtils.getModelName(model);
+        return descriptorFacilities().create(internalId, modelName);
+    }
+
+    private UUID newEntityId() {
+        return UUID.randomUUID();
     }
 
     @PostPersist
     public void createDescriptorIfNeeded(BasicModel<UUID> model) {
-        ensureFactoryIsAvailable();
+        ensureFacilitiesAreAvailable();
 
         if (model.getUuid() == null) {
-            model.setUuid(descriptorFactory().create(model.getId(), ModelUtils.getModelName(model)));
+            model.setUuid(descriptorFacilities().create(model.getId(), ModelUtils.getModelName(model)));
         }
     }
 
     @PostLoad
     public void onAfterConvert(BasicModel<UUID> model) {
-        ensureFactoryIsAvailable();
+        ensureFacilitiesAreAvailable();
 
-        model.setUuid(descriptorFactory().fromInternalId(model.getId()));
+        model.setUuid(descriptorFacilities().fromInternalId(model.getId()));
     }
 }

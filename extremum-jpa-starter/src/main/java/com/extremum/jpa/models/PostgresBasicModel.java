@@ -1,14 +1,15 @@
 package com.extremum.jpa.models;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.models.BasicModel;
 import com.extremum.jpa.services.lifecycle.JpaCommonModelLifecycleListener;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
-import javax.persistence.*;
+import javax.persistence.EntityListeners;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import java.util.UUID;
 
 @Setter
@@ -21,10 +22,6 @@ public abstract class PostgresBasicModel implements BasicModel<UUID> {
     private UUID id;
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator", parameters = {
-            @Parameter(name = "uuid_gen_strategy_class", value = "org.hibernate.id.uuid.CustomVersionOneStrategy")
-    })
     public UUID getId() {
         return id;
     }

@@ -1,7 +1,7 @@
 package com.extremum.elasticsearch.repositories;
 
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
+import com.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.index.IndexResponse;
 
@@ -40,8 +40,12 @@ class SaveProcess {
 
     private void fillIdIfStillMissing(ElasticsearchCommonModel model) {
         if (model.getId() == null) {
-            model.setId(UUID.randomUUID().toString());
+            model.setId(newInternalId());
         }
+    }
+
+    private String newInternalId() {
+        return UUID.randomUUID().toString();
     }
 
     private void fillCreatedUpdated(ElasticsearchCommonModel model) {

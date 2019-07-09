@@ -1,8 +1,10 @@
 package com.extremum.common.service.lifecycle;
 
-import com.extremum.common.descriptor.factory.impl.MongoDescriptorFacilities;
+import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
@@ -11,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 /**
  * @author rpuch
  */
-public class MongoCommonModelLifecycleListener extends AbstractMongoEventListener<MongoCommonModel> {
+public final class MongoCommonModelLifecycleListener extends AbstractMongoEventListener<MongoCommonModel> {
     private final MongoDescriptorFacilities mongoDescriptorFacilities;
 
     public MongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
@@ -28,15 +30,38 @@ public class MongoCommonModelLifecycleListener extends AbstractMongoEventListene
     }
     
     private void fillRequiredFields(MongoCommonModel model) {
-        if (model.getId() == null && model.getUuid() != null) {
-            model.setId(mongoDescriptorFacilities.resolve(model.getUuid()));
+        final boolean internalIdGiven = model.getId() != null;
+        final boolean uuidGiven = model.getUuid() != null;
+
+        if (uuidGiven && !internalIdGiven) {
+            model.setId(getInternalIdFromDescriptor(model));
+        } else if (!uuidGiven && internalIdGiven) {
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(model.getId(), model);
+            model.setUuid(descriptor);
+        } else if (!uuidGiven && !internalIdGiven) {
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(newEntityId(), model);
+            model.setUuid(descriptor);
+            model.setId(getInternalIdFromDescriptor(model));
         }
+    }
+
+    private ObjectId getInternalIdFromDescriptor(MongoCommonModel model) {
+        return mongoDescriptorFacilities.resolve(model.getUuid());
+    }
+
+    private Descriptor createAndSaveDescriptorWithGivenInternalId(ObjectId objectId, MongoCommonModel model) {
+        String modelName = ModelUtils.getModelName(model);
+        return mongoDescriptorFacilities.create(objectId, modelName);
+    }
+
+    private ObjectId newEntityId() {
+        return new ObjectId();
     }
 
     @Override
     public void onAfterSave(AfterSaveEvent<MongoCommonModel> event) {
         super.onAfterSave(event);
-        
+
         MongoCommonModel model = event.getSource();
 
         createDescriptorIfNeeded(model);
