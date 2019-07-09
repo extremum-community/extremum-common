@@ -1,7 +1,5 @@
 package com.extremum.common.utils;
 
-import com.extremum.common.collection.CollectionDescriptor;
-
 import java.lang.reflect.*;
 import java.util.List;
 import java.util.Stack;
