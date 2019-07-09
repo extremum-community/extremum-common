@@ -39,7 +39,7 @@ class JpaCommonModelLifecycleListenerTest {
 
     private final UUID internalId = UUID.randomUUID();
     private final Descriptor descriptor = Descriptor.builder()
-            .externalId("external-id")
+            .externalId("existing-external-id")
             .internalId(internalId.toString())
             .modelType("Test")
             .storageType(Descriptor.StorageType.POSTGRES)
@@ -59,18 +59,18 @@ class JpaCommonModelLifecycleListenerTest {
 
         listener.fillRequiredFields(model);
 
-        assertThatDescriptorWasGeneratedWithExpectedExternalIdAndNewInternalId(model);
+        assertThatDescriptorWasGeneratedWithNewInternalId(model);
         assertThatDescriptorInternalIdMatchesEntityId(model);
         assertThatDescriptorWasSaved(model);
     }
 
     private void alwaysGenerateExpectedExternalId() {
-        when(descriptorService.createExternalId()).thenReturn("external-id");
+        when(descriptorService.createExternalId()).thenReturn("new-external-id");
     }
 
-    private void assertThatDescriptorWasGeneratedWithExpectedExternalIdAndNewInternalId(TestJpaModel model) {
+    private void assertThatDescriptorWasGeneratedWithNewInternalId(TestJpaModel model) {
         assertThat(model.getUuid(), is(notNullValue()));
-        assertThat(model.getUuid().getExternalId(), is("external-id"));
+        assertThat(model.getUuid().getExternalId(), is("new-external-id"));
         assertThat(model.getUuid().getInternalId(), is(not(internalId.toString())));
         assertThat(model.getId(), is(notNullValue()));
     }
@@ -115,14 +115,14 @@ class JpaCommonModelLifecycleListenerTest {
 
         listener.fillRequiredFields(model);
 
-        assertThatDescriptorWasGeneratedWithExpectedExternalIdAndGivenInternalId(model);
+        assertThatDescriptorWasGeneratedWithGivenInternalId(model);
         assertThatEntityIdDidNotChange(model);
         assertThatDescriptorWasSaved(model);
     }
 
-    private void assertThatDescriptorWasGeneratedWithExpectedExternalIdAndGivenInternalId(TestJpaModel model) {
+    private void assertThatDescriptorWasGeneratedWithGivenInternalId(TestJpaModel model) {
         assertThat(model.getUuid(), is(notNullValue()));
-        assertThat(model.getUuid().getExternalId(), is("external-id"));
+        assertThat(model.getUuid().getExternalId(), is("new-external-id"));
         assertThat(model.getUuid().getInternalId(), is(internalId.toString()));
     }
 
