@@ -39,7 +39,7 @@ class MongoCommonModelLifecycleListenerTest {
 
     private final ObjectId objectId = new ObjectId();
     private final Descriptor descriptor = Descriptor.builder()
-            .externalId("external-id")
+            .externalId("existing-external-id")
             .internalId(objectId.toString())
             .modelType("Test")
             .storageType(Descriptor.StorageType.MONGO)
@@ -54,17 +54,32 @@ class MongoCommonModelLifecycleListenerTest {
 
     @Test
     void givenAnEntityHasNeitherIdNorUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedWithNewObjectIdAndAssignedToUuidAndItsInternalIdAssignedToId() {
-        when(descriptorService.createExternalId()).thenReturn("external-id");
+        alwaysGenerateExpectedExternalId();
         TestMongoModel model = new TestMongoModel();
         
         listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
 
+        assertThatDescriptorWasGeneratedWithNewInternalId(model);
+        assertThatDescriptorInternalIdMatchesEntityId(model);
+        assertThatDescriptorWasSaved(model);
+    }
+
+    private void alwaysGenerateExpectedExternalId() {
+        when(descriptorService.createExternalId()).thenReturn("new-external-id");
+    }
+
+    private void assertThatDescriptorWasGeneratedWithNewInternalId(TestMongoModel model) {
         assertThat(model.getUuid(), is(notNullValue()));
-        assertThat(model.getUuid().getExternalId(), is("external-id"));
+        assertThat(model.getUuid().getExternalId(), is("new-external-id"));
         assertThat(model.getUuid().getInternalId(), is(not(objectId.toString())));
         assertThat(model.getId(), is(notNullValue()));
-        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
+    }
 
+    private void assertThatDescriptorInternalIdMatchesEntityId(TestMongoModel model) {
+        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
+    }
+
+    private void assertThatDescriptorWasSaved(TestMongoModel model) {
         verify(descriptorService).store(model.getUuid());
     }
 
@@ -75,26 +90,44 @@ class MongoCommonModelLifecycleListenerTest {
 
         listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
 
-        assertThat(model.getUuid(), is(sameInstance(descriptor)));
-        assertThat(model.getId(), is(objectId));
+        assertThatUUIDWasNotChanged(model);
+        assertThatEntityIdWasTakenFromUUID(model);
+        assertThatNoDescriptorWasSaved();
+    }
 
+    private void assertThatUUIDWasNotChanged(TestMongoModel model) {
+        assertThat(model.getUuid(), is(sameInstance(descriptor)));
+    }
+
+    private void assertThatEntityIdWasTakenFromUUID(TestMongoModel model) {
+        assertThat(model.getId(), is(objectId));
+    }
+
+    private void assertThatNoDescriptorWasSaved() {
         verify(descriptorService, never()).store(any());
     }
 
     @Test
     void givenAnEntityHasIdButNoUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedForThatIdAndAssignedToUuid() {
-        when(descriptorService.createExternalId()).thenReturn("external-id");
+        alwaysGenerateExpectedExternalId();
         TestMongoModel model = new TestMongoModel();
         model.setId(objectId);
 
         listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
 
-        assertThat(model.getUuid(), is(notNullValue()));
-        assertThat(model.getUuid().getExternalId(), is("external-id"));
-        assertThat(model.getUuid().getInternalId(), is(objectId.toString()));
-        assertThat(model.getId(), is(objectId));
+        assertThatDescriptorWasGeneratedWithGivenInternalId(model);
+        assertThatEntityIdDidNotChange(model);
+        assertThatDescriptorWasSaved(model);
+    }
 
-        verify(descriptorService).store(model.getUuid());
+    private void assertThatDescriptorWasGeneratedWithGivenInternalId(TestMongoModel model) {
+        assertThat(model.getUuid(), is(notNullValue()));
+        assertThat(model.getUuid().getExternalId(), is("new-external-id"));
+        assertThat(model.getUuid().getInternalId(), is(objectId.toString()));
+    }
+
+    private void assertThatEntityIdDidNotChange(TestMongoModel model) {
+        assertThat(model.getId(), is(objectId));
     }
 
     @Test
@@ -105,9 +138,8 @@ class MongoCommonModelLifecycleListenerTest {
 
         listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
 
-        assertThat(model.getUuid(), is(sameInstance(descriptor)));
-        assertThat(model.getId(), is(objectId));
-
-        verify(descriptorService, never()).store(any());
+        assertThatUUIDWasNotChanged(model);
+        assertThatEntityIdDidNotChange(model);
+        assertThatNoDescriptorWasSaved();
     }
 }
