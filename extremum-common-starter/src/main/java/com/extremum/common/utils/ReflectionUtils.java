@@ -123,7 +123,7 @@ public class ReflectionUtils {
         if (fields.size() != 1) {
             String message = String.format("Expected to find exactly 1 field named '%s' but found %d",
                     fieldName, fields.size());
-            throw new RuntimeException(message);
+            throw new IllegalStateException(message);
         }
         return fields.get(0);
     }
