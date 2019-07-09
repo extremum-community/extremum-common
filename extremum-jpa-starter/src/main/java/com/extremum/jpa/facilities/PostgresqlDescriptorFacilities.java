@@ -1,17 +1,18 @@
 package com.extremum.jpa.facilities;
 
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.descriptor.factory.DescriptorFactory;
-import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFacilities;
 
-public final class PostgresqlDescriptorFacilities extends UUIDDescriptorFacilities {
-    public PostgresqlDescriptorFacilities(DescriptorFactory descriptorFactory, DescriptorSaver descriptorSaver) {
-        super(descriptorFactory, descriptorSaver);
-    }
+import java.util.UUID;
 
-    @Override
-    protected Descriptor.StorageType storageType() {
-        return Descriptor.StorageType.POSTGRES;
-    }
+/**
+ * @author rpuch
+ */
+public interface PostgresqlDescriptorFacilities {
+    Descriptor create(UUID uuid, String modelType);
+
+    Descriptor fromInternalId(UUID uuid);
+
+    Descriptor fromInternalIdOrNull(String uuid);
+
+    UUID resolve(Descriptor descriptor);
 }
