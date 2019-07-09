@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -303,6 +304,13 @@ class JpaCommonDaoTest extends TestWithServices {
         TestJpaModel model2 = dao.save(new TestJpaModel());
 
         dao.deleteInBatch(Arrays.asList(model1, model2));
+    }
+
+    @Test
+    void givenAnEntityIsNew_whenItIsSaved_thenEntityIdShouldMatchDescriptorInternalId() {
+        TestJpaModel model = dao.save(new TestJpaModel());
+
+        assertThat(model.getId().toString(), is(model.getUuid().getInternalId()));
     }
 
     private TestJpaModel getDeletedTestModel() {
