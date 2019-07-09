@@ -29,7 +29,7 @@ public class JpaCommonModelLifecycleListener {
             Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(model.getId(), model);
             model.setUuid(descriptor);
         } else if (!uuidGiven && !internalIdGiven) {
-            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(UUID.randomUUID(), model);
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(newEntityId(), model);
             model.setUuid(descriptor);
             model.setId(getInternalIdFromDescriptor(model));
         }
@@ -52,6 +52,10 @@ public class JpaCommonModelLifecycleListener {
     private Descriptor createAndSaveDescriptorWithGivenInternalId(UUID internalId, BasicModel<UUID> model) {
         String modelName = ModelUtils.getModelName(model);
         return descriptorFacilities().create(internalId, modelName);
+    }
+
+    private UUID newEntityId() {
+        return UUID.randomUUID();
     }
 
     @PostPersist

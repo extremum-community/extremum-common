@@ -39,7 +39,7 @@ public final class MongoCommonModelLifecycleListener extends AbstractMongoEventL
             Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(model.getId(), model);
             model.setUuid(descriptor);
         } else if (!uuidGiven && !internalIdGiven) {
-            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(new ObjectId(), model);
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(newEntityId(), model);
             model.setUuid(descriptor);
             model.setId(getInternalIdFromDescriptor(model));
         }
@@ -54,10 +54,14 @@ public final class MongoCommonModelLifecycleListener extends AbstractMongoEventL
         return mongoDescriptorFacilities.create(objectId, modelName);
     }
 
+    private ObjectId newEntityId() {
+        return new ObjectId();
+    }
+
     @Override
     public void onAfterSave(AfterSaveEvent<MongoCommonModel> event) {
         super.onAfterSave(event);
-        
+
         MongoCommonModel model = event.getSource();
 
         createDescriptorIfNeeded(model);
