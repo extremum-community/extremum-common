@@ -3,6 +3,7 @@ package com.extremum.everything.services.management;
 import com.extremum.common.collection.CollectionCoordinates;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.OwnedCoordinates;
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.ConversionConfig;
@@ -90,11 +91,11 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     public ResponseDto get(Descriptor id, boolean expand) {
         Model model = retrieveModelObject(id);
 
-        if (model != null) {
-            return convertModelToResponseDto(model, expand);
-        } else {
-            return null;
+        if (model == null) {
+            throw new ModelNotFoundException(String.format("Nothing was found by '%s'", id.getExternalId()));
         }
+
+        return convertModelToResponseDto(model, expand);
     }
 
     @Override
