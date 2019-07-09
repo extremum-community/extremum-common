@@ -1,6 +1,5 @@
 package com.extremum.elasticsearch.dao;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.PersistableCommonModel;
@@ -15,6 +14,7 @@ import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -77,11 +77,11 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
 
     protected DefaultElasticsearchCommonDao(Class<Model> modelClass, ElasticsearchProperties elasticsearchProperties,
             DescriptorService descriptorService,
-            ElasticsearchDescriptorFacilities descriptorFactory, ObjectMapper mapper, String indexName,
+            ElasticsearchDescriptorFacilities descriptorFacilities, ObjectMapper mapper, String indexName,
             String indexType) {
         this.modelClass = modelClass;
         this.descriptorService = descriptorService;
-        this.elasticsearchDescriptorFactory = descriptorFactory;
+        this.elasticsearchDescriptorFactory = descriptorFacilities;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;

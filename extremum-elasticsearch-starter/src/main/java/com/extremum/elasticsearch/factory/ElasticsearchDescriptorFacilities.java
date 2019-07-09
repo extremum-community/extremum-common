@@ -1,17 +1,18 @@
 package com.extremum.elasticsearch.factory;
 
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.descriptor.factory.DescriptorFactory;
-import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFacilities;
 
-public final class ElasticsearchDescriptorFacilities extends UUIDDescriptorFacilities {
-    public ElasticsearchDescriptorFacilities(DescriptorFactory descriptorFactory, DescriptorSaver descriptorSaver) {
-        super(descriptorFactory, descriptorSaver);
-    }
+import java.util.UUID;
 
-    @Override
-    protected Descriptor.StorageType storageType() {
-        return Descriptor.StorageType.ELASTICSEARCH;
-    }
+/**
+ * @author rpuch
+ */
+public interface ElasticsearchDescriptorFacilities {
+    Descriptor create(UUID uuid, String modelType);
+
+    Descriptor fromInternalId(UUID uuid);
+
+    Descriptor fromInternalIdOrNull(String uuid);
+
+    UUID resolve(Descriptor descriptor);
 }

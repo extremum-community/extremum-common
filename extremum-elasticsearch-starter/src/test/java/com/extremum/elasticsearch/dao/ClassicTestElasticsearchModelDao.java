@@ -10,9 +10,9 @@ public class ClassicTestElasticsearchModelDao extends DefaultElasticsearchCommon
     public ClassicTestElasticsearchModelDao(
             ElasticsearchProperties elasticsearchProperties,
             DescriptorService descriptorService,
-            ElasticsearchDescriptorFacilities descriptorFactory,
+            ElasticsearchDescriptorFacilities descriptorFacilities,
             ObjectMapper mapper) {
-        super(elasticsearchProperties, descriptorService, descriptorFactory, mapper,
+        super(elasticsearchProperties, descriptorService, descriptorFacilities, mapper,
                 TestElasticsearchModel.INDEX, "_doc");
     }
 }

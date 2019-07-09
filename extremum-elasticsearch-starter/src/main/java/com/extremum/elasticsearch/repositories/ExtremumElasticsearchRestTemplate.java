@@ -72,14 +72,14 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
             ObjectMapper objectMapper,
-            ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
+            ElasticsearchDescriptorFacilities descriptorFacilities) {
         super(client,
                 new ExtremumResultMapper(
                         new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
                 )
         );
 
-        saveProcess = new SaveProcess(elasticsearchDescriptorFactory);
+        saveProcess = new SaveProcess(descriptorFacilities);
     }
 
     private static String[] toArray(List<String> values) {

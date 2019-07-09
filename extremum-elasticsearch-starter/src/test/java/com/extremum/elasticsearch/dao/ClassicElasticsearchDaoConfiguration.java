@@ -20,9 +20,9 @@ public class ClassicElasticsearchDaoConfiguration {
     public ClassicTestElasticsearchModelDao classicTestElasticsearchModelDao(
             ElasticsearchProperties elasticsearchProperties,
             DescriptorService descriptorService,
-            ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory,
+            ElasticsearchDescriptorFacilities descriptorFacilities,
             ObjectMapper objectMapper) {
         return new ClassicTestElasticsearchModelDao(elasticsearchProperties, descriptorService,
-                elasticsearchDescriptorFactory, objectMapper);
+                descriptorFacilities, objectMapper);
     }
 }
