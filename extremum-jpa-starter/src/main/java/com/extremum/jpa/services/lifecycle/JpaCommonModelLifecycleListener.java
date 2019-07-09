@@ -4,6 +4,7 @@ import com.extremum.common.models.BasicModel;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.facilities.PostgresqlDescriptorFacilities;
 import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFacilitiesAccessor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -19,8 +20,18 @@ public class JpaCommonModelLifecycleListener {
     public void fillRequiredFields(BasicModel<UUID> model) {
         ensureFacilitiesAreAvailable();
 
-        if (model.getId() == null && model.getUuid() != null) {
-            model.setId(descriptorFacilities().resolve(model.getUuid()));
+        final boolean internalIdGiven = model.getId() != null;
+        final boolean uuidGiven = model.getUuid() != null;
+
+        if (uuidGiven && !internalIdGiven) {
+            model.setId(getInternalIdFromDescriptor(model));
+        } else if (!uuidGiven && internalIdGiven) {
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(model.getId(), model);
+            model.setUuid(descriptor);
+        } else if (!uuidGiven && !internalIdGiven) {
+            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(UUID.randomUUID(), model);
+            model.setUuid(descriptor);
+            model.setId(getInternalIdFromDescriptor(model));
         }
     }
 
@@ -32,6 +43,15 @@ public class JpaCommonModelLifecycleListener {
 
     private PostgresqlDescriptorFacilities descriptorFacilities() {
         return StaticPostgresqlDescriptorFacilitiesAccessor.getFacilities();
+    }
+
+    private UUID getInternalIdFromDescriptor(BasicModel<UUID> model) {
+        return descriptorFacilities().resolve(model.getUuid());
+    }
+
+    private Descriptor createAndSaveDescriptorWithGivenInternalId(UUID internalId, BasicModel<UUID> model) {
+        String modelName = ModelUtils.getModelName(model);
+        return descriptorFacilities().create(internalId, modelName);
     }
 
     @PostPersist
