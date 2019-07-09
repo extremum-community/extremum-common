@@ -318,10 +318,13 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         if (model.getUuid() != null) {
             return model.getUuid();
         } else {
-            UUID internalId = UUID.randomUUID();
-            Descriptor descriptor = elasticsearchDescriptorFactory.create(internalId, name);
+            Descriptor descriptor = elasticsearchDescriptorFactory.create(newInternalId(), name);
             return descriptorService.store(descriptor);
         }
+    }
+
+    private UUID newInternalId() {
+        return UUID.randomUUID();
     }
 
     private String serializeModel(Model model) {
