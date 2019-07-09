@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,17 +54,32 @@ class JpaCommonModelLifecycleListenerTest {
 
     @Test
     void givenAnEntityHasNeitherIdNorUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedWithNewObjectIdAndAssignedToUuidAndItsInternalIdAssignedToId() {
-        when(descriptorService.createExternalId()).thenReturn("external-id");
+        alwaysGenerateExpectedExternalId();
         TestJpaModel model = new TestJpaModel();
 
         listener.fillRequiredFields(model);
 
+        assertThatDescriptorWasGeneratedWithExpectedExternalIdAndNewInternalId(model);
+        assertThatDescriptorInternalIdMatchesEntityId(model);
+        assertThatDescriptorWasSaved(model);
+    }
+
+    private void alwaysGenerateExpectedExternalId() {
+        when(descriptorService.createExternalId()).thenReturn("external-id");
+    }
+
+    private void assertThatDescriptorWasGeneratedWithExpectedExternalIdAndNewInternalId(TestJpaModel model) {
         assertThat(model.getUuid(), is(notNullValue()));
         assertThat(model.getUuid().getExternalId(), is("external-id"));
         assertThat(model.getUuid().getInternalId(), is(not(internalId.toString())));
         assertThat(model.getId(), is(notNullValue()));
-        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
+    }
 
+    private void assertThatDescriptorInternalIdMatchesEntityId(TestJpaModel model) {
+        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
+    }
+
+    private void assertThatDescriptorWasSaved(TestJpaModel model) {
         verify(descriptorService).store(model.getUuid());
     }
 
@@ -76,26 +90,44 @@ class JpaCommonModelLifecycleListenerTest {
 
         listener.fillRequiredFields(model);
 
-        assertThat(model.getUuid(), is(sameInstance(descriptor)));
-        assertThat(model.getId(), is(internalId));
+        assertThatUUIDWasNotChanged(model);
+        assertThatEntityIdWasTakenFromUUID(model);
+        assertThatNoDescriptorWasSaved();
+    }
 
+    private void assertThatUUIDWasNotChanged(TestJpaModel model) {
+        assertThat(model.getUuid(), is(sameInstance(descriptor)));
+    }
+
+    private void assertThatEntityIdWasTakenFromUUID(TestJpaModel model) {
+        assertThat(model.getId(), is(internalId));
+    }
+
+    private void assertThatNoDescriptorWasSaved() {
         verify(descriptorService, never()).store(any());
     }
 
     @Test
     void givenAnEntityHasIdButNoUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedForThatIdAndAssignedToUuid() {
-        when(descriptorService.createExternalId()).thenReturn("external-id");
+        alwaysGenerateExpectedExternalId();
         TestJpaModel model = new TestJpaModel();
         model.setId(internalId);
 
         listener.fillRequiredFields(model);
 
+        assertThatDescriptorWasGeneratedWithExpectedExternalIdAndGivenInternalId(model);
+        assertThatEntityIdDidNotChange(model);
+        assertThatDescriptorWasSaved(model);
+    }
+
+    private void assertThatDescriptorWasGeneratedWithExpectedExternalIdAndGivenInternalId(TestJpaModel model) {
         assertThat(model.getUuid(), is(notNullValue()));
         assertThat(model.getUuid().getExternalId(), is("external-id"));
         assertThat(model.getUuid().getInternalId(), is(internalId.toString()));
-        assertThat(model.getId(), is(internalId));
+    }
 
-        verify(descriptorService).store(model.getUuid());
+    private void assertThatEntityIdDidNotChange(TestJpaModel model) {
+        assertThat(model.getId(), is(internalId));
     }
 
     @Test
@@ -106,9 +138,8 @@ class JpaCommonModelLifecycleListenerTest {
 
         listener.fillRequiredFields(model);
 
-        assertThat(model.getUuid(), is(sameInstance(descriptor)));
-        assertThat(model.getId(), is(internalId));
-
-        verify(descriptorService, never()).store(any());
+        assertThatUUIDWasNotChanged(model);
+        assertThatEntityIdDidNotChange(model);
+        assertThatNoDescriptorWasSaved();
     }
 }
