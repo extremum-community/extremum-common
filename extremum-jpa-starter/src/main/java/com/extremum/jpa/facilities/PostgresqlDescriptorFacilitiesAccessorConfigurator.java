@@ -10,6 +10,6 @@ public class PostgresqlDescriptorFacilitiesAccessorConfigurator {
 
     @PostConstruct
     public void init() {
-        StaticPostgresqlDescriptorFactoryAccessor.setFacilities(postgresqlDescriptorFacilities);
+        StaticPostgresqlDescriptorFacilitiesAccessor.setFacilities(postgresqlDescriptorFacilities);
     }
 }

@@ -10,15 +10,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-class StaticPostgresqlDescriptorFactoryAccessorTest {
+class StaticPostgresqlDescriptorFacilitiesAccessorTest {
     private static final DescriptorSaver NOT_USED = null;
 
     @Test
     void test() {
         PostgresqlDescriptorFacilities factory = new PostgresqlDescriptorFacilitiesImpl(new DescriptorFactory(), NOT_USED);
 
-        StaticPostgresqlDescriptorFactoryAccessor.setFacilities(factory);
+        StaticPostgresqlDescriptorFacilitiesAccessor.setFacilities(factory);
 
-        assertThat(StaticPostgresqlDescriptorFactoryAccessor.getFacilities(), is(factory));
+        assertThat(StaticPostgresqlDescriptorFacilitiesAccessor.getFacilities(), is(factory));
     }
 }

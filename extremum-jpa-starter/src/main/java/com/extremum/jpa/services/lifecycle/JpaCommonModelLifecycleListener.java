@@ -3,7 +3,7 @@ package com.extremum.jpa.services.lifecycle;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.facilities.PostgresqlDescriptorFacilities;
-import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFactoryAccessor;
+import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFacilitiesAccessor;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -17,36 +17,36 @@ public class JpaCommonModelLifecycleListener {
 
     @PrePersist
     public void fillRequiredFields(BasicModel<UUID> model) {
-        ensureFactoryIsAvailable();
+        ensureFacilitiesAreAvailable();
 
         if (model.getId() == null && model.getUuid() != null) {
-            model.setId(descriptorFactory().resolve(model.getUuid()));
+            model.setId(descriptorFacilities().resolve(model.getUuid()));
         }
     }
 
-    private void ensureFactoryIsAvailable() {
-        if (descriptorFactory() == null) {
-            throw new IllegalStateException("PostgresqlDescriptorFactory is not available");
+    private void ensureFacilitiesAreAvailable() {
+        if (descriptorFacilities() == null) {
+            throw new IllegalStateException("PostgresqlDescriptorFacilities is not available");
         }
     }
 
-    private PostgresqlDescriptorFacilities descriptorFactory() {
-        return StaticPostgresqlDescriptorFactoryAccessor.getFacilities();
+    private PostgresqlDescriptorFacilities descriptorFacilities() {
+        return StaticPostgresqlDescriptorFacilitiesAccessor.getFacilities();
     }
 
     @PostPersist
     public void createDescriptorIfNeeded(BasicModel<UUID> model) {
-        ensureFactoryIsAvailable();
+        ensureFacilitiesAreAvailable();
 
         if (model.getUuid() == null) {
-            model.setUuid(descriptorFactory().create(model.getId(), ModelUtils.getModelName(model)));
+            model.setUuid(descriptorFacilities().create(model.getId(), ModelUtils.getModelName(model)));
         }
     }
 
     @PostLoad
     public void onAfterConvert(BasicModel<UUID> model) {
-        ensureFactoryIsAvailable();
+        ensureFacilitiesAreAvailable();
 
-        model.setUuid(descriptorFactory().fromInternalId(model.getId()));
+        model.setUuid(descriptorFacilities().fromInternalId(model.getId()));
     }
 }
