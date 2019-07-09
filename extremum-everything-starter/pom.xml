@@ -11,6 +11,10 @@
     <description>Spring Boot starter that adds support for everything-everything framework to
         a Spring Boot application</description>
 
+    <properties>
+        <testcoverage.minimum>0.78</testcoverage.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.extremum</groupId>
@@ -23,5 +27,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

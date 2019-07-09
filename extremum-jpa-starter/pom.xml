@@ -9,6 +9,10 @@
 
     <artifactId>extremum-jpa-starter</artifactId>
 
+    <properties>
+        <testcoverage.minimum>0.57</testcoverage.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -35,5 +39,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

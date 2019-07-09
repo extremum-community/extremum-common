@@ -9,6 +9,10 @@
 
     <artifactId>extremum-common-starter</artifactId>
 
+    <properties>
+        <testcoverage.minimum>0.64</testcoverage.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.extremum</groupId>

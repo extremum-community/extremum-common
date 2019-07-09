@@ -106,12 +106,57 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.4</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                            <rule>
+                                <element>BUNDLE</element>
+                            </rule>
+
+                                <rule>
+                                    <limits>
+                                        <limit>
+                                            <minimum>${testcoverage.minimum}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+
+                            </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
         <spring-boot-dependencies.version>2.1.3.RELEASE</spring-boot-dependencies.version>
         <testcontainers.version>1.11.3</testcontainers.version>
+        <testcoverage.minimum>0.92</testcoverage.minimum>
     </properties>
 
     <dependencyManagement>
