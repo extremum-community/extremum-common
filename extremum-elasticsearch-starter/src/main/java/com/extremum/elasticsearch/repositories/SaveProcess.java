@@ -40,8 +40,12 @@ class SaveProcess {
 
     private void fillIdIfStillMissing(ElasticsearchCommonModel model) {
         if (model.getId() == null) {
-            model.setId(UUID.randomUUID().toString());
+            model.setId(newInternalId());
         }
+    }
+
+    private String newInternalId() {
+        return UUID.randomUUID().toString();
     }
 
     private void fillCreatedUpdated(ElasticsearchCommonModel model) {
