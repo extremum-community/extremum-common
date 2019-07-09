@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * @author rpuch
  */
-public interface PostgresqlDescriptorFacilities {
+public interface PostgresDescriptorFacilities {
     Descriptor create(UUID uuid, String modelType);
 
     Descriptor fromInternalId(UUID uuid);

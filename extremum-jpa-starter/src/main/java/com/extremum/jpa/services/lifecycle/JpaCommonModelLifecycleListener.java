@@ -2,8 +2,8 @@ package com.extremum.jpa.services.lifecycle;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.jpa.facilities.PostgresqlDescriptorFacilities;
-import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFacilitiesAccessor;
+import com.extremum.jpa.facilities.PostgresDescriptorFacilities;
+import com.extremum.jpa.facilities.StaticPostgresDescriptorFacilitiesAccessor;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 
 import javax.persistence.PostLoad;
@@ -41,8 +41,8 @@ public class JpaCommonModelLifecycleListener {
         }
     }
 
-    private PostgresqlDescriptorFacilities descriptorFacilities() {
-        return StaticPostgresqlDescriptorFacilitiesAccessor.getFacilities();
+    private PostgresDescriptorFacilities descriptorFacilities() {
+        return StaticPostgresDescriptorFacilitiesAccessor.getFacilities();
     }
 
     private UUID getInternalIdFromDescriptor(BasicModel<UUID> model) {

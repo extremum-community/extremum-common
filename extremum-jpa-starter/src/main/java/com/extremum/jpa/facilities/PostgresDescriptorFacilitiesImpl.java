@@ -5,9 +5,9 @@ import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import com.extremum.common.descriptor.factory.impl.UUIDDescriptorFacilities;
 
-public final class PostgresqlDescriptorFacilitiesImpl extends UUIDDescriptorFacilities
-        implements PostgresqlDescriptorFacilities {
-    public PostgresqlDescriptorFacilitiesImpl(DescriptorFactory descriptorFactory, DescriptorSaver descriptorSaver) {
+public final class PostgresDescriptorFacilitiesImpl extends UUIDDescriptorFacilities
+        implements PostgresDescriptorFacilities {
+    public PostgresDescriptorFacilitiesImpl(DescriptorFactory descriptorFactory, DescriptorSaver descriptorSaver) {
         super(descriptorFactory, descriptorSaver);
     }
 

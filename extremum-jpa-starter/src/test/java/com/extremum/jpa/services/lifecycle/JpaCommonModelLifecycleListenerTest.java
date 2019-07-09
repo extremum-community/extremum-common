@@ -3,9 +3,9 @@ package com.extremum.jpa.services.lifecycle;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.jpa.facilities.PostgresqlDescriptorFacilities;
-import com.extremum.jpa.facilities.PostgresqlDescriptorFacilitiesImpl;
-import com.extremum.jpa.facilities.StaticPostgresqlDescriptorFacilitiesAccessor;
+import com.extremum.jpa.facilities.PostgresDescriptorFacilities;
+import com.extremum.jpa.facilities.PostgresDescriptorFacilitiesImpl;
+import com.extremum.jpa.facilities.StaticPostgresDescriptorFacilitiesAccessor;
 import com.extremum.jpa.models.TestJpaModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,9 +47,9 @@ class JpaCommonModelLifecycleListenerTest {
 
     @BeforeEach
     void initFacilities() {
-        PostgresqlDescriptorFacilities facilities = new PostgresqlDescriptorFacilitiesImpl(new DescriptorFactory(),
+        PostgresDescriptorFacilities facilities = new PostgresDescriptorFacilitiesImpl(new DescriptorFactory(),
                 new DescriptorSaver(descriptorService));
-        StaticPostgresqlDescriptorFacilitiesAccessor.setFacilities(facilities);
+        StaticPostgresDescriptorFacilitiesAccessor.setFacilities(facilities);
     }
 
     @Test
