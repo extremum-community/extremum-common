@@ -2,7 +2,7 @@ package com.extremum.elasticsearch.dao;
 
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.elasticsearch.config.ElasticsearchRepositoriesConfiguration;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
+import com.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;

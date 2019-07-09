@@ -2,8 +2,8 @@ package com.extremum.elasticsearch.config;
 
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilitiesImpl;
+import com.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
+import com.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilitiesImpl;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.elasticsearch.repositories.EnableExtremumElasticsearchRepositories;
 import com.extremum.elasticsearch.repositories.ExtremumElasticsearchRepositoryFactoryBean;

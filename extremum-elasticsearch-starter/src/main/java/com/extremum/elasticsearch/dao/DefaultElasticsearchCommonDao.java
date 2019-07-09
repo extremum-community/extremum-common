@@ -11,7 +11,7 @@ import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.dao.extractor.AccessorFacade;
 import com.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
 import com.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
+import com.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.extremum.elasticsearch.properties.ElasticsearchProperties;
 import com.extremum.sharedmodels.descriptor.Descriptor;

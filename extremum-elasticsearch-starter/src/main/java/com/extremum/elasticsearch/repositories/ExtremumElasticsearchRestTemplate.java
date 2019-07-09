@@ -1,6 +1,6 @@
 package com.extremum.elasticsearch.repositories;
 
-import com.extremum.elasticsearch.factory.ElasticsearchDescriptorFacilities;
+import com.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;

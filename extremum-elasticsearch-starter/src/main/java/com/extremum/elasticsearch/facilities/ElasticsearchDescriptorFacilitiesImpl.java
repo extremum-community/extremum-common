@@ -1,4 +1,4 @@
-package com.extremum.elasticsearch.factory;
+package com.extremum.elasticsearch.facilities;
 
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.factory.DescriptorFactory;
