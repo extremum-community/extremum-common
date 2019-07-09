@@ -11,7 +11,7 @@ public final class ElasticsearchDescriptorFacilities extends UUIDDescriptorFacil
     }
 
     @Override
-    public Descriptor.StorageType storageType() {
+    protected Descriptor.StorageType storageType() {
         return Descriptor.StorageType.ELASTICSEARCH;
     }
 }

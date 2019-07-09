@@ -11,7 +11,7 @@ public final class PostgresqlDescriptorFacilities extends UUIDDescriptorFaciliti
     }
 
     @Override
-    public Descriptor.StorageType storageType() {
+    protected Descriptor.StorageType storageType() {
         return Descriptor.StorageType.POSTGRES;
     }
 }
