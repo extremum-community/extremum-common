@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
+@ToString
 @DocumentationName("Credential")
 public class Credential {
     @JsonProperty("system")

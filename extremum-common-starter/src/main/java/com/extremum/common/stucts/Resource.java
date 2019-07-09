@@ -8,6 +8,8 @@ import java.io.Serializable;
 /**
  * Common model - Resource
  */
+//TODO delete with duplicate - sharedmodels Resource interface
+@Deprecated
 public abstract class Resource<ID extends Serializable> implements PersistableCommonModel<ID> {
     /**
      * The type of the object as a Resource
