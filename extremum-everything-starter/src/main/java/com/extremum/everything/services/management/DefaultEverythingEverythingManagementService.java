@@ -79,7 +79,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private Getter findGetter(String modelName) {
-        GetterService<Model> service = findServiceForModel(modelName, GetterService.class, getterServices);
+        GetterService<? extends Model> service = findServiceForModel(modelName, getterServices);
         if (service != null) {
             return new NonDefaultGetter<>(service);
         }
@@ -109,7 +109,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private Patcher findPatcher(String modelName) {
-        PatcherService<Model> service = findServiceForModel(modelName, PatcherService.class, patcherServices);
+        PatcherService<? extends Model> service = findServiceForModel(modelName, patcherServices);
         if (service != null) {
             return new NonDefaultPatcher<>(service);
         }
@@ -126,7 +126,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private Remover findRemover(String modelName) {
-        RemovalService removalService = findServiceForModel(modelName, RemovalService.class, removalServices);
+        RemovalService removalService = findServiceForModel(modelName, removalServices);
         if (removalService != null) {
             return new NonDefaultRemover(removalService);
         }
@@ -140,15 +140,13 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     }
 
     private <T extends EverythingEverythingService> T findServiceForModel(String modelName,
-            Class<T> expectedServiceType, Collection<? extends EverythingEverythingService> services) {
+            Collection<? extends T> services) {
         requireNonNull(modelName, "Name of a model can't be null");
         requireNonNull(services, "Services list can't be null");
 
         return services.stream()
                 .filter(getIsServiceSupportsModelFilter(modelName))
                 .findAny()
-                .filter(expectedServiceType::isInstance)
-                .map(expectedServiceType::cast)
                 .orElse(null);
     }
 
