@@ -1,10 +1,10 @@
 package com.extremum.jpa.dao;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.jpa.TestWithServices;
 import com.extremum.jpa.models.TestJpaModel;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

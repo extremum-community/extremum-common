@@ -347,6 +347,13 @@ class MongoCommonDaoTest extends TestWithServices {
         assertThat(dao.findById(model.getId()).isPresent(), is(false));
     }
 
+    @Test
+    void givenAnEntityIsNew_whenItIsSaved_thenEntityIdShouldMatchDescriptorInternalId() {
+        TestMongoModel model = dao.save(new TestMongoModel());
+
+        assertThat(model.getId().toString(), is(model.getUuid().getInternalId()));
+    }
+
     @NotNull
     private List<TestMongoModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
         TestMongoModel notDeleted = new TestMongoModel();
