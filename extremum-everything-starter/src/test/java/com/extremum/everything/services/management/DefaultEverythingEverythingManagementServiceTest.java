@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class DefaultCommonEverythingEverythingManagementServiceTest {
+class DefaultEverythingEverythingManagementServiceTest {
     @InjectMocks
     private DefaultEverythingEverythingManagementService service;
 
