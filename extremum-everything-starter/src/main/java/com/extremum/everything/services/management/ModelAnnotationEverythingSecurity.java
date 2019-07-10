@@ -18,6 +18,7 @@ public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
 
     private final Operation get = new Get();
     private final Operation patch = new Patch();
+    private final Operation remove = new Remove();
 
     public ModelAnnotationEverythingSecurity(RoleBasedSecurity roleBasedSecurity,
             ModelClasses modelClasses) {
@@ -33,6 +34,11 @@ public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
     @Override
     public void checkRolesAllowCurrentUserToPatch(Descriptor id) {
         patch.throwIfNoRolesFor(id);
+    }
+
+    @Override
+    public void checkRolesAllowCurrentUserToRemove(Descriptor id) {
+        remove.throwIfNoRolesFor(id);
     }
 
     private abstract class Operation {
@@ -85,6 +91,18 @@ public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
         @Override
         String name() {
             return "patch";
+        }
+    }
+
+    private class Remove extends Operation {
+        @Override
+        Access extractAccess(EverythingSecured annotation) {
+            return annotation.remove();
+        }
+
+        @Override
+        String name() {
+            return "remove";
         }
     }
 }

@@ -124,9 +124,49 @@ class ModelAnnotationEverythingSecurityTest {
         }
     }
 
+    @Test
+    void givenCurrentUserHasRoleToRemove_whenCheckingWhetherRolesAllowToRemove_thenNoExceptionShouldBeThrown() {
+        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
+
+        security.checkRolesAllowCurrentUserToRemove(secureDescriptor);
+    }
+
+    @Test
+    void givenCurrentUserDoesNotHaveRoleToRemove_whenCheckingWhetherRolesAllowToRemove_thenAccessDeniedExceptionShouldBeThrown() {
+        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
+
+        try {
+            security.checkRolesAllowCurrentUserToRemove(secureDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToRemove_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkRolesAllowCurrentUserToRemove(insecureDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoRemoveSecurityAnnotation_whenCheckingWhetherRolesAllowToRemove_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkRolesAllowCurrentUserToRemove(emptySecurityDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for remove operation"));
+        }
+    }
+
     @EverythingSecured(
             get = @Access("ROLE_PRIVILEGED"),
-            patch = @Access("ROLE_PRIVILEGED")
+            patch = @Access("ROLE_PRIVILEGED"),
+            remove = @Access("ROLE_PRIVILEGED")
     )
     private static class SecureModel extends MongoCommonModel {
     }

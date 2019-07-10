@@ -14,4 +14,6 @@ public @interface EverythingSecured {
     Access get() default @Access({});
 
     Access patch() default @Access({});
+
+    Access remove() default @Access({});
 }

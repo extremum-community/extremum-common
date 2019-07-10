@@ -15,4 +15,9 @@ class NullSecurity implements EverythingSecurity {
     public void checkRolesAllowCurrentUserToPatch(Descriptor id) {
         // allow anything
     }
+
+    @Override
+    public void checkRolesAllowCurrentUserToRemove(Descriptor id) {
+        // allow anything
+    }
 }

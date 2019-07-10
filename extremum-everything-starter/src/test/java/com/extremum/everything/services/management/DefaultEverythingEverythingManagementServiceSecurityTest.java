@@ -3,10 +3,10 @@ package com.extremum.everything.services.management;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultPatcher;
+import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -44,6 +44,8 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Mock
     private DefaultPatcher<Model> defaultPatcher;
     @Mock
+    private DefaultRemover defaultRemover;
+    @Mock
     private EverythingSecurity security;
 
     private final Descriptor descriptor = Descriptor.builder()
@@ -59,7 +61,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                defaultGetter, defaultPatcher, null,
+                defaultGetter, defaultPatcher, defaultRemover,
                 Collections.emptyList(), dtoConversionService, null,
                 security
         );
@@ -109,7 +111,24 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
         }
     }
 
-    @ModelName("SecuredEntity")
-    public static class SecuredEntity extends MongoCommonModel {
+    @Test
+    void givenSecurityRolesAllowRemoveAnEntity_whenRemoveingIt_itShouldBeRemoveed() {
+        service.remove(descriptor);
+    }
+
+    @Test
+    void givenSecurityRolesDoNotAllowRemoveAnEntity_whenRemoveingIt_anExceptionShouldBeThrown() {
+        doThrow(new EverythingAccessDeniedException("Access denied"))
+                .when(security).checkRolesAllowCurrentUserToRemove(descriptor);
+
+        try {
+            service.remove(descriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+
+    private static class SecuredEntity extends MongoCommonModel {
     }
 }

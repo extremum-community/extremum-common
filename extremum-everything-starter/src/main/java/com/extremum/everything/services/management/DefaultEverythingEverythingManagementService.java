@@ -124,6 +124,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public void remove(Descriptor id) {
+        security.checkRolesAllowCurrentUserToRemove(id);
+
         String modelName = determineModelName(id);
         Remover remover = findRemover(modelName);
         remover.remove(id.getInternalId());
