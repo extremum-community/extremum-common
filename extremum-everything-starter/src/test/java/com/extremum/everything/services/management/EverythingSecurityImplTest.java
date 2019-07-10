@@ -2,20 +2,16 @@ package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.security.Access;
-import com.extremum.everything.security.AccessChecker;
+import com.extremum.everything.security.RoleBasedSecurity;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingSecured;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,7 +29,7 @@ class EverythingSecurityImplTest {
     private EverythingSecurityImpl security;
 
     @Mock
-    private AccessChecker accessChecker;
+    private RoleBasedSecurity roleBasedSecurity;
     @Spy
     private ModelClasses modelClasses = new ModelClasses() {
         @Override
@@ -50,14 +46,14 @@ class EverythingSecurityImplTest {
 
     @Test
     void givenCurrentUserHasRoleToGet_whenCheckingWhetherRolesAllowToGet_thenNoExceptionShouldBeThrown() {
-        when(accessChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
+        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
         security.checkRolesAllowCurrentUserToGet(descriptor);
     }
 
     @Test
     void givenCurrentUserDoesNotHaveRoleToGet_whenCheckingWhetherRolesAllowToGet_thenExceptionShouldBeThrown() {
-        when(accessChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
+        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
             security.checkRolesAllowCurrentUserToGet(descriptor);
@@ -70,7 +66,7 @@ class EverythingSecurityImplTest {
     @EverythingSecured(
             get = @Access("ROLE_PRIVILEGED")
     )
-    public static class SecureModel extends MongoCommonModel {
+    private static class SecureModel extends MongoCommonModel {
 
     }
 }

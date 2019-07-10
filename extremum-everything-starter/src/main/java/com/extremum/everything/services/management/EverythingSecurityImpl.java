@@ -2,7 +2,7 @@ package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
 import com.extremum.everything.security.Access;
-import com.extremum.everything.security.AccessChecker;
+import com.extremum.everything.security.RoleBasedSecurity;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingSecured;
 import com.extremum.everything.support.ModelClasses;
@@ -13,12 +13,12 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
  */
 // TODO: invent a better name
 public class EverythingSecurityImpl implements EverythingSecurity {
-    private final AccessChecker accessChecker;
+    private final RoleBasedSecurity roleBasedSecurity;
     private final ModelClasses modelClasses;
 
-    public EverythingSecurityImpl(AccessChecker accessChecker,
+    public EverythingSecurityImpl(RoleBasedSecurity roleBasedSecurity,
             ModelClasses modelClasses) {
-        this.accessChecker = accessChecker;
+        this.roleBasedSecurity = roleBasedSecurity;
         this.modelClasses = modelClasses;
     }
 
@@ -30,7 +30,7 @@ public class EverythingSecurityImpl implements EverythingSecurity {
         Access getAccess = everythingSecured.get();
         String[] roles = getAccess.value();
 
-        if (!accessChecker.currentUserHasOneOf(roles)) {
+        if (!roleBasedSecurity.currentUserHasOneOf(roles)) {
             throw new EverythingAccessDeniedException("Access denied");
         }
     }
