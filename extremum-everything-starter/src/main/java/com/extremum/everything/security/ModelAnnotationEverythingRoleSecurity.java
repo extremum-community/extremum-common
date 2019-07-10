@@ -9,16 +9,16 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
  * @author rpuch
  */
 public class ModelAnnotationEverythingRoleSecurity implements EverythingRoleSecurity {
-    private final RoleBasedSecurity roleBasedSecurity;
+    private final RoleChecker roleChecker;
     private final ModelClasses modelClasses;
 
     private final Operation get = new Get();
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
 
-    public ModelAnnotationEverythingRoleSecurity(RoleBasedSecurity roleBasedSecurity,
+    public ModelAnnotationEverythingRoleSecurity(RoleChecker roleChecker,
             ModelClasses modelClasses) {
-        this.roleBasedSecurity = roleBasedSecurity;
+        this.roleChecker = roleChecker;
         this.modelClasses = modelClasses;
     }
 
@@ -56,7 +56,7 @@ public class ModelAnnotationEverythingRoleSecurity implements EverythingRoleSecu
                 throw new EverythingEverythingException(message);
             }
 
-            if (!roleBasedSecurity.currentUserHasOneOf(roles)) {
+            if (!roleChecker.currentUserHasOneOf(roles)) {
                 throw new EverythingAccessDeniedException("Access denied");
             }
         }

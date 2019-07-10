@@ -27,7 +27,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
     private ModelAnnotationEverythingRoleSecurity security;
 
     @Mock
-    private RoleBasedSecurity roleBasedSecurity;
+    private RoleChecker roleChecker;
     @Spy
     private ModelClasses modelClasses = new TestModels();
 
@@ -45,14 +45,14 @@ class ModelAnnotationEverythingRoleSecurityTest {
 
     @Test
     void givenCurrentUserHasRoleToGet_whenCheckingWhetherRolesAllowToGet_thenNoExceptionShouldBeThrown() {
-        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
+        when(roleChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
         security.checkGetAllowed(secureDescriptor);
     }
 
     @Test
     void givenCurrentUserDoesNotHaveRoleToGet_whenCheckingWhetherRolesAllowToGet_thenAccessDeniedExceptionShouldBeThrown() {
-        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
+        when(roleChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
             security.checkGetAllowed(secureDescriptor);
@@ -84,14 +84,14 @@ class ModelAnnotationEverythingRoleSecurityTest {
 
     @Test
     void givenCurrentUserHasRoleToPatch_whenCheckingWhetherRolesAllowToPatch_thenNoExceptionShouldBeThrown() {
-        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
+        when(roleChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
         security.checkPatchAllowed(secureDescriptor);
     }
 
     @Test
     void givenCurrentUserDoesNotHaveRoleToPatch_whenCheckingWhetherRolesAllowToPatch_thenAccessDeniedExceptionShouldBeThrown() {
-        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
+        when(roleChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
             security.checkPatchAllowed(secureDescriptor);
@@ -123,14 +123,14 @@ class ModelAnnotationEverythingRoleSecurityTest {
 
     @Test
     void givenCurrentUserHasRoleToRemove_whenCheckingWhetherRolesAllowToRemove_thenNoExceptionShouldBeThrown() {
-        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
+        when(roleChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
         security.checkRemovalAllowed(secureDescriptor);
     }
 
     @Test
     void givenCurrentUserDoesNotHaveRoleToRemove_whenCheckingWhetherRolesAllowToRemove_thenAccessDeniedExceptionShouldBeThrown() {
-        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
+        when(roleChecker.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
             security.checkRemovalAllowed(secureDescriptor);

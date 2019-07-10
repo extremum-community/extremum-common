@@ -3,6 +3,6 @@ package com.extremum.everything.security;
 /**
  * @author rpuch
  */
-public interface RoleBasedSecurity {
+public interface RoleChecker {
     boolean currentUserHasOneOf(String ... roles);
 }
