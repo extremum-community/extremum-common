@@ -56,7 +56,8 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
                 null, null, null,
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
-                universalDao
+                universalDao,
+                new NullSecurity()
         );
     }
 
