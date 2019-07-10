@@ -12,12 +12,11 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 /**
  * @author rpuch
  */
-// TODO: invent a better name
-public class EverythingSecurityImpl implements EverythingSecurity {
+public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
     private final RoleBasedSecurity roleBasedSecurity;
     private final ModelClasses modelClasses;
 
-    public EverythingSecurityImpl(RoleBasedSecurity roleBasedSecurity,
+    public ModelAnnotationEverythingSecurity(RoleBasedSecurity roleBasedSecurity,
             ModelClasses modelClasses) {
         this.roleBasedSecurity = roleBasedSecurity;
         this.modelClasses = modelClasses;

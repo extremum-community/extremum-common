@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class EverythingSecurityImplTest {
+class ModelAnnotationEverythingSecurityTest {
     @InjectMocks
-    private EverythingSecurityImpl security;
+    private ModelAnnotationEverythingSecurity security;
 
     @Mock
     private RoleBasedSecurity roleBasedSecurity;
