@@ -8,7 +8,7 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.everything.security.EverythingSecurity;
-import com.extremum.everything.security.NullSecurity;
+import com.extremum.everything.security.AllowEverything;
 import com.extremum.everything.services.management.*;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
@@ -152,7 +152,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public EverythingSecurity everythingSecurity() {
-        return new NullSecurity();
+        return new AllowEverything();
     }
 
     @Bean

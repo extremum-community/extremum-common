@@ -10,7 +10,7 @@ import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
-import com.extremum.everything.security.NullSecurity;
+import com.extremum.everything.security.AllowEverything;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;
@@ -107,7 +107,7 @@ class EverythingServicesTest {
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
                 defaultGetter, defaultPatcher, defaultRemover,
                 Collections.emptyList(),
-                dtoConversionService, NOT_USED, new NullSecurity());
+                dtoConversionService, NOT_USED, new AllowEverything());
     }
 
     @AfterEach
