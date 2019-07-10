@@ -80,7 +80,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Test
     void givenSecurityRolesDoNotAllowGetAnEntity_whenGettingIt_anExceptionShouldBeThrown() {
         doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(security).checkAllowedGet(descriptor);
+                .when(security).checkGetAllowed(descriptor);
 
         try {
             service.get(descriptor, false);
@@ -102,7 +102,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Test
     void givenSecurityRolesDoNotAllowPatchAnEntity_whenPatchingIt_anExceptionShouldBeThrown() {
         doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(security).checkAllowedPatch(descriptor);
+                .when(security).checkPatchAllowed(descriptor);
 
         try {
             service.patch(descriptor, new JsonPatch(Collections.emptyList()), DO_NOT_EXPAND);
@@ -120,7 +120,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Test
     void givenSecurityRolesDoNotAllowRemoveAnEntity_whenRemoveingIt_anExceptionShouldBeThrown() {
         doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(security).checkAllowedRemove(descriptor);
+                .when(security).checkRemovalAllowed(descriptor);
 
         try {
             service.remove(descriptor);

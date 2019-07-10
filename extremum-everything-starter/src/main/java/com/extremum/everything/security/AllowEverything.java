@@ -7,17 +7,17 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
  */
 public class AllowEverything implements EverythingRoleSecurity {
     @Override
-    public void checkAllowedGet(Descriptor id) {
+    public void checkGetAllowed(Descriptor id) {
         // allow anything
     }
 
     @Override
-    public void checkAllowedPatch(Descriptor id) {
+    public void checkPatchAllowed(Descriptor id) {
         // allow anything
     }
 
     @Override
-    public void checkAllowedRemove(Descriptor id) {
+    public void checkRemovalAllowed(Descriptor id) {
         // allow anything
     }
 }

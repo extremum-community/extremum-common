@@ -91,7 +91,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
-        security.checkAllowedGet(id);
+        security.checkGetAllowed(id);
 
         Model model = retrieveModelObject(id);
 
@@ -104,7 +104,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        security.checkAllowedPatch(id);
+        security.checkPatchAllowed(id);
 
         String modelName = determineModelName(id);
 
@@ -125,7 +125,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public void remove(Descriptor id) {
-        security.checkAllowedRemove(id);
+        security.checkRemovalAllowed(id);
 
         String modelName = determineModelName(id);
         Remover remover = findRemover(modelName);

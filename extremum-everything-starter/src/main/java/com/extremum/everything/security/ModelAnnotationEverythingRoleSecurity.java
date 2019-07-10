@@ -23,17 +23,17 @@ public class ModelAnnotationEverythingRoleSecurity implements EverythingRoleSecu
     }
 
     @Override
-    public void checkAllowedGet(Descriptor id) {
+    public void checkGetAllowed(Descriptor id) {
         get.throwIfNoRolesFor(id);
     }
 
     @Override
-    public void checkAllowedPatch(Descriptor id) {
+    public void checkPatchAllowed(Descriptor id) {
         patch.throwIfNoRolesFor(id);
     }
 
     @Override
-    public void checkAllowedRemove(Descriptor id) {
+    public void checkRemovalAllowed(Descriptor id) {
         remove.throwIfNoRolesFor(id);
     }
 
