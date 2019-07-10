@@ -2,6 +2,7 @@ package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
+import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.security.Access;
 import com.extremum.everything.security.RoleBasedSecurity;
 import com.extremum.everything.security.EverythingAccessDeniedException;
@@ -31,35 +32,56 @@ class EverythingSecurityImplTest {
     @Mock
     private RoleBasedSecurity roleBasedSecurity;
     @Spy
-    private ModelClasses modelClasses = new ModelClasses() {
-        @Override
-        public <M extends Model> Class<M> getClassByModelName(String modelName) {
-            return (Class<M>) SecureModel.class;
-        }
-    };
+    private ModelClasses modelClasses = new TestModels();
 
-    private final Descriptor descriptor = Descriptor.builder()
-            .externalId("external-id")
-            .internalId("internal-id")
-            .modelType("SecureModel")
-            .build();
+    private final Descriptor secureDescriptor = descriptorForModelName("SecureModel");
+    private final Descriptor insecureDescriptor = descriptorForModelName("InsecureModel");
+    private final Descriptor emptySecurityDescriptor = descriptorForModelName("EmptySecurityModel");
+
+    private static Descriptor descriptorForModelName(String modelName) {
+        return Descriptor.builder()
+                .externalId("external-id")
+                .internalId("internal-id")
+                .modelType(modelName)
+                .build();
+    }
 
     @Test
     void givenCurrentUserHasRoleToGet_whenCheckingWhetherRolesAllowToGet_thenNoExceptionShouldBeThrown() {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
-        security.checkRolesAllowCurrentUserToGet(descriptor);
+        security.checkRolesAllowCurrentUserToGet(secureDescriptor);
     }
 
     @Test
-    void givenCurrentUserDoesNotHaveRoleToGet_whenCheckingWhetherRolesAllowToGet_thenExceptionShouldBeThrown() {
+    void givenCurrentUserDoesNotHaveRoleToGet_whenCheckingWhetherRolesAllowToGet_thenAccessDeniedExceptionShouldBeThrown() {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
-            security.checkRolesAllowCurrentUserToGet(descriptor);
+            security.checkRolesAllowCurrentUserToGet(secureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToGet_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkRolesAllowCurrentUserToGet(insecureDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoGetSecurityAnnotation_whenCheckingWhetherRolesAllowToGet_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkRolesAllowCurrentUserToGet(emptySecurityDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for get operation"));
         }
     }
 
@@ -67,6 +89,29 @@ class EverythingSecurityImplTest {
             get = @Access("ROLE_PRIVILEGED")
     )
     private static class SecureModel extends MongoCommonModel {
+    }
 
+    private static class InsecureModel extends MongoCommonModel {
+    }
+
+    @EverythingSecured
+    private static class EmptySecurityModel extends MongoCommonModel {
+    }
+
+    @SuppressWarnings("unchecked")
+    private static class TestModels implements ModelClasses {
+        @Override
+        public <M extends Model> Class<M> getClassByModelName(String modelName) {
+            if ("SecureModel".equals(modelName)) {
+                return (Class<M>) SecureModel.class;
+            }
+            if ("InsecureModel".equals(modelName)) {
+                return (Class<M>) InsecureModel.class;
+            }
+            if ("EmptySecurityModel".equals(modelName)) {
+                return (Class<M>) EmptySecurityModel.class;
+            }
+            throw new IllegalStateException("Should not be here");
+        }
     }
 }

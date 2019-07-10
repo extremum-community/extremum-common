@@ -1,6 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
+import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.security.Access;
 import com.extremum.everything.security.RoleBasedSecurity;
 import com.extremum.everything.security.EverythingAccessDeniedException;
@@ -27,8 +28,17 @@ public class EverythingSecurityImpl implements EverythingSecurity {
         Class<Model> modelClass = modelClasses.getClassByModelName(id.getModelType());
 
         EverythingSecured everythingSecured = modelClass.getAnnotation(EverythingSecured.class);
+        if (everythingSecured == null) {
+            throw new EverythingEverythingException(
+                    String.format("Security is not configured for '%s'", id.getModelType()));
+        }
         Access getAccess = everythingSecured.get();
         String[] roles = getAccess.value();
+
+        if (roles.length == 0) {
+            throw new EverythingEverythingException(
+                    String.format("Security is not configured for '%s' for get operation", id.getModelType()));
+        }
 
         if (!roleBasedSecurity.currentUserHasOneOf(roles)) {
             throw new EverythingAccessDeniedException("Access denied");
