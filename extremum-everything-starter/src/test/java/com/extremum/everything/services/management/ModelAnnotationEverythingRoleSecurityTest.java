@@ -22,9 +22,9 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class ModelAnnotationEverythingSecurityTest {
+class ModelAnnotationEverythingRoleSecurityTest {
     @InjectMocks
-    private ModelAnnotationEverythingSecurity security;
+    private ModelAnnotationEverythingRoleSecurity security;
 
     @Mock
     private RoleBasedSecurity roleBasedSecurity;
@@ -47,7 +47,7 @@ class ModelAnnotationEverythingSecurityTest {
     void givenCurrentUserHasRoleToGet_whenCheckingWhetherRolesAllowToGet_thenNoExceptionShouldBeThrown() {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
-        security.checkRolesAllowCurrentUserToGet(secureDescriptor);
+        security.checkAllowedGet(secureDescriptor);
     }
 
     @Test
@@ -55,7 +55,7 @@ class ModelAnnotationEverythingSecurityTest {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
-            security.checkRolesAllowCurrentUserToGet(secureDescriptor);
+            security.checkAllowedGet(secureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
@@ -65,7 +65,7 @@ class ModelAnnotationEverythingSecurityTest {
     @Test
     void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToGet_thenAccessDeniedExceptionShouldBeThrown() {
         try {
-            security.checkRolesAllowCurrentUserToGet(insecureDescriptor);
+            security.checkAllowedGet(insecureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
@@ -75,7 +75,7 @@ class ModelAnnotationEverythingSecurityTest {
     @Test
     void givenModelClassHasNoGetSecurityAnnotation_whenCheckingWhetherRolesAllowToGet_thenAccessDeniedExceptionShouldBeThrown() {
         try {
-            security.checkRolesAllowCurrentUserToGet(emptySecurityDescriptor);
+            security.checkAllowedGet(emptySecurityDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for get operation"));
@@ -86,7 +86,7 @@ class ModelAnnotationEverythingSecurityTest {
     void givenCurrentUserHasRoleToPatch_whenCheckingWhetherRolesAllowToPatch_thenNoExceptionShouldBeThrown() {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
-        security.checkRolesAllowCurrentUserToPatch(secureDescriptor);
+        security.checkAllowedPatch(secureDescriptor);
     }
 
     @Test
@@ -94,7 +94,7 @@ class ModelAnnotationEverythingSecurityTest {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
-            security.checkRolesAllowCurrentUserToPatch(secureDescriptor);
+            security.checkAllowedPatch(secureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
@@ -104,7 +104,7 @@ class ModelAnnotationEverythingSecurityTest {
     @Test
     void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToPatch_thenAccessDeniedExceptionShouldBeThrown() {
         try {
-            security.checkRolesAllowCurrentUserToPatch(insecureDescriptor);
+            security.checkAllowedPatch(insecureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
@@ -114,7 +114,7 @@ class ModelAnnotationEverythingSecurityTest {
     @Test
     void givenModelClassHasNoPatchSecurityAnnotation_whenCheckingWhetherRolesAllowToPatch_thenAccessDeniedExceptionShouldBeThrown() {
         try {
-            security.checkRolesAllowCurrentUserToPatch(emptySecurityDescriptor);
+            security.checkAllowedPatch(emptySecurityDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for patch operation"));
@@ -125,7 +125,7 @@ class ModelAnnotationEverythingSecurityTest {
     void givenCurrentUserHasRoleToRemove_whenCheckingWhetherRolesAllowToRemove_thenNoExceptionShouldBeThrown() {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
 
-        security.checkRolesAllowCurrentUserToRemove(secureDescriptor);
+        security.checkAllowedRemove(secureDescriptor);
     }
 
     @Test
@@ -133,7 +133,7 @@ class ModelAnnotationEverythingSecurityTest {
         when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
 
         try {
-            security.checkRolesAllowCurrentUserToRemove(secureDescriptor);
+            security.checkAllowedRemove(secureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
@@ -143,7 +143,7 @@ class ModelAnnotationEverythingSecurityTest {
     @Test
     void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToRemove_thenAccessDeniedExceptionShouldBeThrown() {
         try {
-            security.checkRolesAllowCurrentUserToRemove(insecureDescriptor);
+            security.checkAllowedRemove(insecureDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
@@ -153,7 +153,7 @@ class ModelAnnotationEverythingSecurityTest {
     @Test
     void givenModelClassHasNoRemoveSecurityAnnotation_whenCheckingWhetherRolesAllowToRemove_thenAccessDeniedExceptionShouldBeThrown() {
         try {
-            security.checkRolesAllowCurrentUserToRemove(emptySecurityDescriptor);
+            security.checkAllowedRemove(emptySecurityDescriptor);
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for remove operation"));

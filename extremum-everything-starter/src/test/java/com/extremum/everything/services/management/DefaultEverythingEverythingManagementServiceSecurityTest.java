@@ -4,7 +4,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.everything.security.EverythingAccessDeniedException;
-import com.extremum.everything.security.EverythingSecurity;
+import com.extremum.everything.security.EverythingRoleSecurity;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
@@ -47,7 +47,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Mock
     private DefaultRemover defaultRemover;
     @Mock
-    private EverythingSecurity security;
+    private EverythingRoleSecurity security;
 
     private final Descriptor descriptor = Descriptor.builder()
             .externalId("external-id")
@@ -80,7 +80,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Test
     void givenSecurityRolesDoNotAllowGetAnEntity_whenGettingIt_anExceptionShouldBeThrown() {
         doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(security).checkRolesAllowCurrentUserToGet(descriptor);
+                .when(security).checkAllowedGet(descriptor);
 
         try {
             service.get(descriptor, false);
@@ -102,7 +102,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Test
     void givenSecurityRolesDoNotAllowPatchAnEntity_whenPatchingIt_anExceptionShouldBeThrown() {
         doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(security).checkRolesAllowCurrentUserToPatch(descriptor);
+                .when(security).checkAllowedPatch(descriptor);
 
         try {
             service.patch(descriptor, new JsonPatch(Collections.emptyList()), DO_NOT_EXPAND);
@@ -120,7 +120,7 @@ class DefaultEverythingEverythingManagementServiceSecurityTest {
     @Test
     void givenSecurityRolesDoNotAllowRemoveAnEntity_whenRemoveingIt_anExceptionShouldBeThrown() {
         doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(security).checkRolesAllowCurrentUserToRemove(descriptor);
+                .when(security).checkAllowedRemove(descriptor);
 
         try {
             service.remove(descriptor);

@@ -5,19 +5,19 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 /**
  * @author rpuch
  */
-public class AllowEverything implements EverythingSecurity {
+public class AllowEverything implements EverythingRoleSecurity {
     @Override
-    public void checkRolesAllowCurrentUserToGet(Descriptor id) {
+    public void checkAllowedGet(Descriptor id) {
         // allow anything
     }
 
     @Override
-    public void checkRolesAllowCurrentUserToPatch(Descriptor id) {
+    public void checkAllowedPatch(Descriptor id) {
         // allow anything
     }
 
     @Override
-    public void checkRolesAllowCurrentUserToRemove(Descriptor id) {
+    public void checkAllowedRemove(Descriptor id) {
         // allow anything
     }
 }

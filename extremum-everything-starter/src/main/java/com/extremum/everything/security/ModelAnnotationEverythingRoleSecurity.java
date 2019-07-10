@@ -2,14 +2,13 @@ package com.extremum.everything.security;
 
 import com.extremum.common.models.Model;
 import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.security.*;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 
 /**
  * @author rpuch
  */
-public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
+public class ModelAnnotationEverythingRoleSecurity implements EverythingRoleSecurity {
     private final RoleBasedSecurity roleBasedSecurity;
     private final ModelClasses modelClasses;
 
@@ -17,24 +16,24 @@ public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
 
-    public ModelAnnotationEverythingSecurity(RoleBasedSecurity roleBasedSecurity,
+    public ModelAnnotationEverythingRoleSecurity(RoleBasedSecurity roleBasedSecurity,
             ModelClasses modelClasses) {
         this.roleBasedSecurity = roleBasedSecurity;
         this.modelClasses = modelClasses;
     }
 
     @Override
-    public void checkRolesAllowCurrentUserToGet(Descriptor id) {
+    public void checkAllowedGet(Descriptor id) {
         get.throwIfNoRolesFor(id);
     }
 
     @Override
-    public void checkRolesAllowCurrentUserToPatch(Descriptor id) {
+    public void checkAllowedPatch(Descriptor id) {
         patch.throwIfNoRolesFor(id);
     }
 
     @Override
-    public void checkRolesAllowCurrentUserToRemove(Descriptor id) {
+    public void checkAllowedRemove(Descriptor id) {
         remove.throwIfNoRolesFor(id);
     }
 

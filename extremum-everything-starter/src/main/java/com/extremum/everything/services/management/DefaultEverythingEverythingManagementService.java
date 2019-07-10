@@ -12,7 +12,7 @@ import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.security.EverythingSecurity;
+import com.extremum.everything.security.EverythingRoleSecurity;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.collection.CoordinatesHandler;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
@@ -47,7 +47,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
-    private final EverythingSecurity security;
+    private final EverythingRoleSecurity security;
 
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
         ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
@@ -91,7 +91,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
-        security.checkRolesAllowCurrentUserToGet(id);
+        security.checkAllowedGet(id);
 
         Model model = retrieveModelObject(id);
 
@@ -104,7 +104,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        security.checkRolesAllowCurrentUserToPatch(id);
+        security.checkAllowedPatch(id);
 
         String modelName = determineModelName(id);
 
@@ -125,7 +125,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public void remove(Descriptor id) {
-        security.checkRolesAllowCurrentUserToRemove(id);
+        security.checkAllowedRemove(id);
 
         String modelName = determineModelName(id);
         Remover remover = findRemover(modelName);
