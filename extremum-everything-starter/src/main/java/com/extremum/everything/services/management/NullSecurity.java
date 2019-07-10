@@ -1,12 +1,11 @@
-package com.extremum.jpa.everything;
+package com.extremum.everything.services.management;
 
-import com.extremum.everything.services.management.EverythingSecurity;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 
 /**
  * @author rpuch
  */
-class NullSecurity implements EverythingSecurity {
+public class NullSecurity implements EverythingSecurity {
     @Override
     public void checkRolesAllowCurrentUserToGet(Descriptor id) {
         // allow anything
