@@ -1,6 +1,6 @@
 package com.extremum.sharedmodels.personal;
 
-import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IdOrObject;
 import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.spacetime.LocationResponseDto;
 import com.extremum.sharedmodels.spacetime.TimeFrame;
@@ -19,5 +19,5 @@ public class PersonPositionForResponseDto {
     private StringOrMultilingual title;
     private StringOrMultilingual description;
     private TimeFrame timeframe;
-    private IdOrObjectStruct<String, LocationResponseDto> location;
+    private IdOrObject<String, LocationResponseDto> location;
 }

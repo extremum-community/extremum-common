@@ -1,7 +1,7 @@
 package com.extremum.sharedmodels.personal;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IdOrObject;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.fundamental.CommonResponseDto;
 import lombok.*;
@@ -20,7 +20,7 @@ public class IdentityResponseDto extends CommonResponseDto {
     private boolean verified;
     private Locale locale;
     private String timezone;
-    private IdOrObjectStruct<Descriptor, PersonResponseDto> person;
+    private IdOrObject<Descriptor, PersonResponseDto> person;
 
     @Override
     public String getModel() {

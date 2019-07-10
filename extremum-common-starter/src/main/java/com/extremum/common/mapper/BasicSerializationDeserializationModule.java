@@ -6,7 +6,7 @@ import com.extremum.common.serializers.*;
 import com.extremum.common.stucts.DurationVariativeValue;
 import com.extremum.common.stucts.IdListOrObjectList;
 import com.extremum.common.stucts.IntegerRangeOrValue;
-import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IdOrObject;
 import com.extremum.sharedmodels.basic.IntegerOrString;
 import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.content.Display;
@@ -52,7 +52,7 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         addSerializer(IntegerOrString.class, new IntegerOrStringSerializer());
         addDeserializer(IntegerOrString.class, new IntegerOrStringDeserializer());
 
-        addSerializer(IdOrObjectStruct.class, new IdOrObjectSerializer(mapper));
+        addSerializer(IdOrObject.class, new IdOrObjectSerializer(mapper));
 
         addDeserializer(Pagination.class, new PaginationDeserializer(mapper));
     }

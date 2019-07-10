@@ -8,27 +8,27 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 @Getter
-public class IdOrObjectStruct<ID extends Serializable, T> {
-    public IdOrObjectStruct(Type type, ID id, T object) {
+public class IdOrObject<ID extends Serializable, T> {
+    public IdOrObject(Type type, ID id, T object) {
         this.type = type;
         this.id = id;
         this.object = object;
     }
 
-    public IdOrObjectStruct(ID id) {
+    public IdOrObject(ID id) {
         this(Type.simple, id, null);
     }
 
-    public IdOrObjectStruct(T object) {
+    public IdOrObject(T object) {
         this(Type.complex, null, object);
     }
 
-    public IdOrObjectStruct() {
+    public IdOrObject() {
         this(Type.unknown, null, null);
     }
 
     /**
-     * Who of fields of the {@link IdOrObjectStruct} is initialized
+     * Who of fields of the {@link IdOrObject} is initialized
      */
     public Type type;
     public ID id;
@@ -70,12 +70,12 @@ public class IdOrObjectStruct<ID extends Serializable, T> {
     public enum Type {
         unknown,
         /**
-         * {@link IdOrObjectStruct#id} is initialized, {@link IdOrObjectStruct#object} are not
+         * {@link IdOrObject#id} is initialized, {@link IdOrObject#object} are not
          */
         simple,
 
         /**
-         * {@link IdOrObjectStruct#object} is initialized, {@link IdOrObjectStruct#id} are not
+         * {@link IdOrObject#object} is initialized, {@link IdOrObject#id} are not
          */
         complex
     }
