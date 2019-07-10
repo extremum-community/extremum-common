@@ -1,9 +1,6 @@
 package com.extremum.sharedmodels.spacetime;
 
-import com.extremum.sharedmodels.spacetime.ComplexAddress;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * @author rpuch
@@ -11,6 +8,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class CategorizedAddress {
     private String category;
     private String caption;

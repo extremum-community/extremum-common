@@ -1,9 +1,8 @@
 package com.extremum.sharedmodels.spacetime;
 
 import com.extremum.sharedmodels.annotation.DocumentationName;
-import com.extremum.sharedmodels.basic.Status;
-import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.extremum.sharedmodels.dto.RequestDto;
+import com.extremum.sharedmodels.fundamental.Resource;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,12 +15,7 @@ import java.util.List;
 @ToString
 @DocumentationName("Location")
 public class LocationRequestDto implements RequestDto {
-    private String type;
-    private Status status;
-    private String slug;
-    private String uri;
-    private StringOrMultilingual name;
-    private StringOrMultilingual description;
+    private Resource resource;
     private ComplexAddress address;
     @Valid
     private Coordinates coordinates;
