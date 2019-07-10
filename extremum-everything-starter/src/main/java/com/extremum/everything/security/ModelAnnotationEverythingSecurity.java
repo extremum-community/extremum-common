@@ -1,11 +1,8 @@
-package com.extremum.everything.services.management;
+package com.extremum.everything.security;
 
 import com.extremum.common.models.Model;
 import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.security.Access;
-import com.extremum.everything.security.RoleBasedSecurity;
-import com.extremum.everything.security.EverythingAccessDeniedException;
-import com.extremum.everything.security.EverythingSecured;
+import com.extremum.everything.security.*;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 

@@ -10,6 +10,7 @@ import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
+import com.extremum.everything.security.NullSecurity;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;

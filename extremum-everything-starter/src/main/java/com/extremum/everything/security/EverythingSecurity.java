@@ -1,4 +1,4 @@
-package com.extremum.everything.services.management;
+package com.extremum.everything.security;
 
 import com.extremum.sharedmodels.descriptor.Descriptor;
 

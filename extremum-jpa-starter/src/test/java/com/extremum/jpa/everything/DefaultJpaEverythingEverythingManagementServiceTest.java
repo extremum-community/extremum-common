@@ -2,7 +2,7 @@ package com.extremum.jpa.everything;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.conversion.OwnedCollection;
-import com.extremum.everything.services.management.NullSecurity;
+import com.extremum.everything.security.NullSecurity;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;

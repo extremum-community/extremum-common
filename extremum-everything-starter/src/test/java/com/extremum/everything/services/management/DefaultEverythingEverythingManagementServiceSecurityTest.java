@@ -4,6 +4,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.everything.security.EverythingAccessDeniedException;
+import com.extremum.everything.security.EverythingSecurity;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
