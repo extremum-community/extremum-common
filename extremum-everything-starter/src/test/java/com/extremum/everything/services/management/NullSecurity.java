@@ -8,5 +8,11 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 class NullSecurity implements EverythingSecurity {
     @Override
     public void checkRolesAllowCurrentUserToGet(Descriptor id) {
+        // allow anything
+    }
+
+    @Override
+    public void checkRolesAllowCurrentUserToPatch(Descriptor id) {
+        // allow anything
     }
 }

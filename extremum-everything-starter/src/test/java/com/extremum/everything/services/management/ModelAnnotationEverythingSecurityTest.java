@@ -85,8 +85,48 @@ class ModelAnnotationEverythingSecurityTest {
         }
     }
 
+    @Test
+    void givenCurrentUserHasRoleToPatch_whenCheckingWhetherRolesAllowToPatch_thenNoExceptionShouldBeThrown() {
+        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(true);
+
+        security.checkRolesAllowCurrentUserToPatch(secureDescriptor);
+    }
+
+    @Test
+    void givenCurrentUserDoesNotHaveRoleToPatch_whenCheckingWhetherRolesAllowToPatch_thenAccessDeniedExceptionShouldBeThrown() {
+        when(roleBasedSecurity.currentUserHasOneOf("ROLE_PRIVILEGED")).thenReturn(false);
+
+        try {
+            security.checkRolesAllowCurrentUserToPatch(secureDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToPatch_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkRolesAllowCurrentUserToPatch(insecureDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoPatchSecurityAnnotation_whenCheckingWhetherRolesAllowToPatch_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkRolesAllowCurrentUserToPatch(emptySecurityDescriptor);
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for patch operation"));
+        }
+    }
+
     @EverythingSecured(
-            get = @Access("ROLE_PRIVILEGED")
+            get = @Access("ROLE_PRIVILEGED"),
+            patch = @Access("ROLE_PRIVILEGED")
     )
     private static class SecureModel extends MongoCommonModel {
     }

@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface EverythingSecured {
     Access get() default @Access({});
+
+    Access patch() default @Access({});
 }

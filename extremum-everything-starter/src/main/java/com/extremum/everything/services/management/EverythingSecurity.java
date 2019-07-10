@@ -7,4 +7,6 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
  */
 public interface EverythingSecurity {
     void checkRolesAllowCurrentUserToGet(Descriptor id);
+
+    void checkRolesAllowCurrentUserToPatch(Descriptor id);
 }

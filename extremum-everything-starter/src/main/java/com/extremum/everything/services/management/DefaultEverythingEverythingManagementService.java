@@ -3,11 +3,9 @@ package com.extremum.everything.services.management;
 import com.extremum.common.collection.CollectionCoordinates;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.OwnedCoordinates;
-import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.ConversionConfig;
 import com.extremum.common.dto.converters.services.DtoConversionService;
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.everything.collection.CollectionFragment;
@@ -20,6 +18,8 @@ import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -103,6 +103,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
+        security.checkRolesAllowCurrentUserToPatch(id);
+
         String modelName = determineModelName(id);
 
         Patcher patcher = findPatcher(modelName);

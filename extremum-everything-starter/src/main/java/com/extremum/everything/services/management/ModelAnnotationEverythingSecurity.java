@@ -16,6 +16,9 @@ public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
     private final RoleBasedSecurity roleBasedSecurity;
     private final ModelClasses modelClasses;
 
+    private final Operation get = new Get();
+    private final Operation patch = new Patch();
+
     public ModelAnnotationEverythingSecurity(RoleBasedSecurity roleBasedSecurity,
             ModelClasses modelClasses) {
         this.roleBasedSecurity = roleBasedSecurity;
@@ -24,23 +27,64 @@ public class ModelAnnotationEverythingSecurity implements EverythingSecurity {
 
     @Override
     public void checkRolesAllowCurrentUserToGet(Descriptor id) {
-        Class<Model> modelClass = modelClasses.getClassByModelName(id.getModelType());
+        get.throwIfNoRolesFor(id);
+    }
 
-        EverythingSecured everythingSecured = modelClass.getAnnotation(EverythingSecured.class);
-        if (everythingSecured == null) {
-            throw new EverythingEverythingException(
-                    String.format("Security is not configured for '%s'", id.getModelType()));
+    @Override
+    public void checkRolesAllowCurrentUserToPatch(Descriptor id) {
+        patch.throwIfNoRolesFor(id);
+    }
+
+    private abstract class Operation {
+
+        void throwIfNoRolesFor(Descriptor id) {
+            Class<Model> modelClass = modelClasses.getClassByModelName(id.getModelType());
+
+            EverythingSecured everythingSecured = modelClass.getAnnotation(EverythingSecured.class);
+            if (everythingSecured == null) {
+                throw new EverythingEverythingException(
+                        String.format("Security is not configured for '%s'", id.getModelType()));
+            }
+            Access getAccess = extractAccess(everythingSecured);
+            String[] roles = getAccess.value();
+
+            if (roles.length == 0) {
+                String message = String.format("Security is not configured for '%s' for %s operation",
+                        id.getModelType(), name());
+                throw new EverythingEverythingException(message);
+            }
+
+            if (!roleBasedSecurity.currentUserHasOneOf(roles)) {
+                throw new EverythingAccessDeniedException("Access denied");
+            }
         }
-        Access getAccess = everythingSecured.get();
-        String[] roles = getAccess.value();
 
-        if (roles.length == 0) {
-            throw new EverythingEverythingException(
-                    String.format("Security is not configured for '%s' for get operation", id.getModelType()));
+        abstract Access extractAccess(EverythingSecured annotation);
+
+        abstract String name();
+    }
+
+    private class Get extends Operation {
+        @Override
+        Access extractAccess(EverythingSecured annotation) {
+            return annotation.get();
         }
 
-        if (!roleBasedSecurity.currentUserHasOneOf(roles)) {
-            throw new EverythingAccessDeniedException("Access denied");
+        @Override
+        String name() {
+            return "get";
+        }
+    }
+
+    private class Patch extends Operation {
+        @Override
+        Access extractAccess(EverythingSecured annotation) {
+            return annotation.patch();
+        }
+
+        @Override
+        String name() {
+            return "patch";
         }
     }
 }
