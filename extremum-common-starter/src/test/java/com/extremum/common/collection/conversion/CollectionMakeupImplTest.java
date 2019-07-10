@@ -7,7 +7,7 @@ import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.dto.AbstractResponseDto;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.TestApplicationUrls;
-import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IdOrObject;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import org.jetbrains.annotations.NotNull;
@@ -55,9 +55,9 @@ class CollectionMakeupImplTest {
     void setUp() {
         BuildingResponseDto building1 = new BuildingResponseDto("building1", "address1");
         BuildingResponseDto building2 = new BuildingResponseDto("building2", "address2");
-        List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings = Arrays.asList(
-                new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building1),
-                new IdOrObjectStruct<Descriptor, BuildingResponseDto>(building2)
+        List<IdOrObject<Descriptor, BuildingResponseDto>> buildings = Arrays.asList(
+                new IdOrObject<Descriptor, BuildingResponseDto>(building1),
+                new IdOrObject<Descriptor, BuildingResponseDto>(building2)
         );
         streetDto = new StreetResponseDto("the-street", buildings);
 
@@ -211,15 +211,15 @@ class CollectionMakeupImplTest {
 
     public static class StreetResponseDto extends AbstractResponseDto {
         @OwnedCollection(hostAttributeName = "the-buildings")
-        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
+        public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> buildings;
         @OwnedCollection(hostAttributeName = "the-private-buildings")
-        private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> privateBuildings;
+        private CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> privateBuildings;
         @OwnedCollection
-        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
-        private CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildingsAnnotatedViaGetter;
+        public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> buildingsWithDefaultName;
+        private CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> buildingsAnnotatedViaGetter;
 
         StreetResponseDto(String externalId,
-                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+                List<IdOrObject<Descriptor, BuildingResponseDto>> buildings) {
             setId(new Descriptor(externalId));
             this.buildings = new CollectionReference<>(buildings);
             this.privateBuildings = new CollectionReference<>(buildings);
@@ -228,17 +228,17 @@ class CollectionMakeupImplTest {
         }
 
         @OwnedCollection
-        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> getBuildingsAnnotatedViaGetter() {
+        public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> getBuildingsAnnotatedViaGetter() {
             return buildingsAnnotatedViaGetter;
         }
     }
 
     public static class InnerResponseDto extends AbstractResponseDto {
         @OwnedCollection(hostAttributeName = "the-buildings")
-        public CollectionReference<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings;
+        public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> buildings;
 
         InnerResponseDto(String externalId,
-                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+                List<IdOrObject<Descriptor, BuildingResponseDto>> buildings) {
             setId(new Descriptor(externalId));
             this.buildings = new CollectionReference<>(buildings);
         }
@@ -248,7 +248,7 @@ class CollectionMakeupImplTest {
         public InnerResponseDto innerDto;
 
         OuterResponseDto(String outerExternalId, String innerExternalId,
-                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+                List<IdOrObject<Descriptor, BuildingResponseDto>> buildings) {
             setId(new Descriptor(outerExternalId));
             innerDto = new InnerResponseDto(innerExternalId, buildings);
         }
@@ -258,7 +258,7 @@ class CollectionMakeupImplTest {
         public Object innerDto;
 
         OuterResponseDtoWithObjectTyping(String outerExternalId, String innerExternalId,
-                List<IdOrObjectStruct<Descriptor, BuildingResponseDto>> buildings) {
+                List<IdOrObject<Descriptor, BuildingResponseDto>> buildings) {
             setId(new Descriptor(outerExternalId));
             innerDto = new InnerResponseDto(innerExternalId, buildings);
         }

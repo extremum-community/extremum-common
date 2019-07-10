@@ -1,6 +1,6 @@
 package com.extremum.common.serializers;
 
-import com.extremum.sharedmodels.basic.IdOrObjectStruct;
+import com.extremum.sharedmodels.basic.IdOrObject;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -10,19 +10,19 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class IdOrObjectSerializer extends StdSerializer<IdOrObjectStruct> {
+public class IdOrObjectSerializer extends StdSerializer<IdOrObject> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IdOrObjectSerializer.class);
 
     private final ObjectMapper mapper;
 
     public IdOrObjectSerializer(ObjectMapper mapper) {
-        super(IdOrObjectStruct.class);
+        super(IdOrObject.class);
 
         this.mapper = mapper;
     }
 
     @Override
-    public void serialize(IdOrObjectStruct value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(IdOrObject value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (value == null) {
             LOGGER.debug("Nothing to serialize, serialization value is null");
             gen.writeNull();
