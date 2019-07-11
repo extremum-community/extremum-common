@@ -2,11 +2,12 @@ package com.extremum.sharedmodels.basic;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class StringOrMultilingual {
+public class StringOrMultilingual implements Serializable {
     private Type type;
     private String text;
     private Map<MultilingualLanguage, String> map;
