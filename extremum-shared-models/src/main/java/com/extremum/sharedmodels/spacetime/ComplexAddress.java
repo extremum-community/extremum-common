@@ -18,6 +18,21 @@ public class ComplexAddress {
         type = Type.unknown;
     }
 
+    public ComplexAddress(String stringAddress) {
+        type = Type.string;
+        string = stringAddress;
+    }
+
+    public ComplexAddress(Multilingual multilingualAddress) {
+        type = Type.multilingual;
+        multilingual = multilingualAddress;
+    }
+
+    public ComplexAddress(Address objectAddress) {
+        type = Type.addressObject;
+        address = objectAddress;
+    }
+
     public enum Type {
         unknown, string, multilingual, addressObject
     }
