@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
     public BasicSerializationDeserializationModule(ObjectMapper mapper) {
         setDeserializerModifier(new EnumDeserializerModifier());
         addSerializer(Enum.class, new EnumSerializer());
+        addSerializer(ObjectId.class, new ToStringSerializer());
         addDeserializer(ObjectId.class, new ObjectIdDeserializer());
 
         addSerializer(StringOrMultilingual.class, new StringOrMultilingualSerializer());
@@ -87,7 +89,7 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
 
         @Override
         public void serializeWithType(Enum value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider,
-                TypeSerializer typeSer) throws IOException {
+                                      TypeSerializer typeSer) throws IOException {
             actuallySerialize(value, jsonGenerator);
         }
     }

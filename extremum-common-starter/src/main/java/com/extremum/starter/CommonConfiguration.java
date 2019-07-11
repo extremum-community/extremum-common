@@ -33,21 +33,18 @@ import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
 @Configuration
 @Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class})
@@ -69,17 +66,9 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
-    public RedissonClient redissonClient() {
-        InputStream redisStream = CommonConfiguration.class.getClassLoader().getResourceAsStream("redis.json");
-        Config config;
-        try {
-            config = Config.fromJSON(redisStream);
-        } catch (IOException e) {
-            config = new Config();
-        }
-
-        config.setCodec(new JsonJacksonCodec(
-                new BasicJsonObjectMapper()));
+    public RedissonClient redissonClient(@Qualifier("redis") ObjectMapper redisMapper) {
+        Config config = new Config();
+        config.setCodec(new JsonJacksonCodec(redisMapper));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
@@ -90,8 +79,8 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(RedissonClient.class)
-    public RedisConnectionFactory redisConnectionFactory() {
-        return new RedissonConnectionFactory(redissonClient());
+    public RedisConnectionFactory redisConnectionFactory(RedissonClient client) {
+        return new RedissonConnectionFactory(client);
     }
 
     @Bean
@@ -147,14 +136,24 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MapperDependencies mapperDependencies(DescriptorFactory descriptorFactory,
-            CollectionDescriptorService collectionDescriptorService) {
+                                                 CollectionDescriptorService collectionDescriptorService) {
         return new MapperDependenciesImpl(descriptorFactory, collectionDescriptorService);
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies) {
-        return new SystemJsonObjectMapper(mapperDependencies);
+    @Primary
+    public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies, List<SystemMapperModulesSupplier> systemModulesSuppliers) {
+        SystemJsonObjectMapper objectMapper = new SystemJsonObjectMapper(mapperDependencies);
+        systemModulesSuppliers.forEach(supplier -> objectMapper.registerModules(supplier.get()));
+        return objectMapper;
+    }
+
+    @Bean
+    @Qualifier("redis")
+    public ObjectMapper redisObjectMapper(List<RedisMapperModulesSupplier> redisModuleSuppliers) {
+        BasicJsonObjectMapper objectMapper = new BasicJsonObjectMapper();
+        redisModuleSuppliers.forEach(supplier -> objectMapper.registerModules(supplier.get()));
+        return objectMapper;
     }
 
     @Bean
@@ -172,7 +171,7 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
-            DescriptorSaver descriptorSaver) {
+                                                               DescriptorSaver descriptorSaver) {
         return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
     }
 
