@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
  * @author rpuch
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 public @interface InfrastructureElement {
 }
