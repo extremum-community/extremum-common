@@ -22,7 +22,7 @@ public class StringOrMultilingualSerializer extends StdSerializer<StringOrMultil
         } else if (value.getType() == StringOrMultilingual.Type.MAP) {
             gen.writeStartObject();
 
-            for (Map.Entry<MultilingualLanguage, String> entry : value.getMap().entrySet()) {
+            for (Map.Entry<MultilingualLanguage, String> entry : value.getMultilingual().getMap().entrySet()) {
                 gen.writeStringField(entry.getKey().getValue(), entry.getValue());
             }
 

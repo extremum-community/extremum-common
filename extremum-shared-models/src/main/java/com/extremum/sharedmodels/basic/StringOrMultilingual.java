@@ -1,21 +1,25 @@
 package com.extremum.sharedmodels.basic;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-@Data
+@Getter
+@Setter
+@ToString
 public class StringOrMultilingual implements Serializable {
     private Type type;
     private String text;
-    private Map<MultilingualLanguage, String> map;
+    private Multilingual multilingual;
 
     private StringOrMultilingual(Type type, String text, Map<MultilingualLanguage, String> map) {
         this.type = type;
         this.text = text;
-        this.map = map;
+        this.multilingual = new Multilingual(map);
     }
 
     public StringOrMultilingual() {
@@ -29,7 +33,7 @@ public class StringOrMultilingual implements Serializable {
 
     public StringOrMultilingual(Map<MultilingualLanguage, String> map) {
         type = Type.MAP;
-        this.map = map;
+        this.multilingual = new Multilingual(map);
     }
 
     public boolean isTextOnly() {
