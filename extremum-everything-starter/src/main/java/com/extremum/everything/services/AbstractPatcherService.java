@@ -59,14 +59,15 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         M modelToPatch = findById(id);
 
         RequestDto patchedDto = applyPatch(patch, modelToPatch);
-
         validateRequest(patchedDto);
 
-        M patchedModel = persistFromRequestDto(patchedDto, modelToPatch);
+        M patchedModel = assermblePatchedModel(patchedDto, modelToPatch);
+
+        M persistedModel = persistWithHooks(modelToPatch, patchedModel);
 
         log.debug("Model with id {} has been patched with patch {}", id, patch);
         afterPatch();
-        return patchedModel;
+        return persistedModel;
     }
 
     private RequestDto applyPatch(JsonPatch patch, M modelToPatch) {
@@ -105,18 +106,18 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
     private void validateRequest(RequestDto dto) {
         beforeValidation(dto);
-        if (dtoValidator != null) {
-            Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
-            afterValidation(dto, !constraintViolation.isEmpty(), constraintViolation);
-        } else {
-            log.warn("Cannot find request dto validator to check a patched request {}", dto);
-        }
+
+        Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
+        afterValidation(dto, !constraintViolation.isEmpty(), constraintViolation);
     }
 
-    private M persistFromRequestDto(RequestDto patchedDto, M originalModel) {
-        M patchedModel = dtoConversionService.convertFromRequestDto(originalModel.getClass(), patchedDto);
-        originalModel.copyServiceFieldsTo(patchedModel);
+    private M assermblePatchedModel(RequestDto patchedDto, M modelToPatch) {
+        M patchedModel = dtoConversionService.convertFromRequestDto(modelToPatch.getClass(), patchedDto);
+        modelToPatch.copyServiceFieldsTo(patchedModel);
+        return patchedModel;
+    }
 
+    private M persistWithHooks(M originalModel, M patchedModel) {
         PatchPersistenceContext<M> context = new PatchPersistenceContext<>(originalModel, patchedModel);
 
         beforePersist(context);
@@ -127,7 +128,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         afterPersist(context);
         return context.getCurrentStateModel();
     }
-    
+
     //    Methods to override if needed
 
     protected void beforePatch(String id, JsonPatch patch) {
