@@ -11,7 +11,7 @@
 
     <properties>
         <elasticsearch.version>7.1.0</elasticsearch.version>
-        <testcoverage.minimum>0.62</testcoverage.minimum>
+        <testcoverage.minimum>0.61</testcoverage.minimum>
     </properties>
 
     <repositories>

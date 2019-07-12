@@ -10,7 +10,7 @@
     <artifactId>extremum-jpa-starter</artifactId>
 
     <properties>
-        <testcoverage.minimum>0.57</testcoverage.minimum>
+        <testcoverage.minimum>0.56</testcoverage.minimum>
     </properties>
 
     <dependencies>
