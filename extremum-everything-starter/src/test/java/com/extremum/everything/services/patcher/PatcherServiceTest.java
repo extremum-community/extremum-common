@@ -30,8 +30,6 @@ class PatcherServiceTest {
 
     @BeforeEach
     void setUp() {
-        dtoConversionService.getConverters().clear();
-        dtoConversionService.getConverters().add(new PatchModelConverter());
         dtoConversionService.getFromRequestConverters().clear();
         dtoConversionService.getFromRequestConverters().add(new PatchModelConverter());
         dtoConversionService.getToRequestConverters().clear();

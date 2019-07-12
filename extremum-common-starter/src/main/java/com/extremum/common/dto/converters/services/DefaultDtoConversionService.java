@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 @Setter
 @RequiredArgsConstructor
@@ -26,32 +25,11 @@ public class DefaultDtoConversionService implements DtoConversionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDtoConversionService.class);
 
     @Getter
-    private final List<DtoConverter> converters;
-    @Getter
     private final List<FromRequestDtoConverter<?, ?>> fromRequestConverters;
     @Getter
     private final List<ToRequestDtoConverter<?, ?>> toRequestConverters;
     private final List<ToResponseDtoConverter<?, ?>> toResponseConverters;
     private final StubDtoConverter stubDtoConverter;
-
-    @Override
-    public DtoConverter findConverter(Class<? extends Model> modelClass) {
-        requireNonNull(modelClass, "Model class can't be null");
-
-        // TODO: do we actually need to support models without @ModelName?
-        if (!ModelUtils.hasModelName(modelClass)) {
-            return null;
-        }
-
-        String modelName = ModelUtils.getModelName(modelClass);
-        for (DtoConverter converter : converters) {
-            if (modelName.equals(converter.getSupportedModel())) {
-                return converter;
-            }
-        }
-
-        return null;
-    }
 
     private <T extends DtoConverter> Optional<T> findConverter(Class<? extends Model> modelClass, List<T> converters) {
         if (!ModelUtils.hasModelName(modelClass)) {

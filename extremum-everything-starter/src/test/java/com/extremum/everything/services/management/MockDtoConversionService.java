@@ -12,10 +12,6 @@ import java.util.Optional;
  * @author rpuch
  */
 class MockDtoConversionService implements DtoConversionService {
-    @Override
-    public DtoConverter findConverter(Class<? extends Model> modelClass) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(

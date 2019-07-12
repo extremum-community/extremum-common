@@ -8,7 +8,6 @@ import com.extremum.sharedmodels.dto.ResponseDto;
 import java.util.Optional;
 
 public interface DtoConversionService {
-    DtoConverter findConverter(Class<? extends Model> modelClass);
 
     <M extends Model, D extends RequestDto>
     Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(Class<? extends M> modelClass);
