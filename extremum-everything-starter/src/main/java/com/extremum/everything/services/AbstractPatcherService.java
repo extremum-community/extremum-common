@@ -62,7 +62,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
         validateRequest(patchedDto);
 
-        M patchedModel = persistFromRequestDto(patchedDto, modelToPatch, id);
+        M patchedModel = persistFromRequestDto(patchedDto, modelToPatch);
 
         log.debug("Model with id {} has been patched with patch {}", id, patch);
         afterPatch();
@@ -113,11 +113,16 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         }
     }
 
-    private M persistFromRequestDto(RequestDto patchedDto, M originalModel, String id) {
-        PatchPersistenceContext<M> context = new PatchPersistenceContext<>(id, originalModel, patchedDto);
+    private M persistFromRequestDto(RequestDto patchedDto, M originalModel) {
+        M patchedModel = dtoConversionService.convertFromRequestDto(originalModel.getClass(), patchedDto);
+        originalModel.copyServiceFieldsTo(patchedModel);
+
+        PatchPersistenceContext<M> context = new PatchPersistenceContext<>(originalModel, patchedModel);
 
         beforePersist(context);
+
         M persistedModel = persist(context);
+
         context.setCurrentStateModel(persistedModel);
         afterPersist(context);
         return context.getCurrentStateModel();
@@ -154,20 +159,18 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     @Getter
     @Setter
     protected static class PatchPersistenceContext<M extends Model> {
-        private final String modelId;
         /**
          * Found by ID model. Before patching
          */
         private final M originalModel;
-        private final RequestDto patchedDto;
+        private final M patchedModel;
 
         private M currentStateModel;
 
-        public PatchPersistenceContext(String modelId, M originalModel,
-                RequestDto patchedDto) {
-            this.modelId = modelId;
+        public PatchPersistenceContext(M originalModel,
+                M patchedModel) {
             this.originalModel = originalModel;
-            this.patchedDto = patchedDto;
+            this.patchedModel = patchedModel;
 
             currentStateModel = originalModel;
         }

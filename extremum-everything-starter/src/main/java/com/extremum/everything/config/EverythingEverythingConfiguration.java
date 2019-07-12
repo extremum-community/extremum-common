@@ -10,8 +10,6 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.everything.security.EverythingRoleSecurity;
 import com.extremum.everything.security.AllowEverything;
 import com.extremum.everything.services.management.*;
-import com.extremum.sharedmodels.dto.RequestDto;
-import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
@@ -136,11 +134,10 @@ public class EverythingEverythingConfiguration {
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
             CommonServices commonServices,
             ModelClasses modelClasses,
-            DefaultGetter<Model> defaultGetter,
-            List<FromRequestDtoConverter<? extends Model, ? extends RequestDto>> dtoConverters
+            DefaultGetter<Model> defaultGetter
     ) {
         return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                commonServices, modelClasses, defaultGetter, dtoConverters);
+                commonServices, modelClasses, defaultGetter);
     }
 
     @Bean

@@ -22,5 +22,7 @@ public interface DtoConversionService {
 
     RequestDto convertUnknownToRequestDto(Model model, ConversionConfig config);
 
+    <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto);
+
     Class<? extends RequestDto> findRequestDtoType(Class<? extends Model> modelClass);
 }

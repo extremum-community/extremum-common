@@ -86,12 +86,20 @@ public class DefaultDtoConversionService implements DtoConversionService {
         return converter.convertToRequest(model, config);
     }
 
+    @Override
+    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
+        FromRequestDtoConverter<M, D> converter = this.<M, D>findFromRequestDtoConverter((Class<? extends M>) modelClass)
+                .orElseThrow(() -> new ConverterNotFoundException(
+                        format("Unable to find converter for model '%s'", modelClass.getSimpleName())));
+        return converter.convertFromRequest(dto);
+    }
+
     private ToRequestDtoConverter<Model, RequestDto> findMandatoryToRequestConverter(
             Class<? extends Model> modelClass) {
         return this.<Model, RequestDto>findToRequestDtoConverter(modelClass)
                     .orElseThrow(
                             () -> new ConverterNotFoundException(
-                                    format("Unable to determine converter for model %s", modelClass.getSimpleName()))
+                                    format("Unable to find converter for model '%s'", modelClass.getSimpleName()))
                     );
     }
 

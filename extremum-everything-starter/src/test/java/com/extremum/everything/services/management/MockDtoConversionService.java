@@ -16,6 +16,12 @@ class MockDtoConversionService implements DtoConversionService {
     @Override
     public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
             Class<? extends M> modelClass) {
+        if (modelClass == MongoModelWithServices.class) {
+            return Optional.of((FromRequestDtoConverter<M, D>) new DtoConverterForModelWithServices());
+        }
+        if (modelClass == MongoModelWithoutServices.class) {
+            return Optional.of((FromRequestDtoConverter<M, D>) new DtoConverterForModelWithoutServices());
+        }
         throw new UnsupportedOperationException();
     }
 
@@ -57,6 +63,13 @@ class MockDtoConversionService implements DtoConversionService {
             return new RequestDtoForModelWithoutServices();
         }
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
+        return (M) findFromRequestDtoConverter(modelClass)
+                .orElseThrow(() -> new IllegalArgumentException("No from request dto converter for " + modelClass))
+                .convertFromRequest(dto);
     }
 
     @Override

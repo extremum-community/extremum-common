@@ -1,6 +1,5 @@
 package com.extremum.everything.services.patcher;
 
-import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.everything.services.AbstractPatcherService;
@@ -9,22 +8,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static java.lang.String.format;
 
 public class TestPatcherService extends AbstractPatcherService<PatchModel> {
-    private final DtoConversionService dtoConversionService;
 
     protected TestPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
         super(dtoConversionService, jsonMapper);
 
-        this.dtoConversionService = dtoConversionService;
     }
 
     @Override
     protected PatchModel persist(PatchPersistenceContext<PatchModel> context) {
-        return findConverter().convertFromRequest((PatchModelRequestDto) context.getPatchedDto());
-    }
-
-    private FromRequestDtoConverter<PatchModel, PatchModelRequestDto> findConverter() {
-        return dtoConversionService.<PatchModel, PatchModelRequestDto>findFromRequestDtoConverter(PatchModel.class)
-                .orElseThrow(() -> new IllegalStateException("Did not find a converter"));
+        return context.getPatchedModel();
     }
 
     @Override

@@ -99,8 +99,7 @@ class EverythingServicesTest {
         DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelDescriptors);
         DefaultPatcher<Model> defaultPatcher = new DefaultPatcherImpl<>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                commonServices, modelClasses, defaultGetter,
-                ImmutableList.of(new DtoConverterForModelWithoutServices())
+                commonServices, modelClasses, defaultGetter
         );
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
