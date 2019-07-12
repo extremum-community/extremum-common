@@ -9,17 +9,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static java.lang.String.format;
 
 public class TestPatcherService extends AbstractPatcherService<PatchModel> {
+    private final DtoConversionService dtoConversionService;
 
     protected TestPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
         super(dtoConversionService, jsonMapper);
+
+        this.dtoConversionService = dtoConversionService;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected PatchModel persist(PatchPersistenceContext<PatchModel> context) {
-        return ((FromRequestDtoConverter<PatchModel, PatchModelRequestDto>)
-                getDtoConversionService().determineConverter(PatchModel.class))
-                .convertFromRequest((PatchModelRequestDto) context.getPatchedDto());
+        return findConverter().convertFromRequest((PatchModelRequestDto) context.getPatchedDto());
+    }
+
+    @SuppressWarnings("unchecked")
+    private FromRequestDtoConverter<PatchModel, PatchModelRequestDto> findConverter() {
+        return (FromRequestDtoConverter<PatchModel, PatchModelRequestDto>)
+                dtoConversionService.determineConverter(PatchModel.class);
     }
 
     @Override

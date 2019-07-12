@@ -26,8 +26,6 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-@Getter
-@Setter
 @Slf4j
 public abstract class AbstractPatcherService<M extends Model> implements PatcherService<M> {
     private final DtoConversionService dtoConversionService;
