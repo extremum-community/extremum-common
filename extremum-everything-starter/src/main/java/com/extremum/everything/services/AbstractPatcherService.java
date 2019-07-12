@@ -1,9 +1,7 @@
 package com.extremum.everything.services;
 
 import com.extremum.common.dto.converters.ConversionConfig;
-import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
-import com.extremum.common.exceptions.ConverterNotFoundException;
 import com.extremum.common.models.Model;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -73,26 +71,14 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
     private RequestDto applyPatch(JsonPatch patch, M modelToPatch) {
         JsonNode nodeToPatch = modelToJsonNode(modelToPatch);
-
         JsonNode patchedNode = applyPatchToNode(patch, nodeToPatch);
-        ToRequestDtoConverter<M, RequestDto> converter = findConverter(modelToPatch);
-        return nodeToRequestDto(patchedNode, converter);
+        Class<? extends RequestDto> requestDtoType = dtoConversionService.findRequestDtoType(modelToPatch.getClass());
+        return nodeToRequestDto(patchedNode, requestDtoType);
     }
 
     private JsonNode modelToJsonNode(M model) {
-        RequestDto requestDto = findConverter(model).convertToRequest(model, ConversionConfig.defaults());
+        RequestDto requestDto = dtoConversionService.convertUnknownToRequestDto(model, ConversionConfig.defaults());
         return jsonMapper.valueToTree(requestDto);
-    }
-
-    private String modelName(M model) {
-        return ModelUtils.getModelName(model);
-    }
-
-    private ToRequestDtoConverter<M, RequestDto> findConverter(M model) {
-        return dtoConversionService.<M, RequestDto>findToRequestDtoConverter((Class<? extends M>) model.getClass())
-                .orElseThrow(() -> new ConverterNotFoundException(
-                        "Cannot find dto converter for a model with name " + modelName(model))
-                );
     }
 
     private JsonNode applyPatchToNode(JsonPatch patch, JsonNode target) {
@@ -106,10 +92,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         }
     }
 
-    private RequestDto nodeToRequestDto(JsonNode patchedNode,
-            ToRequestDtoConverter<M, RequestDto> modelConverter) {
-        Class<? extends RequestDto> requestDtoType = modelConverter.getRequestDtoType();
-
+    private RequestDto nodeToRequestDto(JsonNode patchedNode, Class<? extends RequestDto> requestDtoType) {
         try {
             return jsonMapper.treeToValue(patchedNode, requestDtoType);
         } catch (JsonProcessingException e) {

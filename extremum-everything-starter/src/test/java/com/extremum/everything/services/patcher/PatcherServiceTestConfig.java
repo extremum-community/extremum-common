@@ -23,7 +23,7 @@ public class PatcherServiceTestConfig {
     @Bean
     public DefaultDtoConversionService dtoConversionService() {
         return new DefaultDtoConversionService(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-                new StubDtoConverter());
+                new ArrayList<>(), new StubDtoConverter());
     }
 
     @Bean
