@@ -90,7 +90,7 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     }
 
     private ToRequestDtoConverter<M, RequestDto> findConverter(M model) {
-        DtoConverter dtoConverter = dtoConversionService.determineConverterOrElseThrow(model,
+        DtoConverter dtoConverter = dtoConversionService.findConverterOrThrow(model,
                 () -> new ConverterNotFoundException(
                         "Cannot find dto converter for a model with name " + modelName(model)));
 

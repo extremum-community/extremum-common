@@ -9,9 +9,9 @@ import com.extremum.common.models.Model;
 import java.util.function.Supplier;
 
 public interface DtoConversionService {
-    DtoConverter determineConverter(Class<? extends Model> model);
+    DtoConverter findConverter(Class<? extends Model> model);
 
-    DtoConverter determineConverterOrElseThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier);
+    DtoConverter findConverterOrThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier);
 
     ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config);
 

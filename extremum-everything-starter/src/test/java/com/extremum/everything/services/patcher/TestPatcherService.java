@@ -25,7 +25,7 @@ public class TestPatcherService extends AbstractPatcherService<PatchModel> {
     @SuppressWarnings("unchecked")
     private FromRequestDtoConverter<PatchModel, PatchModelRequestDto> findConverter() {
         return (FromRequestDtoConverter<PatchModel, PatchModelRequestDto>)
-                dtoConversionService.determineConverter(PatchModel.class);
+                dtoConversionService.findConverter(PatchModel.class);
     }
 
     @Override

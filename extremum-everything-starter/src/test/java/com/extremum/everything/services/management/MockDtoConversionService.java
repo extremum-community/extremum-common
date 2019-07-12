@@ -14,12 +14,12 @@ import java.util.function.Supplier;
  */
 class MockDtoConversionService implements DtoConversionService {
     @Override
-    public DtoConverter determineConverter(Class<? extends Model> model) {
+    public DtoConverter findConverter(Class<? extends Model> model) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public DtoConverter determineConverterOrElseThrow(Model model,
+    public DtoConverter findConverterOrThrow(Model model,
             Supplier<? extends RuntimeException> exceptionSupplier) {
         if (model instanceof MongoModelWithServices) {
             return new DtoConverterForModelWithServices();

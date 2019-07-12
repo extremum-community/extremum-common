@@ -33,7 +33,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
     }
 
     @Override
-    public DtoConverter determineConverter(Class<? extends Model> modelClass) {
+    public DtoConverter findConverter(Class<? extends Model> modelClass) {
         requireNonNull(modelClass, "Model class can't be null");
 
         if (!ModelUtils.hasModelName(modelClass)) {
@@ -50,8 +50,8 @@ public class DefaultDtoConversionService implements DtoConversionService {
     }
 
     @Override
-    public DtoConverter determineConverterOrElseThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier) {
-        DtoConverter converter = determineConverter(model.getClass());
+    public DtoConverter findConverterOrThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier) {
+        DtoConverter converter = findConverter(model.getClass());
         if (converter == null) {
             LOGGER.error("Unable to determine a converter for model {}", model.getClass().getSimpleName());
             throw exceptionSupplier.get();
@@ -62,7 +62,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config) {
-        DtoConverter converter = determineConverter(model.getClass());
+        DtoConverter converter = findConverter(model.getClass());
 
         if (converter == null) {
             LOGGER.error("Unable to determine converter for model {}: {}", model.getClass().getSimpleName(), model);
@@ -81,7 +81,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public RequestDto convertUnknownToRequestDto(Model model, ConversionConfig config) {
-        DtoConverter converter = determineConverter(model.getClass());
+        DtoConverter converter = findConverter(model.getClass());
 
         if (converter == null) {
             String message = format("Unable to determine converter for model %s: %s", model.getClass().getSimpleName(), model);
