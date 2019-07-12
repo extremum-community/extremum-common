@@ -1,6 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
+import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.ConversionConfig;
@@ -34,6 +35,12 @@ class MockDtoConversionService implements DtoConversionService {
 
     @Override
     public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
+            Class<? extends M> modelClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <M extends Model, D extends RequestDto> Optional<ToRequestDtoConverter<M, D>> findToRequestDtoConverter(
             Class<? extends M> modelClass) {
         throw new UnsupportedOperationException();
     }

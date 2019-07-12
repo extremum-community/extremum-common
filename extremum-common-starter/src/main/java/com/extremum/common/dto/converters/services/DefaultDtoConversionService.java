@@ -29,6 +29,8 @@ public class DefaultDtoConversionService implements DtoConversionService {
     private final List<DtoConverter> converters;
     @Getter
     private final List<FromRequestDtoConverter<?, ?>> fromRequestConverters;
+    @Getter
+    private final List<ToRequestDtoConverter<?, ?>> toRequestConverters;
     private final StubDtoConverter stubDtoConverter;
 
     @Override
@@ -82,6 +84,13 @@ public class DefaultDtoConversionService implements DtoConversionService {
             Class<? extends M> modelClass) {
         return findConverter(modelClass, fromRequestConverters)
                 .map(converter -> (FromRequestDtoConverter<M, D>) converter);
+    }
+
+    @Override
+    public <M extends Model, D extends RequestDto> Optional<ToRequestDtoConverter<M, D>> findToRequestDtoConverter(
+            Class<? extends M> modelClass) {
+        return findConverter(modelClass, toRequestConverters)
+                .map(converter -> (ToRequestDtoConverter<M, D>) converter);
     }
 
     @Override

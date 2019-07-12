@@ -34,6 +34,8 @@ class PatcherServiceTest {
         dtoConversionService.getConverters().add(new PatchModelConverter());
         dtoConversionService.getFromRequestConverters().clear();
         dtoConversionService.getFromRequestConverters().add(new PatchModelConverter());
+        dtoConversionService.getToRequestConverters().clear();
+        dtoConversionService.getToRequestConverters().add(new PatchModelConverter());
     }
 
     @Test
@@ -47,14 +49,13 @@ class PatcherServiceTest {
 
     @Test
     void patchWithoutConverter() {
-        dtoConversionService.getConverters().clear();
+        dtoConversionService.getToRequestConverters().clear();
         assertThrows(ConverterNotFoundException.class, () -> patcherService.patch(existingModelId, createTestPatch()));
     }
 
     @Test
     void patchWithoutToRequestConverter() {
-        dtoConversionService.getConverters().clear();
-        dtoConversionService.getConverters().add(new PatchModelDtoConverter());
+        dtoConversionService.getToRequestConverters().clear();
         assertThrows(ConverterNotFoundException.class, () -> patcherService.patch(existingModelId, createTestPatch()));
     }
 

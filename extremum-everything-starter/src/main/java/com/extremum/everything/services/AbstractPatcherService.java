@@ -1,7 +1,6 @@
 package com.extremum.everything.services;
 
 import com.extremum.common.dto.converters.ConversionConfig;
-import com.extremum.common.dto.converters.DtoConverter;
 import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.exceptions.ConverterNotFoundException;
@@ -90,20 +89,10 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     }
 
     private ToRequestDtoConverter<M, RequestDto> findConverter(M model) {
-        DtoConverter dtoConverter = dtoConversionService.findConverterOrThrow(model,
-                () -> new ConverterNotFoundException(
-                        "Cannot find dto converter for a model with name " + modelName(model)));
-
-        ToRequestDtoConverter<M, RequestDto> modelConverter;
-        if (dtoConverter instanceof ToRequestDtoConverter) {
-            modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConverter;
-        } else {
-            String message = format("Converter for a model %s is not of a %s instance",
-                    modelName(model), ToRequestDtoConverter.class.getSimpleName());
-            log.error(message);
-            throw new ConverterNotFoundException(message);
-        }
-        return modelConverter;
+        return dtoConversionService.<M, RequestDto>findToRequestDtoConverter((Class<? extends M>) model.getClass())
+                .orElseThrow(() -> new ConverterNotFoundException(
+                        "Cannot find dto converter for a model with name " + modelName(model))
+                );
     }
 
     private JsonNode applyPatchToNode(JsonPatch patch, JsonNode target) {
