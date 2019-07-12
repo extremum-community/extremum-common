@@ -5,5 +5,5 @@ package com.extremum.everything.destroyer;
  * Will be helpful for destroying empty-object fields for clean serialization
  */
 public interface EmptyFieldDestroyer {
-    <T extends Object> T destroy(T object);
+    <T> T destroy(T object);
 }

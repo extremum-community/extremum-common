@@ -34,21 +34,37 @@ class InternalDefaultPatcher<M extends Model> extends AbstractPatcherService<M> 
     }
 
     @Override
-    protected M persist(PatchPersistenceContext<M> context, String modelName) {
-        Class<M> modelClass = modelClasses.getClassByModelName(modelName);
-        RequestDto requestDto = context.getRequestDto();
+    protected M persist(PatchPersistenceContext<M> context) {
+        FromRequestDtoConverter<? extends M, RequestDto> converter = findConverter(context);
+        M model = converter.convertFromRequest(context.getPatchedDto());
+        context.getOriginalModel().copyServiceFieldsTo(model);
+
+        CommonService<M> commonService = findService(context);
+        return commonService.save(model);
+    }
+
+    private Class<M> modelClass(PatchPersistenceContext<M> context) {
+        return modelClasses.getClassByModelName(context.modelName());
+    }
+
+    private FromRequestDtoConverter<? extends M, RequestDto> findConverter(
+            PatchPersistenceContext<M> context) {
         FromRequestDtoConverter<? extends M, ? extends RequestDto> converter = dtoConverters
                 .stream()
-                .filter(dtoConverter -> modelName.equals(dtoConverter.getSupportedModel()))
+                .filter(dtoConverter -> context.modelName().equals(dtoConverter.getSupportedModel()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(String.format("Cannot find %s for a model %s", FromRequestDtoConverter.class.getSimpleName(), modelClass)));
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("Cannot find %s for a model %s", FromRequestDtoConverter.class.getSimpleName(),
+                                modelClass(context))));
 
 //      We can eliminate this warning because converter cast his second generic parameter to the base wildcard class
-        @SuppressWarnings("unchecked") M model = ((FromRequestDtoConverter<? extends M, RequestDto>) converter).convertFromRequest(requestDto);
-        context.getOriginModel().copyServiceFieldsTo(model);
+        @SuppressWarnings("unchecked")
+        FromRequestDtoConverter<? extends M, RequestDto> castConverter = (FromRequestDtoConverter<? extends M, RequestDto>) converter;
+        return castConverter;
+    }
 
-        CommonService<M> commonService = commonServices.findServiceByModel(modelClass);
-        return commonService.save(model);
+    private CommonService<M> findService(PatchPersistenceContext<M> context) {
+        return commonServices.findServiceByModel(modelClass(context));
     }
 
     @Override

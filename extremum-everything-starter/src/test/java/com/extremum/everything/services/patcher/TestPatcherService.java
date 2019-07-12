@@ -16,10 +16,10 @@ public class TestPatcherService extends AbstractPatcherService<PatchModel> {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected PatchModel persist(PatchPersistenceContext<PatchModel> context, String modelName) {
+    protected PatchModel persist(PatchPersistenceContext<PatchModel> context) {
         return ((FromRequestDtoConverter<PatchModel, PatchModelRequestDto>)
                 getDtoConversionService().determineConverter(PatchModel.class))
-                .convertFromRequest((PatchModelRequestDto) context.getRequestDto());
+                .convertFromRequest((PatchModelRequestDto) context.getPatchedDto());
     }
 
     @Override

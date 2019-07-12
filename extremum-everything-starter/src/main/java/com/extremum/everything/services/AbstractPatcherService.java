@@ -1,6 +1,6 @@
 package com.extremum.everything.services;
 
-import com.extremum.sharedmodels.dto.RequestDto;
+import com.extremum.common.dto.converters.ConversionConfig;
 import com.extremum.common.dto.converters.DtoConverter;
 import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
@@ -10,6 +10,8 @@ import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
+import com.extremum.sharedmodels.dto.RequestDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -19,7 +21,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.ConstraintViolation;
-import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -44,6 +46,11 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
 
     protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
                                      EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator) {
+        Objects.requireNonNull(dtoConversionService, "dtoConversionService cannot be null");
+        Objects.requireNonNull(jsonMapper, "jsonMapper cannot be null");
+        Objects.requireNonNull(emptyFieldDestroyer, "emptyFieldDestroyer cannot be null");
+        Objects.requireNonNull(dtoValidator, "dtoValidator cannot be null");
+
         this.dtoConversionService = dtoConversionService;
         this.jsonMapper = jsonMapper;
         this.emptyFieldDestroyer = emptyFieldDestroyer;
@@ -51,54 +58,78 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public M patch(String id, JsonPatch patch) {
+    public final M patch(String id, JsonPatch patch) {
         beforePatch(id, patch);
-        M foundModel = findById(id);
 
-        String name = ModelUtils.getModelName(foundModel.getClass());
-        DtoConverter dtoConverter = dtoConversionService.determineConverterOrElseThrow(foundModel,
-                () -> new ConverterNotFoundException("Cannot found dto converter for a model with name " + name));
+        M modelToPatch = findById(id);
 
-//        Validation before execution
-        ToRequestDtoConverter<M, RequestDto> modelConverter;
-        if (dtoConverter instanceof ToRequestDtoConverter) {
-            modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConverter;
-        } else {
-            String message = format("Converter for a model %s is not of a %s instance",
-                    name, ToRequestDtoConverter.class.getSimpleName());
-            log.error(message);
-            throw new ConverterNotFoundException(message);
-        }
-
-        RequestDto requestDto = modelConverter.convertToRequest(foundModel, null);
-        JsonNode jsonDtoNode = jsonMapper.valueToTree(requestDto);
-
-        Class<? extends RequestDto> requestDtoType = modelConverter.getRequestDtoType();
-        RequestDto patchedDto = applyPatch(patch, jsonDtoNode, requestDtoType);
+        RequestDto patchedDto = applyPatch(patch, modelToPatch);
 
         validateRequest(patchedDto);
-        M patchedModel = persistFromRequestDto(patchedDto, foundModel, id, name);
+
+        M patchedModel = persistFromRequestDto(patchedDto, modelToPatch, id);
 
         log.debug("Model with id {} has been patched with patch {}", id, patch);
         afterPatch();
         return patchedModel;
     }
 
-    private RequestDto applyPatch(JsonPatch patch, JsonNode jsonDtoNode, Class<? extends RequestDto> requestDtoType) {
-        try {
-            JsonNode patchedNode = patch.apply(jsonDtoNode);
-            return jsonMapper.treeToValue(patchedNode, requestDtoType);
-        } catch (IOException e) {
-            String message = format("Unable to create a type %s from a raw json data %s",
-                    requestDtoType, jsonDtoNode);
+    private RequestDto applyPatch(JsonPatch patch, M modelToPatch) {
+        JsonNode nodeToPatch = modelToJsonNode(modelToPatch);
+
+        JsonNode patchedNode = applyPatchToNode(patch, nodeToPatch);
+        ToRequestDtoConverter<M, RequestDto> converter = findConverter(modelToPatch);
+        return nodeToRequestDto(patchedNode, converter);
+    }
+
+    private JsonNode modelToJsonNode(M model) {
+        RequestDto requestDto = findConverter(model).convertToRequest(model, ConversionConfig.defaults());
+        return jsonMapper.valueToTree(requestDto);
+    }
+
+    private String modelName(M model) {
+        return ModelUtils.getModelName(model);
+    }
+
+    private ToRequestDtoConverter<M, RequestDto> findConverter(M model) {
+        DtoConverter dtoConverter = dtoConversionService.determineConverterOrElseThrow(model,
+                () -> new ConverterNotFoundException(
+                        "Cannot find dto converter for a model with name " + modelName(model)));
+
+        ToRequestDtoConverter<M, RequestDto> modelConverter;
+        if (dtoConverter instanceof ToRequestDtoConverter) {
+            modelConverter = (ToRequestDtoConverter<M, RequestDto>) dtoConverter;
+        } else {
+            String message = format("Converter for a model %s is not of a %s instance",
+                    modelName(model), ToRequestDtoConverter.class.getSimpleName());
             log.error(message);
-            throw new RuntimeException(message);
+            throw new ConverterNotFoundException(message);
+        }
+        return modelConverter;
+    }
+
+    private JsonNode applyPatchToNode(JsonPatch patch, JsonNode target) {
+        try {
+            return patch.apply(target);
         } catch (JsonPatchException e) {
             String message = format("Unable to apply patch %s to json %s",
-                    patch, jsonDtoNode);
+                    patch, target);
             log.error(message, e);
             throw new RuntimeException(message, e);
+        }
+    }
+
+    private RequestDto nodeToRequestDto(JsonNode patchedNode,
+            ToRequestDtoConverter<M, RequestDto> modelConverter) {
+        Class<? extends RequestDto> requestDtoType = modelConverter.getRequestDtoType();
+
+        try {
+            return jsonMapper.treeToValue(patchedNode, requestDtoType);
+        } catch (JsonProcessingException e) {
+            String message = format("Unable to create a type %s from a raw json data %s",
+                    requestDtoType, patchedNode);
+            log.error(message);
+            throw new RuntimeException(message);
         }
     }
 
@@ -112,34 +143,17 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         }
     }
 
-    private M persistFromRequestDto(RequestDto dto, M origin, String id, String modelName) {
-        PatchPersistenceContext<M> context = new PatchPersistenceContext<>();
-        context.setModelId(id);
-        context.setOriginModel(origin);
-        context.setRequestDto(dto);
+    private M persistFromRequestDto(RequestDto patchedDto, M originalModel, String id) {
+        PatchPersistenceContext<M> context = new PatchPersistenceContext<>(id, originalModel, patchedDto);
 
         beforePersist(context);
-        handleContextBeforePersisting(context);
-        context.setCurrentStateModel(persist(context, modelName));
+        M persistedModel = persist(context);
+        context.setCurrentStateModel(persistedModel);
         afterPersist(context);
         return context.getCurrentStateModel();
     }
-
-
-    private M destroyEmptyFields(M model) {
-        if (emptyFieldDestroyer != null) {
-            return emptyFieldDestroyer.destroy(model);
-        } else {
-            log.warn("Empty fields cannot be destroyed because EmptyFieldDestroyer doesn't defined");
-            return model;
-        }
-    }
-
-//    Methods to override if needed
-
-    protected void handleContextBeforePersisting(PatchPersistenceContext<M> context) {
-        context.currentStateModel = destroyEmptyFields(context.originModel);
-    }
+    
+    //    Methods to override if needed
 
     protected void beforePatch(String id, JsonPatch patch) {
     }
@@ -163,22 +177,33 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     protected void afterPatch() {
     }
 
-    protected abstract M persist(PatchPersistenceContext<M> context, String modelName);
+    protected abstract M persist(PatchPersistenceContext<M> context);
 
     protected abstract M findById(String id);
 
     @Getter
     @Setter
     protected static class PatchPersistenceContext<M extends Model> {
-        private String modelId;
-
+        private final String modelId;
         /**
          * Found by ID model. Before patching
          */
-        private M originModel;
+        private final M originalModel;
+        private final RequestDto patchedDto;
 
         private M currentStateModel;
 
-        private RequestDto requestDto;
+        public PatchPersistenceContext(String modelId, M originalModel,
+                RequestDto patchedDto) {
+            this.modelId = modelId;
+            this.originalModel = originalModel;
+            this.patchedDto = patchedDto;
+
+            currentStateModel = originalModel;
+        }
+
+        public String modelName() {
+            return ModelUtils.getModelName(originalModel);
+        }
     }
 }

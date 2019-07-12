@@ -228,8 +228,7 @@ class EverythingServicesTest {
         }
 
         @Override
-        protected MongoModelWithServices persist(PatchPersistenceContext<MongoModelWithServices> context,
-                String modelName) {
+        protected MongoModelWithServices persist(PatchPersistenceContext<MongoModelWithServices> context) {
             return context.getCurrentStateModel();
         }
 

@@ -1,38 +1,34 @@
 package com.extremum.common.dto.converters.services;
 
-import com.extremum.sharedmodels.dto.RequestDto;
-import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.*;
 import com.extremum.common.models.Model;
 import com.extremum.common.utils.ModelUtils;
+import com.extremum.sharedmodels.dto.RequestDto;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
 
-@Getter
 @Setter
 @Service
 public class DefaultDtoConversionService implements DtoConversionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDtoConversionService.class);
 
     private final StubDtoConverter stubDtoConverter;
+    @Getter
     private final List<DtoConverter> converters;
-    private final boolean useStubConverter = true;
 
-    public DefaultDtoConversionService(@Autowired(required = false) List<DtoConverter> converters,
+    public DefaultDtoConversionService(List<DtoConverter> converters,
                                        StubDtoConverter stubDtoConverter) {
-        this.converters = ofNullable(converters).orElseGet(ArrayList::new);
+        this.converters = converters;
         this.stubDtoConverter = stubDtoConverter;
     }
 
@@ -40,11 +36,14 @@ public class DefaultDtoConversionService implements DtoConversionService {
     public DtoConverter determineConverter(Class<? extends Model> modelClass) {
         requireNonNull(modelClass, "Model class can't be null");
 
+        if (!ModelUtils.hasModelName(modelClass)) {
+            return null;
+        }
+
+        String modelName = ModelUtils.getModelName(modelClass);
         for (DtoConverter converter : converters) {
-            if (ModelUtils.hasModelName(modelClass)) {
-                if (ModelUtils.getModelName(modelClass).equalsIgnoreCase(converter.getSupportedModel())) {
-                    return converter;
-                }
+            if (modelName.equalsIgnoreCase(converter.getSupportedModel())) {
+                return converter;
             }
         }
         return null;
