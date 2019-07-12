@@ -22,10 +22,9 @@ public class TestPatcherService extends AbstractPatcherService<PatchModel> {
         return findConverter().convertFromRequest((PatchModelRequestDto) context.getPatchedDto());
     }
 
-    @SuppressWarnings("unchecked")
     private FromRequestDtoConverter<PatchModel, PatchModelRequestDto> findConverter() {
-        return (FromRequestDtoConverter<PatchModel, PatchModelRequestDto>)
-                dtoConversionService.findConverter(PatchModel.class);
+        return dtoConversionService.<PatchModel, PatchModelRequestDto>findFromRequestDtoConverter(PatchModel.class)
+                .orElseThrow(() -> new IllegalStateException("Did not find a converter"));
     }
 
     @Override

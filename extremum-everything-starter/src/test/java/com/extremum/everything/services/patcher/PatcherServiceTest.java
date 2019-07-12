@@ -32,6 +32,8 @@ class PatcherServiceTest {
     void setUp() {
         dtoConversionService.getConverters().clear();
         dtoConversionService.getConverters().add(new PatchModelConverter());
+        dtoConversionService.getFromRequestConverters().clear();
+        dtoConversionService.getFromRequestConverters().add(new PatchModelConverter());
     }
 
     @Test

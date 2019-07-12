@@ -6,31 +6,30 @@ import com.extremum.common.utils.ModelUtils;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @Setter
+@RequiredArgsConstructor
 @Service
 public class DefaultDtoConversionService implements DtoConversionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDtoConversionService.class);
 
-    private final StubDtoConverter stubDtoConverter;
     @Getter
     private final List<DtoConverter> converters;
-
-    public DefaultDtoConversionService(List<DtoConverter> converters,
-                                       StubDtoConverter stubDtoConverter) {
-        this.converters = converters;
-        this.stubDtoConverter = stubDtoConverter;
-    }
+    @Getter
+    private final List<FromRequestDtoConverter<?, ?>> fromRequestConverters;
+    private final StubDtoConverter stubDtoConverter;
 
     @Override
     public DtoConverter findConverter(Class<? extends Model> modelClass) {
@@ -47,7 +46,24 @@ public class DefaultDtoConversionService implements DtoConversionService {
                 return converter;
             }
         }
+
         return null;
+    }
+
+    private <T extends DtoConverter> Optional<T> findConverter(Class<? extends Model> modelClass, List<T> converters) {
+        if (!ModelUtils.hasModelName(modelClass)) {
+            return Optional.empty();
+        }
+
+        String modelName = ModelUtils.getModelName(modelClass);
+
+        for (T converter : converters) {
+            if (modelName.equals(converter.getSupportedModel())) {
+                return Optional.of(converter);
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -59,6 +75,13 @@ public class DefaultDtoConversionService implements DtoConversionService {
         } else {
             return converter;
         }
+    }
+
+    @Override
+    public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
+            Class<? extends M> modelClass) {
+        return findConverter(modelClass, fromRequestConverters)
+                .map(converter -> (FromRequestDtoConverter<M, D>) converter);
     }
 
     @Override
