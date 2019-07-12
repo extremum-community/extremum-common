@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -66,17 +65,6 @@ public class DefaultDtoConversionService implements DtoConversionService {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public DtoConverter findConverterOrThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier) {
-        DtoConverter converter = findConverter(model.getClass());
-        if (converter == null) {
-            LOGGER.error("Unable to determine a converter for model {}", model.getClass().getSimpleName());
-            throw exceptionSupplier.get();
-        } else {
-            return converter;
-        }
     }
 
     @Override

@@ -14,8 +14,6 @@ import java.util.function.Supplier;
 public interface DtoConversionService {
     DtoConverter findConverter(Class<? extends Model> modelClass);
 
-    DtoConverter findConverterOrThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier);
-
     <M extends Model, D extends RequestDto>
     Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(Class<? extends M> modelClass);
 

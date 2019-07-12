@@ -10,7 +10,6 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * @author rpuch
@@ -18,18 +17,6 @@ import java.util.function.Supplier;
 class MockDtoConversionService implements DtoConversionService {
     @Override
     public DtoConverter findConverter(Class<? extends Model> modelClass) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DtoConverter findConverterOrThrow(Model model,
-            Supplier<? extends RuntimeException> exceptionSupplier) {
-        if (model instanceof MongoModelWithServices) {
-            return new DtoConverterForModelWithServices();
-        }
-        if (model instanceof MongoModelWithoutServices) {
-            return new DtoConverterForModelWithoutServices();
-        }
         throw new UnsupportedOperationException();
     }
 
