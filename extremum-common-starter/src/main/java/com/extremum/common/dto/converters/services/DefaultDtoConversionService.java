@@ -36,13 +36,14 @@ public class DefaultDtoConversionService implements DtoConversionService {
     public DtoConverter findConverter(Class<? extends Model> modelClass) {
         requireNonNull(modelClass, "Model class can't be null");
 
+        // TODO: do we actually need to support models without @ModelName?
         if (!ModelUtils.hasModelName(modelClass)) {
             return null;
         }
 
         String modelName = ModelUtils.getModelName(modelClass);
         for (DtoConverter converter : converters) {
-            if (modelName.equalsIgnoreCase(converter.getSupportedModel())) {
+            if (modelName.equals(converter.getSupportedModel())) {
                 return converter;
             }
         }
