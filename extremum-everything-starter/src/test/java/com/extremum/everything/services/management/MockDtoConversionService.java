@@ -1,10 +1,12 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.common.dto.converters.*;
-import com.extremum.sharedmodels.dto.RequestDto;
-import com.extremum.sharedmodels.dto.ResponseDto;
+import com.extremum.common.dto.converters.ConversionConfig;
+import com.extremum.common.dto.converters.FromRequestDtoConverter;
+import com.extremum.common.dto.converters.ToRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
+import com.extremum.sharedmodels.dto.RequestDto;
+import com.extremum.sharedmodels.dto.ResponseDto;
 
 import java.util.Optional;
 
@@ -13,8 +15,7 @@ import java.util.Optional;
  */
 class MockDtoConversionService implements DtoConversionService {
 
-    @Override
-    public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
+    private <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
             Class<? extends M> modelClass) {
         if (modelClass == MongoModelWithServices.class) {
             return Optional.of((FromRequestDtoConverter<M, D>) new DtoConverterForModelWithServices());
@@ -25,8 +26,7 @@ class MockDtoConversionService implements DtoConversionService {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public <M extends Model, D extends RequestDto> Optional<ToRequestDtoConverter<M, D>> findToRequestDtoConverter(
+    private <M extends Model, D extends RequestDto> Optional<ToRequestDtoConverter<M, D>> findToRequestDtoConverter(
             Class<? extends M> modelClass) {
         if (modelClass == MongoModelWithServices.class) {
             return Optional.of((ToRequestDtoConverter<M, D>) new DtoConverterForModelWithServices());
@@ -34,12 +34,6 @@ class MockDtoConversionService implements DtoConversionService {
         if (modelClass == MongoModelWithoutServices.class) {
             return Optional.of((ToRequestDtoConverter<M, D>) new DtoConverterForModelWithoutServices());
         }
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <M extends Model, D extends ResponseDto> Optional<ToResponseDtoConverter<M, D>> findToResponseDtoConverter(
-            Class<? extends M> modelClass) {
         throw new UnsupportedOperationException();
     }
 

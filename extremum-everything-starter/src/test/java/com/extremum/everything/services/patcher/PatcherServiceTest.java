@@ -1,6 +1,7 @@
 package com.extremum.everything.services.patcher;
 
 import com.extremum.common.dto.converters.services.DefaultDtoConversionService;
+import com.extremum.common.dto.converters.services.DtoConvertersCollection;
 import com.extremum.common.exceptions.ConverterNotFoundException;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
@@ -24,16 +25,18 @@ class PatcherServiceTest {
     private static final String existingModelId = "id";
 
     @Autowired
+    private DtoConvertersCollection dtoConverters;
+    @Autowired
     private DefaultDtoConversionService dtoConversionService;
     @Autowired
     private TestPatcherService patcherService;
 
     @BeforeEach
     void setUp() {
-        dtoConversionService.getFromRequestConverters().clear();
-        dtoConversionService.getFromRequestConverters().add(new PatchModelConverter());
-        dtoConversionService.getToRequestConverters().clear();
-        dtoConversionService.getToRequestConverters().add(new PatchModelConverter());
+        dtoConverters.getFromRequestConverters().clear();
+        dtoConverters.getFromRequestConverters().add(new PatchModelConverter());
+        dtoConverters.getToRequestConverters().clear();
+        dtoConverters.getToRequestConverters().add(new PatchModelConverter());
     }
 
     @Test
@@ -47,13 +50,13 @@ class PatcherServiceTest {
 
     @Test
     void patchWithoutConverter() {
-        dtoConversionService.getToRequestConverters().clear();
+        dtoConverters.getToRequestConverters().clear();
         assertThrows(ConverterNotFoundException.class, () -> patcherService.patch(existingModelId, createTestPatch()));
     }
 
     @Test
     void patchWithoutToRequestConverter() {
-        dtoConversionService.getToRequestConverters().clear();
+        dtoConverters.getToRequestConverters().clear();
         assertThrows(ConverterNotFoundException.class, () -> patcherService.patch(existingModelId, createTestPatch()));
     }
 
