@@ -7,10 +7,8 @@ import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.everything.security.AllowEverythingForDataAccess;
-import com.extremum.everything.security.EverythingDataSecurity;
-import com.extremum.everything.security.EverythingRoleSecurity;
-import com.extremum.everything.security.AllowEverythingForRoleAccess;
+import com.extremum.everything.security.*;
+import com.extremum.everything.security.services.DataAccessChecker;
 import com.extremum.everything.services.management.*;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
@@ -156,8 +154,14 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingDataSecurity everythingDataSecurity() {
-        return new AllowEverythingForDataAccess();
+    public RoleChecker roleChecker() {
+        return new AllowAnyRoleChecker();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EverythingDataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker) {
+        return new AccessCheckersDataSecurity(checkers, roleChecker);
     }
 
     @Bean
