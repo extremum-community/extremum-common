@@ -25,7 +25,7 @@ public class DefaultDtoConversionService implements DtoConversionService {
     @Override
     public ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config) {
         ToResponseDtoConverter<Model, ResponseDto> converter = dtoConverters.<Model, ResponseDto>findToResponseDtoConverter(model.getClass())
-                .orElse(warnAndGetStubConverter(model));
+                .orElseGet(() -> warnAndGetStubConverter(model));
         return converter.convertToResponse(model, config);
     }
 
