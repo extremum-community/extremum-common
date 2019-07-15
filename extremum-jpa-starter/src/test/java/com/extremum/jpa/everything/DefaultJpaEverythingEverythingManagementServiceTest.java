@@ -2,7 +2,8 @@ package com.extremum.jpa.everything;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.conversion.OwnedCollection;
-import com.extremum.everything.security.AllowEverything;
+import com.extremum.everything.security.AllowEverythingForDataAccess;
+import com.extremum.everything.security.AllowEverythingForRoleAccess;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
@@ -58,7 +59,8 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
                 universalDao,
-                new AllowEverything()
+                new AllowEverythingForRoleAccess(),
+                new AllowEverythingForDataAccess()
         );
     }
 

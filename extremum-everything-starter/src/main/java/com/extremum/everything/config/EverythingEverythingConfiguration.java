@@ -7,8 +7,10 @@ import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.everything.security.AllowEverythingForDataAccess;
+import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.security.EverythingRoleSecurity;
-import com.extremum.everything.security.AllowEverything;
+import com.extremum.everything.security.AllowEverythingForRoleAccess;
 import com.extremum.everything.services.management.*;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
@@ -148,8 +150,14 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingRoleSecurity everythingSecurity() {
-        return new AllowEverything();
+    public EverythingRoleSecurity everythingRoleSecurity() {
+        return new AllowEverythingForRoleAccess();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EverythingDataSecurity everythingDataSecurity() {
+        return new AllowEverythingForDataAccess();
     }
 
     @Bean
@@ -164,10 +172,11 @@ public class EverythingEverythingConfiguration {
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
-            EverythingRoleSecurity everythingRoleSecurity) {
+            EverythingRoleSecurity everythingRoleSecurity,
+            EverythingDataSecurity everythingDataSecurity) {
         return new DefaultEverythingEverythingManagementService(getterServices, patcherServices, removalServices,
                 defaultGetter, defaultPatcher, defaultRemover,
-                collectionFetchers, dtoConversionService, universalDao, everythingRoleSecurity);
+                collectionFetchers, dtoConversionService, universalDao, everythingRoleSecurity, everythingDataSecurity);
     }
 
     @Bean

@@ -175,7 +175,7 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     protected final M getResultWithNullabilityCheck(M result, String id, Problems problems) {
-        if(result == null) {
+        if (result == null) {
             LOGGER.warn("Model {} with id {} wasn't found", modelTypeName, id);
             fillAlertsOrThrowException(problems, new ModelNotFoundException(modelClass, id));
         }

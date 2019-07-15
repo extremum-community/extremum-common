@@ -12,6 +12,7 @@ import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
+import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.security.EverythingRoleSecurity;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.collection.CoordinatesHandler;
@@ -47,7 +48,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
-    private final EverythingRoleSecurity security;
+    private final EverythingRoleSecurity roleSecurity;
+    private final EverythingDataSecurity dataSecurity;
 
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
         ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
@@ -91,9 +93,11 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
-        security.checkGetAllowed(id);
+        roleSecurity.checkGetAllowed(id);
 
         Model model = retrieveModelObject(id);
+
+        dataSecurity.checkGetAllowed(model);
 
         if (model == null) {
             throw new ModelNotFoundException(String.format("Nothing was found by '%s'", id.getExternalId()));
@@ -104,7 +108,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        security.checkPatchAllowed(id);
+        roleSecurity.checkPatchAllowed(id);
 
         String modelName = determineModelName(id);
 
@@ -125,12 +129,19 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public void remove(Descriptor id) {
-        security.checkRemovalAllowed(id);
+        roleSecurity.checkRemovalAllowed(id);
+
+        checkDataSecurityAllowsRemoval(id);
 
         String modelName = determineModelName(id);
         Remover remover = findRemover(modelName);
         remover.remove(id.getInternalId());
         LOGGER.debug(format("Model with ID '%s' was removed by service '%s'", id, remover));
+    }
+
+    private void checkDataSecurityAllowsRemoval(Descriptor id) {
+        Model model = retrieveModelObject(id);
+        dataSecurity.checkRemovalAllowed(model);
     }
 
     private Remover findRemover(String modelName) {
