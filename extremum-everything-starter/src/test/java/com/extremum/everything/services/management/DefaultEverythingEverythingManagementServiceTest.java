@@ -2,9 +2,9 @@ package com.extremum.everything.services.management;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.conversion.OwnedCollection;
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
+import com.extremum.common.exceptions.ModelNotFoundException;
+import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionElementType;
@@ -12,8 +12,12 @@ import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
+import com.extremum.everything.security.AllowEverything;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +35,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -40,7 +45,7 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class DefaultCommonEverythingEverythingManagementServiceTest {
+class DefaultEverythingEverythingManagementServiceTest {
     @InjectMocks
     private DefaultEverythingEverythingManagementService service;
 
@@ -57,13 +62,14 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
     @BeforeEach
     void setUp() {
         service = new DefaultEverythingEverythingManagementService(
-                Collections.singletonList(streetGetterService),
+                ImmutableList.of(streetGetterService, new AlwaysNullGetterService()),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 null, null, null,
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,
-                universalDao
+                universalDao,
+                new AllowEverything()
         );
     }
 
@@ -129,6 +135,21 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
         assertThat(houses.elements(), hasSize(1));
     }
 
+    @Test
+    void givenGetterServiceReturnsNull_whenGetting_thenModelNotFoundExceptionShouldBeThrown() {
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .internalId("internal-id")
+                .modelType("AlwaysNull")
+                .build();
+        try {
+            service.get(descriptor, false);
+            fail("A ModelNotFoundException is expected");
+        } catch (ModelNotFoundException e) {
+            assertThat(e.getMessage(), is("Nothing was found by 'external-id'"));
+        }
+    }
+
     @ModelName("House")
     private static class House extends MongoCommonModel {
     }
@@ -170,6 +191,18 @@ class DefaultCommonEverythingEverythingManagementServiceTest {
         @Override
         public String getSupportedModel() {
             return "Street";
+        }
+    }
+
+    private static class AlwaysNullGetterService implements GetterService<Model> {
+        @Override
+        public Model get(String id) {
+            return null;
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "AlwaysNull";
         }
     }
 }

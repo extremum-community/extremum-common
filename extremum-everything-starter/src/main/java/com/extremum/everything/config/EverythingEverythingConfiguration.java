@@ -7,6 +7,9 @@ import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.everything.security.EverythingRoleSecurity;
+import com.extremum.everything.security.AllowEverything;
+import com.extremum.everything.services.management.*;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.dto.converters.FromRequestDtoConverter;
 import com.extremum.common.dto.converters.services.DtoConversionService;
@@ -30,10 +33,6 @@ import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
-import com.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
-import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
-import com.extremum.everything.services.management.EverythingCollectionManagementService;
-import com.extremum.everything.services.management.EverythingEverythingManagementService;
 import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -152,6 +151,12 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public EverythingRoleSecurity everythingSecurity() {
+        return new AllowEverything();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EverythingEverythingManagementService everythingEverythingManagementService(
             List<GetterService<? extends Model>> getterServices,
             List<PatcherService<? extends Model>> patcherServices,
@@ -161,10 +166,11 @@ public class EverythingEverythingConfiguration {
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
-            UniversalDao universalDao) {
+            UniversalDao universalDao,
+            EverythingRoleSecurity everythingRoleSecurity) {
         return new DefaultEverythingEverythingManagementService(getterServices, patcherServices, removalServices,
                 defaultGetter, defaultPatcher, defaultRemover,
-                collectionFetchers, dtoConversionService, universalDao);
+                collectionFetchers, dtoConversionService, universalDao, everythingRoleSecurity);
     }
 
     @Bean
