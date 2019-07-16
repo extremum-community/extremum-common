@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface EverythingSecured {
+    Access defaultAccess() default @Access({});
+
     Access get() default @Access({});
 
     Access patch() default @Access({});
