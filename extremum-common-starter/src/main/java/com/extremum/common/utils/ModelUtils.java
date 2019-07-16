@@ -2,11 +2,8 @@ package com.extremum.common.utils;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.models.annotation.ModelName;
-import com.google.common.collect.ImmutableList;
 
-import java.util.List;
-
-public class ModelUtils {
+public final class ModelUtils {
     public static String getModelName(Class<? extends Model> modelClass) {
         ModelName annotation = findModelNameAnnotation(modelClass);
         if (annotation == null) {
@@ -16,16 +13,7 @@ public class ModelUtils {
     }
 
     private static ModelName findModelNameAnnotation(Class<? extends Model> modelClass) {
-        final Class<?> classToCheckAnnotation = unwrapProxyClass(modelClass);
-        return classToCheckAnnotation.getAnnotation(ModelName.class);
-    }
-
-    private static Class<?> unwrapProxyClass(Class<? extends Model> modelClass) {
-        if (EntityUtils.isProxyClass(modelClass)) {
-            return modelClass.getSuperclass();
-        } else {
-            return modelClass;
-        }
+        return AnnotationUtils.findAnnotationDirectlyOrUnderProxy(ModelName.class, modelClass);
     }
 
     public static boolean hasModelName(Class<? extends Model> modelClass) {
@@ -34,5 +22,8 @@ public class ModelUtils {
 
     public static <M extends Model> String getModelName(M model) {
         return getModelName(model.getClass());
+    }
+
+    private ModelUtils() {
     }
 }

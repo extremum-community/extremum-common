@@ -47,7 +47,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
     }
 
     private boolean isAnnotatedWithNoDataSecurity(Model model) {
-        return model.getClass().getAnnotation(NoDataSecurity.class) != null;
+        return DataSecurityAnnotations.annotatedWithNoDataSecurity(model.getClass());
     }
 
     private void throwIfNoCheckerAndNoAnnotation(Model model, DataAccessChecker<Model> checker,

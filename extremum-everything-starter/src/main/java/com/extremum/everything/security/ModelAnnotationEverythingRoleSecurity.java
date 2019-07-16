@@ -1,6 +1,7 @@
 package com.extremum.everything.security;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.utils.AnnotationUtils;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
@@ -43,7 +44,8 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
         void throwIfNoRolesFor(Descriptor id) {
             Class<Model> modelClass = modelClasses.getClassByModelName(id.getModelType());
 
-            EverythingSecured everythingSecured = modelClass.getAnnotation(EverythingSecured.class);
+            EverythingSecured everythingSecured = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(
+                    EverythingSecured.class, modelClass);
             if (everythingSecured == null) {
                 throw new EverythingEverythingException(
                         String.format("Security is not configured for '%s'", id.getModelType()));

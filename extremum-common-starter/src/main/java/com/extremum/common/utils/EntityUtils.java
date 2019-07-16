@@ -7,11 +7,14 @@ import java.util.List;
 /**
  * @author rpuch
  */
-public class EntityUtils {
+public final class EntityUtils {
     private static final List<String> PROXY_MARKERS = ImmutableList.of("$HibernateProxy$");
 
     public static boolean isProxyClass(Class<?> classToCheck) {
         final String name = classToCheck.getName();
         return PROXY_MARKERS.stream().anyMatch(name::contains);
+    }
+
+    private EntityUtils() {
     }
 }
