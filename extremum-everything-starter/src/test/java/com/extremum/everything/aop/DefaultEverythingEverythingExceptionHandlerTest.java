@@ -1,6 +1,7 @@
 package com.extremum.everything.aop;
 
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.response.Response;
@@ -107,6 +108,16 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         assertThat(root.getString("result"), is(nullValue()));
     }
 
+    @Test
+    void whenEverythingAccessDeniedExceptionIsThrown_thenProper403ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+            throws Exception {
+        JSONObject root = getSuccessfullyAndParseResponse("/everything-access-denied-exception");
+
+        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getInt("code"), is(403));
+        assertThat(root.getString("result"), is(nullValue()));
+    }
+
     @RestController
     private static class TestController {
         @RequestMapping("/ok")
@@ -140,6 +151,11 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         @RequestMapping("/collection-descriptor-not-found")
         Response collectionDescriptorNotFound() {
             throw new CollectionDescriptorNotFoundException("Did not find anything");
+        }
+
+        @RequestMapping("/everything-access-denied-exception")
+        Response everythingAccessDeniedException() {
+            throw new EverythingAccessDeniedException("Access denied");
         }
     }
 
