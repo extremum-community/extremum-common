@@ -13,7 +13,6 @@ import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.security.EverythingDataSecurity;
-import com.extremum.everything.security.EverythingRoleSecurity;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.PatcherService;
@@ -49,7 +48,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
-    private final EverythingRoleSecurity roleSecurity;
     private final EverythingDataSecurity dataSecurity;
 
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
@@ -94,8 +92,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
-        roleSecurity.checkGetAllowed(id);
-
         Model model = retrieveModelObject(id);
 
         dataSecurity.checkGetAllowed(model);
@@ -109,8 +105,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        roleSecurity.checkPatchAllowed(id);
-
         String modelName = determineModelName(id);
 
         Patcher patcher = findPatcher(modelName);
@@ -130,8 +124,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public void remove(Descriptor id) {
-        roleSecurity.checkRemovalAllowed(id);
-
         checkDataSecurityAllowsRemoval(id);
 
         String modelName = determineModelName(id);

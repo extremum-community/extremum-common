@@ -2,19 +2,18 @@ package com.extremum.jpa.everything;
 
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.common.collection.conversion.OwnedCollection;
-import com.extremum.everything.security.AllowEverythingForDataAccess;
-import com.extremum.everything.security.AllowEverythingForRoleAccess;
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.sharedmodels.dto.ResponseDto;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
+import com.extremum.everything.security.AllowEverythingForDataAccess;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
 import com.extremum.jpa.models.PostgresBasicModel;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +58,6 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
                 universalDao,
-                new AllowEverythingForRoleAccess(),
                 new AllowEverythingForDataAccess()
         );
     }

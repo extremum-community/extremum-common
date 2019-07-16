@@ -178,9 +178,11 @@ public class EverythingEverythingConfiguration {
             UniversalDao universalDao,
             EverythingRoleSecurity everythingRoleSecurity,
             EverythingDataSecurity everythingDataSecurity) {
-        return new DefaultEverythingEverythingManagementService(getterServices, patcherServices, removalServices,
+        EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
+                getterServices, patcherServices, removalServices,
                 defaultGetter, defaultPatcher, defaultRemover,
-                collectionFetchers, dtoConversionService, universalDao, everythingRoleSecurity, everythingDataSecurity);
+                collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
+        return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
     }
 
     @Bean

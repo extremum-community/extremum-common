@@ -11,7 +11,6 @@ import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.security.AllowEverythingForDataAccess;
-import com.extremum.everything.security.AllowEverythingForRoleAccess;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;
@@ -108,7 +107,7 @@ class EverythingServicesTest {
                 defaultGetter, defaultPatcher, defaultRemover,
                 Collections.emptyList(),
                 dtoConversionService, NOT_USED,
-                new AllowEverythingForRoleAccess(), new AllowEverythingForDataAccess());
+                new AllowEverythingForDataAccess());
     }
 
     @AfterEach
