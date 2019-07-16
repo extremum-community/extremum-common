@@ -7,6 +7,7 @@ import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
+import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,27 +30,33 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
     private final ObjectMapper jsonMapper;
     private final EmptyFieldDestroyer emptyFieldDestroyer;
     private final RequestDtoValidator dtoValidator;
+    private final EverythingDataSecurity dataSecurity;
 
-    protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
-        this(dtoConversionService, jsonMapper, new PublicEmptyFieldDestroyer());
+    protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
+            EverythingDataSecurity dataSecurity) {
+        this(dtoConversionService, jsonMapper, new PublicEmptyFieldDestroyer(), dataSecurity);
     }
 
     protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-                                     EmptyFieldDestroyer emptyFieldDestroyer) {
-        this(dtoConversionService, jsonMapper, emptyFieldDestroyer, new DefaultRequestDtoValidator());
+            EmptyFieldDestroyer emptyFieldDestroyer,
+            EverythingDataSecurity dataSecurity) {
+        this(dtoConversionService, jsonMapper, emptyFieldDestroyer, new DefaultRequestDtoValidator(), dataSecurity);
     }
 
     protected AbstractPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-                                     EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator) {
+            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
+            EverythingDataSecurity dataSecurity) {
         Objects.requireNonNull(dtoConversionService, "dtoConversionService cannot be null");
         Objects.requireNonNull(jsonMapper, "jsonMapper cannot be null");
         Objects.requireNonNull(emptyFieldDestroyer, "emptyFieldDestroyer cannot be null");
         Objects.requireNonNull(dtoValidator, "dtoValidator cannot be null");
+        Objects.requireNonNull(dataSecurity, "dataSecurity cannot be null");
 
         this.dtoConversionService = dtoConversionService;
         this.jsonMapper = jsonMapper;
         this.emptyFieldDestroyer = emptyFieldDestroyer;
         this.dtoValidator = dtoValidator;
+        this.dataSecurity = dataSecurity;
     }
 
     @Override
@@ -57,6 +64,8 @@ public abstract class AbstractPatcherService<M extends Model> implements Patcher
         beforePatch(id, patch);
 
         M modelToPatch = findById(id);
+
+        dataSecurity.checkPatchAllowed(modelToPatch);
 
         RequestDto patchedDto = applyPatch(patch, modelToPatch);
         validateRequest(patchedDto);

@@ -134,10 +134,11 @@ public class EverythingEverythingConfiguration {
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
             CommonServices commonServices,
             ModelClasses modelClasses,
-            DefaultGetter<Model> defaultGetter
+            DefaultGetter<Model> defaultGetter,
+            EverythingDataSecurity dataSecurity
     ) {
         return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                commonServices, modelClasses, defaultGetter);
+                commonServices, modelClasses, defaultGetter, dataSecurity);
     }
 
     @Bean

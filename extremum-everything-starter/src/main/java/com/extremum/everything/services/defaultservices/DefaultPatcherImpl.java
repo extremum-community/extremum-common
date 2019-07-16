@@ -3,6 +3,7 @@ package com.extremum.everything.services.defaultservices;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
+import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.everything.support.CommonServices;
 import com.extremum.everything.support.ModelClasses;
@@ -16,9 +17,10 @@ public class DefaultPatcherImpl<M extends Model> implements DefaultPatcher<M> {
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
             CommonServices commonServices,
             ModelClasses modelClasses,
-            DefaultGetter<M> defaultGetter) {
+            DefaultGetter<M> defaultGetter,
+            EverythingDataSecurity dataSecurity) {
         internalPatcher = new InternalDefaultPatcher<>(dtoConversionService, jsonMapper, emptyFieldDestroyer,
-                dtoValidator, commonServices, modelClasses, defaultGetter);
+                dtoValidator, commonServices, modelClasses, defaultGetter, dataSecurity);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
+import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.services.AbstractPatcherService;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.everything.support.CommonServices;
@@ -19,8 +20,9 @@ class InternalDefaultPatcher<M extends Model> extends AbstractPatcherService<M> 
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
             CommonServices commonServices,
             ModelClasses modelClasses,
-            DefaultGetter<M> defaultGetter) {
-        super(dtoConversionService, jsonMapper, emptyFieldDestroyer, dtoValidator);
+            DefaultGetter<M> defaultGetter,
+            EverythingDataSecurity dataSecurity) {
+        super(dtoConversionService, jsonMapper, emptyFieldDestroyer, dtoValidator, dataSecurity);
         this.commonServices = commonServices;
         this.modelClasses = modelClasses;
         this.defaultGetter = defaultGetter;

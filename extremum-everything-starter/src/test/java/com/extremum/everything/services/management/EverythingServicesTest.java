@@ -99,7 +99,7 @@ class EverythingServicesTest {
         DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelDescriptors);
         DefaultPatcher<Model> defaultPatcher = new DefaultPatcherImpl<>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                commonServices, modelClasses, defaultGetter
+                commonServices, modelClasses, defaultGetter, new AllowEverythingForDataAccess()
         );
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
@@ -226,10 +226,8 @@ class EverythingServicesTest {
     }
 
     private static class MongoWithServicesPatcherService extends AbstractPatcherService<MongoModelWithServices> {
-        MongoWithServicesPatcherService(
-                DtoConversionService dtoConversionService,
-                ObjectMapper jsonMapper) {
-            super(dtoConversionService, jsonMapper);
+        MongoWithServicesPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
+            super(dtoConversionService, jsonMapper, new AllowEverythingForDataAccess());
         }
 
         @Override
