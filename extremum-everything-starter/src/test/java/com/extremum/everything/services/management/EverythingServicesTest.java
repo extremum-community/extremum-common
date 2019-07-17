@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -72,7 +73,7 @@ class EverythingServicesTest {
 
     private final Descriptor descriptor = new Descriptor("external-id");
     private final ObjectId objectId = new ObjectId();
-    private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
+    private final JsonPatch jsonPatch = new JsonPatch(emptyList());
 
     @BeforeEach
     void initDescriptorLoader() {
@@ -103,9 +104,9 @@ class EverythingServicesTest {
         );
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
-        service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
-                defaultGetter, defaultPatcher, defaultRemover,
-                Collections.emptyList(),
+        service = new DefaultEverythingEverythingManagementService(getters, patchers, emptyList(), removers,
+                defaultGetter, defaultPatcher, null, defaultRemover,
+                emptyList(),
                 dtoConversionService, NOT_USED,
                 new AllowEverythingForDataAccess());
     }

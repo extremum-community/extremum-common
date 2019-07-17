@@ -13,19 +13,16 @@ import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.security.EverythingDataSecurity;
-import com.extremum.everything.services.CollectionFetcher;
-import com.extremum.everything.services.GetterService;
-import com.extremum.everything.services.PatcherService;
-import com.extremum.everything.services.RemovalService;
+import com.extremum.everything.services.*;
 import com.extremum.everything.services.collection.CoordinatesHandler;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
+import com.extremum.everything.services.defaultservices.DefaultSaver;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,66 +30,58 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
-@RequiredArgsConstructor
 public class DefaultEverythingEverythingManagementService implements EverythingEverythingManagementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEverythingEverythingManagementService.class);
 
-    private final List<GetterService<? extends Model>> getterServices;
+    private final ModelRetriever modelRetriever;
     private final List<PatcherService<? extends Model>> patcherServices;
+    private final List<SaverService<? extends Model>> saverServices;
     private final List<RemovalService> removalServices;
-    private final DefaultGetter<? extends Model> defaultGetter;
     private final DefaultPatcher<? extends Model> defaultPatcher;
+    private final DefaultSaver<? extends Model> defaultSaver;
     private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
     private final EverythingDataSecurity dataSecurity;
 
+    private final ModelNames modelNames = new ModelNames();
+
+    public DefaultEverythingEverythingManagementService(
+            List<GetterService<? extends Model>> getterServices,
+            List<PatcherService<? extends Model>> patcherServices,
+            List<SaverService<? extends Model>> saverServices,
+            List<RemovalService> removalServices,
+            DefaultGetter<? extends Model> defaultGetter,
+            DefaultPatcher<? extends Model> defaultPatcher,
+            DefaultSaver<? extends Model> defaultSaver,
+            DefaultRemover defaultRemover,
+            List<CollectionFetcher> collectionFetchers,
+            DtoConversionService dtoConversionService, UniversalDao universalDao,
+            EverythingDataSecurity dataSecurity) {
+        this.patcherServices = patcherServices;
+        this.saverServices = saverServices;
+        this.removalServices = removalServices;
+        this.defaultPatcher = defaultPatcher;
+        this.defaultSaver = defaultSaver;
+        this.defaultRemover = defaultRemover;
+        this.collectionFetchers = collectionFetchers;
+        this.dtoConversionService = dtoConversionService;
+        this.universalDao = universalDao;
+        this.dataSecurity = dataSecurity;
+
+        modelRetriever = new ModelRetriever(getterServices, defaultGetter);
+    }
+
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
         ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
         return dtoConversionService.convertUnknownToResponseDto(model, conversionConfig);
     }
 
-    private Model retrieveModelObject(Descriptor id) {
-        String modelName = determineModelName(id);
-        Getter getter = findGetter(modelName);
-        Model model = getter.get(id.getInternalId());
-
-        if (model != null) {
-            LOGGER.debug(format("Model with ID '%s' was found by service '%s': '%s'", id, getter, model));
-        } else {
-            LOGGER.debug(format("Model with ID '%s' wasn't found by service '%s'", id, getter));
-        }
-        return model;
-    }
-
-    private String determineModelName(Descriptor id) {
-        requireNonNull(id, "ID can't be null");
-
-        String modelName = determineModelNameById(id);
-        if (modelName == null) {
-            LOGGER.error("Unable to determine a model name for id {}", id);
-            throw new EverythingEverythingException(format("Can't determine a model name for the ID '%s'", id));
-        } else {
-            LOGGER.debug("Model name for id {} is {}", id, modelName);
-            return modelName;
-        }
-    }
-
-    private Getter findGetter(String modelName) {
-        GetterService<? extends Model> service = EverythingServices.findServiceForModel(modelName, getterServices);
-        if (service != null) {
-            return new NonDefaultGetter<>(service);
-        }
-
-        return defaultGetter;
-    }
-
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
-        Model model = retrieveModelObject(id);
+        Model model = modelRetriever.retrieveModel(id);
 
         dataSecurity.checkGetAllowed(model);
 
@@ -105,7 +94,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        String modelName = determineModelName(id);
+        String modelName = modelNames.determineModelName(id);
 
         Patcher patcher = findPatcher(modelName);
 
@@ -126,14 +115,14 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     public void remove(Descriptor id) {
         checkDataSecurityAllowsRemoval(id);
 
-        String modelName = determineModelName(id);
+        String modelName = modelNames.determineModelName(id);
         Remover remover = findRemover(modelName);
         remover.remove(id.getInternalId());
         LOGGER.debug(format("Model with ID '%s' was removed by service '%s'", id, remover));
     }
 
     private void checkDataSecurityAllowsRemoval(Descriptor id) {
-        Model model = retrieveModelObject(id);
+        Model model = modelRetriever.retrieveModel(id);
         dataSecurity.checkRemovalAllowed(model);
     }
 
@@ -144,11 +133,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         }
 
         return defaultRemover;
-    }
-
-    private String determineModelNameById(Descriptor id) {
-        requireNonNull(id, "ID can't be null");
-        return id.getModelType();
     }
 
     @Override
@@ -183,7 +167,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         }
 
         private BasicModel retrieveHost(OwnedCoordinates owned) {
-            Model host = retrieveModelObject(owned.getHostId());
+            Model host = modelRetriever.retrieveModel(owned.getHostId());
             if (host == null) {
                 String message = format("No host entity was found by external ID '%s'",
                         owned.getHostId().getExternalId());

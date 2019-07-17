@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -52,16 +53,17 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Mock
     private EverythingDataSecurity dataSecurity;
 
-    private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
+    private final JsonPatch jsonPatch = new JsonPatch(emptyList());
 
     @BeforeEach
     void createService() {
         service = new DefaultEverythingEverythingManagementService(
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                defaultGetter, defaultPatcher, defaultRemover,
-                Collections.emptyList(), dtoConversionService, null,
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                defaultGetter, defaultPatcher, null, defaultRemover,
+                emptyList(), dtoConversionService, null,
                 dataSecurity
         );
     }

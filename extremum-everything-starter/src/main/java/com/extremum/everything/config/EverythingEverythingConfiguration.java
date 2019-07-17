@@ -170,9 +170,11 @@ public class EverythingEverythingConfiguration {
     public EverythingEverythingManagementService everythingEverythingManagementService(
             List<GetterService<? extends Model>> getterServices,
             List<PatcherService<? extends Model>> patcherServices,
+            List<SaverService<? extends Model>> saverServices,
             List<RemovalService> removalServices,
             DefaultGetter<Model> defaultGetter,
             DefaultPatcher<Model> defaultPatcher,
+            DefaultSaver<Model> defaultSaver,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
@@ -180,8 +182,8 @@ public class EverythingEverythingConfiguration {
             EverythingRoleSecurity everythingRoleSecurity,
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
-                getterServices, patcherServices, removalServices,
-                defaultGetter, defaultPatcher, defaultRemover,
+                getterServices, patcherServices, saverServices, removalServices,
+                defaultGetter, defaultPatcher, defaultSaver, defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
     }
