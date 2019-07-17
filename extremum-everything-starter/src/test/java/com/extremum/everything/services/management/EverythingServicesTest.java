@@ -32,7 +32,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +41,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +66,9 @@ class EverythingServicesTest {
     @Spy
     private PatcherService<MongoModelWithServices> mongoWithServicesPatcherService
             = new MongoWithServicesPatcherService(dtoConversionService, objectMapper);
+    @Spy
+    private SaverService<MongoModelWithServices> mongoWithServicesSaverService
+            = new MongoWithServicesSaverService();
     @InjectMocks
     private DBDescriptorLoader descriptorLoader;
 
@@ -94,18 +97,21 @@ class EverythingServicesTest {
         ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
 
         List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
-        List<PatcherService<? extends Model>> patchers = ImmutableList.of(mongoWithServicesPatcherService);
+        List<SaverService<? extends Model>> savers = ImmutableList.of(mongoWithServicesSaverService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
         DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelDescriptors);
-        DefaultPatcher<Model> defaultPatcher = new DefaultPatcherImpl<>(
-                dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                commonServices, modelClasses, defaultGetter, new AllowEverythingForDataAccess()
-        );
+        DefaultSaver<Model> defaultSaver = new DefaultSaverImpl<>(commonServices);
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
-        service = new DefaultEverythingEverythingManagementService(getters, patchers, emptyList(), removers,
-                defaultGetter, defaultPatcher, null, defaultRemover,
+        ModelRetriever modelRetriever = new ModelRetriever(getters, defaultGetter);
+        ModelSaver modelSaver = new ModelSaver(savers, defaultSaver);
+        InternalPatcher patcher = new CombiningPatcher(modelRetriever, modelSaver, dtoConversionService,
+                objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
+                new AllowEverythingForDataAccess());
+
+        service = new DefaultEverythingEverythingManagementService(getters, removers,
+                defaultGetter, patcher, defaultRemover,
                 emptyList(),
                 dtoConversionService, NOT_USED,
                 new AllowEverythingForDataAccess());
@@ -170,14 +176,22 @@ class EverythingServicesTest {
     }
 
     @Test
-    void givenAnEntityHasPatcherService_whenPatching_thenShouldBePatchedViaPatcherService() {
+    void givenAnEntityHasGetterService_whenPatching_thenShouldBeGotViaGetterService() {
         whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithServices.class.getSimpleName());
 
         ResponseDto dto = service.patch(descriptor, jsonPatch, true);
 
         assertThat(dto, is(notNullValue()));
         assertThatDtoIsForModelWithServices(dto);
-        verify(mongoWithServicesPatcherService).patch(objectId.toString(), jsonPatch);
+    }
+
+    @Test
+    void givenAnEntityHasSaverService_whenPatching_thenShouldBeSavedViaSaverService() {
+        whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithServices.class.getSimpleName());
+
+        service.patch(descriptor, jsonPatch, true);
+
+        verify(mongoWithServicesSaverService).save(isA(MongoModelWithServices.class));
     }
 
     @Test
@@ -244,6 +258,18 @@ class EverythingServicesTest {
         @Override
         public String getSupportedModel() {
             return MongoModelWithServices.class.getSimpleName();
+        }
+    }
+
+    private static class MongoWithServicesSaverService implements SaverService<MongoModelWithServices> {
+        @Override
+        public String getSupportedModel() {
+            return MongoModelWithServices.class.getSimpleName();
+        }
+
+        @Override
+        public MongoModelWithServices save(MongoModelWithServices model) {
+            return model;
         }
     }
 

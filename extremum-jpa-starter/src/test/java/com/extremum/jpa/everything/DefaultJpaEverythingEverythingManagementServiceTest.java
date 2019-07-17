@@ -53,7 +53,6 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
         service = new DefaultEverythingEverythingManagementService(
                 Collections.singletonList(jpaBasicContainerGetterService),
                 Collections.emptyList(),
-                Collections.emptyList(),
                 null, null, null,
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,

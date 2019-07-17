@@ -13,13 +13,13 @@ import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.security.EverythingDataSecurity;
-import com.extremum.everything.services.*;
+import com.extremum.everything.services.CollectionFetcher;
+import com.extremum.everything.services.GetterService;
+import com.extremum.everything.services.RemovalService;
 import com.extremum.everything.services.collection.CoordinatesHandler;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
-import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
-import com.extremum.everything.services.defaultservices.DefaultSaver;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -35,11 +35,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEverythingEverythingManagementService.class);
 
     private final ModelRetriever modelRetriever;
-    private final List<PatcherService<? extends Model>> patcherServices;
-    private final List<SaverService<? extends Model>> saverServices;
     private final List<RemovalService> removalServices;
-    private final DefaultPatcher<? extends Model> defaultPatcher;
-    private final DefaultSaver<? extends Model> defaultSaver;
+    private final InternalPatcher patcher;
     private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
@@ -50,21 +47,15 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     public DefaultEverythingEverythingManagementService(
             List<GetterService<? extends Model>> getterServices,
-            List<PatcherService<? extends Model>> patcherServices,
-            List<SaverService<? extends Model>> saverServices,
             List<RemovalService> removalServices,
             DefaultGetter<? extends Model> defaultGetter,
-            DefaultPatcher<? extends Model> defaultPatcher,
-            DefaultSaver<? extends Model> defaultSaver,
+            InternalPatcher patcher,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService, UniversalDao universalDao,
             EverythingDataSecurity dataSecurity) {
-        this.patcherServices = patcherServices;
-        this.saverServices = saverServices;
         this.removalServices = removalServices;
-        this.defaultPatcher = defaultPatcher;
-        this.defaultSaver = defaultSaver;
+        this.patcher = patcher;
         this.defaultRemover = defaultRemover;
         this.collectionFetchers = collectionFetchers;
         this.dtoConversionService = dtoConversionService;
@@ -94,21 +85,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        String modelName = modelNames.determineModelName(id);
-
-        Patcher patcher = findPatcher(modelName);
-
-        Model patched = patcher.patch(id.getInternalId(), patch);
+        Model patched = patcher.patch(id, patch);
         return convertModelToResponseDto(patched, expand);
-    }
-
-    private Patcher findPatcher(String modelName) {
-        PatcherService<? extends Model> service = EverythingServices.findServiceForModel(modelName, patcherServices);
-        if (service != null) {
-            return new NonDefaultPatcher<>(service);
-        }
-
-        return defaultPatcher;
     }
 
     @Override

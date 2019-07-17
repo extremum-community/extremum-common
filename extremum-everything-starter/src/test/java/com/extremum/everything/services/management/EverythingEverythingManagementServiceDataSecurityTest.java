@@ -17,8 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,9 +58,7 @@ class EverythingEverythingManagementServiceDataSecurityTest {
         service = new DefaultEverythingEverythingManagementService(
                 emptyList(),
                 emptyList(),
-                emptyList(),
-                emptyList(),
-                defaultGetter, defaultPatcher, null, defaultRemover,
+                defaultGetter, null, defaultRemover,
                 emptyList(), dtoConversionService, null,
                 dataSecurity
         );

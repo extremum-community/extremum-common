@@ -169,21 +169,18 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public EverythingEverythingManagementService everythingEverythingManagementService(
             List<GetterService<? extends Model>> getterServices,
-            List<PatcherService<? extends Model>> patcherServices,
-            List<SaverService<? extends Model>> saverServices,
             List<RemovalService> removalServices,
             DefaultGetter<Model> defaultGetter,
-            DefaultPatcher<Model> defaultPatcher,
-            DefaultSaver<Model> defaultSaver,
             DefaultRemover defaultRemover,
+            InternalPatcher patcher,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
             EverythingRoleSecurity everythingRoleSecurity,
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
-                getterServices, patcherServices, saverServices, removalServices,
-                defaultGetter, defaultPatcher, defaultSaver, defaultRemover,
+                getterServices, removalServices,
+                defaultGetter, patcher, defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
     }

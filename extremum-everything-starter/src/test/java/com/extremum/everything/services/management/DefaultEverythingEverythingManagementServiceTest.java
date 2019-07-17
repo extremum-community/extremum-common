@@ -64,9 +64,7 @@ class DefaultEverythingEverythingManagementServiceTest {
         service = new DefaultEverythingEverythingManagementService(
                 ImmutableList.of(streetGetterService, new AlwaysNullGetterService()),
                 Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                null, null, null, null,
+                null, null, null,
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,
                 universalDao,
