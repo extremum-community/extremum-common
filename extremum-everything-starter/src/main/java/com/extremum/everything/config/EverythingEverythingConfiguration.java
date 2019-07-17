@@ -29,13 +29,11 @@ import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.security.*;
 import com.extremum.everything.security.services.DataAccessChecker;
 import com.extremum.everything.services.*;
-import com.extremum.everything.services.defaultservices.DefaultGetter;
-import com.extremum.everything.services.defaultservices.DefaultGetterImpl;
-import com.extremum.everything.services.defaultservices.DefaultRemover;
-import com.extremum.everything.services.defaultservices.DefaultRemoverImpl;
+import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.services.management.*;
 import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -131,6 +129,12 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public DefaultSaver<Model> defaultSaver(CommonServices commonServices) {
+        return new DefaultSaverImpl<>(commonServices);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public DefaultRemover defaultRemover(CommonServices commonServices, ModelDescriptors modelDescriptors) {
         return new DefaultRemoverImpl(commonServices, modelDescriptors);
     }
@@ -140,6 +144,28 @@ public class EverythingEverythingConfiguration {
     public ModelRetriever modelRetriever(List<GetterService<? extends Model>> getterServices,
                 DefaultGetter<Model> defaultGetter) {
         return new ModelRetriever(getterServices, defaultGetter);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ModelSaver modelSaver(List<SaverService<? extends Model>> saverServices,
+            DefaultSaver<? extends Model> defaultSaver) {
+        return new ModelSaver(saverServices, defaultSaver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Patcher patcher(
+            ModelRetriever modelRetriever,
+            ModelSaver modelSaver,
+            DtoConversionService dtoConversionService,
+            ObjectMapper objectMapper,
+            EmptyFieldDestroyer emptyFieldDestroyer,
+            RequestDtoValidator requestDtoValidator,
+            EverythingDataSecurity everythingDataSecurity
+    ) {
+        return new CombiningPatcher(modelRetriever, modelSaver, dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity);
     }
 
     @Bean
