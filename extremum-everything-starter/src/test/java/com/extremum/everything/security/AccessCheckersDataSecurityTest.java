@@ -69,6 +69,11 @@ class AccessCheckersDataSecurityTest {
     }
 
     @Test
+    void givenModelIsNull_whenCheckGet_thenShouldBeAllowed() {
+        security.checkGetAllowed(null);
+    }
+
+    @Test
     void givenCheckerExistsAndAllows_whenCheckPatch_thenAccessShouldBeAllowed() {
         security.checkPatchAllowed(new ModelWithAllowingChecker());
     }
@@ -111,6 +116,11 @@ class AccessCheckersDataSecurityTest {
     }
 
     @Test
+    void givenModelIsNull_whenCheckPatch_thenShouldBeAllowed() {
+        security.checkPatchAllowed(null);
+    }
+
+    @Test
     void givenCheckerExistsAndAllows_whenCheckRemove_thenAccessShouldBeAllowed() {
         security.checkRemovalAllowed(new ModelWithAllowingChecker());
     }
@@ -150,6 +160,11 @@ class AccessCheckersDataSecurityTest {
             assertThat(e.getMessage(), is("Both DataAccessChecker was found and @NoDataSecurity annotation exists" +
                     " on 'ModelWithCheckerAndWithNoDataSecurityAnnotation'"));
         }
+    }
+
+    @Test
+    void givenModelIsNull_whenCheckRemove_thenShouldBeAllowed() {
+        security.checkRemovalAllowed(null);
     }
 
     @ModelName("ModelWithAllowingChecker")

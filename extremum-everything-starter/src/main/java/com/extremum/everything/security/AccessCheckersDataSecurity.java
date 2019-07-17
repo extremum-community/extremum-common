@@ -94,6 +94,10 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
 
     private abstract class Operation {
         void checkDataAccess(Model model) {
+            if (model == null) {
+                return;
+            }
+
             DataAccessChecker<Model> checker = findChecker(model);
             validateModelClassConfig(model, checker);
 
