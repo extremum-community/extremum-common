@@ -139,7 +139,7 @@ public final class CombiningPatcher implements Patcher {
     }
 
     private Model save(PatchSaveContext<Model> context) {
-        return modelSaver.saveModel(context.currentStateModel);
+        return modelSaver.saveModel(context.patchedModel);
     }
 
     //    Methods to override if needed

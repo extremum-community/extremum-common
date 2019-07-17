@@ -5,7 +5,7 @@ import com.extremum.common.models.Model;
 /**
  * @author rpuch
  */
-public final class AllowEverythingForDataAccess implements EverythingDataSecurity {
+public class AllowEverythingForDataAccess implements EverythingDataSecurity {
     @Override
     public void checkGetAllowed(Model model) {
         // allow anything
