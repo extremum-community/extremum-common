@@ -7,9 +7,6 @@ import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.everything.security.*;
-import com.extremum.everything.security.services.DataAccessChecker;
-import com.extremum.everything.services.management.*;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
@@ -29,11 +26,16 @@ import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
+import com.extremum.everything.security.*;
+import com.extremum.everything.security.services.DataAccessChecker;
 import com.extremum.everything.services.*;
-import com.extremum.everything.services.defaultservices.*;
+import com.extremum.everything.services.defaultservices.DefaultGetter;
+import com.extremum.everything.services.defaultservices.DefaultGetterImpl;
+import com.extremum.everything.services.defaultservices.DefaultRemover;
+import com.extremum.everything.services.defaultservices.DefaultRemoverImpl;
+import com.extremum.everything.services.management.*;
 import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -125,20 +127,6 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
         return new DefaultGetterImpl<>(commonServices, modelDescriptors);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public DefaultPatcher<Model> defaultPatcher(
-            DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
-            CommonServices commonServices,
-            ModelClasses modelClasses,
-            DefaultGetter<Model> defaultGetter,
-            EverythingDataSecurity dataSecurity
-    ) {
-        return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                commonServices, modelClasses, defaultGetter, dataSecurity);
     }
 
     @Bean

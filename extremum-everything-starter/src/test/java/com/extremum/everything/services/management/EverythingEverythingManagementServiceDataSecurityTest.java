@@ -6,7 +6,6 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
-import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -44,8 +43,6 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     private DtoConversionService dtoConversionService;
     @Mock
     private DefaultGetter<Model> defaultGetter;
-    @Mock
-    private DefaultPatcher<Model> defaultPatcher;
     @Mock
     private DefaultRemover defaultRemover;
     @Mock
