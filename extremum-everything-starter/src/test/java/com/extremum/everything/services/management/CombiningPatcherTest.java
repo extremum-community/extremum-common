@@ -15,6 +15,7 @@ import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.security.AllowEverythingForDataAccess;
+import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.sharedmodels.descriptor.Descriptor;
@@ -39,11 +40,14 @@ import java.util.Collections;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -124,9 +128,23 @@ class CombiningPatcherTest {
     }
 
     private void whenSaveModelThenReturnIt() {
-        when(modelSaver.saveModel(any())).then(interation -> interation.getArgument(0));
+        when(modelSaver.saveModel(any())).then(invocation -> invocation.getArgument(0));
     }
 
+    @Test
+    void givenDataSecurityDoesNotAllowToPatch_whenPatching_thenAnExceptionShouldBeThrown() {
+        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+        doThrow(new EverythingAccessDeniedException("Access denied"))
+                .when(dataSecurity).checkPatchAllowed(any());
+
+        try {
+            patcher.patch(descriptor, new JsonPatch(emptyList()));
+            fail("An exception should be thrown");
+        } catch (EverythingAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+    
     @ModelName("TestModel")
     @ToString
     @Getter
