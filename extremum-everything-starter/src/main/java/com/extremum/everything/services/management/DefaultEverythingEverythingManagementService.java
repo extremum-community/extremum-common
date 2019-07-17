@@ -88,24 +88,25 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     public void remove(Descriptor id) {
         checkDataSecurityAllowsRemoval(id);
 
-        String modelName = modelNames.determineModelName(id);
-        Remover remover = findRemover(modelName);
+        Remover remover = findRemover(id);
         remover.remove(id.getInternalId());
         LOGGER.debug(format("Model with ID '%s' was removed by service '%s'", id, remover));
     }
 
-    private void checkDataSecurityAllowsRemoval(Descriptor id) {
-        Model model = modelRetriever.retrieveModel(id);
-        dataSecurity.checkRemovalAllowed(model);
-    }
+    private Remover findRemover(Descriptor id) {
+        String modelName = modelNames.determineModelName(id);
 
-    private Remover findRemover(String modelName) {
         RemovalService removalService = EverythingServices.findServiceForModel(modelName, removalServices);
         if (removalService != null) {
             return new NonDefaultRemover(removalService);
         }
 
         return defaultRemover;
+    }
+
+    private void checkDataSecurityAllowsRemoval(Descriptor id) {
+        Model model = modelRetriever.retrieveModel(id);
+        dataSecurity.checkRemovalAllowed(model);
     }
 
     @Override
