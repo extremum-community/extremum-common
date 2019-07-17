@@ -4,7 +4,6 @@ import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -27,15 +26,17 @@ public final class DateUtils {
     public static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     public static final String FORMAT_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}T[\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3}-[\\d]{4}";
 
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat(FORMAT, Locale.US);
-
     public static final DateTimeFormatter ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz");
-    public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(FORMAT);
 
+    public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(FORMAT);
     public static final ZoneId ZONE = ZoneId.systemDefault();
 
+    private static SimpleDateFormat dateFormat() {
+        return new SimpleDateFormat(FORMAT, Locale.US);
+    }
+
     public static String convert(Date from) {
-        return from != null ? DATE_FORMAT.format(from) : null;
+        return from != null ? dateFormat().format(from) : null;
     }
 
     public static String convert(ZonedDateTime from) {
@@ -45,7 +46,7 @@ public final class DateUtils {
     public static Date convert(String from) {
         if (from != null) {
             try {
-                return DATE_FORMAT.parse(from);
+                return dateFormat().parse(from);
             } catch (ParseException e) {
                 LOGGER.debug("cannot convert Date", e);
             }
@@ -93,4 +94,6 @@ public final class DateUtils {
     private static ZonedDateTime fromInstant(Instant instant, ZoneOffset zoneOffset) {
         return ZonedDateTime.ofInstant(instant, zoneOffset);
     }
+
+    private DateUtils() {}
 }
