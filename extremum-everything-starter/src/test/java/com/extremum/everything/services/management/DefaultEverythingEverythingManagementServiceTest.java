@@ -62,8 +62,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     @BeforeEach
     void setUp() {
         service = new DefaultEverythingEverythingManagementService(
-                ImmutableList.of(streetGetterService, new AlwaysNullGetterService()),
-                Collections.emptyList(),
+                new ModelRetriever(ImmutableList.of(streetGetterService, new AlwaysNullGetterService()), null),
                 null, null, null,
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,

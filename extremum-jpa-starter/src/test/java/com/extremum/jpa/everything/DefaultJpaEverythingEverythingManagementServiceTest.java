@@ -11,6 +11,7 @@ import com.extremum.everything.security.AllowEverythingForDataAccess;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
+import com.extremum.everything.services.management.ModelRetriever;
 import com.extremum.jpa.models.PostgresBasicModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
@@ -51,9 +52,9 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
     @BeforeEach
     void setUp() {
         service = new DefaultEverythingEverythingManagementService(
-                Collections.singletonList(jpaBasicContainerGetterService),
+                new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
                 Collections.emptyList(),
-                null, null, null,
+                null, null,
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
                 universalDao,

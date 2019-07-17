@@ -137,6 +137,13 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ModelRetriever modelRetriever(List<GetterService<? extends Model>> getterServices,
+                DefaultGetter<Model> defaultGetter) {
+        return new ModelRetriever(getterServices, defaultGetter);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EverythingRoleSecurity everythingRoleSecurity() {
         return new AllowEverythingForRoleAccess();
     }
@@ -156,9 +163,8 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public EverythingEverythingManagementService everythingEverythingManagementService(
-            List<GetterService<? extends Model>> getterServices,
+            ModelRetriever modelRetriever,
             List<RemovalService> removalServices,
-            DefaultGetter<Model> defaultGetter,
             DefaultRemover defaultRemover,
             Patcher patcher,
             List<CollectionFetcher> collectionFetchers,
@@ -167,8 +173,9 @@ public class EverythingEverythingConfiguration {
             EverythingRoleSecurity everythingRoleSecurity,
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
-                getterServices, removalServices,
-                defaultGetter, patcher, defaultRemover,
+                modelRetriever,
+                removalServices,
+                patcher, defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
     }

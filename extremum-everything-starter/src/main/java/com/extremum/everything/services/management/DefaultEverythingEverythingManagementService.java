@@ -14,11 +14,9 @@ import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.services.CollectionFetcher;
-import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.RemovalService;
 import com.extremum.everything.services.collection.CoordinatesHandler;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
-import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
@@ -46,14 +44,14 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final ModelNames modelNames = new ModelNames();
 
     public DefaultEverythingEverythingManagementService(
-            List<GetterService<? extends Model>> getterServices,
+            ModelRetriever modelRetriever,
             List<RemovalService> removalServices,
-            DefaultGetter<? extends Model> defaultGetter,
             Patcher patcher,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService, UniversalDao universalDao,
             EverythingDataSecurity dataSecurity) {
+        this.modelRetriever = modelRetriever;
         this.removalServices = removalServices;
         this.patcher = patcher;
         this.defaultRemover = defaultRemover;
@@ -61,8 +59,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         this.dtoConversionService = dtoConversionService;
         this.universalDao = universalDao;
         this.dataSecurity = dataSecurity;
-
-        modelRetriever = new ModelRetriever(getterServices, defaultGetter);
     }
 
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {

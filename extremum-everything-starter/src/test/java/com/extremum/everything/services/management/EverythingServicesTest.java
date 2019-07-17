@@ -110,8 +110,10 @@ class EverythingServicesTest {
                 objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 new AllowEverythingForDataAccess());
 
-        service = new DefaultEverythingEverythingManagementService(getters, removers,
-                defaultGetter, patcher, defaultRemover,
+        service = new DefaultEverythingEverythingManagementService(
+                modelRetriever,
+                removers,
+                patcher, defaultRemover,
                 emptyList(),
                 dtoConversionService, NOT_USED,
                 new AllowEverythingForDataAccess());
