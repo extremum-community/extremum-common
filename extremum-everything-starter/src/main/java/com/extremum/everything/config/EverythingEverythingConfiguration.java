@@ -174,8 +174,8 @@ public class EverythingEverythingConfiguration {
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                removalServices,
-                patcher, defaultRemover,
+                patcher, removalServices,
+                defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
     }

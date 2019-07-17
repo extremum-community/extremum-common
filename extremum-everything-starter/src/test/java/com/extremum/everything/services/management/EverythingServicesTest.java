@@ -112,8 +112,8 @@ class EverythingServicesTest {
 
         service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                removers,
-                patcher, defaultRemover,
+                patcher, removers,
+                defaultRemover,
                 emptyList(),
                 dtoConversionService, NOT_USED,
                 new AllowEverythingForDataAccess());

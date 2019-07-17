@@ -33,8 +33,8 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEverythingEverythingManagementService.class);
 
     private final ModelRetriever modelRetriever;
-    private final List<RemovalService> removalServices;
     private final Patcher patcher;
+    private final List<RemovalService> removalServices;
     private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
@@ -45,8 +45,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     public DefaultEverythingEverythingManagementService(
             ModelRetriever modelRetriever,
-            List<RemovalService> removalServices,
-            Patcher patcher,
+            Patcher patcher, List<RemovalService> removalServices,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService, UniversalDao universalDao,

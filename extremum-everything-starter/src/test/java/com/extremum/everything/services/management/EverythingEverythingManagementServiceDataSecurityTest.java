@@ -54,8 +54,8 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     void createService() {
         service = new DefaultEverythingEverythingManagementService(
                 new ModelRetriever(emptyList(), defaultGetter),
-                emptyList(),
-                null, defaultRemover,
+                null, emptyList(),
+                defaultRemover,
                 emptyList(), dtoConversionService, null,
                 dataSecurity
         );

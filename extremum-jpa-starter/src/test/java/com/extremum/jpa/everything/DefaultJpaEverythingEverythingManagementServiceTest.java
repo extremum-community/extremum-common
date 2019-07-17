@@ -53,8 +53,8 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
     void setUp() {
         service = new DefaultEverythingEverythingManagementService(
                 new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
-                Collections.emptyList(),
-                null, null,
+                null, Collections.emptyList(),
+                null,
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
                 universalDao,
