@@ -31,7 +31,7 @@ public final class DateUtils {
     public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(FORMAT);
     public static final ZoneId ZONE = ZoneId.systemDefault();
 
-    private static SimpleDateFormat dateFormat() {
+    public static SimpleDateFormat dateFormat() {
         return new SimpleDateFormat(FORMAT, Locale.US);
     }
 

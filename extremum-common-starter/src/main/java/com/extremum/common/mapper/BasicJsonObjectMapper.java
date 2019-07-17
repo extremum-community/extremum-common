@@ -31,7 +31,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
 
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        this.setDateFormat(DateUtils.DATE_FORMAT);
+        this.setDateFormat(DateUtils.dateFormat());
     }
 
     private JavaTimeModule createJavaTimeModule() {
