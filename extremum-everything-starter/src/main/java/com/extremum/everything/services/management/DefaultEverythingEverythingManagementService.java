@@ -36,7 +36,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     private final ModelRetriever modelRetriever;
     private final List<RemovalService> removalServices;
-    private final InternalPatcher patcher;
+    private final Patcher patcher;
     private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
@@ -49,7 +49,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
             List<GetterService<? extends Model>> getterServices,
             List<RemovalService> removalServices,
             DefaultGetter<? extends Model> defaultGetter,
-            InternalPatcher patcher,
+            Patcher patcher,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService, UniversalDao universalDao,

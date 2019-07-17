@@ -26,7 +26,7 @@ import java.util.Set;
 import static java.lang.String.format;
 
 @Slf4j
-public final class CombiningPatcher implements InternalPatcher {
+public final class CombiningPatcher implements Patcher {
     private final ModelRetriever modelRetriever;
     private final ModelSaver modelSaver;
     private final DtoConversionService dtoConversionService;

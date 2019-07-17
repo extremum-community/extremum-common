@@ -106,7 +106,7 @@ class EverythingServicesTest {
 
         ModelRetriever modelRetriever = new ModelRetriever(getters, defaultGetter);
         ModelSaver modelSaver = new ModelSaver(savers, defaultSaver);
-        InternalPatcher patcher = new CombiningPatcher(modelRetriever, modelSaver, dtoConversionService,
+        Patcher patcher = new CombiningPatcher(modelRetriever, modelSaver, dtoConversionService,
                 objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 new AllowEverythingForDataAccess());
 

@@ -160,7 +160,7 @@ public class EverythingEverythingConfiguration {
             List<RemovalService> removalServices,
             DefaultGetter<Model> defaultGetter,
             DefaultRemover defaultRemover,
-            InternalPatcher patcher,
+            Patcher patcher,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
