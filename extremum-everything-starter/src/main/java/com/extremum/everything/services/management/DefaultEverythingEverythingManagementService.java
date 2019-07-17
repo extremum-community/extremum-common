@@ -60,11 +60,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         this.dataSecurity = dataSecurity;
     }
 
-    private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
-        ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
-        return dtoConversionService.convertUnknownToResponseDto(model, conversionConfig);
-    }
-
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
         Model model = modelRetriever.retrieveModel(id);
@@ -76,6 +71,11 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
         }
 
         return convertModelToResponseDto(model, expand);
+    }
+
+    private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
+        ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
+        return dtoConversionService.convertUnknownToResponseDto(model, conversionConfig);
     }
 
     @Override
