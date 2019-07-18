@@ -17,7 +17,6 @@ import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.security.AllowEverythingForDataAccess;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingDataSecurity;
-import com.extremum.everything.services.PatcherHooksService;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.RequestDto;
@@ -214,10 +213,4 @@ class PatcherImplTest {
         }
     }
 
-    private static class TestModelPatcherHooks implements PatcherHooksService<TestModel, TestModelRequestDto> {
-        @Override
-        public String getSupportedModel() {
-            return TestModel.MODEL_NAME;
-        }
-    }
 }
