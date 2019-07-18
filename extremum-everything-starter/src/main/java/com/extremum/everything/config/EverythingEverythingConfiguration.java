@@ -7,9 +7,6 @@ import com.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice
 import com.extremum.common.collection.service.CollectionDescriptorService;
 import com.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.everything.security.*;
-import com.extremum.everything.security.services.DataAccessChecker;
-import com.extremum.everything.services.management.*;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
@@ -29,8 +26,11 @@ import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
+import com.extremum.everything.security.*;
+import com.extremum.everything.security.services.DataAccessChecker;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
+import com.extremum.everything.services.management.*;
 import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -129,22 +129,43 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultPatcher<Model> defaultPatcher(
-            DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator validator,
-            CommonServices commonServices,
-            ModelClasses modelClasses,
-            DefaultGetter<Model> defaultGetter,
-            EverythingDataSecurity dataSecurity
-    ) {
-        return new DefaultPatcherImpl<>(dtoConversionService, jsonMapper, emptyFieldDestroyer, validator,
-                commonServices, modelClasses, defaultGetter, dataSecurity);
+    public DefaultSaver<Model> defaultSaver(CommonServices commonServices) {
+        return new DefaultSaverImpl<>(commonServices);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public DefaultRemover defaultRemover(CommonServices commonServices, ModelDescriptors modelDescriptors) {
         return new DefaultRemoverImpl(commonServices, modelDescriptors);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ModelRetriever modelRetriever(List<GetterService<? extends Model>> getterServices,
+                DefaultGetter<Model> defaultGetter) {
+        return new ModelRetriever(getterServices, defaultGetter);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ModelSaver modelSaver(List<SaverService<? extends Model>> saverServices,
+            DefaultSaver<? extends Model> defaultSaver) {
+        return new ModelSaver(saverServices, defaultSaver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Patcher patcher(
+            ModelRetriever modelRetriever,
+            ModelSaver modelSaver,
+            DtoConversionService dtoConversionService,
+            ObjectMapper objectMapper,
+            EmptyFieldDestroyer emptyFieldDestroyer,
+            RequestDtoValidator requestDtoValidator,
+            EverythingDataSecurity everythingDataSecurity
+    ) {
+        return new PatcherImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity);
     }
 
     @Bean
@@ -168,20 +189,19 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public EverythingEverythingManagementService everythingEverythingManagementService(
-            List<GetterService<? extends Model>> getterServices,
-            List<PatcherService<? extends Model>> patcherServices,
+            ModelRetriever modelRetriever,
             List<RemovalService> removalServices,
-            DefaultGetter<Model> defaultGetter,
-            DefaultPatcher<Model> defaultPatcher,
             DefaultRemover defaultRemover,
+            Patcher patcher,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
             EverythingRoleSecurity everythingRoleSecurity,
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
-                getterServices, patcherServices, removalServices,
-                defaultGetter, defaultPatcher, defaultRemover,
+                modelRetriever,
+                patcher, removalServices,
+                defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
     }

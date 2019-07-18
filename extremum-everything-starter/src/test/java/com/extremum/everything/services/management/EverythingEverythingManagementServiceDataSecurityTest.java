@@ -6,19 +6,15 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingDataSecurity;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
-import com.extremum.everything.services.defaultservices.DefaultPatcher;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.github.fge.jsonpatch.JsonPatch;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -46,22 +42,17 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Mock
     private DefaultGetter<Model> defaultGetter;
     @Mock
-    private DefaultPatcher<Model> defaultPatcher;
-    @Mock
     private DefaultRemover defaultRemover;
     @Mock
     private EverythingDataSecurity dataSecurity;
 
-    private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
-
     @BeforeEach
     void createService() {
         service = new DefaultEverythingEverythingManagementService(
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                defaultGetter, defaultPatcher, defaultRemover,
-                Collections.emptyList(), dtoConversionService, null,
+                new ModelRetriever(emptyList(), defaultGetter),
+                null, emptyList(),
+                defaultRemover,
+                emptyList(), dtoConversionService, null,
                 dataSecurity
         );
     }
@@ -78,21 +69,6 @@ class EverythingEverythingManagementServiceDataSecurityTest {
 
         try {
             service.get(descriptor, DO_NOT_EXPAND);
-            fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
-            assertThat(e.getMessage(), is("Access denied"));
-        }
-    }
-
-    @Test
-    @Disabled("Enable when we split PatcherService to get() and persist()")
-    void givenDataSecurityDoesNotAllowToPatch_whenPatching_thenAnExceptionShouldBeThrown() {
-        returnAModelForKnownDescriptor();
-        doThrow(new EverythingAccessDeniedException("Access denied"))
-                .when(dataSecurity).checkPatchAllowed(any());
-
-        try {
-            service.patch(descriptor, jsonPatch, DO_NOT_EXPAND);
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));

@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * @author rpuch
  */
-public class ListBasedCommonServices implements CommonServices {
+public final class ListBasedCommonServices implements CommonServices {
     private final Map<Class<? extends Model>, CommonService<? extends Model>> modelClassToServiceMap;
 
     public ListBasedCommonServices(List<CommonService<? extends Model>> services) {
