@@ -5,6 +5,6 @@ import com.extremum.common.models.Model;
 /**
  * @author rpuch
  */
-public interface Saver<M extends Model> {
-    M save(M model);
+public interface Saver {
+    Model save(Model model);
 }

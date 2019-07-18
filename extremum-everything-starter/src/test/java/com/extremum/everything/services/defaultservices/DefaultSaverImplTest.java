@@ -12,7 +12,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
@@ -20,7 +19,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class DefaultSaverImplTest {
     @InjectMocks
-    private DefaultSaverImpl<TestModel> saver;
+    private DefaultSaverImpl saver;
 
     @Spy
     private CommonServices commonServices = new ConstantCommonServices();
