@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ModelSaver {
-    private final List<SaverService<? extends Model>> saverServices;
+    private final List<SaverService<?>> saverServices;
     private final DefaultSaver defaultSaver;
 
     public Model saveModel(Model model) {

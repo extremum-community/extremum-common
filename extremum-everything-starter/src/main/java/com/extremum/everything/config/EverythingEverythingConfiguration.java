@@ -148,7 +148,7 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelSaver modelSaver(List<SaverService<? extends Model>> saverServices, DefaultSaver defaultSaver) {
+    public ModelSaver modelSaver(List<SaverService<?>> saverServices, DefaultSaver defaultSaver) {
         return new ModelSaver(saverServices, defaultSaver);
     }
 

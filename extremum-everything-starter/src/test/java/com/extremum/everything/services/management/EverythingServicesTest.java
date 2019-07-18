@@ -5,7 +5,6 @@ import com.extremum.common.descriptor.service.DBDescriptorLoader;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.common.models.Model;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
@@ -97,7 +96,7 @@ class EverythingServicesTest {
         ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
 
         List<GetterService<?>> getters = ImmutableList.of(new MongoWithServicesGetterService());
-        List<SaverService<? extends Model>> savers = ImmutableList.of(mongoWithServicesSaverService);
+        List<SaverService<?>> savers = ImmutableList.of(mongoWithServicesSaverService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
         DefaultGetter defaultGetter = new DefaultGetterImpl(commonServices, modelDescriptors);
