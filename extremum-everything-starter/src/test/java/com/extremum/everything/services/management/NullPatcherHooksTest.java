@@ -1,6 +1,5 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.common.models.Model;
 import com.extremum.sharedmodels.dto.RequestDto;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,7 @@ import static org.mockito.Mockito.mock;
  * @author rpuch
  */
 class NullPatcherHooksTest {
-    private final NullPatcherHooks<Model, RequestDto> hooks = new NullPatcherHooks<>();
+    private final NullPatcherHooks hooks = new NullPatcherHooks();
 
     @Test
     void whenCallingAfterPatchApplied_thenTheDtoPassedAsAnArgumentShouldBeReturned() {

@@ -7,19 +7,19 @@ import com.extremum.sharedmodels.dto.RequestDto;
 /**
  * @author rpuch
  */
-final class NullPatcherHooks<M extends Model, D extends RequestDto> implements PatcherHooks<M, D> {
+final class NullPatcherHooks implements PatcherHooks {
     @Override
-    public D afterPatchAppliedToDto(D patchedDto) {
+    public RequestDto afterPatchAppliedToDto(RequestDto patchedDto) {
         return patchedDto;
     }
 
     @Override
-    public void beforeSave(PatchPersistenceContext<M> context) {
+    public void beforeSave(PatchPersistenceContext<Model> context) {
         // doing nothing
     }
 
     @Override
-    public void afterSave(PatchPersistenceContext<M> context) {
+    public void afterSave(PatchPersistenceContext<Model> context) {
         // doing nothing
     }
 }

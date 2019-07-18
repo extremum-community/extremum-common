@@ -8,25 +8,25 @@ import com.extremum.sharedmodels.dto.RequestDto;
 /**
  * @author rpuch
  */
-final class NonDefaultPatcherHooks<M extends Model, D extends RequestDto> implements PatcherHooks<M, D> {
-    private final PatcherHooksService<M, D> patcherHooksService;
+final class NonDefaultPatcherHooks implements PatcherHooks {
+    private final PatcherHooksService<Model, RequestDto> patcherHooksService;
 
-    NonDefaultPatcherHooks(PatcherHooksService<M, D> patcherHooksService) {
+    NonDefaultPatcherHooks(PatcherHooksService<Model, RequestDto> patcherHooksService) {
         this.patcherHooksService = patcherHooksService;
     }
 
     @Override
-    public D afterPatchAppliedToDto(D patchedDto) {
+    public RequestDto afterPatchAppliedToDto(RequestDto patchedDto) {
         return patcherHooksService.afterPatchAppliedToDto(patchedDto);
     }
 
     @Override
-    public void beforeSave(PatchPersistenceContext<M> context) {
+    public void beforeSave(PatchPersistenceContext<Model> context) {
         patcherHooksService.beforeSave(context);
     }
 
     @Override
-    public void afterSave(PatchPersistenceContext<M> context) {
+    public void afterSave(PatchPersistenceContext<Model> context) {
         patcherHooksService.afterSave(context);
     }
 }

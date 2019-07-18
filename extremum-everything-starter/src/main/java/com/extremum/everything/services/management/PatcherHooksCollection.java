@@ -16,29 +16,29 @@ public class PatcherHooksCollection {
     private final List<PatcherHooksService<?, ?>> patcherHooksServices;
 
     public RequestDto afterPatchAppliedToDto(String modelName, RequestDto patchedDto) {
-        PatcherHooks<Model, RequestDto> hooks = getHooks(modelName);
+        PatcherHooks hooks = getHooks(modelName);
         return hooks.afterPatchAppliedToDto(patchedDto);
     }
 
-    private PatcherHooks<Model, RequestDto> getHooks(String modelName) {
+    private PatcherHooks getHooks(String modelName) {
         @SuppressWarnings("unchecked")
         PatcherHooksService<Model, RequestDto> service =
                 (PatcherHooksService<Model, RequestDto>) EverythingServices.findServiceForModel(
                         modelName, patcherHooksServices);
         if (service != null) {
-            return new NonDefaultPatcherHooks<>(service);
+            return new NonDefaultPatcherHooks(service);
         } else {
-            return new NullPatcherHooks<>();
+            return new NullPatcherHooks();
         }
     }
 
     public void beforeSave(String modelName, PatchPersistenceContext<? extends Model> context) {
-        PatcherHooks<Model, RequestDto> hooks = getHooks(modelName);
+        PatcherHooks hooks = getHooks(modelName);
         hooks.beforeSave((PatchPersistenceContext<Model>) context);
     }
 
     public void afterSave(String modelName, PatchPersistenceContext<? extends Model> context) {
-        PatcherHooks<Model, RequestDto> hooks = getHooks(modelName);
+        PatcherHooks hooks = getHooks(modelName);
         hooks.afterSave((PatchPersistenceContext<Model>) context);
     }
 }

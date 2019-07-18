@@ -7,10 +7,10 @@ import com.extremum.sharedmodels.dto.RequestDto;
 /**
  * @author rpuch
  */
-public interface PatcherHooks<M extends Model, D extends RequestDto> {
-    D afterPatchAppliedToDto(D patchedDto);
+public interface PatcherHooks {
+    RequestDto afterPatchAppliedToDto(RequestDto patchedDto);
 
-    void beforeSave(PatchPersistenceContext<M> context);
+    void beforeSave(PatchPersistenceContext<Model> context);
 
-    void afterSave(PatchPersistenceContext<M> context);
+    void afterSave(PatchPersistenceContext<Model> context);
 }
