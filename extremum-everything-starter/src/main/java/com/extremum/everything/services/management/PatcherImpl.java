@@ -121,7 +121,7 @@ public final class PatcherImpl implements Patcher {
     private Model assemblePatchedModel(RequestDto patchedDto, Model modelToPatch) {
         Model patchedModel = dtoConversionService.convertFromRequestDto(modelToPatch.getClass(), patchedDto);
         modelToPatch.copyServiceFieldsTo(patchedModel);
-        return patchedModel;
+        return emptyFieldDestroyer.destroy(patchedModel);
     }
 
     private Model saveWithHooks(Descriptor id, Model originalModel, Model patchedModel) {

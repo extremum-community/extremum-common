@@ -79,7 +79,7 @@ class PatcherImplTest {
     @Spy
     private ObjectMapper objectMapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
     @Spy
-    private EmptyFieldDestroyer destroyer = new PublicEmptyFieldDestroyer();
+    private EmptyFieldDestroyer emptyFieldDestroyer = new PublicEmptyFieldDestroyer();
     @Mock
     private RequestDtoValidator requestDtoValidator;
     @Spy
@@ -125,7 +125,7 @@ class PatcherImplTest {
     }
 
     @Test
-    void whenPatching_thenReturnedModelShouldBeAPatchedOne() throws Exception {
+    void whenPatching_thenReturnedModelShouldBeThePatchedOne() throws Exception {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
         whenSaveModelThenReturnIt();
 
@@ -141,7 +141,7 @@ class PatcherImplTest {
 
     @Test
     void givenDataSecurityDoesNotAllowToPatch_whenPatching_thenAnExceptionShouldBeThrown() {
-        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+        whenRetrieveModelThenReturnATestModel();
         doThrow(new EverythingAccessDeniedException("Access denied"))
                 .when(dataSecurity).checkPatchAllowed(any());
 
@@ -153,6 +153,10 @@ class PatcherImplTest {
         }
     }
 
+    private void whenRetrieveModelThenReturnATestModel() {
+        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+    }
+
     @NotNull
     private JsonPatch anyPatch() {
         return new JsonPatch(emptyList());
@@ -160,7 +164,7 @@ class PatcherImplTest {
 
     @Test
     void givenPatcherHooksExist_whenPatching_thenAllTheHookMethodsShouldBeCalled() {
-        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+        whenRetrieveModelThenReturnATestModel();
         whenSaveModelThenReturnIt();
 
         patcher.patch(descriptor, anyPatch());
@@ -168,6 +172,15 @@ class PatcherImplTest {
         verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
         verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
         verify(patcherHooksCollection).afterSave(eq(TestModel.MODEL_NAME), any());
+    }
+
+    @Test
+    void whenPatching_thenEmptyFieldDestroyerShouldBeApplied() {
+        whenRetrieveModelThenReturnATestModel();
+
+        patcher.patch(descriptor, anyPatch());
+
+        verify(emptyFieldDestroyer).destroy(any());
     }
     
     @ModelName(TestModel.MODEL_NAME)
