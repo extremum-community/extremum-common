@@ -1,7 +1,6 @@
 package com.extremum.everything.services;
 
 import com.extremum.common.models.Model;
-import com.extremum.common.utils.ModelUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +20,5 @@ public final class PatchPersistenceContext<M extends Model> {
         this.patchedModel = patchedModel;
 
         currentStateModel = originalModel;
-    }
-
-    public String modelName() {
-        return ModelUtils.getModelName(originalModel);
     }
 }
