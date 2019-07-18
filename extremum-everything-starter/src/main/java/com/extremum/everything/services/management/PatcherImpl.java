@@ -61,8 +61,6 @@ public final class PatcherImpl implements Patcher {
 
     @Override
     public final Model patch(Descriptor id, JsonPatch patch) {
-        beforePatch(id, patch);
-
         Model modelToPatch = findModel(id);
 
         dataSecurity.checkPatchAllowed(modelToPatch);
@@ -76,7 +74,6 @@ public final class PatcherImpl implements Patcher {
         Model savedModel = saveWithHooks(id, modelToPatch, patchedModel);
 
         log.debug("Model with id {} has been patched with patch {}", id, patch);
-        afterPatch();
         return savedModel;
     }
 
@@ -117,10 +114,8 @@ public final class PatcherImpl implements Patcher {
     }
 
     private void validateRequest(RequestDto dto) {
-        beforeValidation(dto);
-
         Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
-        afterValidation(dto, constraintViolation);
+        processValidationResult(dto, constraintViolation);
     }
 
     private Model assemblePatchedModel(RequestDto patchedDto, Model modelToPatch) {
@@ -132,13 +127,11 @@ public final class PatcherImpl implements Patcher {
     private Model saveWithHooks(Descriptor id, Model originalModel, Model patchedModel) {
         PatchPersistenceContext<Model> context = new PatchPersistenceContext<>(originalModel, patchedModel);
 
-        beforeSave(context);
         hooksCollection.beforeSave(id.getModelType(), context);
 
         Model savedModel = save(context);
 
         context.setCurrentStateModel(savedModel);
-        afterSave(context);
         hooksCollection.afterSave(id.getModelType(), context);
 
         return context.getCurrentStateModel();
@@ -148,29 +141,11 @@ public final class PatcherImpl implements Patcher {
         return modelSaver.saveModel(context.getPatchedModel());
     }
 
-    //    Methods to override if needed
-
-    protected void beforePatch(Descriptor id, JsonPatch patch) {
-    }
-
-    protected void beforeValidation(RequestDto dto) {
-    }
-
-    protected void afterValidation(RequestDto dto,
+    private void processValidationResult(RequestDto dto,
             Set<ConstraintViolation<RequestDto>> constraintsViolation) {
         if (!constraintsViolation.isEmpty()) {
             log.error("Invalid requestDto DTO after patching detected {}", constraintsViolation);
             throw new RequestDtoValidationException(dto, constraintsViolation);
         }
     }
-
-    protected void beforeSave(PatchPersistenceContext<Model> context) {
-    }
-
-    protected void afterSave(PatchPersistenceContext<Model> context) {
-    }
-
-    protected void afterPatch() {
-    }
-
 }
