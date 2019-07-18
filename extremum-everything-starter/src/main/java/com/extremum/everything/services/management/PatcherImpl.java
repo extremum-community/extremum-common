@@ -32,12 +32,14 @@ public final class PatcherImpl implements Patcher {
     private final EmptyFieldDestroyer emptyFieldDestroyer;
     private final RequestDtoValidator dtoValidator;
     private final EverythingDataSecurity dataSecurity;
+    private final PatcherHooksCollection hooksCollection;
 
     public PatcherImpl(ModelRetriever modelRetriever,
             ModelSaver modelSaver,
             DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
-            EverythingDataSecurity dataSecurity) {
+            EverythingDataSecurity dataSecurity,
+            PatcherHooksCollection hooksCollection) {
         Objects.requireNonNull(modelRetriever, "modelRetriever cannot be null");
         Objects.requireNonNull(modelSaver, "modelSaver cannot be null");
         Objects.requireNonNull(dtoConversionService, "dtoConversionService cannot be null");
@@ -45,6 +47,7 @@ public final class PatcherImpl implements Patcher {
         Objects.requireNonNull(emptyFieldDestroyer, "emptyFieldDestroyer cannot be null");
         Objects.requireNonNull(dtoValidator, "dtoValidator cannot be null");
         Objects.requireNonNull(dataSecurity, "dataSecurity cannot be null");
+        Objects.requireNonNull(hooksCollection, "hooksCollection cannot be null");
 
         this.modelRetriever = modelRetriever;
         this.modelSaver = modelSaver;
@@ -53,6 +56,7 @@ public final class PatcherImpl implements Patcher {
         this.emptyFieldDestroyer = emptyFieldDestroyer;
         this.dtoValidator = dtoValidator;
         this.dataSecurity = dataSecurity;
+        this.hooksCollection = hooksCollection;
     }
 
     @Override
@@ -64,11 +68,12 @@ public final class PatcherImpl implements Patcher {
         dataSecurity.checkPatchAllowed(modelToPatch);
 
         RequestDto patchedDto = applyPatch(patch, modelToPatch);
+        hooksCollection.afterPatchAppliedToDto(id.getModelType(), patchedDto);
         validateRequest(patchedDto);
 
         Model patchedModel = assemblePatchedModel(patchedDto, modelToPatch);
 
-        Model savedModel = saveWithHooks(modelToPatch, patchedModel);
+        Model savedModel = saveWithHooks(id, modelToPatch, patchedModel);
 
         log.debug("Model with id {} has been patched with patch {}", id, patch);
         afterPatch();
@@ -124,15 +129,17 @@ public final class PatcherImpl implements Patcher {
         return patchedModel;
     }
 
-    private Model saveWithHooks(Model originalModel, Model patchedModel) {
+    private Model saveWithHooks(Descriptor id, Model originalModel, Model patchedModel) {
         PatchPersistenceContext<Model> context = new PatchPersistenceContext<>(originalModel, patchedModel);
 
         beforeSave(context);
+        hooksCollection.beforeSave(id.getModelType(), context);
 
         Model savedModel = save(context);
 
         context.setCurrentStateModel(savedModel);
         afterSave(context);
+        hooksCollection.afterSave(id.getModelType(), context);
 
         return context.getCurrentStateModel();
     }

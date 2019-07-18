@@ -16,8 +16,8 @@ final class NonDefaultPatcherHooks<M extends Model, D extends RequestDto> implem
     }
 
     @Override
-    public D afterPatchAppliedToDto(D dto) {
-        return patcherHooksService.afterPatchAppliedToDto(dto);
+    public D afterPatchAppliedToDto(D patchedDto) {
+        return patcherHooksService.afterPatchAppliedToDto(patchedDto);
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.security.AllowEverythingForDataAccess;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.everything.services.PatcherHooksService;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.RequestDto;
@@ -47,6 +48,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -83,11 +85,18 @@ class PatcherImplTest {
     private RequestDtoValidator requestDtoValidator;
     @Spy
     private EverythingDataSecurity dataSecurity = new AllowEverythingForDataAccess();
+    @Spy
+    private PatcherHooksCollection patcherHooksCollection = new PatcherHooksCollection(emptyList());
 
     @Captor
     private ArgumentCaptor<TestModel> testModelCaptor;
 
-    private final Descriptor descriptor = new Descriptor("external-id");
+    private final Descriptor descriptor = Descriptor.builder()
+            .externalId("external-id")
+            .internalId("internal-id")
+            .modelType(TestModel.MODEL_NAME)
+            .storageType(Descriptor.StorageType.MONGO)
+            .build();
 
     @Test
     void whenPatching_thenPatchedModelShouldBeSaved() throws Exception {
@@ -138,17 +147,36 @@ class PatcherImplTest {
                 .when(dataSecurity).checkPatchAllowed(any());
 
         try {
-            patcher.patch(descriptor, new JsonPatch(emptyList()));
+            patcher.patch(descriptor, anyPatch());
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
+
+    @NotNull
+    private JsonPatch anyPatch() {
+        return new JsonPatch(emptyList());
+    }
+
+    @Test
+    void givenPatcherHooksExist_whenPatching_thenAllTheHookMethodsShouldBeCalled() {
+        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+        whenSaveModelThenReturnIt();
+
+        patcher.patch(descriptor, anyPatch());
+
+        verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
+        verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
+        verify(patcherHooksCollection).afterSave(eq(TestModel.MODEL_NAME), any());
+    }
     
-    @ModelName("TestModel")
+    @ModelName(TestModel.MODEL_NAME)
     @ToString
     @Getter
     public static class TestModel extends MongoCommonModel {
+        private static final String MODEL_NAME = "TestModel";
+
         private String name;
     }
 
@@ -182,7 +210,14 @@ class PatcherImplTest {
 
         @Override
         public String getSupportedModel() {
-            return "TestModel";
+            return TestModel.MODEL_NAME;
+        }
+    }
+
+    private static class TestModelPatcherHooks implements PatcherHooksService<TestModel, TestModelRequestDto> {
+        @Override
+        public String getSupportedModel() {
+            return TestModel.MODEL_NAME;
         }
     }
 }

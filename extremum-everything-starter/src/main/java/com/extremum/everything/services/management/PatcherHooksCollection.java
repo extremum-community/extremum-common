@@ -12,12 +12,12 @@ import java.util.List;
  * @author rpuch
  */
 @RequiredArgsConstructor
-class PatcherHooksCollection {
+public class PatcherHooksCollection {
     private final List<PatcherHooksService<?, ?>> patcherHooksServices;
 
-    public void afterPatchAppliedToDto(String modelName, RequestDto requestDto) {
+    public void afterPatchAppliedToDto(String modelName, RequestDto patchedDto) {
         PatcherHooks<Model, RequestDto> hooks = getHooks(modelName);
-        hooks.afterPatchAppliedToDto(requestDto);
+        hooks.afterPatchAppliedToDto(patchedDto);
     }
 
     private PatcherHooks<Model, RequestDto> getHooks(String modelName) {

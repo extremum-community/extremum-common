@@ -9,8 +9,8 @@ import com.extremum.sharedmodels.dto.RequestDto;
  */
 final class NullPatcherHooks<M extends Model, D extends RequestDto> implements PatcherHooks<M, D> {
     @Override
-    public D afterPatchAppliedToDto(D dto) {
-        return dto;
+    public D afterPatchAppliedToDto(D patchedDto) {
+        return patchedDto;
     }
 
     @Override

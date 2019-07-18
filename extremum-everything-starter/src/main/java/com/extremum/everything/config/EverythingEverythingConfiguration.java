@@ -155,6 +155,12 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public PatcherHooksCollection patcherHooksCollection(List<PatcherHooksService<?, ?>> patcherHooksServices) {
+        return new PatcherHooksCollection(patcherHooksServices);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public Patcher patcher(
             ModelRetriever modelRetriever,
             ModelSaver modelSaver,
@@ -162,10 +168,11 @@ public class EverythingEverythingConfiguration {
             ObjectMapper objectMapper,
             EmptyFieldDestroyer emptyFieldDestroyer,
             RequestDtoValidator requestDtoValidator,
-            EverythingDataSecurity everythingDataSecurity
+            EverythingDataSecurity everythingDataSecurity,
+            PatcherHooksCollection hooksCollection
     ) {
         return new PatcherImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
-                emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity);
+                emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity, hooksCollection);
     }
 
     @Bean
