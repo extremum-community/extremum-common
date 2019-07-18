@@ -1,7 +1,6 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.dto.converters.services.DtoConversionService;
-import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.everything.security.EverythingDataSecurity;
@@ -40,7 +39,7 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Mock
     private DtoConversionService dtoConversionService;
     @Mock
-    private DefaultGetter<Model> defaultGetter;
+    private DefaultGetter defaultGetter;
     @Mock
     private DefaultRemover defaultRemover;
     @Mock

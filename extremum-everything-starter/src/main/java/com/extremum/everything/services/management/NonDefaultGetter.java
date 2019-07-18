@@ -8,15 +8,15 @@ import com.extremum.everything.services.GetterService;
  *
  * @author rpuch
  */
-final class NonDefaultGetter<M extends Model> implements Getter<M> {
-    private final GetterService<M> getterService;
+final class NonDefaultGetter implements Getter {
+    private final GetterService<?> getterService;
 
-    NonDefaultGetter(GetterService<M> getterService) {
+    NonDefaultGetter(GetterService<?> getterService) {
         this.getterService = getterService;
     }
 
     @Override
-    public M get(String id) {
+    public Model get(String id) {
         return getterService.get(id);
     }
 }

@@ -123,8 +123,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
-        return new DefaultGetterImpl<>(commonServices, modelDescriptors);
+    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultGetterImpl(commonServices, modelDescriptors);
     }
 
     @Bean
@@ -142,7 +142,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ModelRetriever modelRetriever(List<GetterService<? extends Model>> getterServices,
-                DefaultGetter<Model> defaultGetter) {
+                DefaultGetter defaultGetter) {
         return new ModelRetriever(getterServices, defaultGetter);
     }
 
