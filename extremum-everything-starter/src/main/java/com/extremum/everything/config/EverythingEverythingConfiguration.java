@@ -161,7 +161,7 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public Patcher patcher(
+    public PatchFlow patchFlow(
             ModelRetriever modelRetriever,
             ModelSaver modelSaver,
             DtoConversionService dtoConversionService,
@@ -171,7 +171,7 @@ public class EverythingEverythingConfiguration {
             EverythingDataSecurity everythingDataSecurity,
             PatcherHooksCollection hooksCollection
     ) {
-        return new PatcherImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
+        return new PatchFlowImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
                 emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity, hooksCollection);
     }
 
@@ -199,7 +199,7 @@ public class EverythingEverythingConfiguration {
             ModelRetriever modelRetriever,
             List<RemovalService> removalServices,
             DefaultRemover defaultRemover,
-            Patcher patcher,
+            PatchFlow patchFlow,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
@@ -207,7 +207,7 @@ public class EverythingEverythingConfiguration {
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                patcher, removalServices,
+                patchFlow, removalServices,
                 defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);

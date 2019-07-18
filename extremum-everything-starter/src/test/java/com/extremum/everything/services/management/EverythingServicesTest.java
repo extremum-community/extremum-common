@@ -106,13 +106,13 @@ class EverythingServicesTest {
 
         ModelRetriever modelRetriever = new ModelRetriever(getters, defaultGetter);
         ModelSaver modelSaver = new ModelSaver(savers, defaultSaver);
-        Patcher patcher = new PatcherImpl(modelRetriever, modelSaver, dtoConversionService,
+        PatchFlow patchFlow = new PatchFlowImpl(modelRetriever, modelSaver, dtoConversionService,
                 objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
                 new AllowEverythingForDataAccess(), new PatcherHooksCollection(emptyList()));
 
         service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                patcher, removers,
+                patchFlow, removers,
                 defaultRemover,
                 emptyList(),
                 dtoConversionService, NOT_USED,

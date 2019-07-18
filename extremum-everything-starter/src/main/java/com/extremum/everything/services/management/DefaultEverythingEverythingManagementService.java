@@ -33,7 +33,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEverythingEverythingManagementService.class);
 
     private final ModelRetriever modelRetriever;
-    private final Patcher patcher;
+    private final PatchFlow patchFlow;
     private final List<RemovalService> removalServices;
     private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
@@ -45,14 +45,14 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     public DefaultEverythingEverythingManagementService(
             ModelRetriever modelRetriever,
-            Patcher patcher, List<RemovalService> removalServices,
+            PatchFlow patchFlow, List<RemovalService> removalServices,
             DefaultRemover defaultRemover,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService, UniversalDao universalDao,
             EverythingDataSecurity dataSecurity) {
         this.modelRetriever = modelRetriever;
         this.removalServices = removalServices;
-        this.patcher = patcher;
+        this.patchFlow = patchFlow;
         this.defaultRemover = defaultRemover;
         this.collectionFetchers = collectionFetchers;
         this.dtoConversionService = dtoConversionService;
@@ -80,7 +80,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        Model patched = patcher.patch(id, patch);
+        Model patched = patchFlow.patch(id, patch);
         return convertModelToResponseDto(patched, expand);
     }
 

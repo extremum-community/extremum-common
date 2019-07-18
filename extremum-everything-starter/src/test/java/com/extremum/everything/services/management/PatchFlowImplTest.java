@@ -56,12 +56,12 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class PatcherImplTest {
+class PatchFlowImplTest {
     private static final String BEFORE_PATCHING = "Before patching";
     private static final String AFTER_PATCHING = "After patching";
 
     @InjectMocks
-    private PatcherImpl patcher;
+    private PatchFlowImpl patcher;
 
     @Mock
     private ModelRetriever modelRetriever;

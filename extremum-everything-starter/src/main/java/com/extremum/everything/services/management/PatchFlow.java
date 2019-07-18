@@ -7,6 +7,6 @@ import com.github.fge.jsonpatch.JsonPatch;
 /**
  * @author rpuch
  */
-public interface Patcher {
+public interface PatchFlow {
     Model patch(Descriptor id, JsonPatch patch);
 }
