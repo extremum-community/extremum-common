@@ -116,7 +116,7 @@ public final class CombiningPatcher implements Patcher {
         beforeValidation(dto);
 
         Set<ConstraintViolation<RequestDto>> constraintViolation = dtoValidator.validate(dto);
-        afterValidation(dto, !constraintViolation.isEmpty(), constraintViolation);
+        afterValidation(dto, constraintViolation);
     }
 
     private Model assemblePatchedModel(RequestDto patchedDto, Model modelToPatch) {
@@ -150,8 +150,9 @@ public final class CombiningPatcher implements Patcher {
     protected void beforeValidation(RequestDto dto) {
     }
 
-    protected void afterValidation(RequestDto dto, boolean hasValidationErrors, Set<ConstraintViolation<RequestDto>> constraintsViolation) {
-        if (hasValidationErrors) {
+    protected void afterValidation(RequestDto dto,
+            Set<ConstraintViolation<RequestDto>> constraintsViolation) {
+        if (!constraintsViolation.isEmpty()) {
             log.error("Invalid requestDto DTO after patching detected {}", constraintsViolation);
             throw new RequestDtoValidationException(dto, constraintsViolation);
         }
