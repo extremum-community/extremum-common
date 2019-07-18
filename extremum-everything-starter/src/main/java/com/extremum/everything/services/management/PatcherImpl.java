@@ -55,6 +55,7 @@ public final class PatcherImpl implements Patcher {
         this.dataSecurity = dataSecurity;
     }
 
+    @Override
     public final Model patch(Descriptor id, JsonPatch patch) {
         beforePatch(id, patch);
 
