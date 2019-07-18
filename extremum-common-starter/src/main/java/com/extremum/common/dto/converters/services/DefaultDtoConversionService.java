@@ -1,104 +1,64 @@
 package com.extremum.common.dto.converters.services;
 
+import com.extremum.common.dto.converters.*;
+import com.extremum.common.exceptions.ConverterNotFoundException;
+import com.extremum.common.models.Model;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.sharedmodels.dto.ResponseDto;
-import com.extremum.common.dto.converters.*;
-import com.extremum.common.models.Model;
-import com.extremum.common.utils.ModelUtils;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
 
-@Getter
 @Setter
+@RequiredArgsConstructor
 @Service
 public class DefaultDtoConversionService implements DtoConversionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDtoConversionService.class);
 
+    private final DtoConverters dtoConverters;
     private final StubDtoConverter stubDtoConverter;
-    private final List<DtoConverter> converters;
-    private final boolean useStubConverter = true;
-
-    public DefaultDtoConversionService(@Autowired(required = false) List<DtoConverter> converters,
-                                       StubDtoConverter stubDtoConverter) {
-        this.converters = ofNullable(converters).orElseGet(ArrayList::new);
-        this.stubDtoConverter = stubDtoConverter;
-    }
-
-    @Override
-    public DtoConverter determineConverter(Class<? extends Model> modelClass) {
-        requireNonNull(modelClass, "Model class can't be null");
-
-        for (DtoConverter converter : converters) {
-            if (ModelUtils.hasModelName(modelClass)) {
-                if (ModelUtils.getModelName(modelClass).equalsIgnoreCase(converter.getSupportedModel())) {
-                    return converter;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DtoConverter determineConverterOrElseThrow(Model model, Supplier<? extends RuntimeException> exceptionSupplier) {
-        DtoConverter converter = determineConverter(model.getClass());
-        if (converter == null) {
-            LOGGER.error("Unable to determine a converter for model {}", model.getClass().getSimpleName());
-            throw exceptionSupplier.get();
-        } else {
-            return converter;
-        }
-    }
 
     @Override
     public ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config) {
-        DtoConverter converter = determineConverter(model.getClass());
+        ToResponseDtoConverter<Model, ResponseDto> converter = dtoConverters.<Model, ResponseDto>findToResponseDtoConverter(model.getClass())
+                .orElseGet(() -> warnAndGetStubConverter(model));
+        return converter.convertToResponse(model, config);
+    }
 
-        if (converter == null) {
-            LOGGER.error("Unable to determine converter for model {}: {}", model.getClass().getSimpleName(), model);
-            converter = stubDtoConverter;
-        }
-
-        if (converter instanceof ToResponseDtoConverter) {
-            return ((ToResponseDtoConverter) converter).convertToResponse(model, config);
-        } else {
-            String message = format("Found converter for a model %s is not a ToResponseDtoConverter instance",
-                    model.getClass().getSimpleName());
-            LOGGER.error(message);
-            throw new RuntimeException(message);
-        }
+    private ToResponseDtoConverter<Model, ResponseDto> warnAndGetStubConverter(Model model) {
+        LOGGER.error("Unable to find a to-response-dto-converter for model {}: {}", model.getClass().getSimpleName(), model);
+        return stubDtoConverter;
     }
 
     @Override
     public RequestDto convertUnknownToRequestDto(Model model, ConversionConfig config) {
-        DtoConverter converter = determineConverter(model.getClass());
+        ToRequestDtoConverter<Model, RequestDto> converter = findMandatoryToRequestConverter(model.getClass());
+        return converter.convertToRequest(model, config);
+    }
 
-        if (converter == null) {
-            String message = format("Unable to determine converter for model %s: %s", model.getClass().getSimpleName(), model);
+    @Override
+    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
+        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter((Class<? extends M>) modelClass)
+                .orElseThrow(() -> new ConverterNotFoundException(
+                        format("Unable to find converter for model '%s'", modelClass.getSimpleName())));
+        return converter.convertFromRequest(dto);
+    }
 
-            LOGGER.error(message);
+    private ToRequestDtoConverter<Model, RequestDto> findMandatoryToRequestConverter(
+            Class<? extends Model> modelClass) {
+        return dtoConverters.<Model, RequestDto>findToRequestDtoConverter(modelClass)
+                    .orElseThrow(
+                            () -> new ConverterNotFoundException(
+                                    format("Unable to find converter for model '%s'", modelClass.getSimpleName()))
+                    );
+    }
 
-            throw new RuntimeException(message);
-        } else {
-            if (converter instanceof ToRequestDtoConverter) {
-                return ((ToRequestDtoConverter) converter).convertToRequest(model, config);
-            } else {
-                String message = format("Found converter for a model %s is not a instance ToRequestDtoConverter",
-                        model.getClass().getSimpleName());
-                LOGGER.error(message);
-                throw new RuntimeException(message);
-            }
-        }
+    @Override
+    public Class<? extends RequestDto> findRequestDtoType(Class<? extends Model> modelClass) {
+        return findMandatoryToRequestConverter(modelClass).getRequestDtoType();
     }
 }

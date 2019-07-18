@@ -7,5 +7,4 @@ import com.extremum.everything.services.management.Getter;
  * @author rpuch
  */
 public interface DefaultGetter<M extends Model> extends Getter<M> {
-    M get(String id);
 }

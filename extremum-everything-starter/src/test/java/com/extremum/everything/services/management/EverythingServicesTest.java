@@ -10,7 +10,7 @@ import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
-import com.extremum.everything.security.AllowEverything;
+import com.extremum.everything.security.AllowEverythingForDataAccess;
 import com.extremum.everything.services.*;
 import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;
@@ -99,15 +99,15 @@ class EverythingServicesTest {
         DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelDescriptors);
         DefaultPatcher<Model> defaultPatcher = new DefaultPatcherImpl<>(
                 dtoConversionService, objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                commonServices, modelClasses, defaultGetter,
-                ImmutableList.of(new DtoConverterForModelWithoutServices())
+                commonServices, modelClasses, defaultGetter, new AllowEverythingForDataAccess()
         );
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
         service = new DefaultEverythingEverythingManagementService(getters, patchers, removers,
                 defaultGetter, defaultPatcher, defaultRemover,
                 Collections.emptyList(),
-                dtoConversionService, NOT_USED, new AllowEverything());
+                dtoConversionService, NOT_USED,
+                new AllowEverythingForDataAccess());
     }
 
     @AfterEach
@@ -147,12 +147,16 @@ class EverythingServicesTest {
     void givenAnEntityHasNoGetterService_whenGetting_thenCommonServiceShouldProvideTheResult() {
         whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
         whenGetDescriptorByInternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
-        when(commonDaoForModelWithoutServices.findById(any())).thenReturn(Optional.of(new MongoModelWithoutServices()));
+        whenFindByIdViaCommonServiceThenReturnAModel();
 
         ResponseDto dto = service.get(descriptor, false);
 
         assertThat(dto, is(notNullValue()));
         assertThatDtoIsForModelWithoutServices(dto);
+    }
+
+    private void whenFindByIdViaCommonServiceThenReturnAModel() {
+        when(commonDaoForModelWithoutServices.findById(any())).thenReturn(Optional.of(new MongoModelWithoutServices()));
     }
 
     private void whenGetDescriptorByInternalIdThenReturnOne(String modelName) {
@@ -179,7 +183,7 @@ class EverythingServicesTest {
     void givenAnEntityHasNoPatcherService_whenPatching_thenShouldBePatchedViaCommonService() {
         whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
         whenGetDescriptorByInternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
-        when(commonDaoForModelWithoutServices.findById(any())).thenReturn(Optional.of(new MongoModelWithoutServices()));
+        whenFindByIdViaCommonServiceThenReturnAModel();
         when(commonDaoForModelWithoutServices.save(any())).then(interaction -> interaction.getArgument(0));
 
         ResponseDto dto = service.patch(descriptor, jsonPatch, true);
@@ -202,6 +206,7 @@ class EverythingServicesTest {
     void givenAnEntityHasNoRemovalService_whenDeleting_thenShouldBeRemovedViaCommonService() {
         whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
         whenGetDescriptorByInternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
+        whenFindByIdViaCommonServiceThenReturnAModel();
 
         service.remove(descriptor);
 
@@ -221,15 +226,12 @@ class EverythingServicesTest {
     }
 
     private static class MongoWithServicesPatcherService extends AbstractPatcherService<MongoModelWithServices> {
-        MongoWithServicesPatcherService(
-                DtoConversionService dtoConversionService,
-                ObjectMapper jsonMapper) {
-            super(dtoConversionService, jsonMapper);
+        MongoWithServicesPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
+            super(dtoConversionService, jsonMapper, new AllowEverythingForDataAccess());
         }
 
         @Override
-        protected MongoModelWithServices persist(PatchPersistenceContext<MongoModelWithServices> context,
-                String modelName) {
+        protected MongoModelWithServices persist(PatchPersistenceContext<MongoModelWithServices> context) {
             return context.getCurrentStateModel();
         }
 
