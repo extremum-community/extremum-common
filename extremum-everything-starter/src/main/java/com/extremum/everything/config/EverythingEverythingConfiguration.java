@@ -164,7 +164,7 @@ public class EverythingEverythingConfiguration {
             RequestDtoValidator requestDtoValidator,
             EverythingDataSecurity everythingDataSecurity
     ) {
-        return new CombiningPatcher(modelRetriever, modelSaver, dtoConversionService, objectMapper,
+        return new PatcherImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
                 emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity);
     }
 

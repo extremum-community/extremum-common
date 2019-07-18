@@ -26,7 +26,7 @@ import java.util.Set;
 import static java.lang.String.format;
 
 @Slf4j
-public final class CombiningPatcher implements Patcher {
+public final class PatcherImpl implements Patcher {
     private final ModelRetriever modelRetriever;
     private final ModelSaver modelSaver;
     private final DtoConversionService dtoConversionService;
@@ -35,7 +35,7 @@ public final class CombiningPatcher implements Patcher {
     private final RequestDtoValidator dtoValidator;
     private final EverythingDataSecurity dataSecurity;
 
-    public CombiningPatcher(ModelRetriever modelRetriever,
+    public PatcherImpl(ModelRetriever modelRetriever,
             ModelSaver modelSaver,
             DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,

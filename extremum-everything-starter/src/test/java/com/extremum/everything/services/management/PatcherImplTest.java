@@ -55,12 +55,12 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class CombiningPatcherTest {
+class PatcherImplTest {
     private static final String BEFORE_PATCHING = "Before patching";
     private static final String AFTER_PATCHING = "After patching";
 
     @InjectMocks
-    private CombiningPatcher patcher;
+    private PatcherImpl patcher;
 
     @Mock
     private ModelRetriever modelRetriever;
