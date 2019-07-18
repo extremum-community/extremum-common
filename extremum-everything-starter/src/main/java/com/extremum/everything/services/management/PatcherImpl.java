@@ -48,7 +48,7 @@ public final class PatcherImpl implements Patcher {
     @Override
     public final Model patch(Descriptor id, Model modelToPatch, JsonPatch patch) {
         RequestDto patchedDto = applyPatch(patch, modelToPatch);
-        hooksCollection.afterPatchAppliedToDto(id.getModelType(), patchedDto);
+        patchedDto = hooksCollection.afterPatchAppliedToDto(id.getModelType(), patchedDto);
 
         validateRequest(patchedDto);
 

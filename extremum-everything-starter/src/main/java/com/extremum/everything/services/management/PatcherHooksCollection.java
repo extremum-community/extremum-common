@@ -15,9 +15,9 @@ import java.util.List;
 public class PatcherHooksCollection {
     private final List<PatcherHooksService<?, ?>> patcherHooksServices;
 
-    public void afterPatchAppliedToDto(String modelName, RequestDto patchedDto) {
+    public RequestDto afterPatchAppliedToDto(String modelName, RequestDto patchedDto) {
         PatcherHooks<Model, RequestDto> hooks = getHooks(modelName);
-        hooks.afterPatchAppliedToDto(patchedDto);
+        return hooks.afterPatchAppliedToDto(patchedDto);
     }
 
     private PatcherHooks<Model, RequestDto> getHooks(String modelName) {
