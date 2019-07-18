@@ -4,13 +4,15 @@ package com.extremum.jpa.facilities;
  * @author rpuch
  */
 public class StaticPostgresDescriptorFacilitiesAccessor {
-    private static volatile PostgresDescriptorFacilities FACILITIES_INSTANCE;
+    private static PostgresDescriptorFacilities facilitiesInstance;
 
     public static PostgresDescriptorFacilities getFacilities() {
-        return FACILITIES_INSTANCE;
+        return facilitiesInstance;
     }
 
     public static void setFacilities(PostgresDescriptorFacilities facilities) {
-        FACILITIES_INSTANCE = facilities;
+        facilitiesInstance = facilities;
     }
+
+    private StaticPostgresDescriptorFacilitiesAccessor() {}
 }

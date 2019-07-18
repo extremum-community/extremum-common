@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class DurationVariativeValueDeserializer extends StdDeserializer<DurationVariativeValue> {
     public DurationVariativeValueDeserializer() {
@@ -40,6 +41,9 @@ public class DurationVariativeValueDeserializer extends StdDeserializer<Duration
             if (!errors.isEmpty()) {
                 throw new DeserializationException(errors);
             }
+
+            Objects.requireNonNull(minTreeNode, "minTreeNode is null");
+            Objects.requireNonNull(maxTreeNode, "maxTreeNode is null");
 
             return new DurationVariativeValue(minTreeNode.toString(), maxTreeNode.toString());
         } else if (tree instanceof TextNode) {

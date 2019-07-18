@@ -7,6 +7,7 @@ import com.extremum.everything.exceptions.EverythingEverythingException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -37,7 +38,7 @@ class HostAttribute {
 
     Class<? extends Model> detectElementClass(Model host) {
         CollectionElementType fieldAnnotation = field()
-                .map(field -> field.getAnnotation(CollectionElementType.class))
+                .map(currentField -> currentField.getAnnotation(CollectionElementType.class))
                 .orElse(null);
         CollectionElementType getterAnnotation = getter().getAnnotation(CollectionElementType.class);
 
@@ -47,6 +48,8 @@ class HostAttribute {
         if (getterAnnotation != null) {
             return getterAnnotation.value();
         }
+
+        Objects.requireNonNull(fieldAnnotation, "fieldAnnotation is null");
         return fieldAnnotation.value();
     }
 
