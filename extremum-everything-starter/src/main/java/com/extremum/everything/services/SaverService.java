@@ -1,8 +1,12 @@
 package com.extremum.everything.services;
 
 import com.extremum.common.models.Model;
-import com.github.fge.jsonpatch.JsonPatch;
 
+/**
+ * Service that is used save a model to the database for Everything-Everything PATCH operation.
+ *
+ * @param <M> model type
+ */
 public interface SaverService<M extends Model> extends EverythingEverythingService {
     /**
      * Saves a given model instance to the storage.
