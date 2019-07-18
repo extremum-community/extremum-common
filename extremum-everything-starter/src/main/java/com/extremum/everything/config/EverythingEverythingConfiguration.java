@@ -161,18 +161,28 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PatchFlow patchFlow(
-            ModelRetriever modelRetriever,
-            ModelSaver modelSaver,
+    public Patcher patcher(
             DtoConversionService dtoConversionService,
             ObjectMapper objectMapper,
             EmptyFieldDestroyer emptyFieldDestroyer,
             RequestDtoValidator requestDtoValidator,
+            PatcherHooksCollection hooksCollection
+    ) {
+        return new PatcherImpl(dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, hooksCollection);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PatchFlow patchFlow(
+            ModelRetriever modelRetriever,
+            Patcher patcher,
+            ModelSaver modelSaver,
             EverythingDataSecurity everythingDataSecurity,
             PatcherHooksCollection hooksCollection
     ) {
-        return new PatchFlowImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
-                emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity, hooksCollection);
+        return new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+                everythingDataSecurity, hooksCollection);
     }
 
     @Bean

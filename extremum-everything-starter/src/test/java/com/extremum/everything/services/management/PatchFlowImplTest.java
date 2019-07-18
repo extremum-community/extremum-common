@@ -31,9 +31,13 @@ import com.github.fge.jsonpatch.ReplaceOperation;
 import lombok.Getter;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
@@ -60,8 +64,7 @@ class PatchFlowImplTest {
     private static final String BEFORE_PATCHING = "Before patching";
     private static final String AFTER_PATCHING = "After patching";
 
-    @InjectMocks
-    private PatchFlowImpl patcher;
+    private PatchFlowImpl patchFlow;
 
     @Mock
     private ModelRetriever modelRetriever;
@@ -97,11 +100,19 @@ class PatchFlowImplTest {
             .storageType(Descriptor.StorageType.MONGO)
             .build();
 
+    @BeforeEach
+    void createPatcherFlow() {
+        Patcher patcher = new PatcherImpl(dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, patcherHooksCollection);
+        patchFlow = new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+                dataSecurity, patcherHooksCollection);
+    }
+
     @Test
     void whenPatching_thenPatchedModelShouldBeSaved() throws Exception {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
 
-        patcher.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
+        patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
 
         assertThatSavedModelWithNewName(AFTER_PATCHING);
     }
@@ -129,7 +140,7 @@ class PatchFlowImplTest {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
         whenSaveModelThenReturnIt();
 
-        Model patchedModel = patcher.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
+        Model patchedModel = patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
 
         assertThat(patchedModel, instanceOf(TestModel.class));
         assertThat(patchedModel, hasProperty("name", equalTo(AFTER_PATCHING)));
@@ -146,7 +157,7 @@ class PatchFlowImplTest {
                 .when(dataSecurity).checkPatchAllowed(any());
 
         try {
-            patcher.patch(descriptor, anyPatch());
+            patchFlow.patch(descriptor, anyPatch());
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
@@ -167,7 +178,7 @@ class PatchFlowImplTest {
         whenRetrieveModelThenReturnATestModel();
         whenSaveModelThenReturnIt();
 
-        patcher.patch(descriptor, anyPatch());
+        patchFlow.patch(descriptor, anyPatch());
 
         verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
         verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
@@ -178,7 +189,7 @@ class PatchFlowImplTest {
     void whenPatching_thenEmptyFieldDestroyerShouldBeApplied() {
         whenRetrieveModelThenReturnATestModel();
 
-        patcher.patch(descriptor, anyPatch());
+        patchFlow.patch(descriptor, anyPatch());
 
         verify(emptyFieldDestroyer).destroy(any());
     }
