@@ -17,7 +17,7 @@ import static java.lang.String.format;
 @Slf4j
 @RequiredArgsConstructor
 public class ModelRetriever {
-    private final List<GetterService<? extends Model>> getterServices;
+    private final List<GetterService<?>> getterServices;
     private final DefaultGetter defaultGetter;
 
     private final ModelNames modelNames = new ModelNames();

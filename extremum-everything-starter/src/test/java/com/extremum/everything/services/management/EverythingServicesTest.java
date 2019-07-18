@@ -96,7 +96,7 @@ class EverythingServicesTest {
         ));
         ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
 
-        List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
+        List<GetterService<?>> getters = ImmutableList.of(new MongoWithServicesGetterService());
         List<SaverService<? extends Model>> savers = ImmutableList.of(mongoWithServicesSaverService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 

@@ -141,7 +141,7 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelRetriever modelRetriever(List<GetterService<? extends Model>> getterServices,
+    public ModelRetriever modelRetriever(List<GetterService<?>> getterServices,
                 DefaultGetter defaultGetter) {
         return new ModelRetriever(getterServices, defaultGetter);
     }
