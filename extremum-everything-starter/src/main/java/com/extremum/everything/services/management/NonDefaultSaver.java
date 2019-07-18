@@ -8,7 +8,7 @@ import com.extremum.everything.services.SaverService;
  *
  * @author rpuch
  */
-class NonDefaultSaver<M extends Model> implements Saver<M> {
+final class NonDefaultSaver<M extends Model> implements Saver<M> {
     private final SaverService<M> saverService;
 
     NonDefaultSaver(SaverService<M> saverService) {

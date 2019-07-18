@@ -8,7 +8,7 @@ import com.extremum.everything.services.GetterService;
  *
  * @author rpuch
  */
-class NonDefaultGetter<M extends Model> implements Getter<M> {
+final class NonDefaultGetter<M extends Model> implements Getter<M> {
     private final GetterService<M> getterService;
 
     NonDefaultGetter(GetterService<M> getterService) {

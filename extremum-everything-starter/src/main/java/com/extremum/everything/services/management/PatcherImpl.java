@@ -3,10 +3,10 @@ package com.extremum.everything.services.management;
 import com.extremum.common.dto.converters.ConversionConfig;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
-import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.exceptions.RequestDtoValidationException;
 import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.everything.services.PatchPersistenceContext;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.RequestDto;
@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.ConstraintViolation;
@@ -126,7 +124,7 @@ public final class PatcherImpl implements Patcher {
     }
 
     private Model saveWithHooks(Model originalModel, Model patchedModel) {
-        PatchSaveContext<Model> context = new PatchSaveContext<>(originalModel, patchedModel);
+        PatchPersistenceContext<Model> context = new PatchPersistenceContext<>(originalModel, patchedModel);
 
         beforeSave(context);
 
@@ -138,8 +136,8 @@ public final class PatcherImpl implements Patcher {
         return context.getCurrentStateModel();
     }
 
-    private Model save(PatchSaveContext<Model> context) {
-        return modelSaver.saveModel(context.patchedModel);
+    private Model save(PatchPersistenceContext<Model> context) {
+        return modelSaver.saveModel(context.getPatchedModel());
     }
 
     //    Methods to override if needed
@@ -158,35 +156,13 @@ public final class PatcherImpl implements Patcher {
         }
     }
 
-    protected void beforeSave(PatchSaveContext<Model> context) {
+    protected void beforeSave(PatchPersistenceContext<Model> context) {
     }
 
-    protected void afterSave(PatchSaveContext<Model> context) {
+    protected void afterSave(PatchPersistenceContext<Model> context) {
     }
 
     protected void afterPatch() {
     }
 
-    @Getter
-    @Setter
-    protected static class PatchSaveContext<M extends Model> {
-        /**
-         * Found by ID model. Before patching
-         */
-        private final M originalModel;
-        private final M patchedModel;
-
-        private M currentStateModel;
-
-        private PatchSaveContext(M originalModel, M patchedModel) {
-            this.originalModel = originalModel;
-            this.patchedModel = patchedModel;
-
-            currentStateModel = originalModel;
-        }
-
-        public String modelName() {
-            return ModelUtils.getModelName(originalModel);
-        }
-    }
 }
