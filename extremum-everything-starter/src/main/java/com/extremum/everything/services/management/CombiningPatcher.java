@@ -40,7 +40,6 @@ public final class CombiningPatcher implements Patcher {
             DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
             EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
             EverythingDataSecurity dataSecurity) {
-        this.modelSaver = modelSaver;
         Objects.requireNonNull(modelRetriever, "modelRetriever cannot be null");
         Objects.requireNonNull(modelSaver, "modelSaver cannot be null");
         Objects.requireNonNull(dtoConversionService, "dtoConversionService cannot be null");
@@ -49,12 +48,13 @@ public final class CombiningPatcher implements Patcher {
         Objects.requireNonNull(dtoValidator, "dtoValidator cannot be null");
         Objects.requireNonNull(dataSecurity, "dataSecurity cannot be null");
 
+        this.modelRetriever = modelRetriever;
+        this.modelSaver = modelSaver;
         this.dtoConversionService = dtoConversionService;
         this.jsonMapper = jsonMapper;
         this.emptyFieldDestroyer = emptyFieldDestroyer;
         this.dtoValidator = dtoValidator;
         this.dataSecurity = dataSecurity;
-        this.modelRetriever = modelRetriever;
     }
 
     public final Model patch(Descriptor id, JsonPatch patch) {
