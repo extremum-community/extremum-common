@@ -16,14 +16,14 @@ class PatcherHooksServiceTest {
     @Test
     void whenCallingDefaultAfterPatchAppliedDto_thenTheArgumentShouldBeReturned() {
         RequestDto dto = mock(RequestDto.class);
-        PatcherHooksService<Model, RequestDto> hooksService = new EmptyHooksService();
+        PatcherHooksService<Model, RequestDto> hooksService = new DefaultHooksService();
 
         RequestDto newDto = hooksService.afterPatchAppliedToDto(dto);
 
         assertThat(newDto, is(sameInstance(dto)));
     }
 
-    private static class EmptyHooksService implements PatcherHooksService<Model, RequestDto> {
+    private static class DefaultHooksService implements PatcherHooksService<Model, RequestDto> {
         @Override
         public String getSupportedModel() {
             return "Model";
