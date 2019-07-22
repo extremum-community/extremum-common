@@ -2,7 +2,6 @@ package com.extremum.everything.services.collection;
 
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
-import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 

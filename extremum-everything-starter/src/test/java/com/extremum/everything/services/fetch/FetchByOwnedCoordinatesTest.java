@@ -1,6 +1,6 @@
 package com.extremum.everything.services.fetch;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PersistableCommonModel;
@@ -11,8 +11,10 @@ import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -211,12 +213,28 @@ class FetchByOwnedCoordinatesTest {
     }
 
     @Test
+    void givenCollectionElementsAreBasicModels_whenFetchingCollection_thenTheCollectionShouldBeReturned() {
+        CollectionFragment<Model> items = fetcher.fetchCollection(new HasCollectionOfBasicModel(), "items",
+                Projection.empty());
+
+        assertThat(items.elements(), hasSize(2));
+        assertThat(items.total(), is(OptionalLong.of(2)));
+
+        Iterator<Model> iterator = items.elements().iterator();
+        ABasicModel first = (ABasicModel) iterator.next();
+        ABasicModel second = (ABasicModel) iterator.next();
+        assertThat(first.getName(), is("first"));
+        assertThat(second.getName(), is("second"));
+    }
+
+    @Test
     void givenCollectionElementsAreNotBasicModels_whenFetchingCollection_thenTheCollectionShouldBeReturned() {
         CollectionFragment<Model> items = fetcher.fetchCollection(new HasCollectionOfNonBasicModel(), "items",
                 Projection.empty());
 
         assertThat(items.elements(), hasSize(2));
         assertThat(items.total(), is(OptionalLong.of(2)));
+
         Iterator<Model> iterator = items.elements().iterator();
         NonBasicModel first = (NonBasicModel) iterator.next();
         NonBasicModel second = (NonBasicModel) iterator.next();
@@ -276,6 +294,21 @@ class FetchByOwnedCoordinatesTest {
         public List<String> getHouses() {
             return houses;
         }
+    }
+
+    @ModelName("ABasicModel")
+    @RequiredArgsConstructor
+    @Getter
+    @Setter
+    public static class ABasicModel implements BasicModel<String> {
+        private Descriptor uuid;
+        private String id;
+        private final String name;
+    }
+
+    @Getter
+    public static class HasCollectionOfBasicModel extends MongoCommonModel {
+        private List<ABasicModel> items = Arrays.asList(new ABasicModel("first"), new ABasicModel("second"));
     }
 
     @ModelName("NonBasicModel")
