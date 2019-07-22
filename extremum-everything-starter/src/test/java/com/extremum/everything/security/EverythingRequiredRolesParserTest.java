@@ -8,13 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-class EverythingSecuredParserTest {
-    private EverythingSecuredParser parser = new EverythingSecuredParser();
+class EverythingRequiredRolesParserTest {
+    private EverythingRequiredRolesParser parser = new EverythingRequiredRolesParser();
 
     @Test
     void givenIndividualAccessIsSpecified_whenGettingAccess_thenIndividualAccessShouldBeReturned() {
-        EverythingSecured everythingSecured = Individual.class.getAnnotation(EverythingSecured.class);
-        EverythingSecuredConfig config = parser.parse(everythingSecured);
+        EverythingRequiredRoles everythingRequiredRoles = Individual.class.getAnnotation(EverythingRequiredRoles.class);
+        EverythingRequiredRolesConfig config = parser.parse(everythingRequiredRoles);
 
         assertThat(config.rolesForGet(), equalTo(new String[]{"GET"}));
         assertThat(config.rolesForPatch(), equalTo(new String[]{"PATCH"}));
@@ -23,15 +23,15 @@ class EverythingSecuredParserTest {
 
     @Test
     void givenDefaultAccessIsSpecified_whenGettingAccess_thenDefaultAccessShouldBeReturned() {
-        EverythingSecured everythingSecured = WithDefault.class.getAnnotation(EverythingSecured.class);
-        EverythingSecuredConfig config = parser.parse(everythingSecured);
+        EverythingRequiredRoles everythingRequiredRoles = WithDefault.class.getAnnotation(EverythingRequiredRoles.class);
+        EverythingRequiredRolesConfig config = parser.parse(everythingRequiredRoles);
 
         assertThat(config.rolesForGet(), equalTo(new String[]{"DEFAULT"}));
         assertThat(config.rolesForPatch(), equalTo(new String[]{"DEFAULT"}));
         assertThat(config.rolesForRemove(), equalTo(new String[]{"DEFAULT"}));
     }
 
-    @EverythingSecured(
+    @EverythingRequiredRoles(
             defaultAccess = @Access("DEFAULT"),
             get = @Access("GET"),
             patch = @Access("PATCH"),
@@ -40,7 +40,7 @@ class EverythingSecuredParserTest {
     private static class Individual {
     }
 
-    @EverythingSecured(
+    @EverythingRequiredRoles(
             defaultAccess = @Access("DEFAULT")
     )
     private static class WithDefault {

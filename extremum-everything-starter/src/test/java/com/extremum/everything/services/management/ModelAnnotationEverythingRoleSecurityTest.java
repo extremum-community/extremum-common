@@ -160,7 +160,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
         }
     }
 
-    @EverythingSecured(
+    @EverythingRequiredRoles(
             get = @Access("ROLE_PRIVILEGED"),
             patch = @Access("ROLE_PRIVILEGED"),
             remove = @Access("ROLE_PRIVILEGED")
@@ -171,7 +171,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
     private static class InsecureModel extends MongoCommonModel {
     }
 
-    @EverythingSecured
+    @EverythingRequiredRoles
     private static class EmptySecurityModel extends MongoCommonModel {
     }
 

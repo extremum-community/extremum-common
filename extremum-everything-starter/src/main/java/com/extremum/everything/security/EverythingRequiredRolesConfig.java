@@ -3,13 +3,13 @@ package com.extremum.everything.security;
 /**
  * @author rpuch
  */
-class EverythingSecuredConfig {
+class EverythingRequiredRolesConfig {
     private final Access defaultAccess;
     private final Access getAccess;
     private final Access patchAccess;
     private final Access removeAccess;
 
-    EverythingSecuredConfig(Access defaultAccess, Access getAccess, Access patchAccess,
+    EverythingRequiredRolesConfig(Access defaultAccess, Access getAccess, Access patchAccess,
             Access removeAccess) {
         this.defaultAccess = defaultAccess;
         this.getAccess = getAccess;
