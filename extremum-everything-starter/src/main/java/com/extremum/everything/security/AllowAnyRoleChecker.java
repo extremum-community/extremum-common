@@ -5,7 +5,7 @@ package com.extremum.everything.security;
  */
 public class AllowAnyRoleChecker implements RoleChecker {
     @Override
-    public boolean currentUserHasOneOf(String... roles) {
+    public boolean currentUserHasOneRoleOf(String... roles) {
         return true;
     }
 }

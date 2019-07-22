@@ -59,7 +59,7 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
                 throw new EverythingEverythingException(message);
             }
 
-            if (!roleChecker.currentUserHasOneOf(roles)) {
+            if (!roleChecker.currentUserHasOneRoleOf(roles)) {
                 throw new EverythingAccessDeniedException("Access denied");
             }
         }

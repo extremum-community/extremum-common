@@ -22,6 +22,11 @@
         </dependency>
 
         <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>authentication-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.extremum</groupId>
             <artifactId>extremum-test-containers</artifactId>
             <scope>test</scope>
