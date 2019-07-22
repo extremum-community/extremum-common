@@ -8,15 +8,15 @@ import com.extremum.everything.services.SaverService;
  *
  * @author rpuch
  */
-class NonDefaultSaver<M extends Model> implements Saver<M> {
-    private final SaverService<M> saverService;
+final class NonDefaultSaver implements Saver {
+    private final SaverService<Model> saverService;
 
-    NonDefaultSaver(SaverService<M> saverService) {
-        this.saverService = saverService;
+    NonDefaultSaver(SaverService<? extends Model> saverService) {
+        this.saverService = (SaverService<Model>) saverService;
     }
 
     @Override
-    public M save(M model) {
+    public Model save(Model model) {
         return saverService.save(model);
     }
 }

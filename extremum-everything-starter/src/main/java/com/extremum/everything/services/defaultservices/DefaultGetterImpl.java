@@ -7,14 +7,14 @@ import com.extremum.everything.support.ModelDescriptors;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DefaultGetterImpl<M extends Model> implements DefaultGetter<M> {
+public class DefaultGetterImpl implements DefaultGetter {
     private final CommonServices commonServices;
     private final ModelDescriptors modelDescriptors;
 
     @Override
-    public M get(String internalId) {
-        Class<M> modelClass = modelDescriptors.getModelClassByDescriptorId(internalId);
-        CommonService<? extends M> service = commonServices.findServiceByModel(modelClass);
+    public Model get(String internalId) {
+        Class<? extends Model> modelClass = modelDescriptors.getModelClassByDescriptorId(internalId);
+        CommonService<?> service = commonServices.findServiceByModel(modelClass);
         return service.get(internalId);
     }
 }

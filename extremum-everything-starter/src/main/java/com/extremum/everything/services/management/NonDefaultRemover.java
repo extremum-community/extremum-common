@@ -7,7 +7,7 @@ import com.extremum.everything.services.RemovalService;
  *
  * @author rpuch
  */
-class NonDefaultRemover implements Remover {
+final class NonDefaultRemover implements Remover {
     private final RemovalService removalService;
 
     NonDefaultRemover(RemovalService removalService) {

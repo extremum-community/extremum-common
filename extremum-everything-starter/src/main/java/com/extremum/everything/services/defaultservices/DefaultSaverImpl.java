@@ -6,12 +6,12 @@ import com.extremum.everything.support.CommonServices;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DefaultSaverImpl<M extends Model> implements DefaultSaver<M> {
+public class DefaultSaverImpl implements DefaultSaver {
     private final CommonServices commonServices;
 
     @Override
-    public M save(M model) {
-        CommonService<M> service = (CommonService<M>) commonServices.findServiceByModel(model.getClass());
+    public Model save(Model model) {
+        CommonService<Model> service = commonServices.findServiceByModel(model.getClass());
         return service.save(model);
     }
 }

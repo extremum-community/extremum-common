@@ -123,14 +123,14 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter<Model> defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
-        return new DefaultGetterImpl<>(commonServices, modelDescriptors);
+    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultGetterImpl(commonServices, modelDescriptors);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultSaver<Model> defaultSaver(CommonServices commonServices) {
-        return new DefaultSaverImpl<>(commonServices);
+    public DefaultSaver defaultSaver(CommonServices commonServices) {
+        return new DefaultSaverImpl(commonServices);
     }
 
     @Bean
@@ -141,31 +141,47 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelRetriever modelRetriever(List<GetterService<? extends Model>> getterServices,
-                DefaultGetter<Model> defaultGetter) {
+    public ModelRetriever modelRetriever(List<GetterService<?>> getterServices,
+                DefaultGetter defaultGetter) {
         return new ModelRetriever(getterServices, defaultGetter);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelSaver modelSaver(List<SaverService<? extends Model>> saverServices,
-            DefaultSaver<? extends Model> defaultSaver) {
+    public ModelSaver modelSaver(List<SaverService<?>> saverServices, DefaultSaver defaultSaver) {
         return new ModelSaver(saverServices, defaultSaver);
     }
 
     @Bean
     @ConditionalOnMissingBean
+    public PatcherHooksCollection patcherHooksCollection(List<PatcherHooksService<?, ?>> patcherHooksServices) {
+        return new PatcherHooksCollection(patcherHooksServices);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public Patcher patcher(
-            ModelRetriever modelRetriever,
-            ModelSaver modelSaver,
             DtoConversionService dtoConversionService,
             ObjectMapper objectMapper,
             EmptyFieldDestroyer emptyFieldDestroyer,
             RequestDtoValidator requestDtoValidator,
-            EverythingDataSecurity everythingDataSecurity
+            PatcherHooksCollection hooksCollection
     ) {
-        return new PatcherImpl(modelRetriever, modelSaver, dtoConversionService, objectMapper,
-                emptyFieldDestroyer, requestDtoValidator, everythingDataSecurity);
+        return new PatcherImpl(dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, hooksCollection);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PatchFlow patchFlow(
+            ModelRetriever modelRetriever,
+            Patcher patcher,
+            ModelSaver modelSaver,
+            EverythingDataSecurity everythingDataSecurity,
+            PatcherHooksCollection hooksCollection
+    ) {
+        return new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+                everythingDataSecurity, hooksCollection);
     }
 
     @Bean
@@ -192,7 +208,7 @@ public class EverythingEverythingConfiguration {
             ModelRetriever modelRetriever,
             List<RemovalService> removalServices,
             DefaultRemover defaultRemover,
-            Patcher patcher,
+            PatchFlow patchFlow,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
@@ -200,7 +216,7 @@ public class EverythingEverythingConfiguration {
             EverythingDataSecurity everythingDataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                patcher, removalServices,
+                patchFlow, removalServices,
                 defaultRemover,
                 collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);

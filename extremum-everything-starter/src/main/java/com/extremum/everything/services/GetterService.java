@@ -2,6 +2,12 @@ package com.extremum.everything.services;
 
 import com.extremum.common.models.Model;
 
+/**
+ * Service that is used to obtain a model from the database for Everything-Everything GET operation
+ * and PATCH operation.
+ *
+ * @param <M> model type
+ */
 public interface GetterService<M extends Model> extends EverythingEverythingService {
     /**
      * Search and returns a found object

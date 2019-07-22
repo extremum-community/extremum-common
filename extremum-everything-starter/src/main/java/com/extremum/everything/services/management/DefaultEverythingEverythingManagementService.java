@@ -21,6 +21,7 @@ import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +30,12 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 
+@RequiredArgsConstructor
 public class DefaultEverythingEverythingManagementService implements EverythingEverythingManagementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultEverythingEverythingManagementService.class);
 
     private final ModelRetriever modelRetriever;
-    private final Patcher patcher;
+    private final PatchFlow patchFlow;
     private final List<RemovalService> removalServices;
     private final DefaultRemover defaultRemover;
     private final List<CollectionFetcher> collectionFetchers;
@@ -42,23 +44,6 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final EverythingDataSecurity dataSecurity;
 
     private final ModelNames modelNames = new ModelNames();
-
-    public DefaultEverythingEverythingManagementService(
-            ModelRetriever modelRetriever,
-            Patcher patcher, List<RemovalService> removalServices,
-            DefaultRemover defaultRemover,
-            List<CollectionFetcher> collectionFetchers,
-            DtoConversionService dtoConversionService, UniversalDao universalDao,
-            EverythingDataSecurity dataSecurity) {
-        this.modelRetriever = modelRetriever;
-        this.removalServices = removalServices;
-        this.patcher = patcher;
-        this.defaultRemover = defaultRemover;
-        this.collectionFetchers = collectionFetchers;
-        this.dtoConversionService = dtoConversionService;
-        this.universalDao = universalDao;
-        this.dataSecurity = dataSecurity;
-    }
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {
@@ -80,7 +65,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
 
     @Override
     public ResponseDto patch(Descriptor id, JsonPatch patch, boolean expand) {
-        Model patched = patcher.patch(id, patch);
+        Model patched = patchFlow.patch(id, patch);
         return convertModelToResponseDto(patched, expand);
     }
 

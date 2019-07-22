@@ -5,7 +5,6 @@ import com.extremum.common.descriptor.service.DBDescriptorLoader;
 import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.common.models.Model;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
@@ -96,23 +95,25 @@ class EverythingServicesTest {
         ));
         ModelDescriptors modelDescriptors = new DefaultModelDescriptors(modelClasses, descriptorService);
 
-        List<GetterService<? extends Model>> getters = ImmutableList.of(new MongoWithServicesGetterService());
-        List<SaverService<? extends Model>> savers = ImmutableList.of(mongoWithServicesSaverService);
+        List<GetterService<?>> getters = ImmutableList.of(new MongoWithServicesGetterService());
+        List<SaverService<?>> savers = ImmutableList.of(mongoWithServicesSaverService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
-        DefaultGetter<Model> defaultGetter = new DefaultGetterImpl<>(commonServices, modelDescriptors);
-        DefaultSaver<Model> defaultSaver = new DefaultSaverImpl<>(commonServices);
+        DefaultGetter defaultGetter = new DefaultGetterImpl(commonServices, modelDescriptors);
+        DefaultSaver defaultSaver = new DefaultSaverImpl(commonServices);
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
         ModelRetriever modelRetriever = new ModelRetriever(getters, defaultGetter);
         ModelSaver modelSaver = new ModelSaver(savers, defaultSaver);
-        Patcher patcher = new PatcherImpl(modelRetriever, modelSaver, dtoConversionService,
+        Patcher patcher = new PatcherImpl(dtoConversionService,
                 objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),
-                new AllowEverythingForDataAccess());
+                new PatcherHooksCollection(emptyList()));
+        PatchFlow patchFlow = new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+                new AllowEverythingForDataAccess(), new PatcherHooksCollection(emptyList()));
 
         service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                patcher, removers,
+                patchFlow, removers,
                 defaultRemover,
                 emptyList(),
                 dtoConversionService, NOT_USED,

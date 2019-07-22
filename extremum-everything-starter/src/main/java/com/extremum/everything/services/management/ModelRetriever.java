@@ -17,8 +17,8 @@ import static java.lang.String.format;
 @Slf4j
 @RequiredArgsConstructor
 public class ModelRetriever {
-    private final List<GetterService<? extends Model>> getterServices;
-    private final DefaultGetter<? extends Model> defaultGetter;
+    private final List<GetterService<?>> getterServices;
+    private final DefaultGetter defaultGetter;
 
     private final ModelNames modelNames = new ModelNames();
 
@@ -38,7 +38,7 @@ public class ModelRetriever {
     private Getter findGetter(String modelName) {
         GetterService<? extends Model> service = EverythingServices.findServiceForModel(modelName, getterServices);
         if (service != null) {
-            return new NonDefaultGetter<>(service);
+            return new NonDefaultGetter(service);
         }
 
         return defaultGetter;

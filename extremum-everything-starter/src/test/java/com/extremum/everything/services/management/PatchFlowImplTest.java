@@ -31,9 +31,13 @@ import com.github.fge.jsonpatch.ReplaceOperation;
 import lombok.Getter;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
@@ -47,6 +51,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,12 +60,11 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class PatcherImplTest {
+class PatchFlowImplTest {
     private static final String BEFORE_PATCHING = "Before patching";
     private static final String AFTER_PATCHING = "After patching";
 
-    @InjectMocks
-    private PatcherImpl patcher;
+    private PatchFlowImpl patchFlow;
 
     @Mock
     private ModelRetriever modelRetriever;
@@ -78,22 +82,37 @@ class PatcherImplTest {
     @Spy
     private ObjectMapper objectMapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
     @Spy
-    private EmptyFieldDestroyer destroyer = new PublicEmptyFieldDestroyer();
+    private EmptyFieldDestroyer emptyFieldDestroyer = new PublicEmptyFieldDestroyer();
     @Mock
     private RequestDtoValidator requestDtoValidator;
     @Spy
     private EverythingDataSecurity dataSecurity = new AllowEverythingForDataAccess();
+    @Spy
+    private PatcherHooksCollection patcherHooksCollection = new PatcherHooksCollection(emptyList());
 
     @Captor
     private ArgumentCaptor<TestModel> testModelCaptor;
 
-    private final Descriptor descriptor = new Descriptor("external-id");
+    private final Descriptor descriptor = Descriptor.builder()
+            .externalId("external-id")
+            .internalId("internal-id")
+            .modelType(TestModel.MODEL_NAME)
+            .storageType(Descriptor.StorageType.MONGO)
+            .build();
+
+    @BeforeEach
+    void createPatcherFlow() {
+        Patcher patcher = new PatcherImpl(dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, patcherHooksCollection);
+        patchFlow = new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+                dataSecurity, patcherHooksCollection);
+    }
 
     @Test
     void whenPatching_thenPatchedModelShouldBeSaved() throws Exception {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
 
-        patcher.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
+        patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
 
         assertThatSavedModelWithNewName(AFTER_PATCHING);
     }
@@ -117,11 +136,11 @@ class PatcherImplTest {
     }
 
     @Test
-    void whenPatching_thenReturnedModelShouldBeAPatchedOne() throws Exception {
+    void whenPatching_thenReturnedModelShouldBeThePatchedOne() throws Exception {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
         whenSaveModelThenReturnIt();
 
-        Model patchedModel = patcher.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
+        Model patchedModel = patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
 
         assertThat(patchedModel, instanceOf(TestModel.class));
         assertThat(patchedModel, hasProperty("name", equalTo(AFTER_PATCHING)));
@@ -133,22 +152,54 @@ class PatcherImplTest {
 
     @Test
     void givenDataSecurityDoesNotAllowToPatch_whenPatching_thenAnExceptionShouldBeThrown() {
-        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+        whenRetrieveModelThenReturnATestModel();
         doThrow(new EverythingAccessDeniedException("Access denied"))
                 .when(dataSecurity).checkPatchAllowed(any());
 
         try {
-            patcher.patch(descriptor, new JsonPatch(emptyList()));
+            patchFlow.patch(descriptor, anyPatch());
             fail("An exception should be thrown");
         } catch (EverythingAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
+
+    private void whenRetrieveModelThenReturnATestModel() {
+        whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
+    }
+
+    @NotNull
+    private JsonPatch anyPatch() {
+        return new JsonPatch(emptyList());
+    }
+
+    @Test
+    void givenPatcherHooksExist_whenPatching_thenAllTheHookMethodsShouldBeCalled() {
+        whenRetrieveModelThenReturnATestModel();
+        whenSaveModelThenReturnIt();
+
+        patchFlow.patch(descriptor, anyPatch());
+
+        verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
+        verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
+        verify(patcherHooksCollection).afterSave(eq(TestModel.MODEL_NAME), any());
+    }
+
+    @Test
+    void whenPatching_thenEmptyFieldDestroyerShouldBeApplied() {
+        whenRetrieveModelThenReturnATestModel();
+
+        patchFlow.patch(descriptor, anyPatch());
+
+        verify(emptyFieldDestroyer).destroy(any());
+    }
     
-    @ModelName("TestModel")
+    @ModelName(TestModel.MODEL_NAME)
     @ToString
     @Getter
     public static class TestModel extends MongoCommonModel {
+        private static final String MODEL_NAME = "TestModel";
+
         private String name;
     }
 
@@ -182,7 +233,8 @@ class PatcherImplTest {
 
         @Override
         public String getSupportedModel() {
-            return "TestModel";
+            return TestModel.MODEL_NAME;
         }
     }
+
 }
