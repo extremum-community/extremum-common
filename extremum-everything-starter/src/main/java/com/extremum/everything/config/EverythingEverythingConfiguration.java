@@ -34,6 +34,7 @@ import com.extremum.everything.services.management.*;
 import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.authentication.SecurityProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -186,14 +187,14 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingRoleSecurity everythingRoleSecurity() {
-        return new AllowEverythingForRoleAccess();
+    public RoleChecker roleChecker(SecurityProvider securityProvider) {
+        return new SecurityProviderRoleChecker(securityProvider);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RoleChecker roleChecker() {
-        return new AllowAnyRoleChecker();
+    public EverythingRoleSecurity everythingRoleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
+        return new ModelAnnotationEverythingRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
