@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "value")
 @DocumentationName("Credential")
 public class Credential {
     @JsonProperty("system")
