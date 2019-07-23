@@ -22,7 +22,7 @@
         </dependency>
 
         <dependency>
-            <groupId>io.extremum.authentication</groupId>
+            <groupId>io.extremum.auth</groupId>
             <artifactId>authentication-api</artifactId>
         </dependency>
 
