@@ -14,6 +14,7 @@
         <module>extremum-everything-starter</module>
         <module>extremum-test-containers</module>
         <module>extremum-shared-models</module>
+        <module>extremum-watch-starter</module>
     </modules>
 
     <scm>
