@@ -2,43 +2,62 @@ package com.extremum.sharedmodels.personal;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author rpuch
  */
 class VerifyTypeTest {
     @Test
-    void usernameAndPasswordShouldBeInSameGroup() {
-        assertTrue(VerifyType.USERNAME.inSameGroupWith(VerifyType.PASSWORD));
-        assertTrue(VerifyType.PASSWORD.inSameGroupWith(VerifyType.USERNAME));
+    void emptyListIsCompatible() {
+        assertTrue(VerifyType.mutuallyCompatible(emptyList()));
     }
 
     @Test
-    void usernameIsNotInSameGroupWithAnythingButPassword() {
+    void singletonIsCompatible() {
+        assertTrue(VerifyType.mutuallyCompatible(singletonList(VerifyType.EMAIL)));
+    }
+
+    @Test
+    void duplicatesAreNotCompatible() {
+        assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, VerifyType.USERNAME)));
+    }
+
+    @Test
+    void usernameAndPasswordShouldBeCompatible() {
+        assertTrue(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, VerifyType.PASSWORD)));
+    }
+
+    @Test
+    void usernameIsNotCompatibleWithAnythingButPassword() {
         for (VerifyType otherType : VerifyType.values()) {
             if (otherType != VerifyType.PASSWORD) {
-                assertFalse(VerifyType.USERNAME.inSameGroupWith(otherType));
+                assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, otherType)), "USERNAME+" + otherType);
             }
         }
     }
 
     @Test
-    void passwordIsNotInSameGroupWithAnythingButUsername() {
+    void passwordIsNotCompatibleWithAnythingButUsername() {
         for (VerifyType otherType : VerifyType.values()) {
             if (otherType != VerifyType.USERNAME) {
-                assertFalse(VerifyType.PASSWORD.inSameGroupWith(otherType));
+                assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.PASSWORD, otherType)), "PASSWORD+" + otherType);
             }
         }
     }
 
     @Test
-    void nonUsernameIsNotInSameGroupAsNonPassword() {
+    void nonUsernameIsNotInCompatibleWithNonPassword() {
         for (VerifyType firstType : VerifyType.values()) {
             if (firstType != VerifyType.USERNAME && firstType != VerifyType.PASSWORD) {
                 for (VerifyType secondType : VerifyType.values()) {
                     if (secondType != VerifyType.USERNAME && secondType != VerifyType.PASSWORD) {
-                        assertFalse(firstType.inSameGroupWith(secondType));
+                        assertFalse(VerifyType.mutuallyCompatible(asList(firstType, secondType)),
+                                firstType + "+" + secondType);
                     }
                 }
             }
