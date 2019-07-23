@@ -16,6 +16,7 @@
         <module>extremum-jpa-starter</module>
         <module>extremum-elasticsearch-starter</module>
         <module>extremum-everything-starter</module>
+        <module>extremum-watch-starter</module>
     </modules>
 
     <scm>
