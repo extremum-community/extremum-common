@@ -3,8 +3,9 @@ package com.extremum.subscription.service;
 import com.extremum.subscription.repository.SubscriptionRepository;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-//@Service
+@Service
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository repository;
