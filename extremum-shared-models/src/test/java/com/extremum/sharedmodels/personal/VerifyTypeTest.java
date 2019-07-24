@@ -2,6 +2,9 @@ package com.extremum.sharedmodels.personal;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -12,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author rpuch
  */
 class VerifyTypeTest {
+    private final List<VerifyType> grouplessVerifyTypes = Arrays.asList(
+            VerifyType.EMAIL, VerifyType.EMAIL_VERIFY, VerifyType.SMS, VerifyType.SMS_VERIFY);
+    
     @Test
     void emptyListIsCompatible() {
         assertTrue(VerifyType.mutuallyCompatible(emptyList()));
@@ -34,32 +40,24 @@ class VerifyTypeTest {
 
     @Test
     void usernameIsNotCompatibleWithAnythingButPassword() {
-        for (VerifyType otherType : VerifyType.values()) {
-            if (otherType != VerifyType.PASSWORD) {
-                assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, otherType)), "USERNAME+" + otherType);
-            }
+        for (VerifyType otherType : grouplessVerifyTypes) {
+            assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, otherType)), "USERNAME+" + otherType);
         }
     }
 
     @Test
     void passwordIsNotCompatibleWithAnythingButUsername() {
-        for (VerifyType otherType : VerifyType.values()) {
-            if (otherType != VerifyType.USERNAME) {
-                assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.PASSWORD, otherType)), "PASSWORD+" + otherType);
-            }
+        for (VerifyType otherType : grouplessVerifyTypes) {
+            assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.PASSWORD, otherType)), "PASSWORD+" + otherType);
         }
     }
 
     @Test
     void nonUsernameIsNotInCompatibleWithNonPassword() {
-        for (VerifyType firstType : VerifyType.values()) {
-            if (firstType != VerifyType.USERNAME && firstType != VerifyType.PASSWORD) {
-                for (VerifyType secondType : VerifyType.values()) {
-                    if (secondType != VerifyType.USERNAME && secondType != VerifyType.PASSWORD) {
-                        assertFalse(VerifyType.mutuallyCompatible(asList(firstType, secondType)),
-                                firstType + "+" + secondType);
-                    }
-                }
+        for (VerifyType firstType : grouplessVerifyTypes) {
+            for (VerifyType secondType : grouplessVerifyTypes) {
+                assertFalse(VerifyType.mutuallyCompatible(asList(firstType, secondType)),
+                        firstType + "+" + secondType);
             }
         }
     }
