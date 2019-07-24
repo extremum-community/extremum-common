@@ -77,7 +77,7 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     @ExceptionHandler
     public Response handleCollectionDescriptorNotFoundException(CollectionDescriptorNotFoundException e) {
-        log.debug("Exception has occurred  and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
+        log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 
         return notFound();
@@ -85,7 +85,7 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     @ExceptionHandler
     public Response handleEverythingAccessDeniedException(EverythingAccessDeniedException e) {
-        log.debug("Exception has occurred  and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
+        log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 
         return Response.builder()

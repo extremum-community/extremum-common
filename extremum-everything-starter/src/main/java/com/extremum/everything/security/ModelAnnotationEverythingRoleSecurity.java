@@ -39,18 +39,18 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
     }
 
     private abstract class Operation {
-        private final EverythingSecuredParser annotationParser = new EverythingSecuredParser();
+        private final EverythingRequiredRolesParser annotationParser = new EverythingRequiredRolesParser();
 
         void throwIfNoRolesFor(Descriptor id) {
             Class<Model> modelClass = modelClasses.getClassByModelName(id.getModelType());
 
-            EverythingSecured everythingSecured = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(
-                    EverythingSecured.class, modelClass);
-            if (everythingSecured == null) {
+            EverythingRequiredRoles everythingRequiredRoles = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(
+                    EverythingRequiredRoles.class, modelClass);
+            if (everythingRequiredRoles == null) {
                 throw new EverythingEverythingException(
                         String.format("Security is not configured for '%s'", id.getModelType()));
             }
-            EverythingSecuredConfig config = annotationParser.parse(everythingSecured);
+            EverythingRequiredRolesConfig config = annotationParser.parse(everythingRequiredRoles);
             String[] roles = extractRoles(config);
 
             if (roles.length == 0) {
@@ -59,19 +59,19 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
                 throw new EverythingEverythingException(message);
             }
 
-            if (!roleChecker.currentUserHasOneOf(roles)) {
+            if (!roleChecker.currentUserHasOneRoleOf(roles)) {
                 throw new EverythingAccessDeniedException("Access denied");
             }
         }
 
-        abstract String[] extractRoles(EverythingSecuredConfig config);
+        abstract String[] extractRoles(EverythingRequiredRolesConfig config);
 
         abstract String name();
     }
 
     private class Get extends Operation {
         @Override
-        String[] extractRoles(EverythingSecuredConfig config) {
+        String[] extractRoles(EverythingRequiredRolesConfig config) {
             return config.rolesForGet();
         }
 
@@ -83,7 +83,7 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
 
     private class Patch extends Operation {
         @Override
-        String[] extractRoles(EverythingSecuredConfig config) {
+        String[] extractRoles(EverythingRequiredRolesConfig config) {
             return config.rolesForPatch();
         }
 
@@ -95,7 +95,7 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
 
     private class Remove extends Operation {
         @Override
-        String[] extractRoles(EverythingSecuredConfig config) {
+        String[] extractRoles(EverythingRequiredRolesConfig config) {
             return config.rolesForRemove();
         }
 
