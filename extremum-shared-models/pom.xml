@@ -11,6 +11,10 @@
     <artifactId>extremum-shared-models</artifactId>
     <description>Models shared between projects based on Extremum</description>
 
+    <properties>
+        <testcoverage.minimum>0.0</testcoverage.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

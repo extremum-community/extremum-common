@@ -88,7 +88,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
 
         @Override
         public boolean currentUserHasOneOf(String... roles) {
-            return roleChecker.currentUserHasOneOf(roles);
+            return roleChecker.currentUserHasOneRoleOf(roles);
         }
     }
 

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * that no security checks are made using {@link DataAccessChecker}.
  *
  * This annotation has no relation to Role Security. That is, if
- * a class is annotated with @NoDataSecurity, the @{@link EverythingSecured}
+ * a class is annotated with @NoDataSecurity, the @{@link EverythingRequiredRoles}
  * is still in play.
  *
  * For every model class accessible via Everything-Everything framework,
