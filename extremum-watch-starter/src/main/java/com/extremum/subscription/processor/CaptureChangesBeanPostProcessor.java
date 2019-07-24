@@ -1,5 +1,6 @@
 package com.extremum.subscription.processor;
 
+import com.extremum.common.service.CommonService;
 import com.extremum.everything.services.management.PatchFlow;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.subscription.listener.WatchListener;
@@ -60,6 +61,8 @@ public class CaptureChangesBeanPostProcessor implements BeanPostProcessor {
         switch (type) {
             case PATCHER_SERVICE:
                 return new PatchFlowInvocationHandler(watchListeners, proxiedBean, modelClasses, objectMapper);
+            case COMMON_SERVICE:
+                return new CommonServiceInvocationHandler(watchListeners, proxiedBean, modelClasses, objectMapper);
             default:
                 throw new IllegalArgumentException("Cannot find implementation of invocation handler for type " + type.name());
         }
@@ -78,6 +81,12 @@ public class CaptureChangesBeanPostProcessor implements BeanPostProcessor {
             @Override
             boolean match(Class<?> clazz) {
                 return PatchFlow.class.isAssignableFrom(clazz);
+            }
+        },
+        COMMON_SERVICE {
+            @Override
+            boolean match(Class<?> clazz) {
+                return CommonService.class.isAssignableFrom(clazz);
             }
         };
 

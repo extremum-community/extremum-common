@@ -39,24 +39,18 @@ final class PatchFlowInvocationHandler extends WatchInvocationHandler {
             String patchString = objectMapper.writeValueAsString(getPatch(args));
             log.debug("Convert JsonPatch into string {}", patchString);
 
-            getWatchListeners().forEach(watchListener -> {
-                try {
-                    watchListener.onWatch(patchString);
-                } catch (Exception e) {
-                    log.error("Exception in onWatch() with patch {} : {}", patchString, e);
-                }
-            });
+            watchUpdate(String.format("Patch model with descriptor %s with patch %s", args[0], patchString));
         }
         return method.invoke(super.getOriginalBean(), args);
+    }
+
+    private Object getPatch(Object[] args) {
+        return args[1];
     }
 
     private boolean isModelWatched(Object descriptor) {
         return modelClasses.getClassByModelName(((Descriptor) descriptor).getModelType())
                 .getAnnotation(CapturedModel.class) != null;
-    }
-
-    private Object getPatch(Object[] args) {
-        return args[1];
     }
 
     private boolean isPatchMethod(Method method) {
