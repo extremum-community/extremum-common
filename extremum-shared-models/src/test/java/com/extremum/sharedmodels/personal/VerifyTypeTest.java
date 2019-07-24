@@ -19,44 +19,44 @@ class VerifyTypeTest {
             VerifyType.EMAIL, VerifyType.EMAIL_VERIFY, VerifyType.SMS, VerifyType.SMS_VERIFY);
     
     @Test
-    void emptyListIsCompatible() {
-        assertTrue(VerifyType.mutuallyCompatible(emptyList()));
+    void emptyListIsOneAuthAttempt() {
+        assertTrue(VerifyType.justOneAuthAttempt(emptyList()));
     }
 
     @Test
-    void singletonIsCompatible() {
-        assertTrue(VerifyType.mutuallyCompatible(singletonList(VerifyType.EMAIL)));
+    void singletonIsOneAuthAttempt() {
+        assertTrue(VerifyType.justOneAuthAttempt(singletonList(VerifyType.EMAIL)));
     }
 
     @Test
-    void duplicatesAreNotCompatible() {
-        assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, VerifyType.USERNAME)));
+    void duplicatesAreNotOneAuthAttempt() {
+        assertFalse(VerifyType.justOneAuthAttempt(asList(VerifyType.USERNAME, VerifyType.USERNAME)));
     }
 
     @Test
-    void usernameAndPasswordShouldBeCompatible() {
-        assertTrue(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, VerifyType.PASSWORD)));
+    void usernameAndPasswordShouldBeOneAuthAttempt() {
+        assertTrue(VerifyType.justOneAuthAttempt(asList(VerifyType.USERNAME, VerifyType.PASSWORD)));
     }
 
     @Test
-    void usernameIsNotCompatibleWithAnythingButPassword() {
+    void usernameIsNotOneAuthAttemptWithAnythingButPassword() {
         for (VerifyType otherType : grouplessVerifyTypes) {
-            assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.USERNAME, otherType)), "USERNAME+" + otherType);
+            assertFalse(VerifyType.justOneAuthAttempt(asList(VerifyType.USERNAME, otherType)), "USERNAME+" + otherType);
         }
     }
 
     @Test
-    void passwordIsNotCompatibleWithAnythingButUsername() {
+    void passwordIsNotOneAuthAttemptWithAnythingButUsername() {
         for (VerifyType otherType : grouplessVerifyTypes) {
-            assertFalse(VerifyType.mutuallyCompatible(asList(VerifyType.PASSWORD, otherType)), "PASSWORD+" + otherType);
+            assertFalse(VerifyType.justOneAuthAttempt(asList(VerifyType.PASSWORD, otherType)), "PASSWORD+" + otherType);
         }
     }
 
     @Test
-    void nonUsernameIsNotInCompatibleWithNonPassword() {
+    void nonUsernameIsNotOneAuthAttemptWithNonPassword() {
         for (VerifyType firstType : grouplessVerifyTypes) {
             for (VerifyType secondType : grouplessVerifyTypes) {
-                assertFalse(VerifyType.mutuallyCompatible(asList(firstType, secondType)),
+                assertFalse(VerifyType.justOneAuthAttempt(asList(firstType, secondType)),
                         firstType + "+" + secondType);
             }
         }

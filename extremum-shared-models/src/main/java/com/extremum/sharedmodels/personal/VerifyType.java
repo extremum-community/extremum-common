@@ -31,7 +31,7 @@ public enum VerifyType {
         this.group = group;
     }
 
-    public static boolean mutuallyCompatible(List<VerifyType> types) {
+    public static boolean justOneAuthAttempt(List<VerifyType> types) {
         if (types.size() < 2) {
             return true;
         }
