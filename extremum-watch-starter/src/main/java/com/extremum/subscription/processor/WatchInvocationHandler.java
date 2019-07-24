@@ -1,6 +1,6 @@
 package com.extremum.subscription.processor;
 
-import com.extremum.subscription.WatchListener;
+import com.extremum.subscription.listener.WatchListener;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

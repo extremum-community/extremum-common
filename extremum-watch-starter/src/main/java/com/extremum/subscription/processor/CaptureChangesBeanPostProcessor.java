@@ -1,7 +1,8 @@
 package com.extremum.subscription.processor;
 
-import com.extremum.everything.services.PatcherService;
-import com.extremum.subscription.WatchListener;
+import com.extremum.everything.services.management.PatchFlow;
+import com.extremum.everything.support.ModelClasses;
+import com.extremum.subscription.listener.WatchListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.*;
 public class CaptureChangesBeanPostProcessor implements BeanPostProcessor {
     private final List<WatchListener> watchListeners;
     private final ObjectMapper objectMapper;
+    private final ModelClasses modelClasses;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -57,15 +59,14 @@ public class CaptureChangesBeanPostProcessor implements BeanPostProcessor {
     private WatchInvocationHandler getHandler(WatchedClass type, Object proxiedBean) {
         switch (type) {
             case PATCHER_SERVICE:
-                return new PatcherServiceInvocationHandler(watchListeners, proxiedBean, objectMapper);
+                return new PatchFlowInvocationHandler(watchListeners, proxiedBean, modelClasses, objectMapper);
             default:
                 throw new IllegalArgumentException("Cannot find implementation of invocation handler for type " + type.name());
         }
     }
 
     /**
-     * Еnum of possible classes, where CaptureChanges-annotated mutable methods can be find.
-     * We can annotate methods with CaptureChanges in any child of this classes.
+     * Еnum contains possible variants of classes for watching.
      * If you try to add variant for this enum - you need to implement match method.
      * Match method uses to find that bean class belong to this variant.
      *
@@ -76,7 +77,7 @@ public class CaptureChangesBeanPostProcessor implements BeanPostProcessor {
         PATCHER_SERVICE {
             @Override
             boolean match(Class<?> clazz) {
-                return PatcherService.class.isAssignableFrom(clazz);
+                return PatchFlow.class.isAssignableFrom(clazz);
             }
         };
 
