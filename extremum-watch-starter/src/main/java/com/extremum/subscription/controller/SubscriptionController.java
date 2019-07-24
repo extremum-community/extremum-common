@@ -1,15 +1,17 @@
 package com.extremum.subscription.controller;
 
 import com.extremum.common.response.Response;
+import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import com.extremum.subscription.service.SubscriptionService;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 
-//@RestController
+@RestController
 @RequestMapping("/subscription/{id}")
 @RequiredArgsConstructor
-//@ConvertNullDescriptorToModelNotFound
+@ConvertNullDescriptorToModelNotFound
 //TODO move into listener's repository, add Secured to get from secured context
 public class SubscriptionController {
     private final SubscriptionService service;
