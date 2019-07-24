@@ -35,9 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -86,7 +84,8 @@ class EverythingServicesTest {
     @BeforeEach
     void initEverythingServicesAndManagementService() {
         MongoCommonServiceImpl<MongoModelWithoutServices> commonServiceForMongoModelWithoutServices
-                = new MongoCommonServiceImpl<MongoModelWithoutServices>(commonDaoForModelWithoutServices) {};
+                = new MongoCommonServiceImpl<MongoModelWithoutServices>(commonDaoForModelWithoutServices) {
+        };
         CommonServices commonServices = new ListBasedCommonServices(
                 ImmutableList.of(commonServiceForMongoModelWithoutServices));
         ModelClasses modelClasses = new ConstantModelClasses(ImmutableMap.of(
@@ -113,7 +112,8 @@ class EverythingServicesTest {
 
         service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
-                patchFlow, removers,
+                patchFlow,
+                removers,
                 defaultRemover,
                 emptyList(),
                 dtoConversionService, NOT_USED,
@@ -130,7 +130,7 @@ class EverythingServicesTest {
         whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithServices.class.getSimpleName());
 
         ResponseDto dto = service.get(descriptor, false);
-        
+
         assertThat(dto, is(notNullValue()));
         assertThatDtoIsForModelWithServices(dto);
     }
@@ -173,7 +173,7 @@ class EverythingServicesTest {
         Descriptor descriptor = buildDescriptor(modelName);
         when(descriptorService.loadByInternalId(objectId.toString())).thenReturn(Optional.of(descriptor));
     }
-    
+
     private void assertThatDtoIsForModelWithoutServices(ResponseDto dto) {
         assertThat(dto, is(instanceOf(ResponseDtoForModelWithoutServices.class)));
     }

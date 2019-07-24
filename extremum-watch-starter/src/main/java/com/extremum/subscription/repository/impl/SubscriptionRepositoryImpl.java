@@ -1,5 +1,6 @@
 package com.extremum.subscription.repository.impl;
 
+import com.extremum.config.SubscriptionProperties;
 import com.extremum.subscription.models.Subscriber;
 import com.extremum.subscription.repository.SubscriptionRepository;
 import org.redisson.api.MapOptions;
@@ -12,18 +13,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class SubscriptionRepositoryImpl implements SubscriptionRepository {
-    //    TODO add eviction time from properties
     private final RedissonClient client;
+    private final SubscriptionProperties properties;
+
     private RMapCache<String, String> subscriptionsMap;
-
-    private static int subscriptionTTL = 30; // in days
-    private static int subscriptionIdleTime = 7; // in days
     private static final String SUBSCRIPTIONS = "watch_subscriptions_idx";
+    private static final String DELIMITER = " / ";
 
-    public SubscriptionRepositoryImpl(RedissonClient client, int subscriptionIdleTimeIn, int subscriptionTTLIn) {
+    public SubscriptionRepositoryImpl(RedissonClient client, SubscriptionProperties properties) {
         this.client = client;
-        subscriptionTTL = subscriptionTTLIn;
-        subscriptionIdleTime = subscriptionIdleTimeIn;
+        this.properties = properties;
     }
 
     @PostConstruct
@@ -34,8 +33,8 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     @Override
     public void save(String modelId, Subscriber subscriber) {
         subscriptionsMap.put(getKeyPattern(subscriber.getId(), modelId), "",
-                subscriptionTTL, TimeUnit.DAYS,
-                subscriptionIdleTime, TimeUnit.DAYS);
+                properties.getTimeToLive(), TimeUnit.DAYS,
+                properties.getIdleTime(), TimeUnit.DAYS);
     }
 
     @Override
@@ -47,7 +46,7 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     public Collection<String> getAllSubscriptionsIdsBySubscriber(Subscriber subscriber) {
         return subscriptionsMap.keySet(getKeyPattern(subscriber.getId(), "*"))
                 .stream()
-                .map(key -> key.split(":")[1])
+                .map(key -> key.split(DELIMITER)[1])
                 .collect(Collectors.toList());
     }
 
@@ -55,12 +54,11 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     public Collection<String> getAllSubscribersIdsBySubscription(String modelId) {
         return subscriptionsMap.keySet(getKeyPattern("*", modelId))
                 .stream()
-                .map(key -> key.split(":")[0])
+                .map(key -> key.split(DELIMITER)[0])
                 .collect(Collectors.toList());
     }
 
     private String getKeyPattern(String subscriberId, String modelId) {
-        String delimiter = "%";
-        return String.join(delimiter, subscriberId, modelId);
+        return String.join(DELIMITER, subscriberId, modelId);
     }
 }
