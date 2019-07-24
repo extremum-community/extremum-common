@@ -1,5 +1,5 @@
 package com.extremum.subscription.listener;
 
 public interface WatchListener {
-    void onWatch(String jsonUpdate);
+    void onEvent(String jsonUpdate);
 }
