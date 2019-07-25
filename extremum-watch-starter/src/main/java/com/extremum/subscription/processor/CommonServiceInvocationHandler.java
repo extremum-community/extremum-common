@@ -1,6 +1,7 @@
 package com.extremum.subscription.processor;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.service.Problems;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
@@ -45,7 +46,7 @@ public class CommonServiceInvocationHandler extends WatchInvocationHandler {
     private boolean isDeleteMethod(Method method, Object[] args) {
         return method.getName().equals("delete")
                 && args.length == 2
-                && Arrays.equals(method.getParameterTypes(), new Class[]{String.class});
+                && Arrays.equals(method.getParameterTypes(), new Class[]{String.class, Problems.class});
     }
 
     private boolean isSaveMethod(Method method, Object[] args) {
