@@ -1,6 +1,7 @@
 package com.extremum.everything.aop;
 
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import com.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
@@ -119,6 +120,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
     }
 
     @RestController
+    @EverythingExceptionHandlerTarget
     private static class TestController {
         @RequestMapping("/ok")
         Response ok() {
