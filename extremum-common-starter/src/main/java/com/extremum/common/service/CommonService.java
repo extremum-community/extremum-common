@@ -4,7 +4,6 @@ import com.extremum.common.models.Model;
 
 import java.util.List;
 
-//TODO close public methods with Problems
 public interface CommonService<M extends Model> {
     M get(String id);
 
