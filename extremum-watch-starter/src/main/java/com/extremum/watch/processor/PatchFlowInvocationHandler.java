@@ -2,10 +2,10 @@ package com.extremum.watch.processor;
 
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.watch.annotation.CapturedModel;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.subscription.annotation.CapturedModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
