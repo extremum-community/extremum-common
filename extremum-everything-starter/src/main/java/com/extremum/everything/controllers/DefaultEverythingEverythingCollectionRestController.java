@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@EverythingExceptionHandlerTarget
 public class DefaultEverythingEverythingCollectionRestController
         implements EverythingEverythingCollectionRestController {
     private final EverythingCollectionManagementService everythingCollectionManagementService;
