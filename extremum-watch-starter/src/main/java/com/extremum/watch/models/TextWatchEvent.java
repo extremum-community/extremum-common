@@ -47,6 +47,6 @@ public class TextWatchEvent {
     @RequiredArgsConstructor
     public static class TextWatchEventDto {
         private final String operationType;
-        private final String patch;
+        private final String updateBody;
     }
 }

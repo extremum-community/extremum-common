@@ -1,9 +1,9 @@
-package com.extremum.watch.subscription.controller;
+package com.extremum.watch.controller;
 
 import com.extremum.watch.config.BaseApplicationTests;
 import com.extremum.watch.config.BaseConfig;
-import com.extremum.watch.subscription.models.TextWatchEvent;
-import com.extremum.watch.subscription.repositories.TextWatchEventRepository;
+import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.repositories.TextWatchEventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,7 +43,7 @@ class WatchEventControllerTest extends BaseApplicationTests {
     @BeforeAll
     void setUp() {
         firstEvent = eventRepository
-                .save(new TextWatchEvent("test1"))
+                .save(new TextWatchEvent("test", "test1"))
                 .getCreated();
         eventsSize++;
     }
@@ -52,20 +52,19 @@ class WatchEventControllerTest extends BaseApplicationTests {
     void testFindAllEvents() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         List<LinkedHashMap<String, String>> events = parseEvents(contentAsString);
 
         assertAll(
                 () -> assertEquals(eventsSize, events.size()),
-                () -> assertEquals("test1", events.get(0).get("text"))
+                () -> assertEquals("test1", events.get(0).get("patch"))
         );
     }
 
     @Test
     void testFindAllEventsAfterFirstEvent() throws Exception {
-        ZonedDateTime secondEvent = eventRepository.save(new TextWatchEvent("test2")).getCreated();
+        ZonedDateTime secondEvent = eventRepository.save(new TextWatchEvent("test", "test2")).getCreated();
         eventsSize++;
 
         ZonedDateTime beforeLastEvent = secondEvent.minusNanos(2);
@@ -73,7 +72,6 @@ class WatchEventControllerTest extends BaseApplicationTests {
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beforeLastEvent)))
-                .andDo(print())
                 .andReturn();
 
         String contentAsString = mvcResult.getResponse().getContentAsString();
@@ -81,7 +79,7 @@ class WatchEventControllerTest extends BaseApplicationTests {
 
         assertAll(
                 () -> assertEquals(1, events.size()),
-                () -> assertEquals("test2", events.get(0).get("text"))
+                () -> assertEquals("test2", events.get(0).get("patch"))
         );
     }
 
@@ -92,7 +90,6 @@ class WatchEventControllerTest extends BaseApplicationTests {
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newDate)))
-                .andDo(print())
                 .andReturn();
 
         String contentAsString = mvcResult.getResponse().getContentAsString();
@@ -102,7 +99,6 @@ class WatchEventControllerTest extends BaseApplicationTests {
     }
 
     private List<LinkedHashMap<String, String>> parseEvents(String response) {
-        List<LinkedHashMap<String, String>> events = JsonPath.parse(response).read("$.result");
-        return events;
+        return JsonPath.parse(response).read("$.result");
     }
 }
