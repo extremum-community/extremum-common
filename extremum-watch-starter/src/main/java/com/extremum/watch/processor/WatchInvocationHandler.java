@@ -22,6 +22,10 @@ abstract class WatchInvocationHandler implements InvocationHandler {
 
     void watchUpdate(TextWatchEvent event) {
         eventRepository.save(event);
-        kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto());
+        try {
+            kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto());
+        } catch (RuntimeException e) {
+            log.error("Exception on send to Kafka in {} : {}", this.getClass().getSimpleName(), e);
+        }
     }
 }
