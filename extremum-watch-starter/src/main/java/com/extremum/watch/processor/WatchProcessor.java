@@ -7,25 +7,22 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.kafka.core.KafkaTemplate;
-
-import java.lang.reflect.InvocationHandler;
 
 @Getter(AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @Slf4j
-abstract class WatchInvocationHandler implements InvocationHandler {
-    private final Object originalBean;
+abstract class WatchProcessor {
+    private final ExtremumKafkaProperties kafkaProperties;
     private final TextWatchEventRepository eventRepository;
     private final KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate;
-    private final ExtremumKafkaProperties kafkaProperties;
 
     void watchUpdate(TextWatchEvent event) {
         eventRepository.save(event);
-        try {
-            kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto());
-        } catch (RuntimeException e) {
-            log.error("Exception on send to Kafka in {} : {}", this.getClass().getSimpleName(), e);
-        }
+        log.debug("Send to Kafka message");
+        kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto());
     }
+
+    protected abstract void process(JoinPoint jp) throws Exception;
 }

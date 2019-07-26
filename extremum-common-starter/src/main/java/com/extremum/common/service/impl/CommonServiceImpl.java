@@ -81,7 +81,7 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
         checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Create model {}", data);
 
-        if(data == null) {
+        if (data == null) {
             fillAlertsOrThrowException(problems, new WrongArgumentException("Model can't be null"));
             return null;
         }
@@ -100,7 +100,7 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
             LOGGER.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
         }
-        if(data == null) {
+        if (data == null) {
             fillAlertsOrThrowException(problems, new WrongArgumentException("Models can't be null"));
             return null;
         }
