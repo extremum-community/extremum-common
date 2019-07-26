@@ -1,6 +1,6 @@
-package com.extremum.subscription.repository;
+package com.extremum.watch.repositories;
 
-import com.extremum.subscription.models.Subscriber;
+import com.extremum.watch.models.Subscriber;
 
 import java.util.Collection;
 
