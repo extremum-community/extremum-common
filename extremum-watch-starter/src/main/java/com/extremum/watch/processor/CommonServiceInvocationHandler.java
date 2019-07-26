@@ -1,24 +1,28 @@
-package com.extremum.subscription.processor;
+package com.extremum.watch.processor;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.service.Problems;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
-import com.extremum.subscription.annotation.CapturedModel;
-import com.extremum.subscription.listener.WatchListener;
+import com.extremum.watch.config.ExtremumKafkaProperties;
+import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.repositories.TextWatchEventRepository;
+import com.extremum.watch.subscription.annotation.CapturedModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 
 public class CommonServiceInvocationHandler extends WatchInvocationHandler {
     private final ObjectMapper objectMapper;
     private final ModelClasses modelClasses;
 
-    public CommonServiceInvocationHandler(List<WatchListener> watchListeners, Object proxiedBean, ModelClasses modelClasses, ObjectMapper objectMapper) {
-        super(watchListeners, proxiedBean);
+    public CommonServiceInvocationHandler(Object proxiedBean, ModelClasses modelClasses,
+                                          ObjectMapper objectMapper, TextWatchEventRepository repository,
+                                          KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate, ExtremumKafkaProperties properties) {
+        super(proxiedBean, repository, kafkaTemplate, properties);
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
     }
@@ -29,7 +33,8 @@ public class CommonServiceInvocationHandler extends WatchInvocationHandler {
         if (isSaveMethod(method, args)) {
             Model model = (Model) args[0];
             if (model.getClass().getAnnotation(CapturedModel.class) != null) {
-                watchUpdate(String.format("Save model %s", objectMapper.writeValueAsString(model)));
+                TextWatchEvent event = new TextWatchEvent("save", objectMapper.writeValueAsString(model));
+                watchUpdate(event);
             }
         } else if (isDeleteMethod(method, args)) {
             Class<Model> modelClass = StaticDescriptorLoaderAccessor.getDescriptorLoader()
@@ -37,7 +42,8 @@ public class CommonServiceInvocationHandler extends WatchInvocationHandler {
                     .map(descriptor -> modelClasses.getClassByModelName(descriptor.getModelType()))
                     .orElse(null);
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
-                watchUpdate(String.format("Delete model with id %s", args[0]));
+                TextWatchEvent event = new TextWatchEvent("delete", objectMapper.writeValueAsString(args[0]));
+                watchUpdate(event);
             }
         }
         return method.invoke(super.getOriginalBean(), args);

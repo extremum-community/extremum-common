@@ -1,4 +1,4 @@
-package com.extremum.subscription.annotation;
+package com.extremum.watch.subscription.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

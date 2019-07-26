@@ -143,7 +143,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ModelRetriever modelRetriever(List<GetterService<?>> getterServices,
-                DefaultGetter defaultGetter) {
+                                         DefaultGetter defaultGetter) {
         return new ModelRetriever(getterServices, defaultGetter);
     }
 
@@ -232,7 +232,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
-            ApplicationUrls applicationUrls) {
+                                             ApplicationUrls applicationUrls) {
         return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls);
     }
 

@@ -14,7 +14,6 @@
     <properties>
         <!--        TODO refactor after add tests-->
         <testcoverage.minimum>0.0</testcoverage.minimum>
-        <extremum.auth.version>1.0.0-SNAPSHOT</extremum.auth.version>
     </properties>
 
     <dependencies>
@@ -23,16 +22,20 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.extremum</groupId>
-            <artifactId>authentication-api</artifactId>
-            <version>${extremum.auth.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.extremum</groupId>
             <artifactId>extremum-everything-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
 
 
+        <dependency>
+            <groupId>com.extremum</groupId>
+            <artifactId>extremum-test-containers</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

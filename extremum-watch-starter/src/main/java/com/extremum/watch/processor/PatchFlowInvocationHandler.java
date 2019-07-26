@@ -1,18 +1,20 @@
-package com.extremum.subscription.processor;
+package com.extremum.watch.processor;
 
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.subscription.annotation.CapturedModel;
-import com.extremum.subscription.listener.WatchListener;
+import com.extremum.watch.config.ExtremumKafkaProperties;
+import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.repositories.TextWatchEventRepository;
+import com.extremum.watch.subscription.annotation.CapturedModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Proxy invocation handler for {@link com.extremum.everything.services.management.PatchFlow}.
@@ -22,8 +24,10 @@ final class PatchFlowInvocationHandler extends WatchInvocationHandler {
     private final ModelClasses modelClasses;
     private final ObjectMapper objectMapper;
 
-    PatchFlowInvocationHandler(List<WatchListener> watchListeners, Object originalBean, ModelClasses modelClasses, ObjectMapper objectMapper) {
-        super(watchListeners, originalBean);
+    PatchFlowInvocationHandler(Object proxiedBean, ModelClasses modelClasses,
+                               ObjectMapper objectMapper, TextWatchEventRepository repository,
+                               KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate, ExtremumKafkaProperties properties) {
+        super(proxiedBean, repository, kafkaTemplate, properties);
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
     }
@@ -39,7 +43,8 @@ final class PatchFlowInvocationHandler extends WatchInvocationHandler {
             String patchString = objectMapper.writeValueAsString(getPatch(args));
             log.debug("Convert JsonPatch into string {}", patchString);
 
-            watchUpdate(String.format("Patch model with descriptor %s with patch %s", args[0], patchString));
+            TextWatchEvent event = new TextWatchEvent("patch", patchString);
+            watchUpdate(event);
         }
         return method.invoke(super.getOriginalBean(), args);
     }

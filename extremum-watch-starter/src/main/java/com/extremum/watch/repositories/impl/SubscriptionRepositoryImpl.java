@@ -1,8 +1,8 @@
-package com.extremum.subscription.repository.impl;
+package com.extremum.watch.repositories.impl;
 
-import com.extremum.config.SubscriptionProperties;
-import com.extremum.subscription.models.Subscriber;
-import com.extremum.subscription.repository.SubscriptionRepository;
+import com.extremum.watch.config.SubscriptionProperties;
+import com.extremum.watch.models.Subscriber;
+import com.extremum.watch.repositories.SubscriptionRepository;
 import org.redisson.api.MapOptions;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;

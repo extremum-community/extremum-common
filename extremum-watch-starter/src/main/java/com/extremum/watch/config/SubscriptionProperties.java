@@ -1,4 +1,4 @@
-package com.extremum.config;
+package com.extremum.watch.config;
 
 import lombok.Getter;
 import lombok.Setter;
