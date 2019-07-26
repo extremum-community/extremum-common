@@ -1,6 +1,7 @@
 package com.extremum.everything.aop;
 
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import com.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import com.extremum.everything.security.EverythingAccessDeniedException;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
@@ -20,7 +21,7 @@ import static com.extremum.common.response.Alert.errorAlert;
 import static com.extremum.common.response.Response.fail;
 
 
-@RestControllerAdvice
+@RestControllerAdvice(annotations = EverythingExceptionHandlerTarget.class)
 @Slf4j
 public class DefaultEverythingEverythingExceptionHandler implements EverythingEverythingExceptionHandler {
 

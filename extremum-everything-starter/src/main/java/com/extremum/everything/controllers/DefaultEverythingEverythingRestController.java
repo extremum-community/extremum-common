@@ -14,6 +14,7 @@ import static com.extremum.common.response.Response.ok;
 @RestController
 @RequestMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 @ConvertNullDescriptorToModelNotFound
+@EverythingExceptionHandlerTarget
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private EverythingEverythingManagementService evrEvrManagementService;
 

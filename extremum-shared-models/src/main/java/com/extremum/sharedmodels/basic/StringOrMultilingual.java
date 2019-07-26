@@ -1,5 +1,6 @@
 package com.extremum.sharedmodels.basic;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class StringOrMultilingual implements Serializable {
     private Type type;
     private String text;

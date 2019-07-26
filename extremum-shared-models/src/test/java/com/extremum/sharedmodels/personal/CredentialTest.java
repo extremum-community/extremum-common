@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.not;
  */
 class CredentialTest {
     @Test
-    void whenToString_thenValueIsNotOutput() {
+    void whenToString_thenValueShouldNotBeOutput() {
         Credential credential = new Credential();
         credential.setSystem("test-system");
         credential.setType(VerifyType.EMAIL);
