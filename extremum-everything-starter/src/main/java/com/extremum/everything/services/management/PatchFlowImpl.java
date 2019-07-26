@@ -18,10 +18,10 @@ public final class PatchFlowImpl implements PatchFlow {
     private final PatcherHooksCollection hooksCollection;
 
     public PatchFlowImpl(ModelRetriever modelRetriever,
-            Patcher patcher,
-            ModelSaver modelSaver,
-            EverythingDataSecurity dataSecurity,
-            PatcherHooksCollection hooksCollection) {
+                         Patcher patcher,
+                         ModelSaver modelSaver,
+                         EverythingDataSecurity dataSecurity,
+                         PatcherHooksCollection hooksCollection) {
         Objects.requireNonNull(modelRetriever, "modelRetriever cannot be null");
         Objects.requireNonNull(patcher, "patcher cannot be null");
         Objects.requireNonNull(modelSaver, "modelSaver cannot be null");
