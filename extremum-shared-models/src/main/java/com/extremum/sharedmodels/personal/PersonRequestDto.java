@@ -5,10 +5,7 @@ import com.extremum.sharedmodels.basic.StringOrObject;
 import com.extremum.sharedmodels.content.Media;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.sharedmodels.spacetime.CategorizedAddress;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -16,6 +13,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 @DocumentationName("Person")
 public class PersonRequestDto implements RequestDto {
     private StringOrObject<Name> name;

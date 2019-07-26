@@ -27,6 +27,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         this.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
         this.registerModule(new BasicSerializationDeserializationModule(this));
+        this.registerModule(new StringOrObjectModule());
         this.registerModule(createJavaTimeModule());
 
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
