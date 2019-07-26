@@ -5,10 +5,10 @@ import com.extremum.common.service.Problems;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
+import com.extremum.watch.annotation.CapturedModel;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.subscription.annotation.CapturedModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 
