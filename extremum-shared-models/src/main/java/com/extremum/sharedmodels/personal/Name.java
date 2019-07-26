@@ -2,15 +2,14 @@ package com.extremum.sharedmodels.personal;
 
 import com.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Name {
     @JsonProperty("full")
     private StringOrMultilingual full;

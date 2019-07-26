@@ -1,5 +1,6 @@
 package com.extremum.sharedmodels.basic;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,6 +13,7 @@ import javax.validation.Valid;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class StringOrObject<T> {
     /**
      * What of fields of the {@link StringOrObject} is initialized
