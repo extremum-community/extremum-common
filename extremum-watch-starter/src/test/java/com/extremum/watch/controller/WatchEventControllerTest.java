@@ -24,7 +24,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(classes = BaseConfig.class)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -43,7 +42,7 @@ class WatchEventControllerTest extends BaseApplicationTests {
     @BeforeAll
     void setUp() {
         firstEvent = eventRepository
-                .save(new TextWatchEvent("test", "test1"))
+                .save(new TextWatchEvent("test", "test1", "test"))
                 .getCreated();
         eventsSize++;
     }
@@ -64,7 +63,7 @@ class WatchEventControllerTest extends BaseApplicationTests {
 
     @Test
     void testFindAllEventsAfterFirstEvent() throws Exception {
-        ZonedDateTime secondEvent = eventRepository.save(new TextWatchEvent("test", "test2")).getCreated();
+        ZonedDateTime secondEvent = eventRepository.save(new TextWatchEvent("test", "test2", "test")).getCreated();
         eventsSize++;
 
         ZonedDateTime beforeLastEvent = secondEvent.minusNanos(2);

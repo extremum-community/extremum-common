@@ -1,24 +1,25 @@
 package com.extremum.watch.repositories.impl;
 
 import com.extremum.watch.config.SubscriptionProperties;
-import com.extremum.watch.models.Subscriber;
 import com.extremum.watch.repositories.SubscriptionRepository;
 import org.redisson.api.MapOptions;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Repository
 public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     private final RedissonClient client;
     private final SubscriptionProperties properties;
 
     private RMapCache<String, String> subscriptionsMap;
     private static final String SUBSCRIPTIONS = "watch_subscriptions_idx";
-    private static final String DELIMITER = " / ";
+    private static final String DELIMITER = "/";
 
     public SubscriptionRepositoryImpl(RedissonClient client, SubscriptionProperties properties) {
         this.client = client;
@@ -31,20 +32,21 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
 
     @Override
-    public void save(String modelId, Subscriber subscriber) {
-        subscriptionsMap.put(getKeyPattern(subscriber.getId(), modelId), "",
+    public void save(String modelId, String subscriberId) {
+        subscriptionsMap.put(getKeyPattern(subscriberId, modelId), "",
                 properties.getTimeToLive(), TimeUnit.DAYS,
                 properties.getIdleTime(), TimeUnit.DAYS);
     }
 
     @Override
-    public void remove(String modelId, Subscriber subscriber) {
-        subscriptionsMap.remove(getKeyPattern(subscriber.getId(), modelId));
+    public void remove(String modelId, String subscriberId) {
+        subscriptionsMap.remove(getKeyPattern(subscriberId, modelId));
     }
 
     @Override
-    public Collection<String> getAllSubscriptionsIdsBySubscriber(Subscriber subscriber) {
-        return subscriptionsMap.keySet(getKeyPattern(subscriber.getId(), "*"))
+    public Collection<String> getAllSubscriptionsIdsBySubscriber(String subscriberId) {
+//        TODO refactor keySet() method to native script for Redis
+        return subscriptionsMap.keySet(getKeyPattern(subscriberId, "*"))
                 .stream()
                 .map(key -> key.split(DELIMITER)[1])
                 .collect(Collectors.toList());
@@ -52,6 +54,7 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     @Override
     public Collection<String> getAllSubscribersIdsBySubscription(String modelId) {
+//        TODO refactor keySet() method to native script for Redis 
         return subscriptionsMap.keySet(getKeyPattern("*", modelId))
                 .stream()
                 .map(key -> key.split(DELIMITER)[0])
