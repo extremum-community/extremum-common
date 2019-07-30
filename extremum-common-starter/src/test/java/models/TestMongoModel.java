@@ -13,7 +13,7 @@ import static models.TestMongoModel.COLLECTION;
 @Getter @Setter
 public class TestMongoModel extends MongoCommonModel {
 
-    static final String COLLECTION = "testEntities";
+    public static final String COLLECTION = "testEntities";
     private String name;
 
     public enum FIELDS {

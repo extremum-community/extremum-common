@@ -12,18 +12,17 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.convert.MappingContextTypeInformationMapper;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author rpuch
@@ -60,7 +59,17 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
     @Bean
     @Primary
     public MappingMongoConverter mappingMongoConverter() throws Exception {
-        return super.mappingMongoConverter();
+        MappingMongoConverter converter = super.mappingMongoConverter();
+
+        // changing type mapper so that:
+        // 1. if there is no @TypeAlias on the model class, _class attribute is not saved
+        // 2. if @TypeAlias is there, its value is saved in _class attribute
+        MappingContextTypeInformationMapper typeInformationMapper = new MappingContextTypeInformationMapper(
+                mongoMappingContext());
+        DefaultMongoTypeMapper typeMapper = new MongoTypeMapperWithSearchByExampleFix(typeInformationMapper);
+        converter.setTypeMapper(typeMapper);
+
+        return converter;
     }
 
     @Override
