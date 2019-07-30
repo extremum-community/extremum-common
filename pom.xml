@@ -8,12 +8,13 @@
     <version>1.0.7-SNAPSHOT</version>
 
     <modules>
+        <module>extremum-shared-models</module>
+        <module>authentication-api</module>
+        <module>extremum-test-containers</module>
         <module>extremum-common-starter</module>
         <module>extremum-jpa-starter</module>
         <module>extremum-elasticsearch-starter</module>
         <module>extremum-everything-starter</module>
-        <module>extremum-test-containers</module>
-        <module>extremum-shared-models</module>
     </modules>
 
     <scm>
@@ -193,9 +194,9 @@
             </dependency>
 
             <dependency>
-                <groupId>io.extremum.auth</groupId>
+                <groupId>com.extremum</groupId>
                 <artifactId>authentication-api</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.7-SNAPSHOT</version>
             </dependency>
 
             <dependency>
