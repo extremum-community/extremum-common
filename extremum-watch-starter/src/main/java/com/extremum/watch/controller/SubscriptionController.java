@@ -8,6 +8,11 @@ import io.extremum.authentication.SecurityProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+
+/**
+ * This controller responsible for add and delete subscribers for extremum models
+ */
+//TODO refactor by documentation to /watch
 @RestController
 @RequestMapping("/api/subscription/{id}")
 @RequiredArgsConstructor

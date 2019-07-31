@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 /**
- * Aspect processor for {@link com.extremum.common.service.CommonService}
+ * Processor for {@link com.extremum.common.service.CommonService} pointcut
  */
 @Slf4j
 @Service

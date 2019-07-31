@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 /**
- * Aspect processor for {@link com.extremum.everything.services.management.PatchFlow}.
+ * Processor for {@link com.extremum.everything.services.management.PatchFlow} pointcut
  */
 @Service
 @Slf4j
