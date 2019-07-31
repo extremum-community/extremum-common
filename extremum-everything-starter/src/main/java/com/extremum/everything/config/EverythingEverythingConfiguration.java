@@ -34,7 +34,7 @@ import com.extremum.everything.services.management.*;
 import com.extremum.everything.support.*;
 import com.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.authentication.SecurityProvider;
+import io.extremum.authentication.api.SecurityProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;

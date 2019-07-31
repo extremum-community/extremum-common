@@ -1,4 +1,4 @@
-package io.extremum.authentication;
+package io.extremum.authentication.api;
 
 public interface SecurityProvider {
 
