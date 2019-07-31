@@ -10,7 +10,10 @@ import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import com.extremum.everything.security.AllowEverythingForDataAccess;
-import com.extremum.everything.services.*;
+import com.extremum.everything.services.DefaultRequestDtoValidator;
+import com.extremum.everything.services.GetterService;
+import com.extremum.everything.services.RemovalService;
+import com.extremum.everything.services.SaverService;
 import com.extremum.everything.services.defaultservices.*;
 import com.extremum.everything.support.*;
 import com.extremum.sharedmodels.descriptor.Descriptor;
@@ -62,9 +65,6 @@ class EverythingServicesTest {
     private DescriptorService descriptorService;
     @Spy
     private RemovalService mongoWithServicesRemovalService = new MongoWithServicesRemovalService();
-    @Spy
-    private PatcherService<MongoModelWithServices> mongoWithServicesPatcherService
-            = new MongoWithServicesPatcherService(dtoConversionService, objectMapper);
     @Spy
     private SaverService<MongoModelWithServices> mongoWithServicesSaverService
             = new MongoWithServicesSaverService();
@@ -234,27 +234,6 @@ class EverythingServicesTest {
     private static class MongoWithServicesGetterService implements GetterService<MongoModelWithServices> {
         @Override
         public MongoModelWithServices get(String id) {
-            return new MongoModelWithServices();
-        }
-
-        @Override
-        public String getSupportedModel() {
-            return MongoModelWithServices.class.getSimpleName();
-        }
-    }
-
-    private static class MongoWithServicesPatcherService extends AbstractPatcherService<MongoModelWithServices> {
-        MongoWithServicesPatcherService(DtoConversionService dtoConversionService, ObjectMapper jsonMapper) {
-            super(dtoConversionService, jsonMapper, new AllowEverythingForDataAccess());
-        }
-
-        @Override
-        protected MongoModelWithServices persist(PatchPersistenceContext<MongoModelWithServices> context) {
-            return context.getCurrentStateModel();
-        }
-
-        @Override
-        protected MongoModelWithServices findById(String id) {
             return new MongoModelWithServices();
         }
 
