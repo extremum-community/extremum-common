@@ -1,6 +1,6 @@
 package com.extremum.everything.security;
 
-import io.extremum.authentication.SecurityProvider;
+import io.extremum.authentication.api.SecurityProvider;
 
 /**
  * @author rpuch

@@ -1,4 +1,4 @@
-package io.extremum.authentication;
+package io.extremum.authentication.api;
 
 public class RolesConstants {
     public static final String CLIENT = "ROLE_CLIENT";
