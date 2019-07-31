@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -15,8 +14,8 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 /**
- * Only works by annotation on {@link com.extremum.everything.services.management.PatchFlowImpl}
- * and {@link com.extremum.common.service.impl.CommonServiceImpl}
+ * Aspect to implement watch logic.
+ * Have different pointcuts and different handlers to capture events.
  */
 @Component
 @Slf4j

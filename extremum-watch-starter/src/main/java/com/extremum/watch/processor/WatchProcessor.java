@@ -13,6 +13,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Collection;
 
+/**
+ * Base interface for all watch processors.
+ * Used on the {@link com.extremum.watch.aop.CaptureChangesAspect} by different implementations.
+ */
 @Getter(AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 @Slf4j
