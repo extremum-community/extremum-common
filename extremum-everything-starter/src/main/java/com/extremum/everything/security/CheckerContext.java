@@ -4,7 +4,7 @@ package com.extremum.everything.security;
  * @author rpuch
  */
 public interface CheckerContext {
-    String getCurrentUserName();
+    String getCurrentPrincipal();
 
-    boolean currentUserHasOneOf(String ... roles);
+    boolean currentUserHasOneOf(String... roles);
 }

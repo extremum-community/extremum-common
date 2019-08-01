@@ -200,7 +200,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public EverythingDataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker) {
-        return new AccessCheckersDataSecurity(checkers, roleChecker);
+        return new AccessCheckersDataSecurity(checkers, roleChecker, null);
     }
 
     @Bean

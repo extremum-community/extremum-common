@@ -15,15 +15,17 @@ import java.util.List;
 public final class AccessCheckersDataSecurity implements EverythingDataSecurity {
     private final List<DataAccessChecker<?>> checkers;
     private final RoleChecker roleChecker;
+    private final PrincipalSource principalSource;
 
     private final Operation get = new Get();
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
 
     public AccessCheckersDataSecurity(List<DataAccessChecker<?>> checkers,
-            RoleChecker roleChecker) {
+            RoleChecker roleChecker, PrincipalSource principalSource) {
         this.checkers = ImmutableList.copyOf(checkers);
         this.roleChecker = roleChecker;
+        this.principalSource = principalSource;
     }
 
     @Override
@@ -85,8 +87,8 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
 
     private class SimpleCheckerContext implements CheckerContext {
         @Override
-        public String getCurrentUserName() {
-            throw new UnsupportedOperationException("Not supported yet");
+        public String getCurrentPrincipal() {
+            return principalSource.getPrincipal();
         }
 
         @Override

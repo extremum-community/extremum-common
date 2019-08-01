@@ -5,25 +5,40 @@ import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.exceptions.EverythingEverythingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
  */
+@ExtendWith(MockitoExtension.class)
 class AccessCheckersDataSecurityTest {
+    private static final String ROLE_PRIVILEGED = "ROLE_PRIVILEGED";
+
     private AccessCheckersDataSecurity security;
+
+    @Mock
+    private RoleChecker roleChecker;
+    @Mock
+    private PrincipalSource principalSource;
 
     @BeforeEach
     void createSecurityInstance() {
         security = new AccessCheckersDataSecurity(Arrays.asList(new AllowEverything(), new DenyEverything(),
-                new CheckerForModelWithCheckerAndWithNoDataSecurityAnnotation()),
-                mock(RoleChecker.class));
+                new CheckerForModelWithCheckerAndWithNoDataSecurityAnnotation(),
+                new CheckerForModelWithRoleChecksInContext(),
+                new CheckerForModelWithPrincipalChecksInContext()),
+                roleChecker, principalSource);
     }
 
     @Test
@@ -167,26 +182,68 @@ class AccessCheckersDataSecurityTest {
         security.checkRemovalAllowed(null);
     }
 
+    @Test
+    void givenRoleCheckerAllowsPrivilegedRole_whenCheckerChecksForPrivilegedRoleViaContext_thenItShouldBeAllowed() {
+        when(roleChecker.currentUserHasOneRoleOf(ROLE_PRIVILEGED)).thenReturn(true);
+
+        security.checkGetAllowed(new ModelWithRoleChecksInContext());
+    }
+
+    @Test
+    void givenRoleCheckerDeniesPrivilegedRole_whenCheckerChecksForPrivilegedRoleViaContext_thenItShouldBeDenied() {
+        when(roleChecker.currentUserHasOneRoleOf(ROLE_PRIVILEGED)).thenReturn(false);
+
+        assertThrows(EverythingAccessDeniedException.class,
+                () -> security.checkGetAllowed(new ModelWithRoleChecksInContext()));
+    }
+
+    @Test
+    void givenModelOwnerIsAlexAndCurrentPrincipalIsAlex_whenCheckerChecksOwnerMatchesPrincipal_thenItShouldBeAllowed() {
+        when(principalSource.getPrincipal()).thenReturn("Alex");
+
+        security.checkGetAllowed(new ModelWithPrincipalChecksInContext());
+    }
+
+    @Test
+    void givenModelOwnerIsAlexAndCurrentPrincipalIsBen_whenCheckerChecksOwnerMatchesPrincipal_thenItShouldBeDenied() {
+        when(principalSource.getPrincipal()).thenReturn("Ben");
+
+        assertThrows(EverythingAccessDeniedException.class,
+                () -> security.checkGetAllowed(new ModelWithPrincipalChecksInContext()));
+    }
+
+    private static abstract class BaseModel extends MongoCommonModel {
+    }
+
     @ModelName("ModelWithAllowingChecker")
-    private static class ModelWithAllowingChecker extends MongoCommonModel {
+    private static class ModelWithAllowingChecker extends BaseModel {
     }
 
     @ModelName("ModelWithDenyingChecker")
-    private static class ModelWithDenyingChecker extends MongoCommonModel {
+    private static class ModelWithDenyingChecker extends BaseModel {
     }
 
     @ModelName("ModelWithoutCheckerButWithNoDataSecurityAnnotation")
     @NoDataSecurity
-    private static class ModelWithoutCheckerButWithNoDataSecurityAnnotation extends MongoCommonModel {
+    private static class ModelWithoutCheckerButWithNoDataSecurityAnnotation extends BaseModel {
     }
 
     @ModelName("ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation")
-    private static class ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation extends MongoCommonModel {
+    private static class ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation extends BaseModel {
     }
 
     @ModelName("ModelWithCheckerAndWithNoDataSecurityAnnotation")
     @NoDataSecurity
-    private static class ModelWithCheckerAndWithNoDataSecurityAnnotation extends MongoCommonModel {
+    private static class ModelWithCheckerAndWithNoDataSecurityAnnotation extends BaseModel {
+    }
+
+    @ModelName("ModelWithRoleChecksInContext")
+    private static class ModelWithRoleChecksInContext extends BaseModel {
+    }
+
+    @ModelName("ModelWithPrincipalChecksInContext")
+    private static class ModelWithPrincipalChecksInContext extends BaseModel {
+        private final String owner = "Alex";
     }
 
     private static class AllowEverything extends ConstantChecker<ModelWithAllowingChecker> {
@@ -221,6 +278,34 @@ class AccessCheckersDataSecurityTest {
         @Override
         public String getSupportedModel() {
             return "ModelWithCheckerAndWithNoDataSecurityAnnotation";
+        }
+    }
+
+    private static class CheckerForModelWithRoleChecksInContext
+            extends SamePolicyChecker<ModelWithRoleChecksInContext> {
+
+        @Override
+        boolean allowed(ModelWithRoleChecksInContext model, CheckerContext context) {
+            return context.currentUserHasOneOf(ROLE_PRIVILEGED);
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "ModelWithRoleChecksInContext";
+        }
+    }
+
+    private static class CheckerForModelWithPrincipalChecksInContext
+            extends SamePolicyChecker<ModelWithPrincipalChecksInContext> {
+
+        @Override
+        boolean allowed(ModelWithPrincipalChecksInContext model, CheckerContext context) {
+            return Objects.equals(model.owner, context.getCurrentPrincipal());
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "ModelWithPrincipalChecksInContext";
         }
     }
 }

@@ -6,7 +6,7 @@ import com.extremum.everything.security.services.DataAccessChecker;
 /**
  * @author rpuch
  */
-abstract class ConstantChecker<M extends Model> implements DataAccessChecker<M> {
+abstract class ConstantChecker<M extends Model> extends SamePolicyChecker<M> {
     private final boolean valueToReturn;
 
     ConstantChecker(boolean valueToReturn) {
@@ -14,17 +14,7 @@ abstract class ConstantChecker<M extends Model> implements DataAccessChecker<M> 
     }
 
     @Override
-    public boolean allowedToGet(M model, CheckerContext context) {
-        return valueToReturn;
-    }
-
-    @Override
-    public boolean allowedToPatch(M model, CheckerContext context) {
-        return valueToReturn;
-    }
-
-    @Override
-    public boolean allowedToRemove(M model, CheckerContext context) {
+    final boolean allowed(M model, CheckerContext context) {
         return valueToReturn;
     }
 }
