@@ -33,7 +33,10 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
 
     private DataAccessChecker<Model> findChecker(Model model) {
         String modelName = modelName(model);
-        return (DataAccessChecker<Model>) EverythingServices.findServiceForModel(modelName, checkers);
+        @SuppressWarnings("unchecked")
+        DataAccessChecker<Model> castChecker = (DataAccessChecker<Model>) EverythingServices.findServiceForModel(
+                modelName, checkers);
+        return castChecker;
     }
 
     private String modelName(Model model) {
