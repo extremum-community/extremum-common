@@ -91,7 +91,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
 
     private class SimpleCheckerContext implements CheckerContext {
         @Override
-        public String getCurrentPrincipal() {
+        public Optional<String> getCurrentPrincipal() {
             return principalSource.getPrincipal();
         }
 

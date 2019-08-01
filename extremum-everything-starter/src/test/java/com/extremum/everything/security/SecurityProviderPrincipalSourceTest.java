@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,22 +27,22 @@ class SecurityProviderPrincipalSourceTest {
 
     @Test
     void givenPrincipalInSecurityProviderIsAlex_whenGettingPrincipal_thenAlexShouldBeReturned() {
-        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(securityProvider.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        assertThat(principalSource.getPrincipal(), is("Alex"));
+        assertThat(principalSource.getPrincipal().orElse(null), is("Alex"));
     }
 
     @Test
     void givenPrincipalInSecurityProviderIs42_whenGettingPrincipal_then42StringShouldBeReturned() {
-        when(securityProvider.getPrincipal()).thenReturn(42);
+        when(securityProvider.getPrincipal()).thenReturn(Optional.of(42));
 
-        assertThat(principalSource.getPrincipal(), is("42"));
+        assertThat(principalSource.getPrincipal().orElse(null), is("42"));
     }
 
     @Test
     void givenPrincipalInSecurityProviderIsNull_whenGettingPrincipal_thenNullShouldBeReturned() {
-        when(securityProvider.getPrincipal()).thenReturn(null);
+        when(securityProvider.getPrincipal()).thenReturn(Optional.empty());
 
-        assertThat(principalSource.getPrincipal(), is(nullValue()));
+        assertThat(principalSource.getPrincipal(), is(Optional.empty()));
     }
 }

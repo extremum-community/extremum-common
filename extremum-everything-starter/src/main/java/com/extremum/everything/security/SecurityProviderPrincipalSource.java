@@ -2,6 +2,8 @@ package com.extremum.everything.security;
 
 import io.extremum.authentication.api.SecurityProvider;
 
+import java.util.Optional;
+
 /**
  * @author rpuch
  */
@@ -13,8 +15,7 @@ public class SecurityProviderPrincipalSource implements PrincipalSource {
     }
 
     @Override
-    public String getPrincipal() {
-        Object principal = securityProvider.getPrincipal();
-        return principal == null ? null : principal.toString();
+    public Optional<String> getPrincipal() {
+        return securityProvider.getPrincipal().map(Object::toString);
     }
 }

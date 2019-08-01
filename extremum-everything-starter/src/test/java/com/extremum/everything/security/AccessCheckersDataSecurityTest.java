@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -199,17 +200,17 @@ class AccessCheckersDataSecurityTest {
 
     @Test
     void givenModelOwnerIsAlexAndCurrentPrincipalIsAlex_whenCheckerChecksOwnerMatchesPrincipal_thenItShouldBeAllowed() {
-        when(principalSource.getPrincipal()).thenReturn("Alex");
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        security.checkGetAllowed(new ModelWithPrincipalChecksInContext());
+        security.checkGetAllowed(new ModelWithPrincipalChecksInContext("Alex"));
     }
 
     @Test
     void givenModelOwnerIsAlexAndCurrentPrincipalIsBen_whenCheckerChecksOwnerMatchesPrincipal_thenItShouldBeDenied() {
-        when(principalSource.getPrincipal()).thenReturn("Ben");
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Ben"));
 
         assertThrows(EverythingAccessDeniedException.class,
-                () -> security.checkGetAllowed(new ModelWithPrincipalChecksInContext()));
+                () -> security.checkGetAllowed(new ModelWithPrincipalChecksInContext("Alex")));
     }
 
     private static abstract class BaseModel extends MongoCommonModel {
@@ -243,7 +244,11 @@ class AccessCheckersDataSecurityTest {
 
     @ModelName("ModelWithPrincipalChecksInContext")
     private static class ModelWithPrincipalChecksInContext extends BaseModel {
-        private final String owner = "Alex";
+        private final String owner;
+
+        private ModelWithPrincipalChecksInContext(String owner) {
+            this.owner = owner;
+        }
     }
 
     private static class AllowEverything extends ConstantChecker<ModelWithAllowingChecker> {
@@ -300,7 +305,7 @@ class AccessCheckersDataSecurityTest {
 
         @Override
         boolean allowed(ModelWithPrincipalChecksInContext model, CheckerContext context) {
-            return Objects.equals(model.owner, context.getCurrentPrincipal());
+            return Objects.equals(model.owner, context.getCurrentPrincipal().orElse(null));
         }
 
         @Override
