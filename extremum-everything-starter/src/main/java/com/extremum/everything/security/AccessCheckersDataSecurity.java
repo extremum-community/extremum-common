@@ -8,6 +8,7 @@ import com.extremum.everything.services.management.EverythingServices;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author rpuch
@@ -33,19 +34,20 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
         get.checkDataAccess(model);
     }
 
-    private DataAccessChecker<Model> findChecker(Model model) {
+    private Optional<DataAccessChecker<Model>> findChecker(Model model) {
         String modelName = modelName(model);
         @SuppressWarnings("unchecked")
         DataAccessChecker<Model> castChecker = (DataAccessChecker<Model>) EverythingServices.findServiceForModel(
                 modelName, checkers);
-        return castChecker;
+        return Optional.ofNullable(castChecker);
     }
 
     private String modelName(Model model) {
         return ModelUtils.getModelName(model);
     }
 
-    private void validateModelClassConfig(Model model, DataAccessChecker<Model> checker) {
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void validateModelClassConfig(Model model, Optional<DataAccessChecker<Model>> checker) {
         boolean annotatedWithNoDataSecurity = isAnnotatedWithNoDataSecurity(model);
         throwIfNoCheckerAndNoAnnotation(model, checker, annotatedWithNoDataSecurity);
         throwIfBothCheckerAndAnnotation(model, checker, annotatedWithNoDataSecurity);
@@ -55,9 +57,10 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
         return DataSecurityAnnotations.annotatedWithNoDataSecurity(model.getClass());
     }
 
-    private void throwIfNoCheckerAndNoAnnotation(Model model, DataAccessChecker<Model> checker,
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void throwIfNoCheckerAndNoAnnotation(Model model, Optional<DataAccessChecker<Model>> checker,
             boolean annotatedWithNoDataSecurity) {
-        if (checker == null && !annotatedWithNoDataSecurity) {
+        if (!checker.isPresent() && !annotatedWithNoDataSecurity) {
             String message = String.format(
                     "No DataAccessChecker was found and no @NoDataSecurity annotation exists on '%s'",
                     modelName(model));
@@ -65,9 +68,10 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
         }
     }
 
-    private void throwIfBothCheckerAndAnnotation(Model model, DataAccessChecker<Model> checker,
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void throwIfBothCheckerAndAnnotation(Model model, Optional<DataAccessChecker<Model>> checker,
             boolean annotatedWithNoDataSecurity) {
-        if (checker != null && annotatedWithNoDataSecurity) {
+        if (checker.isPresent() && annotatedWithNoDataSecurity) {
             String message = String.format(
                     "Both DataAccessChecker was found and @NoDataSecurity annotation exists on '%s'",
                     modelName(model));
@@ -103,15 +107,15 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
                 return;
             }
 
-            DataAccessChecker<Model> checker = findChecker(model);
-            validateModelClassConfig(model, checker);
+            Optional<DataAccessChecker<Model>> optChecker = findChecker(model);
+            validateModelClassConfig(model, optChecker);
 
-            if (checker != null) {
+            optChecker.ifPresent(checker -> {
                 SimpleCheckerContext context = new SimpleCheckerContext();
                 if (!allowed(model, checker, context)) {
                     throw new EverythingAccessDeniedException("Access denied");
                 }
-            }
+            });
         }
 
         abstract boolean allowed(Model model, DataAccessChecker<Model> checker, CheckerContext context);
