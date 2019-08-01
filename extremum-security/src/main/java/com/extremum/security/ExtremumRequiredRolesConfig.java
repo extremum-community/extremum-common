@@ -4,35 +4,35 @@ package com.extremum.security;
  * @author rpuch
  */
 class ExtremumRequiredRolesConfig {
-    private final Access defaultAccess;
-    private final Access getAccess;
-    private final Access patchAccess;
-    private final Access removeAccess;
+    private final String[] defaultRoles;
+    private final String[] getRoles;
+    private final String[] patchRoles;
+    private final String[] removalRoles;
 
-    ExtremumRequiredRolesConfig(Access defaultAccess, Access getAccess, Access patchAccess,
-            Access removeAccess) {
-        this.defaultAccess = defaultAccess;
-        this.getAccess = getAccess;
-        this.patchAccess = patchAccess;
-        this.removeAccess = removeAccess;
+    ExtremumRequiredRolesConfig(String[] defaultRoles, String[] getRoles, String[] patchRoles,
+            String[] removalRoles) {
+        this.defaultRoles = defaultRoles;
+        this.getRoles = getRoles;
+        this.patchRoles = patchRoles;
+        this.removalRoles = removalRoles;
     }
 
     String[] rolesForGet() {
-        return firstNonEmpty(getAccess, defaultAccess);
+        return firstNonEmpty(getRoles, defaultRoles);
     }
 
     String[] rolesForPatch() {
-        return firstNonEmpty(patchAccess, defaultAccess);
+        return firstNonEmpty(patchRoles, defaultRoles);
     }
 
     String[] rolesForRemove() {
-        return firstNonEmpty(removeAccess, defaultAccess);
+        return firstNonEmpty(removalRoles, defaultRoles);
     }
 
-    private String[] firstNonEmpty(Access first, Access second) {
-        if (first.value().length > 0) {
-            return first.value();
+    private String[] firstNonEmpty(String[] first, String[] second) {
+        if (first.length > 0) {
+            return first;
         }
-        return second.value();
+        return second;
     }
 }

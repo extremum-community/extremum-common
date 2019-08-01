@@ -11,11 +11,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ExtremumRequiredRoles {
-    Access defaultAccess() default @Access({});
+    String[] defaultAccess() default {};
 
-    Access get() default @Access({});
+    String[] get() default {};
 
-    Access patch() default @Access({});
+    String[] patch() default {};
 
-    Access remove() default @Access({});
+    String[] remove() default {};
 }

@@ -160,9 +160,9 @@ class ModelAnnotationRoleSecurityTest {
     }
 
     @ExtremumRequiredRoles(
-            get = @Access("ROLE_PRIVILEGED"),
-            patch = @Access("ROLE_PRIVILEGED"),
-            remove = @Access("ROLE_PRIVILEGED")
+            get = "ROLE_PRIVILEGED",
+            patch = "ROLE_PRIVILEGED",
+            remove = "ROLE_PRIVILEGED"
     )
     private static class SecureModel extends MongoCommonModel {
     }

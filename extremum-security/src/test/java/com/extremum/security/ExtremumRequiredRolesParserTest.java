@@ -32,16 +32,16 @@ class ExtremumRequiredRolesParserTest {
     }
 
     @ExtremumRequiredRoles(
-            defaultAccess = @Access("DEFAULT"),
-            get = @Access("GET"),
-            patch = @Access("PATCH"),
-            remove = @Access("REMOVE")
+            defaultAccess = "DEFAULT",
+            get = "GET",
+            patch = "PATCH",
+            remove = "REMOVE"
     )
     private static class Individual {
     }
 
     @ExtremumRequiredRoles(
-            defaultAccess = @Access("DEFAULT")
+            defaultAccess = "DEFAULT"
     )
     private static class WithDefault {
     }
