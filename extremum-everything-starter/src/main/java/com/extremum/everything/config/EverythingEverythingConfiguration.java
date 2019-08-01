@@ -193,14 +193,21 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public PrincipalSource principalSource(SecurityProvider securityProvider) {
+        return new SecurityProviderPrincipalSource(securityProvider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EverythingRoleSecurity everythingRoleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
         return new ModelAnnotationEverythingRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingDataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker) {
-        return new AccessCheckersDataSecurity(checkers, roleChecker, null);
+    public EverythingDataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker,
+            PrincipalSource principalSource) {
+        return new AccessCheckersDataSecurity(checkers, roleChecker, principalSource);
     }
 
     @Bean
