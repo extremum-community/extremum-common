@@ -1,5 +1,6 @@
 package com.extremum.everything.support;
 
+import com.extremum.common.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
 import com.extremum.common.descriptor.service.DescriptorService;

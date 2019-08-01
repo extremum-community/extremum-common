@@ -5,7 +5,7 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 /**
  * @author rpuch
  */
-public interface EverythingRoleSecurity {
+public interface RoleSecurity {
     void checkGetAllowed(Descriptor id);
 
     void checkPatchAllowed(Descriptor id);

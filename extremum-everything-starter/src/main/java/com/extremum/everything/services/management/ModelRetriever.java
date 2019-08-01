@@ -1,6 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.modelservices.ModelServices;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.sharedmodels.descriptor.Descriptor;
@@ -36,7 +37,7 @@ public class ModelRetriever {
     }
 
     private Getter findGetter(String modelName) {
-        GetterService<? extends Model> service = EverythingServices.findServiceForModel(modelName, getterServices);
+        GetterService<? extends Model> service = ModelServices.findServiceForModel(modelName, getterServices);
         if (service != null) {
             return new NonDefaultGetter(service);
         }

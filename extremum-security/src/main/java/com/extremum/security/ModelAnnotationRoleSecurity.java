@@ -1,15 +1,14 @@
 package com.extremum.security;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.common.utils.AnnotationUtils;
-import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 
 /**
  * @author rpuch
  */
-public final class ModelAnnotationEverythingRoleSecurity implements EverythingRoleSecurity {
+public final class ModelAnnotationRoleSecurity implements RoleSecurity {
     private final RoleChecker roleChecker;
     private final ModelClasses modelClasses;
 
@@ -17,7 +16,7 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
 
-    public ModelAnnotationEverythingRoleSecurity(RoleChecker roleChecker,
+    public ModelAnnotationRoleSecurity(RoleChecker roleChecker,
             ModelClasses modelClasses) {
         this.roleChecker = roleChecker;
         this.modelClasses = modelClasses;
@@ -39,39 +38,39 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
     }
 
     private abstract class Operation {
-        private final EverythingRequiredRolesParser annotationParser = new EverythingRequiredRolesParser();
+        private final ExtremumRequiredRolesParser annotationParser = new ExtremumRequiredRolesParser();
 
         void throwIfNoRolesFor(Descriptor id) {
             Class<Model> modelClass = modelClasses.getClassByModelName(id.getModelType());
 
-            EverythingRequiredRoles everythingRequiredRoles = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(
-                    EverythingRequiredRoles.class, modelClass);
-            if (everythingRequiredRoles == null) {
-                throw new EverythingEverythingException(
+            ExtremumRequiredRoles extremumRequiredRoles = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(
+                    ExtremumRequiredRoles.class, modelClass);
+            if (extremumRequiredRoles == null) {
+                throw new ExtremumSecurityException(
                         String.format("Security is not configured for '%s'", id.getModelType()));
             }
-            EverythingRequiredRolesConfig config = annotationParser.parse(everythingRequiredRoles);
+            ExtremumRequiredRolesConfig config = annotationParser.parse(extremumRequiredRoles);
             String[] roles = extractRoles(config);
 
             if (roles.length == 0) {
                 String message = String.format("Security is not configured for '%s' for %s operation",
                         id.getModelType(), name());
-                throw new EverythingEverythingException(message);
+                throw new ExtremumSecurityException(message);
             }
 
             if (!roleChecker.currentUserHasOneRoleOf(roles)) {
-                throw new EverythingAccessDeniedException("Access denied");
+                throw new ExtremumAccessDeniedException("Access denied");
             }
         }
 
-        abstract String[] extractRoles(EverythingRequiredRolesConfig config);
+        abstract String[] extractRoles(ExtremumRequiredRolesConfig config);
 
         abstract String name();
     }
 
     private class Get extends Operation {
         @Override
-        String[] extractRoles(EverythingRequiredRolesConfig config) {
+        String[] extractRoles(ExtremumRequiredRolesConfig config) {
             return config.rolesForGet();
         }
 
@@ -83,7 +82,7 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
 
     private class Patch extends Operation {
         @Override
-        String[] extractRoles(EverythingRequiredRolesConfig config) {
+        String[] extractRoles(ExtremumRequiredRolesConfig config) {
             return config.rolesForPatch();
         }
 
@@ -95,7 +94,7 @@ public final class ModelAnnotationEverythingRoleSecurity implements EverythingRo
 
     private class Remove extends Operation {
         @Override
-        String[] extractRoles(EverythingRequiredRolesConfig config) {
+        String[] extractRoles(ExtremumRequiredRolesConfig config) {
             return config.rolesForRemove();
         }
 

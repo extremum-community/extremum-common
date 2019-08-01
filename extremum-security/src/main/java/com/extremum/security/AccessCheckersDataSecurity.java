@@ -1,10 +1,9 @@
 package com.extremum.security;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.modelservices.ModelServices;
 import com.extremum.common.utils.ModelUtils;
-import com.extremum.everything.exceptions.EverythingEverythingException;
 import com.extremum.security.services.DataAccessChecker;
-import com.extremum.everything.services.management.EverythingServices;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.Optional;
 /**
  * @author rpuch
  */
-public final class AccessCheckersDataSecurity implements EverythingDataSecurity {
+public final class AccessCheckersDataSecurity implements DataSecurity {
     private final List<DataAccessChecker<?>> checkers;
     private final RoleChecker roleChecker;
     private final PrincipalSource principalSource;
@@ -37,7 +36,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
     private Optional<DataAccessChecker<Model>> findChecker(Model model) {
         String modelName = modelName(model);
         @SuppressWarnings("unchecked")
-        DataAccessChecker<Model> castChecker = (DataAccessChecker<Model>) EverythingServices.findServiceForModel(
+        DataAccessChecker<Model> castChecker = (DataAccessChecker<Model>) ModelServices.findServiceForModel(
                 modelName, checkers);
         return Optional.ofNullable(castChecker);
     }
@@ -64,7 +63,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
             String message = String.format(
                     "No DataAccessChecker was found and no @NoDataSecurity annotation exists on '%s'",
                     modelName(model));
-            throw new EverythingEverythingException(message);
+            throw new ExtremumSecurityException(message);
         }
     }
 
@@ -75,7 +74,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
             String message = String.format(
                     "Both DataAccessChecker was found and @NoDataSecurity annotation exists on '%s'",
                     modelName(model));
-            throw new EverythingEverythingException(message);
+            throw new ExtremumSecurityException(message);
         }
     }
 
@@ -113,7 +112,7 @@ public final class AccessCheckersDataSecurity implements EverythingDataSecurity 
             optChecker.ifPresent(checker -> {
                 SimpleCheckerContext context = new SimpleCheckerContext();
                 if (!allowed(model, checker, context)) {
-                    throw new EverythingAccessDeniedException("Access denied");
+                    throw new ExtremumAccessDeniedException("Access denied");
                 }
             });
         }

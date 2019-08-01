@@ -1,7 +1,7 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.security.EverythingAccessDeniedException;
-import com.extremum.security.EverythingRoleSecurity;
+import com.extremum.security.ExtremumAccessDeniedException;
+import com.extremum.security.RoleSecurity;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -40,7 +40,7 @@ class EverythingEverythingManagementServiceRoleSecurityTest {
     @Mock
     private EverythingEverythingManagementService insecureService;
     @Mock
-    private EverythingRoleSecurity roleSecurity;
+    private RoleSecurity roleSecurity;
 
     private final ResponseDto responseDto = mock(ResponseDto.class);
     private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
@@ -55,13 +55,13 @@ class EverythingEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowGetAnEntity_whenGettingIt_anExceptionShouldBeThrown() {
-        doThrow(new EverythingAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(roleSecurity).checkGetAllowed(descriptor);
 
         try {
             secureService.get(descriptor, false);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -76,13 +76,13 @@ class EverythingEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowPatchAnEntity_whenPatchingIt_anExceptionShouldBeThrown() {
-        doThrow(new EverythingAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(roleSecurity).checkPatchAllowed(descriptor);
 
         try {
             secureService.patch(descriptor, jsonPatch, DO_NOT_EXPAND);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -94,13 +94,13 @@ class EverythingEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowRemoveAnEntity_whenRemovingIt_anExceptionShouldBeThrown() {
-        doThrow(new EverythingAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(roleSecurity).checkRemovalAllowed(descriptor);
 
         try {
             secureService.remove(descriptor);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }

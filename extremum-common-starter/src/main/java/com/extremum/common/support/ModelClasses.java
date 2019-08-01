@@ -1,4 +1,4 @@
-package com.extremum.everything.support;
+package com.extremum.common.support;
 
 import com.extremum.common.models.Model;
 

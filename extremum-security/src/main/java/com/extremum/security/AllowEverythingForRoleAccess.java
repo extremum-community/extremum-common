@@ -5,7 +5,7 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 /**
  * @author rpuch
  */
-public final class AllowEverythingForRoleAccess implements EverythingRoleSecurity {
+public final class AllowEverythingForRoleAccess implements RoleSecurity {
     @Override
     public void checkGetAllowed(Descriptor id) {
         // allow anything

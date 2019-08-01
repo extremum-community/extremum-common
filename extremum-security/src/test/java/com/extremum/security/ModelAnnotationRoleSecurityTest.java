@@ -1,11 +1,10 @@
-package com.extremum.everything.services.management;
+package com.extremum.security;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.support.ModelClasses;
-import com.extremum.security.*;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.sharedmodels.descriptor.Descriptor;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,16 +14,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class ModelAnnotationEverythingRoleSecurityTest {
+class ModelAnnotationRoleSecurityTest {
     @InjectMocks
-    private ModelAnnotationEverythingRoleSecurity security;
+    private ModelAnnotationRoleSecurity security;
 
     @Mock
     private RoleChecker roleChecker;
@@ -57,7 +56,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkGetAllowed(secureDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -67,8 +66,8 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkGetAllowed(insecureDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        } catch (ExtremumSecurityException e) {
+            MatcherAssert.assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
         }
     }
 
@@ -77,8 +76,8 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkGetAllowed(emptySecurityDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for get operation"));
+        } catch (ExtremumSecurityException e) {
+            MatcherAssert.assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for get operation"));
         }
     }
 
@@ -96,7 +95,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkPatchAllowed(secureDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -106,8 +105,8 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkPatchAllowed(insecureDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        } catch (ExtremumSecurityException e) {
+            MatcherAssert.assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
         }
     }
 
@@ -116,8 +115,8 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkPatchAllowed(emptySecurityDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for patch operation"));
+        } catch (ExtremumSecurityException e) {
+            MatcherAssert.assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for patch operation"));
         }
     }
 
@@ -135,7 +134,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkRemovalAllowed(secureDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -145,8 +144,8 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkRemovalAllowed(insecureDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        } catch (ExtremumSecurityException e) {
+            MatcherAssert.assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
         }
     }
 
@@ -155,12 +154,12 @@ class ModelAnnotationEverythingRoleSecurityTest {
         try {
             security.checkRemovalAllowed(emptySecurityDescriptor);
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
-            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for remove operation"));
+        } catch (ExtremumSecurityException e) {
+            MatcherAssert.assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for remove operation"));
         }
     }
 
-    @EverythingRequiredRoles(
+    @ExtremumRequiredRoles(
             get = @Access("ROLE_PRIVILEGED"),
             patch = @Access("ROLE_PRIVILEGED"),
             remove = @Access("ROLE_PRIVILEGED")
@@ -171,7 +170,7 @@ class ModelAnnotationEverythingRoleSecurityTest {
     private static class InsecureModel extends MongoCommonModel {
     }
 
-    @EverythingRequiredRoles
+    @ExtremumRequiredRoles
     private static class EmptySecurityModel extends MongoCommonModel {
     }
 

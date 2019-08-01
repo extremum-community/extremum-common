@@ -1,7 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
-import com.extremum.security.EverythingDataSecurity;
+import com.extremum.security.DataSecurity;
 import com.extremum.everything.services.PatchPersistenceContext;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -14,13 +14,13 @@ public final class PatchFlowImpl implements PatchFlow {
     private final ModelRetriever modelRetriever;
     private final Patcher patcher;
     private final ModelSaver modelSaver;
-    private final EverythingDataSecurity dataSecurity;
+    private final DataSecurity dataSecurity;
     private final PatcherHooksCollection hooksCollection;
 
     public PatchFlowImpl(ModelRetriever modelRetriever,
             Patcher patcher,
             ModelSaver modelSaver,
-            EverythingDataSecurity dataSecurity,
+            DataSecurity dataSecurity,
             PatcherHooksCollection hooksCollection) {
         Objects.requireNonNull(modelRetriever, "modelRetriever cannot be null");
         Objects.requireNonNull(patcher, "patcher cannot be null");

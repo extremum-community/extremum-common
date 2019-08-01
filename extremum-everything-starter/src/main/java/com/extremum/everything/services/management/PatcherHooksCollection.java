@@ -1,6 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.modelservices.ModelServices;
 import com.extremum.everything.services.PatchPersistenceContext;
 import com.extremum.everything.services.PatcherHooksService;
 import com.extremum.sharedmodels.dto.RequestDto;
@@ -23,7 +24,7 @@ public class PatcherHooksCollection {
     private PatcherHooks getHooks(String modelName) {
         @SuppressWarnings("unchecked")
         PatcherHooksService<Model, RequestDto> service =
-                (PatcherHooksService<Model, RequestDto>) EverythingServices.findServiceForModel(
+                (PatcherHooksService<Model, RequestDto>) ModelServices.findServiceForModel(
                         modelName, patcherHooksServices);
         if (service != null) {
             return new NonDefaultPatcherHooks(service);

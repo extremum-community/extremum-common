@@ -1,9 +1,5 @@
 package com.extremum.security;
 
-import com.extremum.security.Access;
-import com.extremum.security.EverythingRequiredRoles;
-import com.extremum.security.EverythingRequiredRolesConfig;
-import com.extremum.security.EverythingRequiredRolesParser;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -12,13 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author rpuch
  */
-class EverythingRequiredRolesParserTest {
-    private EverythingRequiredRolesParser parser = new EverythingRequiredRolesParser();
+class ExtremumRequiredRolesParserTest {
+    private ExtremumRequiredRolesParser parser = new ExtremumRequiredRolesParser();
 
     @Test
     void givenIndividualAccessIsSpecified_whenGettingAccess_thenIndividualAccessShouldBeReturned() {
-        EverythingRequiredRoles everythingRequiredRoles = Individual.class.getAnnotation(EverythingRequiredRoles.class);
-        EverythingRequiredRolesConfig config = parser.parse(everythingRequiredRoles);
+        ExtremumRequiredRoles extremumRequiredRoles = Individual.class.getAnnotation(ExtremumRequiredRoles.class);
+        ExtremumRequiredRolesConfig config = parser.parse(extremumRequiredRoles);
 
         assertThat(config.rolesForGet(), equalTo(new String[]{"GET"}));
         assertThat(config.rolesForPatch(), equalTo(new String[]{"PATCH"}));
@@ -27,15 +23,15 @@ class EverythingRequiredRolesParserTest {
 
     @Test
     void givenDefaultAccessIsSpecified_whenGettingAccess_thenDefaultAccessShouldBeReturned() {
-        EverythingRequiredRoles everythingRequiredRoles = WithDefault.class.getAnnotation(EverythingRequiredRoles.class);
-        EverythingRequiredRolesConfig config = parser.parse(everythingRequiredRoles);
+        ExtremumRequiredRoles extremumRequiredRoles = WithDefault.class.getAnnotation(ExtremumRequiredRoles.class);
+        ExtremumRequiredRolesConfig config = parser.parse(extremumRequiredRoles);
 
         assertThat(config.rolesForGet(), equalTo(new String[]{"DEFAULT"}));
         assertThat(config.rolesForPatch(), equalTo(new String[]{"DEFAULT"}));
         assertThat(config.rolesForRemove(), equalTo(new String[]{"DEFAULT"}));
     }
 
-    @EverythingRequiredRoles(
+    @ExtremumRequiredRoles(
             defaultAccess = @Access("DEFAULT"),
             get = @Access("GET"),
             patch = @Access("PATCH"),
@@ -44,7 +40,7 @@ class EverythingRequiredRolesParserTest {
     private static class Individual {
     }
 
-    @EverythingRequiredRoles(
+    @ExtremumRequiredRoles(
             defaultAccess = @Access("DEFAULT")
     )
     private static class WithDefault {

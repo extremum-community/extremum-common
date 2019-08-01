@@ -2,7 +2,6 @@ package com.extremum.security;
 
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
-import com.extremum.everything.exceptions.EverythingEverythingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +51,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkGetAllowed(new ModelWithDenyingChecker());
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -67,7 +66,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkGetAllowed(new ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation());
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
+        } catch (ExtremumSecurityException e) {
             assertThat(e.getMessage(), is("No DataAccessChecker was found and no @NoDataSecurity annotation exists" +
                     " on 'ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation'"));
         }
@@ -78,7 +77,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkGetAllowed(new ModelWithCheckerAndWithNoDataSecurityAnnotation());
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
+        } catch (ExtremumSecurityException e) {
             assertThat(e.getMessage(), is("Both DataAccessChecker was found and @NoDataSecurity annotation exists" +
                     " on 'ModelWithCheckerAndWithNoDataSecurityAnnotation'"));
         }
@@ -99,7 +98,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkPatchAllowed(new ModelWithDenyingChecker());
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -114,7 +113,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkPatchAllowed(new ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation());
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
+        } catch (ExtremumSecurityException e) {
             assertThat(e.getMessage(), is("No DataAccessChecker was found and no @NoDataSecurity annotation exists" +
                     " on 'ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation'"));
         }
@@ -125,7 +124,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkPatchAllowed(new ModelWithCheckerAndWithNoDataSecurityAnnotation());
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
+        } catch (ExtremumSecurityException e) {
             assertThat(e.getMessage(), is("Both DataAccessChecker was found and @NoDataSecurity annotation exists" +
                     " on 'ModelWithCheckerAndWithNoDataSecurityAnnotation'"));
         }
@@ -146,7 +145,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkRemovalAllowed(new ModelWithDenyingChecker());
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -161,7 +160,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkRemovalAllowed(new ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation());
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
+        } catch (ExtremumSecurityException e) {
             assertThat(e.getMessage(), is("No DataAccessChecker was found and no @NoDataSecurity annotation exists" +
                     " on 'ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation'"));
         }
@@ -172,7 +171,7 @@ class AccessCheckersDataSecurityTest {
         try {
             security.checkRemovalAllowed(new ModelWithCheckerAndWithNoDataSecurityAnnotation());
             fail("An exception should be thrown");
-        } catch (EverythingEverythingException e) {
+        } catch (ExtremumSecurityException e) {
             assertThat(e.getMessage(), is("Both DataAccessChecker was found and @NoDataSecurity annotation exists" +
                     " on 'ModelWithCheckerAndWithNoDataSecurityAnnotation'"));
         }
@@ -194,7 +193,7 @@ class AccessCheckersDataSecurityTest {
     void givenRoleCheckerDeniesPrivilegedRole_whenCheckerChecksForPrivilegedRoleViaContext_thenItShouldBeDenied() {
         when(roleChecker.currentUserHasOneRoleOf(ROLE_PRIVILEGED)).thenReturn(false);
 
-        assertThrows(EverythingAccessDeniedException.class,
+        assertThrows(ExtremumAccessDeniedException.class,
                 () -> security.checkGetAllowed(new ModelWithRoleChecksInContext()));
     }
 
@@ -209,7 +208,7 @@ class AccessCheckersDataSecurityTest {
     void givenModelOwnerIsAlexAndCurrentPrincipalIsBen_whenCheckerChecksOwnerMatchesPrincipal_thenItShouldBeDenied() {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Ben"));
 
-        assertThrows(EverythingAccessDeniedException.class,
+        assertThrows(ExtremumAccessDeniedException.class,
                 () -> security.checkGetAllowed(new ModelWithPrincipalChecksInContext("Alex")));
     }
 

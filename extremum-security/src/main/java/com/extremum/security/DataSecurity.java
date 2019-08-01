@@ -5,7 +5,7 @@ import com.extremum.common.models.Model;
 /**
  * @author rpuch
  */
-public interface EverythingDataSecurity {
+public interface DataSecurity {
     void checkGetAllowed(Model model);
 
     void checkPatchAllowed(Model model);

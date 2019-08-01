@@ -1,4 +1,4 @@
-package com.extremum.everything.support;
+package com.extremum.common.support;
 
 import com.extremum.common.models.Model;
 import com.google.common.collect.ImmutableList;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class ScanningModelClassesTest {
     private final ModelClasses modelClasses = new ScanningModelClasses(
-            ImmutableList.of("com.extremum.everything.support"));
+            ImmutableList.of(this.getClass().getPackage().getName()));
 
     @Test
     void givenAnEntityClassIsInAScannedPackage_whenGettingClassByModelName_thenItShouldBeFound() {

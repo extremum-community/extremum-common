@@ -3,7 +3,7 @@ package com.extremum.everything.services.management;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
-import com.extremum.security.EverythingRoleSecurity;
+import com.extremum.security.RoleSecurity;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class RoleSecurityEverythingEverythingManagementService implements EverythingEverythingManagementService {
     private final EverythingEverythingManagementService everythingService;
 
-    private final EverythingRoleSecurity roleSecurity;
+    private final RoleSecurity roleSecurity;
 
     @Override
     public ResponseDto get(Descriptor id, boolean expand) {

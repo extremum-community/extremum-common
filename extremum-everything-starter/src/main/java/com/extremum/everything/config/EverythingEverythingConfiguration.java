@@ -10,6 +10,8 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
+import com.extremum.common.support.ModelClasses;
+import com.extremum.common.support.ScanningModelClasses;
 import com.extremum.common.urls.ApplicationUrls;
 import com.extremum.common.urls.ApplicationUrlsImpl;
 import com.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
@@ -178,11 +180,11 @@ public class EverythingEverythingConfiguration {
             ModelRetriever modelRetriever,
             Patcher patcher,
             ModelSaver modelSaver,
-            EverythingDataSecurity everythingDataSecurity,
+            DataSecurity dataSecurity,
             PatcherHooksCollection hooksCollection
     ) {
         return new PatchFlowImpl(modelRetriever, patcher, modelSaver,
-                everythingDataSecurity, hooksCollection);
+                dataSecurity, hooksCollection);
     }
 
     @Bean
@@ -199,13 +201,13 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingRoleSecurity everythingRoleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
-        return new ModelAnnotationEverythingRoleSecurity(roleChecker, modelClasses);
+    public RoleSecurity everythingRoleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
+        return new ModelAnnotationRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingDataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker,
+    public DataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker,
             PrincipalSource principalSource) {
         return new AccessCheckersDataSecurity(checkers, roleChecker, principalSource);
     }
@@ -220,14 +222,14 @@ public class EverythingEverythingConfiguration {
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao,
-            EverythingRoleSecurity everythingRoleSecurity,
-            EverythingDataSecurity everythingDataSecurity) {
+            RoleSecurity roleSecurity,
+            DataSecurity dataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
                 patchFlow, removalServices,
                 defaultRemover,
-                collectionFetchers, dtoConversionService, universalDao, everythingDataSecurity);
-        return new RoleSecurityEverythingEverythingManagementService(service, everythingRoleSecurity);
+                collectionFetchers, dtoConversionService, universalDao, dataSecurity);
+        return new RoleSecurityEverythingEverythingManagementService(service, roleSecurity);
     }
 
     @Bean

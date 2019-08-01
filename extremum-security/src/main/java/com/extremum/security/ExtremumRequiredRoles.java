@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface EverythingRequiredRoles {
+public @interface ExtremumRequiredRoles {
     Access defaultAccess() default @Access({});
 
     Access get() default @Access({});

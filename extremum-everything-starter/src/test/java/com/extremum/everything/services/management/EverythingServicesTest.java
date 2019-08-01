@@ -6,6 +6,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;

@@ -3,13 +3,13 @@ package com.extremum.security;
 /**
  * @author rpuch
  */
-class EverythingRequiredRolesConfig {
+class ExtremumRequiredRolesConfig {
     private final Access defaultAccess;
     private final Access getAccess;
     private final Access patchAccess;
     private final Access removeAccess;
 
-    EverythingRequiredRolesConfig(Access defaultAccess, Access getAccess, Access patchAccess,
+    ExtremumRequiredRolesConfig(Access defaultAccess, Access getAccess, Access patchAccess,
             Access removeAccess) {
         this.defaultAccess = defaultAccess;
         this.getAccess = getAccess;
