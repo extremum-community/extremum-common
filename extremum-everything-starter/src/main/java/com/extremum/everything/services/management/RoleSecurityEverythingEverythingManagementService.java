@@ -3,7 +3,7 @@ package com.extremum.everything.services.management;
 import com.extremum.common.collection.CollectionDescriptor;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
-import com.extremum.everything.security.EverythingRoleSecurity;
+import com.extremum.security.EverythingRoleSecurity;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;

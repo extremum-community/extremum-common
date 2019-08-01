@@ -1,6 +1,6 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
-import com.extremum.everything.security.services.DataAccessChecker;
+import com.extremum.security.services.DataAccessChecker;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,5 +1,7 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
+import com.extremum.security.DataSecurityAnnotations;
+import com.extremum.security.NoDataSecurity;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -2,7 +2,7 @@ package com.extremum.everything.aop;
 
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.everything.controllers.EverythingExceptionHandlerTarget;
-import com.extremum.everything.security.EverythingAccessDeniedException;
+import com.extremum.security.EverythingAccessDeniedException;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.response.Response;

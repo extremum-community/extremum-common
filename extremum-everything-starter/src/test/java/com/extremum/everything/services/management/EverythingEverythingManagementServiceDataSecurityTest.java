@@ -2,8 +2,8 @@ package com.extremum.everything.services.management;
 
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.everything.security.EverythingAccessDeniedException;
-import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.security.EverythingAccessDeniedException;
+import com.extremum.security.EverythingDataSecurity;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;

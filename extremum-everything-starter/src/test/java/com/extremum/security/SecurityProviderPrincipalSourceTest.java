@@ -1,5 +1,6 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
+import com.extremum.security.SecurityProviderPrincipalSource;
 import io.extremum.authentication.api.SecurityProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

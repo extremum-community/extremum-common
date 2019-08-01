@@ -1,7 +1,7 @@
 package com.extremum.everything.services.management;
 
-import com.extremum.everything.security.EverythingAccessDeniedException;
-import com.extremum.everything.security.EverythingRoleSecurity;
+import com.extremum.security.EverythingAccessDeniedException;
+import com.extremum.security.EverythingRoleSecurity;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import com.github.fge.jsonpatch.JsonPatch;

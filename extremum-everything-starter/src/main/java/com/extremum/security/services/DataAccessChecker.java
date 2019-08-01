@@ -1,7 +1,7 @@
-package com.extremum.everything.security.services;
+package com.extremum.security.services;
 
 import com.extremum.common.models.Model;
-import com.extremum.everything.security.CheckerContext;
+import com.extremum.security.CheckerContext;
 import com.extremum.everything.services.EverythingEverythingService;
 
 /**

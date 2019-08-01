@@ -1,4 +1,4 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
 /**
  * @author rpuch

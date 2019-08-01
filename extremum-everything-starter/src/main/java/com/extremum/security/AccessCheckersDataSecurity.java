@@ -1,9 +1,9 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.security.services.DataAccessChecker;
+import com.extremum.security.services.DataAccessChecker;
 import com.extremum.everything.services.management.EverythingServices;
 import com.google.common.collect.ImmutableList;
 

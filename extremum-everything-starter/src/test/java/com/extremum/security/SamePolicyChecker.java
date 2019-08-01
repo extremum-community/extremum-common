@@ -1,7 +1,8 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
 import com.extremum.common.models.Model;
-import com.extremum.everything.security.services.DataAccessChecker;
+import com.extremum.security.services.DataAccessChecker;
+import com.extremum.security.CheckerContext;
 
 /**
  * @author rpuch

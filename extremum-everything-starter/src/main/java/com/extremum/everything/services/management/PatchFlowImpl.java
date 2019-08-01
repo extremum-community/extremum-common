@@ -1,7 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
-import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.security.EverythingDataSecurity;
 import com.extremum.everything.services.PatchPersistenceContext;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.github.fge.jsonpatch.JsonPatch;

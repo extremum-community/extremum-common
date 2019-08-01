@@ -1,5 +1,9 @@
-package com.extremum.everything.security;
+package com.extremum.security;
 
+import com.extremum.security.Access;
+import com.extremum.security.EverythingRequiredRoles;
+import com.extremum.security.EverythingRequiredRolesConfig;
+import com.extremum.security.EverythingRequiredRolesParser;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
