@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice("com.extremum.watch.controller")
-public class SubscriptionControllerHandler {
+public class WatchControllersExceptionHandler {
     @ExceptionHandler(WatchException.class)
     public Response handleWatchException(WatchException e) {
         log.warn("Handle on {}: ", this.getClass().getSimpleName(), e);
