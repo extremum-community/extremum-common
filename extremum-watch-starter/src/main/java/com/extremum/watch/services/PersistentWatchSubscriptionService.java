@@ -9,17 +9,20 @@ import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
-public class SubscriptionService {
+public class PersistentWatchSubscriptionService implements WatchSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
 
-    public void addSubscription(Descriptor id, String principalId) {
-        subscriptionRepository.save(id.getInternalId(), principalId);
+    @Override
+    public void addSubscriptions(Collection<Descriptor> ids, String subscriber) {
+        ids.forEach(id -> subscriptionRepository.save(id.getInternalId(), subscriber));
     }
 
-    public void deleteSubscription(Descriptor id, String principalId) {
-        subscriptionRepository.remove(id.getInternalId(), principalId);
+    @Override
+    public void deleteSubscription(Descriptor id, String subscriber) {
+        subscriptionRepository.remove(id.getInternalId(), subscriber);
     }
 
+    @Override
     public Collection<String> findAllSubscribersBySubscription(String subscriptionId) {
         return subscriptionRepository.getAllSubscribersIdsBySubscription(subscriptionId);
     }

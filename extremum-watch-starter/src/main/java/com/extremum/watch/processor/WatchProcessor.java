@@ -3,7 +3,7 @@ package com.extremum.watch.processor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.services.SubscriptionService;
+import com.extremum.watch.services.WatchSubscriptionService;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +24,10 @@ abstract class WatchProcessor {
     private final ExtremumKafkaProperties kafkaProperties;
     private final KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate;
     private final TextWatchEventRepository eventRepository;
-    private final SubscriptionService subscriptionService;
+    private final WatchSubscriptionService watchSubscriptionService;
 
     void watchUpdate(TextWatchEvent event) {
-        Collection<String> bySubscription = subscriptionService.findAllSubscribersBySubscription(event.getModelId());
+        Collection<String> bySubscription = watchSubscriptionService.findAllSubscribersBySubscription(event.getModelId());
         eventRepository.save(event);
         kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto(bySubscription));
     }

@@ -1,6 +1,6 @@
 package com.extremum.watch.repositories;
 
-import com.extremum.watch.config.BaseApplicationTests;
+import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.config.BaseConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @SpringBootTest(classes = BaseConfig.class)
 @TestInstance(PER_CLASS)
-class SubscriptionRepositoryTest extends BaseApplicationTests {
+class SubscriptionRepositoryTest extends TestWithServices {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 

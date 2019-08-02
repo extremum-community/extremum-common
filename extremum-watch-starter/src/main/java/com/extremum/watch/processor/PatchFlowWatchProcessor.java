@@ -6,10 +6,9 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.services.SubscriptionService;
+import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,9 +28,10 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
     public PatchFlowWatchProcessor(ModelClasses modelClasses,
                                    ObjectMapper objectMapper,
                                    TextWatchEventRepository repository,
-                                   SubscriptionService subscriptionService,
-                                   KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate, ExtremumKafkaProperties properties) {
-        super(properties, kafkaTemplate, repository, subscriptionService);
+                                   WatchSubscriptionService watchSubscriptionService,
+                                   KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate,
+                                   ExtremumKafkaProperties properties) {
+        super(properties, kafkaTemplate, repository, watchSubscriptionService);
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
     }

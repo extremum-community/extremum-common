@@ -9,7 +9,7 @@ import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.services.SubscriptionService;
+import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +30,10 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
 
     public CommonServiceWatchProcessor(ModelClasses modelClasses,
                                        ObjectMapper objectMapper, TextWatchEventRepository repository,
-                                       SubscriptionService subscriptionService,
-                                       KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate, ExtremumKafkaProperties properties) {
-        super(properties, kafkaTemplate, repository, subscriptionService);
+                                       WatchSubscriptionService watchSubscriptionService,
+                                       KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate,
+                                       ExtremumKafkaProperties properties) {
+        super(properties, kafkaTemplate, repository, watchSubscriptionService);
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
     }
