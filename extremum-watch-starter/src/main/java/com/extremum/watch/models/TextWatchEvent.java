@@ -1,6 +1,6 @@
 package com.extremum.watch.models;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -41,17 +41,8 @@ public class TextWatchEvent {
     private final String updateBody;
     private final String modelId;
 
-    public TextWatchEventDto toDto(Collection<String> subscribers) {
-        return new TextWatchEventDto(operationType, updateBody, subscribers);
+    public TextWatchEventNotificationDto toDto(Collection<String> subscribers) {
+        return new TextWatchEventNotificationDto(operationType, updateBody, subscribers);
     }
 
-    @Getter
-    @Setter
-    @RequiredArgsConstructor
-    @JsonInclude
-    public static class TextWatchEventDto {
-        private final String operationType;
-        private final String updateBody;
-        private final Collection<String> subscribers;
-    }
 }

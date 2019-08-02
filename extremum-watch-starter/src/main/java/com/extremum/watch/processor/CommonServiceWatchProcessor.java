@@ -8,6 +8,7 @@ import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import com.extremum.watch.repositories.TextWatchEventRepository;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,7 +32,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
     public CommonServiceWatchProcessor(ModelClasses modelClasses,
                                        ObjectMapper objectMapper, TextWatchEventRepository repository,
                                        WatchSubscriptionService watchSubscriptionService,
-                                       KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate,
+                                       KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
                                        ExtremumKafkaProperties properties) {
         super(properties, kafkaTemplate, repository, watchSubscriptionService);
         this.modelClasses = modelClasses;

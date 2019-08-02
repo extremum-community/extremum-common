@@ -2,14 +2,28 @@ package com.extremum.watch.controller;
 
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
+import com.extremum.common.models.MongoCommonModel;
+import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.response.Response;
 import com.extremum.common.response.ResponseStatusEnum;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.config.BaseConfig;
 import com.extremum.watch.config.TestWithServices;
+import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.services.UniversalModelLookup;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.github.fge.jackson.jsonpointer.JsonPointer;
+import com.github.fge.jackson.jsonpointer.JsonPointerException;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import com.github.fge.jsonpatch.ReplaceOperation;
+import com.jayway.jsonpath.JsonPath;
 import io.extremum.authentication.SecurityProvider;
+import org.bson.types.ObjectId;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -25,18 +39,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,12 +72,20 @@ class WatchControllerTest extends TestWithServices {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private WatchEventService watchEventService;
     @MockBean
     private SecurityProvider securityProvider;
     @MockBean
     private WatchSubscriptionService watchSubscriptionService;
+
+    @MockBean
+    private UniversalModelLookup universalModelLookup;
+
+//    private TextWatchEventConverter textWatchEventConverter;
 
     @Captor
     private ArgumentCaptor<Collection<Descriptor>> descriptorsCaptor;
@@ -100,5 +132,70 @@ class WatchControllerTest extends TestWithServices {
 
     private Matcher<Descriptor> withExternalId(String externalId) {
         return Matchers.hasProperty("externalId", equalTo(externalId));
+    }
+
+    @Test
+    void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
+        whenFindEventsThenReturnOneEventForReplaceFieldToNewValue();
+        whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        List<Map<String, Object>> events = parseEvents(contentAsString);
+
+        assertThatTheEventIsAsExpected(events);
+    }
+
+    private void assertThatTheEventIsAsExpected(List<Map<String, Object>> events) {
+        assertThat(events, hasSize(1));
+        Map<String, Object> event = events.get(0);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> object = (Map<String, Object>) event.get("object");
+        assertThat(object, is(notNullValue()));
+        assertThat(object.get("id"), is(notNullValue()));
+        assertThat(object.get("model"), is("ModelWithExpectedValues"));
+        assertThat(object.get("created"), is(notNullValue()));
+        assertThat(object.get("modified"), is(notNullValue()));
+        assertThat(object.get("version"), is(1));
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> operations = (List<Map<String, Object>>) event.get("patch");
+        assertThat(operations, is(notNullValue()));
+        assertThat(operations, hasSize(1));
+        Map<String, Object> patchOperation = operations.get(0);
+        assertThat(patchOperation.get("path"), is("/field"));
+        assertThat(patchOperation.get("op"), is("replace"));
+        assertThat(patchOperation.get("value"), is("new-value"));
+    }
+
+    private void whenLookingForReplacedModelThenReturn(ModelWithFilledValues model) {
+        when(universalModelLookup.findModelByInternalId("internalId")).thenReturn(model);
+    }
+
+    private void whenFindEventsThenReturnOneEventForReplaceFieldToNewValue() throws JsonPointerException, JsonProcessingException {
+        JsonPatchOperation operation = new ReplaceOperation(new JsonPointer("/field"), new TextNode("new-value"));
+        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
+        String patchAsString = objectMapper.writeValueAsString(jsonPatch);
+        when(watchEventService.findAllEventsAfter(any()))
+                .thenReturn(Collections.singletonList(new TextWatchEvent("patch", patchAsString, "internalId")));
+    }
+
+    private List<Map<String, Object>> parseEvents(String response) {
+        return JsonPath.parse(response).read("$.result");
+    }
+
+    @ModelName("ModelWithExpectedValues")
+    private static class ModelWithFilledValues extends MongoCommonModel {
+        ModelWithFilledValues() {
+            setId(new ObjectId());
+            setCreated(ZonedDateTime.now());
+            setModified(ZonedDateTime.now());
+            setVersion(1L);
+        }
     }
 }

@@ -5,10 +5,12 @@ import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import com.extremum.watch.repositories.TextWatchEventRepository;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,7 +31,7 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
                                    ObjectMapper objectMapper,
                                    TextWatchEventRepository repository,
                                    WatchSubscriptionService watchSubscriptionService,
-                                   KafkaTemplate<String, TextWatchEvent.TextWatchEventDto> kafkaTemplate,
+                                   KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
                                    ExtremumKafkaProperties properties) {
         super(properties, kafkaTemplate, repository, watchSubscriptionService);
         this.modelClasses = modelClasses;
@@ -41,7 +43,8 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
         Object[] args = jp.getArgs();
         if (isModelWatched(args[0])) {
             log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
-            String patchString = objectMapper.writeValueAsString(args[1]);
+            JsonPatch jsonPatch = (JsonPatch) args[1];
+            String patchString = objectMapper.writeValueAsString(jsonPatch);
             log.debug("Convert JsonPatch into string {}", patchString);
 
             String modelId = ((Descriptor) args[0]).getInternalId();

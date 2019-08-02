@@ -15,7 +15,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.extremum.watch.models.TextWatchEvent.TextWatchEventDto;
+import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 
 @Configuration
@@ -35,13 +35,13 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ProducerFactory<String, TextWatchEventDto> producerWatchFactory() {
+    public ProducerFactory<String, TextWatchEventNotificationDto> producerWatchFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public KafkaTemplate<String, TextWatchEventDto> watchKafkaTemplate() {
-        KafkaTemplate<String, TextWatchEventDto> kafkaTemplate = new KafkaTemplate<>(producerWatchFactory());
+    public KafkaTemplate<String, TextWatchEventNotificationDto> watchKafkaTemplate() {
+        KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate = new KafkaTemplate<>(producerWatchFactory());
         kafkaTemplate.setMessageConverter(new StringJsonMessageConverter(objectMapper));
         return kafkaTemplate;
     }
