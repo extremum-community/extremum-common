@@ -6,11 +6,13 @@ import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.response.Response;
 import com.extremum.common.response.ResponseStatusEnum;
+import com.extremum.common.utils.DateUtils;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.config.BaseConfig;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.UniversalModelLookup;
+import com.extremum.watch.services.PersistentWatchEventService;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +30,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -43,6 +46,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,6 +61,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,7 +141,7 @@ class WatchControllerTest extends TestWithServices {
 
     @Test
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
-        whenFindEventsThenReturnOneEventForReplaceFieldToNewValue();
+        when(watchEventService.findEvents(null, null)).thenReturn(singleEventForReplaceFieldToNewValue());
         whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
@@ -148,6 +153,36 @@ class WatchControllerTest extends TestWithServices {
         List<Map<String, Object>> events = parseEvents(contentAsString);
 
         assertThatTheEventIsAsExpected(events);
+    }
+
+    @Test
+    void givenOneEventExists_whenGettingTheEventWithSinceUntil_thenItShouldBeReturned() throws Exception {
+        ZonedDateTime since = ZonedDateTime.now().minusDays(1);
+        ZonedDateTime until = since.plusDays(2);
+
+        when(watchEventService.findEvents(notNull(), notNull())).thenReturn(singleEventForReplaceFieldToNewValue());
+        whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+                .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
+                .param("until", DateUtils.formatZonedDateTimeISO_8601(until))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        List<Map<String, Object>> events = parseEvents(contentAsString);
+
+        assertThatTheEventIsAsExpected(events);
+    }
+
+    @NotNull
+    private List<TextWatchEvent> singleEventForReplaceFieldToNewValue() throws JsonPointerException, JsonProcessingException {
+        JsonPatchOperation operation = new ReplaceOperation(new JsonPointer("/field"), new TextNode("new-value"));
+        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
+        String patchAsString = objectMapper.writeValueAsString(jsonPatch);
+        return Collections.singletonList(
+                new TextWatchEvent("patch", patchAsString, "internalId"));
     }
 
     private void assertThatTheEventIsAsExpected(List<Map<String, Object>> events) {
@@ -175,14 +210,6 @@ class WatchControllerTest extends TestWithServices {
 
     private void whenLookingForReplacedModelThenReturn(ModelWithFilledValues model) {
         when(universalModelLookup.findModelByInternalId("internalId")).thenReturn(model);
-    }
-
-    private void whenFindEventsThenReturnOneEventForReplaceFieldToNewValue() throws JsonPointerException, JsonProcessingException {
-        JsonPatchOperation operation = new ReplaceOperation(new JsonPointer("/field"), new TextNode("new-value"));
-        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
-        String patchAsString = objectMapper.writeValueAsString(jsonPatch);
-        when(watchEventService.findAllEventsAfter(any()))
-                .thenReturn(Collections.singletonList(new TextWatchEvent("patch", patchAsString, "internalId")));
     }
 
     private List<Map<String, Object>> parseEvents(String response) {

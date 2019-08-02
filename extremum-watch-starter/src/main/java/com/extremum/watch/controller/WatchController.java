@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,12 +36,15 @@ public class WatchController {
     // TODO refactor this method to return only events that current security principal can view
     // you can get it from autowired SecurityProvider
     @GetMapping
-    public Response getAllEventsAfter(@RequestBody(required = false) ZonedDateTime time) {
-        List<TextWatchEvent> eventsAfter = watchEventService.findAllEventsAfter(time);
-        List<TextWatchEventResponseDto> dtos = eventsAfter.stream()
-                .map(textWatchEventConverter::convertToResponseDto)
-                .collect(Collectors.toList());
-        return Response.ok(dtos);
+    public Response getEvents(GetEventsRequest request) {
+        List<TextWatchEvent> eventsAfter = watchEventService.findEvents(request.getSince(), request.getUntil());
+        return Response.ok(convertToResponseDtos(eventsAfter));
+    }
+
+    private List<TextWatchEventResponseDto> convertToResponseDtos(List<TextWatchEvent> eventsAfter) {
+        return eventsAfter.stream()
+                    .map(textWatchEventConverter::convertToResponseDto)
+                    .collect(Collectors.toList());
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
