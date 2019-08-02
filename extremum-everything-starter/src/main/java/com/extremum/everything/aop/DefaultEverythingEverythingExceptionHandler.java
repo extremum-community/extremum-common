@@ -2,7 +2,7 @@ package com.extremum.everything.aop;
 
 import com.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import com.extremum.everything.controllers.EverythingExceptionHandlerTarget;
-import com.extremum.everything.security.EverythingAccessDeniedException;
+import com.extremum.security.ExtremumAccessDeniedException;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.response.Alert;
@@ -85,7 +85,7 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
     }
 
     @ExceptionHandler
-    public Response handleEverythingAccessDeniedException(EverythingAccessDeniedException e) {
+    public Response handleEverythingAccessDeniedException(ExtremumAccessDeniedException e) {
         log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 

@@ -2,8 +2,8 @@ package com.extremum.everything.services.management;
 
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.models.MongoCommonModel;
-import com.extremum.everything.security.EverythingAccessDeniedException;
-import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.security.ExtremumAccessDeniedException;
+import com.extremum.security.DataSecurity;
 import com.extremum.everything.services.defaultservices.DefaultGetter;
 import com.extremum.everything.services.defaultservices.DefaultRemover;
 import com.extremum.sharedmodels.descriptor.Descriptor;
@@ -43,7 +43,7 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Mock
     private DefaultRemover defaultRemover;
     @Mock
-    private EverythingDataSecurity dataSecurity;
+    private DataSecurity dataSecurity;
 
     @BeforeEach
     void createService() {
@@ -63,13 +63,13 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Test
     void givenDataSecurityDoesNotAllowToGet_whenGetting_thenAnExceptionShouldBeThrown() {
         returnAModelForKnownDescriptor();
-        doThrow(new EverythingAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(dataSecurity).checkGetAllowed(any());
 
         try {
             service.get(descriptor, DO_NOT_EXPAND);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }
@@ -77,13 +77,13 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Test
     void givenDataSecurityDoesNotAllowToRemove_whenRemoving_thenAnExceptionShouldBeThrown() {
         returnAModelForKnownDescriptor();
-        doThrow(new EverythingAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(dataSecurity).checkRemovalAllowed(any());
 
         try {
             service.remove(descriptor);
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }

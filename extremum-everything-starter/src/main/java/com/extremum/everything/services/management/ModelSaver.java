@@ -1,6 +1,7 @@
 package com.extremum.everything.services.management;
 
 import com.extremum.common.models.Model;
+import com.extremum.common.modelservices.ModelServices;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.everything.services.SaverService;
 import com.extremum.everything.services.defaultservices.DefaultSaver;
@@ -25,7 +26,7 @@ public class ModelSaver {
     }
 
     private Saver findSaver(String modelName) {
-        SaverService<? extends Model> service = EverythingServices.findServiceForModel(modelName, saverServices);
+        SaverService<? extends Model> service = ModelServices.findServiceForModel(modelName, saverServices);
         if (service != null) {
             return new NonDefaultSaver(service);
         }

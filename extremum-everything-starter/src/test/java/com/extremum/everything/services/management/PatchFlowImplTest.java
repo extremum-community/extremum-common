@@ -14,9 +14,9 @@ import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.MockedMapperDependencies;
 import com.extremum.everything.destroyer.EmptyFieldDestroyer;
 import com.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
-import com.extremum.everything.security.AllowEverythingForDataAccess;
-import com.extremum.everything.security.EverythingAccessDeniedException;
-import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.security.AllowEverythingForDataAccess;
+import com.extremum.security.ExtremumAccessDeniedException;
+import com.extremum.security.DataSecurity;
 import com.extremum.everything.services.RequestDtoValidator;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.RequestDto;
@@ -86,7 +86,7 @@ class PatchFlowImplTest {
     @Mock
     private RequestDtoValidator requestDtoValidator;
     @Spy
-    private EverythingDataSecurity dataSecurity = new AllowEverythingForDataAccess();
+    private DataSecurity dataSecurity = new AllowEverythingForDataAccess();
     @Spy
     private PatcherHooksCollection patcherHooksCollection = new PatcherHooksCollection(emptyList());
 
@@ -153,13 +153,13 @@ class PatchFlowImplTest {
     @Test
     void givenDataSecurityDoesNotAllowToPatch_whenPatching_thenAnExceptionShouldBeThrown() {
         whenRetrieveModelThenReturnATestModel();
-        doThrow(new EverythingAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(dataSecurity).checkPatchAllowed(any());
 
         try {
             patchFlow.patch(descriptor, anyPatch());
             fail("An exception should be thrown");
-        } catch (EverythingAccessDeniedException e) {
+        } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
         }
     }

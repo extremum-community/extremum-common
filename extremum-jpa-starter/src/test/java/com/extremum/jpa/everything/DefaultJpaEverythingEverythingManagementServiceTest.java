@@ -7,7 +7,7 @@ import com.extremum.common.models.annotation.ModelName;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
-import com.extremum.everything.security.AllowEverythingForDataAccess;
+import com.extremum.security.AllowEverythingForDataAccess;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.everything.services.management.DefaultEverythingEverythingManagementService;

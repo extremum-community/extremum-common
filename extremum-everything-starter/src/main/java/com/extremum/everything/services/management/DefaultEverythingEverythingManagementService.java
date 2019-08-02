@@ -8,11 +8,12 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
+import com.extremum.common.modelservices.ModelServices;
 import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.security.EverythingDataSecurity;
+import com.extremum.security.DataSecurity;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.RemovalService;
 import com.extremum.everything.services.collection.CoordinatesHandler;
@@ -41,7 +42,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
-    private final EverythingDataSecurity dataSecurity;
+    private final DataSecurity dataSecurity;
 
     private final ModelNames modelNames = new ModelNames();
 
@@ -81,7 +82,7 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
     private Remover findRemover(Descriptor id) {
         String modelName = modelNames.determineModelName(id);
 
-        RemovalService removalService = EverythingServices.findServiceForModel(modelName, removalServices);
+        RemovalService removalService = ModelServices.findServiceForModel(modelName, removalServices);
         if (removalService != null) {
             return new NonDefaultRemover(removalService);
         }

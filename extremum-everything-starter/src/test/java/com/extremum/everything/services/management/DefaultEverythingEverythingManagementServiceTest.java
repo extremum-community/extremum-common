@@ -12,7 +12,7 @@ import com.extremum.everything.collection.CollectionFragment;
 import com.extremum.everything.collection.Projection;
 import com.extremum.everything.dao.UniversalDao;
 import com.extremum.everything.exceptions.EverythingEverythingException;
-import com.extremum.everything.security.AllowEverythingForDataAccess;
+import com.extremum.security.AllowEverythingForDataAccess;
 import com.extremum.everything.services.CollectionFetcher;
 import com.extremum.everything.services.GetterService;
 import com.extremum.sharedmodels.descriptor.Descriptor;

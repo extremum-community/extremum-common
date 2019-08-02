@@ -1,8 +1,10 @@
 package io.extremum.authentication.api;
 
+import java.util.Optional;
+
 public interface SecurityProvider {
 
-    Object getPrincipal();
+    Optional<Object> getPrincipal();
 
     boolean hasAnyOfRoles(String... roles);
 
