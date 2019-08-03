@@ -9,4 +9,6 @@ public interface SecurityProvider {
     boolean hasAnyOfRoles(String... roles);
 
     <T> T getSessionExtension();
+
+    <T> T getIdentityExtension();
 }
