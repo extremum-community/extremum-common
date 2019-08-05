@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
  * @author rpuch
  */
 @RequiredArgsConstructor
-public class PatchObject {
+public class PatchedObjectMetadata {
     @JsonProperty
     private final String id;
     @JsonProperty
@@ -25,22 +25,22 @@ public class PatchObject {
     @JsonProperty
     private final Long version;
 
-    public static PatchObject fromModel(Model model) {
+    public static PatchedObjectMetadata fromModel(Model model) {
         if (model instanceof PersistableCommonModel) {
-            return new PatchObject((PersistableCommonModel) model);
+            return new PatchedObjectMetadata((PersistableCommonModel) model);
         }
         if (model instanceof BasicModel) {
-            return new PatchObject((BasicModel) model);
+            return new PatchedObjectMetadata((BasicModel) model);
         }
         throw new IllegalStateException(model.getClass() + " is not a BasicModel");
     }
 
-    public PatchObject(PersistableCommonModel model) {
+    public PatchedObjectMetadata(PersistableCommonModel model) {
         this(model.getUuid().getExternalId(), ModelUtils.getModelName(model),
                 model.getCreated(), model.getModified(), model.getVersion());
     }
 
-    public PatchObject(BasicModel model) {
+    public PatchedObjectMetadata(BasicModel model) {
         this(model.getUuid().getExternalId(), ModelUtils.getModelName(model), null, null, null);
     }
 }

@@ -1,7 +1,7 @@
 package com.extremum.watch.dto.converter;
 
 import com.extremum.common.models.Model;
-import com.extremum.watch.dto.PatchObject;
+import com.extremum.watch.dto.PatchedObjectMetadata;
 import com.extremum.watch.dto.TextWatchEventResponseDto;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.UniversalModelLookup;
@@ -20,6 +20,6 @@ public class TextWatchEventConverter {
 
     public TextWatchEventResponseDto convertToResponseDto(TextWatchEvent event) {
         Model model = universalModelLookup.findModelByInternalId(event.getModelId());
-        return new TextWatchEventResponseDto(PatchObject.fromModel(model), event.getUpdateBody());
+        return new TextWatchEventResponseDto(PatchedObjectMetadata.fromModel(model), event.getUpdateBody());
     }
 }
