@@ -1,8 +1,8 @@
 package com.extremum.watch.models;
 
+import com.extremum.common.models.Model;
 import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,7 +20,6 @@ import static com.extremum.watch.models.TextWatchEvent.COLLECTION_NAME;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 @Document(COLLECTION_NAME)
 public class TextWatchEvent {
     /**
@@ -38,9 +37,19 @@ public class TextWatchEvent {
     @Version
     private long version;
 
-    private final String jsonPatch;
-    private final String modelId;
+    private String jsonPatch;
+    private String modelId;
+    private ModelMetadata modelMetadata;
     private Set<String> subscribers;
+
+    public TextWatchEvent() {
+    }
+
+    public TextWatchEvent(String jsonPatch, String modelId, Model targetModel) {
+        this.jsonPatch = jsonPatch;
+        this.modelId = modelId;
+        modelMetadata = ModelMetadata.fromModel(targetModel);
+    }
 
     public TextWatchEventNotificationDto toDto(Collection<String> subscribers) {
         return new TextWatchEventNotificationDto(jsonPatch, subscribers);

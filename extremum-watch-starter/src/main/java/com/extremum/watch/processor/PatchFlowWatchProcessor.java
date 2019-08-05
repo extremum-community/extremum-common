@@ -1,5 +1,6 @@
 package com.extremum.watch.processor;
 
+import com.extremum.common.models.Model;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
@@ -39,7 +40,7 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
     }
 
     @Override
-    public void process(JoinPoint jp) throws JsonProcessingException {
+    public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
         Object[] args = jp.getArgs();
         if (isModelWatched(args[0])) {
             log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
@@ -48,7 +49,7 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
             log.debug("Convert JsonPatch into string {}", jsonPatchString);
 
             String modelInternalId = ((Descriptor) args[0]).getInternalId();
-            TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId);
+            TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId, returnedModel);
             watchUpdate(event);
         }
     }

@@ -1,10 +1,9 @@
 package com.extremum.watch.dto.converter;
 
-import com.extremum.common.models.Model;
-import com.extremum.watch.dto.PatchedObjectMetadata;
+import com.extremum.watch.dto.ModelMetadataResponseDto;
 import com.extremum.watch.dto.TextWatchEventResponseDto;
+import com.extremum.watch.models.ModelMetadata;
 import com.extremum.watch.models.TextWatchEvent;
-import com.extremum.watch.services.UniversalModelLookup;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,14 +11,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TextWatchEventConverter {
-    private final UniversalModelLookup universalModelLookup;
-
-    public TextWatchEventConverter(UniversalModelLookup universalModelLookup) {
-        this.universalModelLookup = universalModelLookup;
-    }
 
     public TextWatchEventResponseDto convertToResponseDto(TextWatchEvent event) {
-        Model model = universalModelLookup.findModelByInternalId(event.getModelId());
-        return new TextWatchEventResponseDto(PatchedObjectMetadata.fromModel(model), event.getJsonPatch());
+        ModelMetadata metadata = event.getModelMetadata();
+        ModelMetadataResponseDto metadataDto = new ModelMetadataResponseDto(
+                metadata.getId(),
+                metadata.getModel(),
+                metadata.getCreated(),
+                metadata.getModified(),
+                metadata.getVersion()
+        );
+        return new TextWatchEventResponseDto(metadataDto, event.getJsonPatch());
     }
 }

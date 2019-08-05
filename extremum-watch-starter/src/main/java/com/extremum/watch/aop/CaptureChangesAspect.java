@@ -1,5 +1,6 @@
 package com.extremum.watch.aop;
 
+import com.extremum.common.models.Model;
 import com.extremum.watch.processor.CommonServiceWatchProcessor;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,21 +26,27 @@ public class CaptureChangesAspect {
     private final PatchFlowWatchProcessor patchFlowProcessor;
     private final CommonServiceWatchProcessor commonServiceProcessor;
 
-    @AfterReturning("patchMethod()")
-    public void watchPatchChanges(JoinPoint jp) {
+    @AfterReturning(value = "patchMethod()", returning = "returnedModel")
+    public void watchPatchChanges(JoinPoint jp, Model returnedModel) {
         try {
-            log.debug("Watch PatchFlow method with name {} and args {}", jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
-            patchFlowProcessor.process(jp);
+            if (log.isDebugEnabled()) {
+                log.debug("Watch PatchFlow method with name {} and args {}",
+                        jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
+            }
+            patchFlowProcessor.process(jp, returnedModel);
         } catch (Exception e) {
             log.error("Exception on watchPatchChanges() : ", e);
         }
     }
 
-    @AfterReturning("commonServiceDeleteMethods() || commonServiceSaveMethods()")
-    public void watchCommonServiceChanges(JoinPoint jp) {
+    @AfterReturning(value = "commonServiceDeleteMethods() || commonServiceSaveMethods()", returning = "returnedModel")
+    public void watchCommonServiceChanges(JoinPoint jp, Model returnedModel) {
         try {
-            log.debug("Watch CommonService method with name {} and args {}", jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
-            commonServiceProcessor.process(jp);
+            if (log.isDebugEnabled()) {
+                log.debug("Watch CommonService method with name {} and args {}",
+                        jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
+            }
+            commonServiceProcessor.process(jp, returnedModel);
         } catch (JsonProcessingException e) {
             log.error("Exception on watchCommonServiceChanges() : ", e);
         }

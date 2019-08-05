@@ -1,5 +1,6 @@
 package com.extremum.watch.processor;
 
+import com.extremum.common.models.Model;
 import com.extremum.watch.config.ExtremumKafkaProperties;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.dto.TextWatchEventNotificationDto;
@@ -42,5 +43,5 @@ abstract class WatchProcessor {
         return Collections.unmodifiableSet(set);
     }
 
-    protected abstract void process(JoinPoint jp) throws Exception;
+    protected abstract void process(JoinPoint jp, Model returnedModel) throws Exception;
 }

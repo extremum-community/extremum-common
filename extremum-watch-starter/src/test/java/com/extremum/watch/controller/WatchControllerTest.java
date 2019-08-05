@@ -2,8 +2,6 @@ package com.extremum.watch.controller;
 
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.models.annotation.ModelName;
 import com.extremum.common.response.Response;
 import com.extremum.common.response.ResponseStatusEnum;
 import com.extremum.common.utils.DateUtils;
@@ -11,7 +9,6 @@ import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.config.BaseConfig;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.models.TextWatchEvent;
-import com.extremum.watch.services.UniversalModelLookup;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +21,6 @@ import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
 import io.extremum.authentication.SecurityProvider;
-import org.bson.types.ObjectId;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -84,11 +80,6 @@ class WatchControllerTest extends TestWithServices {
     @MockBean
     private WatchSubscriptionService watchSubscriptionService;
 
-    @MockBean
-    private UniversalModelLookup universalModelLookup;
-
-//    private TextWatchEventConverter textWatchEventConverter;
-
     @Captor
     private ArgumentCaptor<Collection<Descriptor>> descriptorsCaptor;
 
@@ -140,7 +131,6 @@ class WatchControllerTest extends TestWithServices {
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
         when(securityProvider.getPrincipal()).thenReturn("Alex");
         when(watchEventService.findEvents("Alex", null, null)).thenReturn(singleEventForReplaceFieldToNewValue());
-        whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .accept(MediaType.APPLICATION_JSON))
@@ -161,7 +151,6 @@ class WatchControllerTest extends TestWithServices {
         when(securityProvider.getPrincipal()).thenReturn("Alex");
         when(watchEventService.findEvents(eq("Alex"), notNull(), notNull()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
-        whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
@@ -182,7 +171,7 @@ class WatchControllerTest extends TestWithServices {
         JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
         String patchAsString = objectMapper.writeValueAsString(jsonPatch);
         return Collections.singletonList(
-                new TextWatchEvent(patchAsString, "internalId"));
+                new TextWatchEvent(patchAsString, "internalId", new ModelWithFilledValues()));
     }
 
     private void assertThatTheEventIsAsExpected(List<Map<String, Object>> events) {
@@ -208,25 +197,8 @@ class WatchControllerTest extends TestWithServices {
         assertThat(patchOperation.get("value"), is("new-value"));
     }
 
-    private void whenLookingForReplacedModelThenReturn(ModelWithFilledValues model) {
-        when(universalModelLookup.findModelByInternalId("internalId")).thenReturn(model);
-    }
-
     private List<Map<String, Object>> parseEvents(String response) {
         return JsonPath.parse(response).read("$.result");
     }
 
-    @ModelName("ModelWithExpectedValues")
-    private static class ModelWithFilledValues extends MongoCommonModel {
-        ModelWithFilledValues() {
-            setId(new ObjectId());
-            setUuid(Descriptor.builder()
-                    .externalId("external-id")
-                    .internalId(getId().toString())
-                    .build());
-            setCreated(ZonedDateTime.now());
-            setModified(ZonedDateTime.now());
-            setVersion(1L);
-        }
-    }
 }

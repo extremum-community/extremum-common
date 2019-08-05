@@ -40,7 +40,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
     }
 
     @UsesStaticDependencies
-    public void process(JoinPoint jp) throws JsonProcessingException {
+    public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
         Object[] args = jp.getArgs();
         log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
         if (isSaveMethod(jp)) {
@@ -49,7 +49,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
                     && BasicModel.class.isAssignableFrom(model.getClass())) {
                 String jsonPatch = objectMapper.writeValueAsString(model);
                 String modelInternalId = ((BasicModel) model).getId().toString();
-                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId);
+                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, model);
                 watchUpdate(event);
             }
         } else if (isDeleteMethod(jp)) {
@@ -60,7 +60,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
                     .orElse(null);
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
                 String jsonPatch = objectMapper.writeValueAsString(modelInternalId);
-                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId);
+                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, returnedModel);
                 watchUpdate(event);
             }
         }

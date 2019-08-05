@@ -11,7 +11,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @JsonInclude
 public class TextWatchEventResponseDto {
-    private final PatchedObjectMetadata object;
+    private final ModelMetadataResponseDto object;
     @JsonRawValue
     private final String patch;
 }

@@ -3,6 +3,7 @@ package com.extremum.watch.repositories;
 import com.extremum.common.mongo.MongoConstants;
 import com.extremum.watch.config.BaseConfig;
 import com.extremum.watch.config.TestWithServices;
+import com.extremum.watch.controller.ModelWithFilledValues;
 import com.extremum.watch.models.TextWatchEvent;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ class TextWatchEventRepositoryTest extends TestWithServices {
 
     private void saveAnEventVisibleFor(String subscriber) {
         String modelId = randomString();
-        TextWatchEvent event = new TextWatchEvent("patch", modelId);
+        TextWatchEvent event = new TextWatchEvent("patch", modelId, new ModelWithFilledValues());
         event.setSubscribers(Collections.singleton(subscriber));
         repository.save(event);
     }
