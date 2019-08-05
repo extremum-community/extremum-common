@@ -36,11 +36,11 @@ public class PatchObject {
     }
 
     public PatchObject(PersistableCommonModel model) {
-        this(model.getId().toString(), ModelUtils.getModelName(model),
+        this(model.getUuid().getExternalId(), ModelUtils.getModelName(model),
                 model.getCreated(), model.getModified(), model.getVersion());
     }
 
     public PatchObject(BasicModel model) {
-        this(model.getId().toString(), ModelUtils.getModelName(model), null, null, null);
+        this(model.getUuid().getExternalId(), ModelUtils.getModelName(model), null, null, null);
     }
 }
