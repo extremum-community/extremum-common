@@ -38,13 +38,12 @@ public class TextWatchEvent {
     @Version
     private long version;
 
-    private final String operationType;
     private final String jsonPatch;
     private final String modelId;
     private Set<String> subscribers;
 
     public TextWatchEventNotificationDto toDto(Collection<String> subscribers) {
-        return new TextWatchEventNotificationDto(operationType, jsonPatch, subscribers);
+        return new TextWatchEventNotificationDto(jsonPatch, subscribers);
     }
 
 }

@@ -182,7 +182,7 @@ class WatchControllerTest extends TestWithServices {
         JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
         String patchAsString = objectMapper.writeValueAsString(jsonPatch);
         return Collections.singletonList(
-                new TextWatchEvent("patch", patchAsString, "internalId"));
+                new TextWatchEvent(patchAsString, "internalId"));
     }
 
     private void assertThatTheEventIsAsExpected(List<Map<String, Object>> events) {

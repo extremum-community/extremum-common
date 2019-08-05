@@ -38,7 +38,7 @@ class TextWatchEventRepositoryTest extends TestWithServices {
 
     private void saveAnEventVisibleFor(String subscriber) {
         String modelId = randomString();
-        TextWatchEvent event = new TextWatchEvent("remove", "patch", modelId);
+        TextWatchEvent event = new TextWatchEvent("patch", modelId);
         event.setSubscribers(Collections.singleton(subscriber));
         repository.save(event);
     }

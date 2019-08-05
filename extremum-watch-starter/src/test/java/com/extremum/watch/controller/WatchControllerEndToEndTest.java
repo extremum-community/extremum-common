@@ -42,7 +42,7 @@ class WatchControllerEndToEndTest extends TestWithServices {
     @BeforeAll
     void setUp() {
         firstEvent = eventRepository
-                .save(new TextWatchEvent("test", "test1", "test"))
+                .save(new TextWatchEvent("test1", "test"))
                 .getCreated();
         eventsSize++;
     }
@@ -63,7 +63,7 @@ class WatchControllerEndToEndTest extends TestWithServices {
 
     @Test
     void testFindAllEventsAfterFirstEvent() throws Exception {
-        ZonedDateTime secondEvent = eventRepository.save(new TextWatchEvent("test", "test2", "test")).getCreated();
+        ZonedDateTime secondEvent = eventRepository.save(new TextWatchEvent("test2", "test")).getCreated();
         eventsSize++;
 
         ZonedDateTime beforeLastEvent = secondEvent.minusNanos(2);

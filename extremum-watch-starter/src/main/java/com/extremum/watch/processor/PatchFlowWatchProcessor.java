@@ -48,7 +48,7 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
             log.debug("Convert JsonPatch into string {}", jsonPatchString);
 
             String modelInternalId = ((Descriptor) args[0]).getInternalId();
-            TextWatchEvent event = new TextWatchEvent("patch", jsonPatchString, modelInternalId);
+            TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId);
             watchUpdate(event);
         }
     }

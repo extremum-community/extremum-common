@@ -12,7 +12,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @JsonInclude
 public class TextWatchEventNotificationDto {
-    private final String operationType;
-    private final String updateBody;
+    private final String jsonPatch;
     private final Collection<String> subscribers;
 }

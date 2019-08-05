@@ -49,7 +49,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
                     && BasicModel.class.isAssignableFrom(model.getClass())) {
                 String jsonPatch = objectMapper.writeValueAsString(model);
                 String modelInternalId = ((BasicModel) model).getId().toString();
-                TextWatchEvent event = new TextWatchEvent("save", jsonPatch, modelInternalId);
+                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId);
                 watchUpdate(event);
             }
         } else if (isDeleteMethod(jp)) {
@@ -60,7 +60,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
                     .orElse(null);
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
                 String jsonPatch = objectMapper.writeValueAsString(modelInternalId);
-                TextWatchEvent event = new TextWatchEvent("delete", jsonPatch, modelInternalId);
+                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId);
                 watchUpdate(event);
             }
         }
