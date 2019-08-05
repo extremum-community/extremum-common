@@ -1,5 +1,6 @@
 package com.extremum.jpa.repositories;
 
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.StreamUtils;
 import com.extremum.jpa.dao.PostgresCommonDao;
@@ -119,8 +120,17 @@ public class SoftDeleteJpaRepository<T extends PostgresCommonModel> extends Base
     @Override
     @Transactional
     public void deleteById(UUID id) {
-        Optional<T> optionalEntity = findById(id);
-        optionalEntity.ifPresent(this::delete);
+        deleteByIdAndReturn(id);
+    }
+
+    @Override
+    @Transactional
+    public T deleteByIdAndReturn(UUID id) {
+        T entity = findById(id)
+                .orElseThrow(() -> new ModelNotFoundException(entityInformation.getJavaType(), id.toString()));
+
+        entity.setDeleted(true);
+        return entityManager.merge(entity);
     }
 
     @Override

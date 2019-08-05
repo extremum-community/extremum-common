@@ -229,7 +229,7 @@ class EverythingServicesTest {
 
         service.remove(descriptor);
 
-        verify(commonDaoForModelWithoutServices).deleteById(objectId);
+        verify(commonDaoForModelWithoutServices).deleteByIdAndReturn(objectId);
     }
 
     private static class MongoWithServicesGetterService implements GetterService<MongoModelWithServices> {

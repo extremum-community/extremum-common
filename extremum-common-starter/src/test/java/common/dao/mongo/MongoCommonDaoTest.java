@@ -348,6 +348,16 @@ class MongoCommonDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenEntityExists_whenCallingDeleteByIdAndReturn_thenItShouldBeReturnedAndShouldNotBeFoundLater() {
+        TestMongoModel model = dao.save(new TestMongoModel());
+
+        TestMongoModel deletedModel = dao.deleteByIdAndReturn(model.getId());
+        assertThat(deletedModel.getId(), is(equalTo(model.getId())));
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
     void givenAnEntityIsNew_whenItIsSaved_thenEntityIdShouldMatchDescriptorInternalId() {
         TestMongoModel model = dao.save(new TestMongoModel());
 

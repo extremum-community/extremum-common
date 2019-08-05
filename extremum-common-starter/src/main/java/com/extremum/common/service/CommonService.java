@@ -9,9 +9,9 @@ public interface CommonService<M extends Model> {
 
     M get(String id, Problems problems);
 
-    void delete(String id);
+    M delete(String id);
 
-    void delete(String id, Problems alerts);
+    M delete(String id, Problems alerts);
 
     List<M> list();
 

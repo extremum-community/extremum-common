@@ -105,7 +105,11 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
         refresh();
 
-        return updateResponse.getResult() == DocWriteResponse.Result.UPDATED;
+        if (updateResponse.getResult() != DocWriteResponse.Result.UPDATED) {
+            throw new UpdateFailedException("Update result is not UPDATED but " + updateResponse.getResult());
+        }
+
+        return true;
     }
 
     private Script createScript(String painlessScript, Map<String, Object> params) {

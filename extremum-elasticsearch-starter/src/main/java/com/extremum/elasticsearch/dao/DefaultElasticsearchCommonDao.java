@@ -55,7 +55,7 @@ import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
-public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<Model> {
+public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<M> {
     private static final String MODIFIED = ElasticsearchCommonModel.FIELDS.modified.name();
     private static final String DELETED = ElasticsearchCommonModel.FIELDS.deleted.name();
 
@@ -73,9 +73,9 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     private final String indexName;
     private final String indexType;
 
-    private final Class<? extends Model> modelClass;
+    private final Class<? extends M> modelClass;
 
-    protected DefaultElasticsearchCommonDao(Class<Model> modelClass, ElasticsearchProperties elasticsearchProperties,
+    protected DefaultElasticsearchCommonDao(Class<M> modelClass, ElasticsearchProperties elasticsearchProperties,
             DescriptorService descriptorService,
             ElasticsearchDescriptorFacilities descriptorFacilities, ObjectMapper mapper, String indexName,
             String indexType) {
@@ -100,7 +100,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         this.indexType = indexType;
 
         restClientBuilder = initRest(elasticsearchProperties);
-        this.modelClass = (Class<Model>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        this.modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
     private static RestClientBuilder initRest(ElasticsearchProperties properties) {
@@ -133,7 +133,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public List<Model> search(String queryString, SearchOptions searchOptions) {
+    public List<M> search(String queryString, SearchOptions searchOptions) {
         final SearchRequest request = new SearchRequest(indexName);
 
         QueryStringQueryBuilder contentQuery = createContentQuery(queryString, searchOptions);
@@ -158,7 +158,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         return contentQuery;
     }
 
-    protected List<Model> doSearch(String queryString, SearchRequest request) {
+    protected List<M> doSearch(String queryString, SearchRequest request) {
         try (RestHighLevelClient client = getClient()) {
             return executeSearch(queryString, request, client);
         } catch (IOException e) {
@@ -167,7 +167,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
-    private List<Model> executeSearch(String queryString, SearchRequest request,
+    private List<M> executeSearch(String queryString, SearchRequest request,
             RestHighLevelClient client) throws IOException {
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
@@ -182,14 +182,14 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public List<Model> findAll() {
+    public List<M> findAll() {
         log.warn("Please use the findById() method or search() method. " +
                 "Method findAll() may produce very large data response");
         return Collections.emptyList();
     }
 
     @Override
-    public Optional<Model> findById(String id) {
+    public Optional<M> findById(String id) {
         try (RestHighLevelClient client = getClient()) {
             return executeFindById(id, client);
         } catch (IOException e) {
@@ -202,7 +202,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
-    private Optional<Model> executeFindById(String id, RestHighLevelClient client) throws IOException {
+    private Optional<M> executeFindById(String id, RestHighLevelClient client) throws IOException {
         GetResponse response = client.get(new GetRequest(indexName, id), RequestOptions.DEFAULT);
 
         if (!response.isExists()) {
@@ -248,14 +248,14 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public <N extends Model> N save(N model) {
+    public <N extends M> N save(N model) {
         preSave(model);
         N saved = doSave(model);
         refreshIndex();
         return saved;
     }
 
-    protected <N extends Model> N doSave(N model) {
+    protected <N extends M> N doSave(N model) {
         try (RestHighLevelClient client = getClient()) {
             return executeSave(model, client);
         } catch (IOException e) {
@@ -264,7 +264,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
-    private <N extends Model> N executeSave(N model, RestHighLevelClient client) throws IOException {
+    private <N extends M> N executeSave(N model, RestHighLevelClient client) throws IOException {
         final IndexRequest request = Requests.indexRequest(indexName).id(model.getId());
 
         request.source(serializeModel(model), XContentType.JSON);
@@ -287,7 +287,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         return model;
     }
 
-    protected void preSave(Model model) {
+    protected void preSave(M model) {
         if (model.getId() == null) {
             final Descriptor descriptor = getOrCreateDescriptor(model);
 
@@ -312,7 +312,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
-    private Descriptor getOrCreateDescriptor(Model model) {
+    private Descriptor getOrCreateDescriptor(M model) {
         String name = ModelUtils.getModelName(model.getClass());
 
         if (model.getUuid() != null) {
@@ -327,7 +327,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         return UUID.randomUUID();
     }
 
-    private String serializeModel(Model model) {
+    private String serializeModel(M model) {
         try {
             return mapper.writeValueAsString(model);
         } catch (JsonProcessingException e) {
@@ -336,7 +336,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         }
     }
 
-    private Model deserializeModel(String rawSource) {
+    private M deserializeModel(String rawSource) {
         try {
             return mapper.readValue(rawSource, modelClass);
         } catch (IOException e) {
@@ -346,7 +346,7 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
     }
 
     @Override
-    public <N extends Model> List<N> saveAll(Iterable<N> entities) {
+    public <N extends M> List<N> saveAll(Iterable<N> entities) {
         entities.forEach(model -> {
             preSave(model);
             doSave(model);
@@ -364,6 +364,13 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         parameters.put(FIELDS.modified.name(), getNowAsString());
 
         patch(id, DELETE_DOCUMENT_PAINLESS_SCRIPT, parameters);
+    }
+
+    @Override
+    public M deleteByIdAndReturn(String id) {
+        M model = findById(id).orElseThrow(() -> new ModelNotFoundException(modelClass, id));
+        deleteById(id);
+        return model;
     }
 
     @Override
@@ -425,8 +432,8 @@ public class DefaultElasticsearchCommonDao<Model extends ElasticsearchCommonMode
         return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
     }
 
-    private Model extract(AccessorFacade accessor) {
-        Model model = deserializeModel(accessor.getRawSource());
+    private M extract(AccessorFacade accessor) {
+        M model = deserializeModel(accessor.getRawSource());
         model.setId(accessor.getId());
         model.setUuid(accessor.getUuid());
         model.setVersion(accessor.getVersion());
