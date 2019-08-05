@@ -20,6 +20,6 @@ public class TextWatchEventConverter {
 
     public TextWatchEventResponseDto convertToResponseDto(TextWatchEvent event) {
         Model model = universalModelLookup.findModelByInternalId(event.getModelId());
-        return new TextWatchEventResponseDto(PatchedObjectMetadata.fromModel(model), event.getUpdateBody());
+        return new TextWatchEventResponseDto(PatchedObjectMetadata.fromModel(model), event.getJsonPatch());
     }
 }
