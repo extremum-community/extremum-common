@@ -55,4 +55,7 @@ public class TextWatchEvent {
         return new TextWatchEventNotificationDto(jsonPatch, subscribers);
     }
 
+    public void touchModelMotificationTime() {
+        modelMetadata.setModified(ZonedDateTime.now());
+    }
 }

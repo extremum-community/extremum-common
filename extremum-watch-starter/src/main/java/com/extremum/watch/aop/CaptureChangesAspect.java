@@ -63,4 +63,6 @@ public class CaptureChangesAspect {
     @Pointcut("execution(* com.extremum.common.service.CommonService+.save(..))")
     public void commonServiceSaveMethods() {
     }
+
+    // TODO: add ElasticsearchCommonService.patch(...) methods here?
 }

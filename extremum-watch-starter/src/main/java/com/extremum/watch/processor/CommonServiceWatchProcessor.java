@@ -61,6 +61,8 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
                 String jsonPatch = objectMapper.writeValueAsString(modelInternalId);
                 TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, returnedModel);
+                // TODO: should we just ALWAYS set modification time in CommonService.delete()?
+                event.touchModelMotificationTime();
                 watchUpdate(event);
             }
         }
