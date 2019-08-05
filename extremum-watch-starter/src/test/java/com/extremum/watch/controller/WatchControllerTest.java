@@ -220,6 +220,10 @@ class WatchControllerTest extends TestWithServices {
     private static class ModelWithFilledValues extends MongoCommonModel {
         ModelWithFilledValues() {
             setId(new ObjectId());
+            setUuid(Descriptor.builder()
+                    .externalId("external-id")
+                    .internalId(getId().toString())
+                    .build());
             setCreated(ZonedDateTime.now());
             setModified(ZonedDateTime.now());
             setVersion(1L);
