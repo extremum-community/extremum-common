@@ -11,5 +11,6 @@ import java.util.List;
 @Repository
 //TODO add inheritance for WatchEvent and maintain it on repositories
 public interface TextWatchEventRepository extends MongoRepository<TextWatchEvent, ObjectId> {
-    List<TextWatchEvent> findByCreatedBetweenOrderByCreatedAscIdAsc(ZonedDateTime since, ZonedDateTime until);
+    List<TextWatchEvent> findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(String subscriber,
+            ZonedDateTime since, ZonedDateTime until);
 }

@@ -12,7 +12,6 @@ import com.extremum.watch.config.BaseConfig;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.UniversalModelLookup;
-import com.extremum.watch.services.PersistentWatchEventService;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,7 +45,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,7 +57,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
@@ -141,7 +138,8 @@ class WatchControllerTest extends TestWithServices {
 
     @Test
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
-        when(watchEventService.findEvents(null, null)).thenReturn(singleEventForReplaceFieldToNewValue());
+        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(watchEventService.findEvents("Alex", null, null)).thenReturn(singleEventForReplaceFieldToNewValue());
         whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
@@ -160,7 +158,9 @@ class WatchControllerTest extends TestWithServices {
         ZonedDateTime since = ZonedDateTime.now().minusDays(1);
         ZonedDateTime until = since.plusDays(2);
 
-        when(watchEventService.findEvents(notNull(), notNull())).thenReturn(singleEventForReplaceFieldToNewValue());
+        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(watchEventService.findEvents(eq("Alex"), notNull(), notNull()))
+                .thenReturn(singleEventForReplaceFieldToNewValue());
         whenLookingForReplacedModelThenReturn(new ModelWithFilledValues());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")

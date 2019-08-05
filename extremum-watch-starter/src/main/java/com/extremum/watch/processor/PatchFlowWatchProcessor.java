@@ -4,8 +4,8 @@ import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
-import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.dto.TextWatchEventNotificationDto;
+import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,11 +28,11 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
     private final ObjectMapper objectMapper;
 
     public PatchFlowWatchProcessor(ModelClasses modelClasses,
-                                   ObjectMapper objectMapper,
-                                   TextWatchEventRepository repository,
-                                   WatchSubscriptionService watchSubscriptionService,
-                                   KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
-                                   ExtremumKafkaProperties properties) {
+            ObjectMapper objectMapper,
+            TextWatchEventRepository repository,
+            WatchSubscriptionService watchSubscriptionService,
+            KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
+            ExtremumKafkaProperties properties) {
         super(properties, kafkaTemplate, repository, watchSubscriptionService);
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
@@ -44,11 +44,11 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
         if (isModelWatched(args[0])) {
             log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
             JsonPatch jsonPatch = (JsonPatch) args[1];
-            String patchString = objectMapper.writeValueAsString(jsonPatch);
-            log.debug("Convert JsonPatch into string {}", patchString);
+            String jsonPatchString = objectMapper.writeValueAsString(jsonPatch);
+            log.debug("Convert JsonPatch into string {}", jsonPatchString);
 
-            String modelId = ((Descriptor) args[0]).getInternalId();
-            TextWatchEvent event = new TextWatchEvent("patch", patchString, modelId);
+            String modelInternalId = ((Descriptor) args[0]).getInternalId();
+            TextWatchEvent event = new TextWatchEvent("patch", jsonPatchString, modelInternalId);
             watchUpdate(event);
         }
     }

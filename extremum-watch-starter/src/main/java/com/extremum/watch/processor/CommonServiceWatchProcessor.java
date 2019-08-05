@@ -7,8 +7,8 @@ import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
 import com.extremum.watch.config.ExtremumKafkaProperties;
-import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.dto.TextWatchEventNotificationDto;
+import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
 import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,10 +30,10 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
     private final ModelClasses modelClasses;
 
     public CommonServiceWatchProcessor(ModelClasses modelClasses,
-                                       ObjectMapper objectMapper, TextWatchEventRepository repository,
-                                       WatchSubscriptionService watchSubscriptionService,
-                                       KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
-                                       ExtremumKafkaProperties properties) {
+            ObjectMapper objectMapper, TextWatchEventRepository repository,
+            WatchSubscriptionService watchSubscriptionService,
+            KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
+            ExtremumKafkaProperties properties) {
         super(properties, kafkaTemplate, repository, watchSubscriptionService);
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
@@ -47,17 +47,20 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
             Model model = (Model) args[0];
             if (model.getClass().getAnnotation(CapturedModel.class) != null
                     && BasicModel.class.isAssignableFrom(model.getClass())) {
-                TextWatchEvent event = new TextWatchEvent("save", objectMapper.writeValueAsString(model), ((BasicModel) model).getId().toString());
+                String jsonPatch = objectMapper.writeValueAsString(model);
+                String modelInternalId = ((BasicModel) model).getId().toString();
+                TextWatchEvent event = new TextWatchEvent("save", jsonPatch, modelInternalId);
                 watchUpdate(event);
             }
         } else if (isDeleteMethod(jp)) {
-            String modelId = (String) args[0];
+            String modelInternalId = (String) args[0];
             Class<Model> modelClass = StaticDescriptorLoaderAccessor.getDescriptorLoader()
-                    .loadByInternalId(modelId)
+                    .loadByInternalId(modelInternalId)
                     .map(descriptor -> modelClasses.getClassByModelName(descriptor.getModelType()))
                     .orElse(null);
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
-                TextWatchEvent event = new TextWatchEvent("delete", objectMapper.writeValueAsString(modelId), modelId);
+                String jsonPatch = objectMapper.writeValueAsString(modelInternalId);
+                TextWatchEvent event = new TextWatchEvent("delete", jsonPatch, modelInternalId);
                 watchUpdate(event);
             }
         }

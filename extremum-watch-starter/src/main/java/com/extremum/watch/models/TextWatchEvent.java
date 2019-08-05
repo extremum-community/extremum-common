@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Set;
 
 import static com.extremum.watch.models.TextWatchEvent.COLLECTION_NAME;
 
@@ -40,6 +41,7 @@ public class TextWatchEvent {
     private final String operationType;
     private final String jsonPatch;
     private final String modelId;
+    private Set<String> subscribers;
 
     public TextWatchEventNotificationDto toDto(Collection<String> subscribers) {
         return new TextWatchEventNotificationDto(operationType, jsonPatch, subscribers);

@@ -9,5 +9,5 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface WatchEventService {
-    List<TextWatchEvent> findEvents(ZonedDateTime since, ZonedDateTime until);
+    List<TextWatchEvent> findEvents(String principal, ZonedDateTime since, ZonedDateTime until);
 }

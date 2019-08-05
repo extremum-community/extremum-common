@@ -13,6 +13,9 @@ import org.aspectj.lang.JoinPoint;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Base interface for all watch processors.
@@ -28,9 +31,15 @@ abstract class WatchProcessor {
     private final WatchSubscriptionService watchSubscriptionService;
 
     void watchUpdate(TextWatchEvent event) {
-        Collection<String> bySubscription = watchSubscriptionService.findAllSubscribersBySubscription(event.getModelId());
+        Collection<String> subscribers = watchSubscriptionService.findAllSubscribersBySubscription(event.getModelId());
+        event.setSubscribers(collectionToSet(subscribers));
         eventRepository.save(event);
-        kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto(bySubscription));
+        kafkaTemplate.send(kafkaProperties.getTopic(), event.toDto(subscribers));
+    }
+
+    private Set<String> collectionToSet(Collection<String> subscribers) {
+        Set<String> set = new HashSet<>(subscribers);
+        return Collections.unmodifiableSet(set);
     }
 
     protected abstract void process(JoinPoint jp) throws Exception;

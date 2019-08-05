@@ -37,7 +37,8 @@ public class WatchController {
     // you can get it from autowired SecurityProvider
     @GetMapping
     public Response getEvents(GetEventsRequest request) {
-        List<TextWatchEvent> eventsAfter = watchEventService.findEvents(request.getSince(), request.getUntil());
+        List<TextWatchEvent> eventsAfter = watchEventService.findEvents(getSubscriber(),
+                request.getSince(), request.getUntil());
         return Response.ok(convertToResponseDtos(eventsAfter));
     }
 
