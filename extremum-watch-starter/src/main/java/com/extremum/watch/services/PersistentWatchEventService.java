@@ -15,6 +15,6 @@ public class PersistentWatchEventService implements WatchEventService {
 
     @Override
     public List<TextWatchEvent> findEvents(ZonedDateTime since, ZonedDateTime until) {
-        return eventRepository.findByCreatedBetween(since, until);
+        return eventRepository.findByCreatedBetweenOrderByCreatedAscIdAsc(since, until);
     }
 }
