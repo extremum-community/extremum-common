@@ -8,7 +8,7 @@ public class StaticDescriptorLoaderAccessor {
 
     /**
      *
-     * @deprecated Do not every use this in your code! This is just an ugly thing we have to use
+     * @deprecated Do not ever use this in your code! This is just an ugly thing we have to use
      * in our infrastructure for descriptors
      */
     @Deprecated
