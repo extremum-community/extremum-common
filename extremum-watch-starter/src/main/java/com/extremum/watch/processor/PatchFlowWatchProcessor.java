@@ -4,17 +4,12 @@ import com.extremum.common.models.Model;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.watch.config.ExtremumKafkaProperties;
-import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import com.extremum.watch.models.TextWatchEvent;
-import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -24,22 +19,19 @@ import java.util.Arrays;
  */
 @Service
 @Slf4j
-public final class PatchFlowWatchProcessor extends WatchProcessor {
+public final class PatchFlowWatchProcessor {
     private final ModelClasses modelClasses;
     private final ObjectMapper objectMapper;
+    private final WatchEventConsumer watchEventConsumer;
 
     public PatchFlowWatchProcessor(ModelClasses modelClasses,
             ObjectMapper objectMapper,
-            TextWatchEventRepository repository,
-            WatchSubscriptionService watchSubscriptionService,
-            KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
-            ExtremumKafkaProperties properties) {
-        super(properties, kafkaTemplate, repository, watchSubscriptionService);
+            WatchEventConsumer watchEventConsumer) {
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
+        this.watchEventConsumer = watchEventConsumer;
     }
 
-    @Override
     public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
         Object[] args = jp.getArgs();
         if (isModelWatched(args[0])) {
@@ -50,7 +42,7 @@ public final class PatchFlowWatchProcessor extends WatchProcessor {
 
             String modelInternalId = ((Descriptor) args[0]).getInternalId();
             TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId, returnedModel);
-            watchUpdate(event);
+            watchEventConsumer.consume(event);
         }
     }
 

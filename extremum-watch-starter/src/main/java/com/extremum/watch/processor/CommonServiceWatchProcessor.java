@@ -6,16 +6,11 @@ import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
-import com.extremum.watch.config.ExtremumKafkaProperties;
-import com.extremum.watch.dto.TextWatchEventNotificationDto;
 import com.extremum.watch.models.TextWatchEvent;
-import com.extremum.watch.repositories.TextWatchEventRepository;
-import com.extremum.watch.services.WatchSubscriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -25,24 +20,25 @@ import java.util.Arrays;
  */
 @Slf4j
 @Service
-public final class CommonServiceWatchProcessor extends WatchProcessor {
+public final class CommonServiceWatchProcessor {
     private final ObjectMapper objectMapper;
     private final ModelClasses modelClasses;
+    private final WatchEventConsumer watchEventConsumer;
 
     public CommonServiceWatchProcessor(ModelClasses modelClasses,
-            ObjectMapper objectMapper, TextWatchEventRepository repository,
-            WatchSubscriptionService watchSubscriptionService,
-            KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate,
-            ExtremumKafkaProperties properties) {
-        super(properties, kafkaTemplate, repository, watchSubscriptionService);
+            ObjectMapper objectMapper,
+            WatchEventConsumer watchEventConsumer) {
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
+        this.watchEventConsumer = watchEventConsumer;
     }
 
     @UsesStaticDependencies
     public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
         Object[] args = jp.getArgs();
-        log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
+        if (log.isDebugEnabled()) {
+            log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
+        }
         if (isSaveMethod(jp)) {
             Model model = (Model) args[0];
             if (model.getClass().getAnnotation(CapturedModel.class) != null
@@ -50,7 +46,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
                 String jsonPatch = objectMapper.writeValueAsString(model);
                 String modelInternalId = ((BasicModel) model).getId().toString();
                 TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, model);
-                watchUpdate(event);
+                watchEventConsumer.consume(event);
             }
         } else if (isDeleteMethod(jp)) {
             String modelInternalId = (String) args[0];
@@ -63,7 +59,7 @@ public final class CommonServiceWatchProcessor extends WatchProcessor {
                 TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, returnedModel);
                 // TODO: should we just ALWAYS set modification time in CommonService.delete()?
                 event.touchModelMotificationTime();
-                watchUpdate(event);
+                watchEventConsumer.consume(event);
             }
         }
     }
