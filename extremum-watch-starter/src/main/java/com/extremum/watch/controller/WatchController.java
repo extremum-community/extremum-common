@@ -29,10 +29,6 @@ public class WatchController {
     private final WatchSubscriptionService watchSubscriptionService;
     private final TextWatchEventConverter textWatchEventConverter;
 
-    /**
-     * This method returns all events after date received from request
-     */
-
     @GetMapping
     public Response getEvents(GetEventsRequest request) {
         List<TextWatchEvent> eventsAfter = watchEventService.findEvents(getSubscriber(),
