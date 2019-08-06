@@ -1,7 +1,7 @@
 package com.extremum.watch.repositories;
 
 import com.extremum.watch.config.TestWithServices;
-import com.extremum.watch.config.BaseConfig;
+import com.extremum.watch.config.WatchTestConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
-@SpringBootTest(classes = BaseConfig.class)
+@SpringBootTest(classes = WatchTestConfiguration.class)
 @TestInstance(PER_CLASS)
 class SubscriptionRepositoryTest extends TestWithServices {
     @Autowired

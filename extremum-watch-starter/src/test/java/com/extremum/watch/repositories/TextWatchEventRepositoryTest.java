@@ -1,7 +1,7 @@
 package com.extremum.watch.repositories;
 
 import com.extremum.common.spring.data.OffsetBasedPageRequest;
-import com.extremum.watch.config.BaseConfig;
+import com.extremum.watch.config.WatchTestConfiguration;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.controller.ModelWithFilledValues;
 import com.extremum.watch.models.TextWatchEvent;
@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.hasSize;
 /**
  * @author rpuch
  */
-@SpringBootTest(classes = BaseConfig.class)
+@SpringBootTest(classes = WatchTestConfiguration.class)
 //@DataMongoTest
 class TextWatchEventRepositoryTest extends TestWithServices {
     @Autowired

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableAutoConfiguration
-public class BaseConfig {
+public class WatchTestConfiguration {
     @Bean
     public SecurityProvider securityProvider() {
         return new SecurityProvider() {

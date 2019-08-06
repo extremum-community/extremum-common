@@ -1,6 +1,6 @@
 package com.extremum.watch.controller;
 
-import com.extremum.watch.config.BaseConfig;
+import com.extremum.watch.config.WatchTestConfiguration;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@SpringBootTest(classes = BaseConfig.class)
+@SpringBootTest(classes = WatchTestConfiguration.class)
 @TestInstance(Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
 class WatchControllerEndToEndTest extends TestWithServices {
