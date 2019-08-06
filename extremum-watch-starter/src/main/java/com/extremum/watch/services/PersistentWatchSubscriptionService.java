@@ -18,8 +18,8 @@ public class PersistentWatchSubscriptionService implements WatchSubscriptionServ
     }
 
     @Override
-    public void deleteSubscription(Descriptor id, String subscriber) {
-        subscriptionRepository.remove(id.getInternalId(), subscriber);
+    public void deleteSubscriptions(Collection<Descriptor> ids, String subscriber) {
+        ids.forEach(id -> subscriptionRepository.remove(id.getInternalId(), subscriber));
     }
 
     @Override

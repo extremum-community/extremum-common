@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface WatchSubscriptionService {
     void addSubscriptions(Collection<Descriptor> ids, String subscriber);
 
-    void deleteSubscription(Descriptor id, String subscriber);
+    void deleteSubscriptions(Collection<Descriptor> ids, String subscriber);
 
     Collection<String> findAllSubscribersBySubscription(String subscriptionId);
 }

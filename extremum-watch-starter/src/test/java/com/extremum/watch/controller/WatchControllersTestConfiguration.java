@@ -1,7 +1,9 @@
 package com.extremum.watch.controller;
 
+import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
+import com.extremum.watch.dto.converter.TextWatchEventConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -20,5 +22,15 @@ public class WatchControllersTestConfiguration {
     @Bean
     public ObjectMapper objectMapper() {
         return new SystemJsonObjectMapper(Mockito.mock(MapperDependencies.class));
+    }
+
+    @Bean
+    public TextWatchEventConverter textWatchEventConverter() {
+        return new TextWatchEventConverter();
+    }
+
+    @Bean
+    public DescriptorFactory descriptorFactory() {
+        return new DescriptorFactory();
     }
 }

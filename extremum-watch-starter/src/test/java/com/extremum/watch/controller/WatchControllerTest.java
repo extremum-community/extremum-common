@@ -6,7 +6,6 @@ import com.extremum.common.response.Response;
 import com.extremum.common.response.ResponseStatusEnum;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.watch.dto.converter.TextWatchEventConverter;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
@@ -35,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -56,6 +54,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -76,8 +75,6 @@ class WatchControllerTest {
     private SecurityProvider securityProvider;
     @MockBean
     private WatchSubscriptionService watchSubscriptionService;
-    @SpyBean
-    private TextWatchEventConverter textWatchEventConverter;
 
     @Captor
     private ArgumentCaptor<Collection<Descriptor>> descriptorsCaptor;
@@ -200,6 +197,22 @@ class WatchControllerTest {
 
     private List<Map<String, Object>> parseEvents(String response) {
         return JsonPath.parse(response).read("$.result");
+    }
+
+    @Test
+    void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
+        when(securityProvider.getPrincipal()).thenReturn("Alex");
+
+        mockMvc.perform(delete("/api/watch")
+                .content("[\"dead\",\"beef\"]")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()));
+
+        verify(watchSubscriptionService).deleteSubscriptions(descriptorsCaptor.capture(), eq("Alex"));
+        Collection<Descriptor> removedDescriptors = descriptorsCaptor.getValue();
+        //noinspection unchecked
+        assertThat(removedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
     }
 
 }

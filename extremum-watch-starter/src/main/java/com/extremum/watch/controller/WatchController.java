@@ -1,5 +1,6 @@
 package com.extremum.watch.controller;
 
+import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.response.Response;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.dto.TextWatchEventResponseDto;
@@ -28,6 +29,7 @@ public class WatchController {
     private final SecurityProvider securityProvider;
     private final WatchSubscriptionService watchSubscriptionService;
     private final TextWatchEventConverter textWatchEventConverter;
+    private final DescriptorFactory descriptorFactory;
 
     @GetMapping
     public Response getEvents(GetEventsRequest request) {
@@ -44,13 +46,17 @@ public class WatchController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response subscribe(@RequestBody List<String> idsToWatch) {
-        List<Descriptor> descriptors = idsToWatch.stream()
-                .map(Descriptor::new)
-                .collect(Collectors.toList());
+        List<Descriptor> descriptors = externalIdsToDescriptors(idsToWatch);
 
         watchSubscriptionService.addSubscriptions(descriptors, getSubscriber());
 
         return Response.ok();
+    }
+
+    private List<Descriptor> externalIdsToDescriptors(List<String> externalIds) {
+        return externalIds.stream()
+                    .map(descriptorFactory::fromExternalId)
+                    .collect(Collectors.toList());
     }
 
     private String getSubscriber() {
@@ -61,11 +67,12 @@ public class WatchController {
         return principalId;
     }
 
-    @DeleteMapping
-    public Response deleteSubscription(@PathVariable Descriptor id) {
-        String principalId = getSubscriber();
+    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Response deleteSubscription(@RequestBody List<String> idsToStopWatching) {
+        List<Descriptor> descriptors = externalIdsToDescriptors(idsToStopWatching);
 
-        watchSubscriptionService.deleteSubscription(id, principalId);
+        watchSubscriptionService.deleteSubscriptions(descriptors, getSubscriber());
+
         return Response.ok();
     }
 
