@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,15 +16,9 @@ public class PersistentWatchEventService implements WatchEventService {
     private final TextWatchEventRepository eventRepository;
 
     @Override
-    public List<TextWatchEvent> findEvents(String subscriber, ZonedDateTime since, ZonedDateTime until) {
+    public List<TextWatchEvent> findEvents(String subscriber, Optional<ZonedDateTime> since,
+            Optional<ZonedDateTime> until) {
         return eventRepository.findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(subscriber,
-                coalesce(since, MongoConstants.DISTANT_PAST), coalesce(until, MongoConstants.DISTANT_FUTURE));
-    }
-
-    private ZonedDateTime coalesce(ZonedDateTime first, ZonedDateTime second) {
-        if (first != null) {
-            return first;
-        }
-        return second;
+                since.orElse(MongoConstants.DISTANT_PAST), until.orElse(MongoConstants.DISTANT_FUTURE));
     }
 }
