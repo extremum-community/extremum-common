@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @SpringBootTest(classes = WatchTestConfiguration.class)
 @TestInstance(PER_CLASS)
-class SubscriptionRepositoryTest extends TestWithServices {
+class RedisSubscriptionRepositoryTest extends TestWithServices {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 

@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 @Repository
-public class SubscriptionRepositoryImpl implements SubscriptionRepository {
+public class RedisSubscriptionRepository implements SubscriptionRepository {
     private final RedissonClient client;
     private final SubscriptionProperties properties;
 
-    public SubscriptionRepositoryImpl(RedissonClient client, SubscriptionProperties properties) {
+    public RedisSubscriptionRepository(RedissonClient client, SubscriptionProperties properties) {
         this.client = client;
         this.properties = properties;
     }
