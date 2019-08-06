@@ -42,11 +42,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -54,8 +50,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -131,7 +127,8 @@ class WatchControllerTest extends TestWithServices {
     @Test
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
         when(securityProvider.getPrincipal()).thenReturn("Alex");
-        when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty())).thenReturn(singleEventForReplaceFieldToNewValue());
+        when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
+                .thenReturn(singleEventForReplaceFieldToNewValue());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .accept(MediaType.APPLICATION_JSON))
@@ -150,12 +147,13 @@ class WatchControllerTest extends TestWithServices {
         ZonedDateTime until = since.plusDays(2);
 
         when(securityProvider.getPrincipal()).thenReturn("Alex");
-        when(watchEventService.findEvents(eq("Alex"), notNull(), notNull()))
+        when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
                 .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
                 .param("until", DateUtils.formatZonedDateTimeISO_8601(until))
+                .param("limit", "10")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(successfulResponse()))

@@ -32,7 +32,7 @@ public class WatchController {
     @GetMapping
     public Response getEvents(GetEventsRequest request) {
         List<TextWatchEvent> eventsAfter = watchEventService.findEvents(getSubscriber(),
-                request.getSince(), request.getUntil());
+                request.getSince(), request.getUntil(), request.getLimit());
         return Response.ok(convertToResponseDtos(eventsAfter));
     }
 

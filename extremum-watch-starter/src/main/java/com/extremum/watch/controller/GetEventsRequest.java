@@ -1,14 +1,12 @@
 package com.extremum.watch.controller;
 
 import com.extremum.common.utils.DateUtils;
-import lombok.Getter;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.beans.ConstructorProperties;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 /**
  * @author rpuch
@@ -37,10 +35,7 @@ public class GetEventsRequest {
         return Optional.ofNullable(until);
     }
 
-    public OptionalInt getLimit() {
-        if (limit == null) {
-            return OptionalInt.empty();
-        }
-        return OptionalInt.of(limit);
+    public Optional<Integer> getLimit() {
+        return Optional.ofNullable(limit);
     }
 }

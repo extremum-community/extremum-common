@@ -1,5 +1,6 @@
 package com.extremum.watch.repositories;
 
+import com.extremum.common.spring.data.OffsetBasedPageRequest;
 import com.extremum.watch.config.BaseConfig;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.controller.ModelWithFilledValues;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -30,12 +32,17 @@ class TextWatchEventRepositoryTest extends TestWithServices {
 
     private final String subscriber = randomString();
 
+    @NotNull
+    private String randomString() {
+        return UUID.randomUUID().toString();
+    }
+
     @Test
     void whenSearchingBySubscriberInSubscribers_thenShouldFindSomething() {
         saveAnEventVisibleFor(subscriber);
 
         List<TextWatchEvent> events = repository.findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(
-                subscriber, DISTANT_PAST, DISTANT_FUTURE);
+                subscriber, DISTANT_PAST, DISTANT_FUTURE, Pageable.unpaged());
         
         assertThat(events, hasSize(1));
     }
@@ -53,7 +60,7 @@ class TextWatchEventRepositoryTest extends TestWithServices {
 
         String anotherSubscriber = randomString();
         List<TextWatchEvent> events = repository.findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(
-                anotherSubscriber, DISTANT_PAST, DISTANT_FUTURE);
+                anotherSubscriber, DISTANT_PAST, DISTANT_FUTURE, Pageable.unpaged());
 
         assertThat(events, hasSize(0));
     }
@@ -63,7 +70,7 @@ class TextWatchEventRepositoryTest extends TestWithServices {
         saveAnEventVisibleFor(subscriber);
 
         List<TextWatchEvent> events = repository.findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(
-                subscriber, DISTANT_PAST, yesterday());
+                subscriber, DISTANT_PAST, yesterday(), Pageable.unpaged());
 
         assertThat(events, hasSize(0));
     }
@@ -78,18 +85,24 @@ class TextWatchEventRepositoryTest extends TestWithServices {
         saveAnEventVisibleFor(subscriber);
 
         List<TextWatchEvent> events = repository.findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(
-                subscriber, tomorrow(), DISTANT_FUTURE);
+                subscriber, tomorrow(), DISTANT_FUTURE, Pageable.unpaged());
 
         assertThat(events, hasSize(0));
+    }
+
+    @Test
+    void given2EventsExist_whenSearchingWithLimit1_thenShouldOnlyFind1() {
+        saveAnEventVisibleFor(subscriber);
+        saveAnEventVisibleFor(subscriber);
+
+        List<TextWatchEvent> events = repository.findBySubscribersAndCreatedBetweenOrderByCreatedAscIdAsc(
+                subscriber, DISTANT_PAST, DISTANT_FUTURE, OffsetBasedPageRequest.limit(1));
+
+        assertThat(events, hasSize(1));
     }
 
     @NotNull
     private ZonedDateTime tomorrow() {
         return ZonedDateTime.now().plusDays(1);
-    }
-
-    @NotNull
-    private String randomString() {
-        return UUID.randomUUID().toString();
     }
 }

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface WatchEventService {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    List<TextWatchEvent> findEvents(String principal, Optional<ZonedDateTime> since, Optional<ZonedDateTime> until);
+    List<TextWatchEvent> findEvents(String principal, Optional<ZonedDateTime> since, Optional<ZonedDateTime> until,
+            Optional<Integer> limit);
 }
