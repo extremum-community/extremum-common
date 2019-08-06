@@ -6,8 +6,7 @@ import com.extremum.common.response.Response;
 import com.extremum.common.response.ResponseStatusEnum;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.watch.config.BaseConfig;
-import com.extremum.watch.config.TestWithServices;
+import com.extremum.watch.dto.converter.TextWatchEventConverter;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
@@ -27,14 +26,16 @@ import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -60,15 +61,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = BaseConfig.class)
-@TestInstance(Lifecycle.PER_CLASS)
+@SpringBootTest(classes = {WatchControllersTestConfiguration.class, WatchController.class})
 @AutoConfigureMockMvc
-class WatchControllerTest extends TestWithServices {
+@ExtendWith(MockitoExtension.class)
+class WatchControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper clientMapper = new SystemJsonObjectMapper(Mockito.mock(MapperDependencies.class));
 
     @MockBean
     private WatchEventService watchEventService;
@@ -76,6 +76,8 @@ class WatchControllerTest extends TestWithServices {
     private SecurityProvider securityProvider;
     @MockBean
     private WatchSubscriptionService watchSubscriptionService;
+    @SpyBean
+    private TextWatchEventConverter textWatchEventConverter;
 
     @Captor
     private ArgumentCaptor<Collection<Descriptor>> descriptorsCaptor;
@@ -168,7 +170,7 @@ class WatchControllerTest extends TestWithServices {
     private List<TextWatchEvent> singleEventForReplaceFieldToNewValue() throws JsonPointerException, JsonProcessingException {
         JsonPatchOperation operation = new ReplaceOperation(new JsonPointer("/field"), new TextNode("new-value"));
         JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
-        String patchAsString = objectMapper.writeValueAsString(jsonPatch);
+        String patchAsString = clientMapper.writeValueAsString(jsonPatch);
         return Collections.singletonList(
                 new TextWatchEvent(patchAsString, "internalId", new ModelWithFilledValues()));
     }
