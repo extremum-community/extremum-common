@@ -7,7 +7,5 @@ public interface SubscriptionRepository {
 
     void unsubscribe(Collection<String> modelIds, String subscriberId);
 
-    Collection<String> getAllSubscriptionsIdsBySubscriber(String subscriberId);
-
     Collection<String> getAllSubscribersIdsBySubscription(String modelId);
 }

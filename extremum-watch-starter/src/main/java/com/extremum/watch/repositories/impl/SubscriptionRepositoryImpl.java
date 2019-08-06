@@ -52,15 +52,6 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
 
     @Override
-    public Collection<String> getAllSubscriptionsIdsBySubscriber(String subscriberId) {
-//        TODO refactor keySet() method to native script for Redis
-        return subscriptionsMap.keySet(getKeyPattern(subscriberId, "*"))
-                .stream()
-                .map(key -> key.split(DELIMITER)[1])
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public Collection<String> getAllSubscribersIdsBySubscription(String modelId) {
 //        TODO refactor keySet() method to native script for Redis 
         return subscriptionsMap.keySet(getKeyPattern("*", modelId))
