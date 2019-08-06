@@ -1,11 +1,11 @@
 package com.extremum.watch.processor;
 
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
-import com.extremum.sharedmodels.annotation.UsesStaticDependencies;
-import com.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
+import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,18 +22,20 @@ import java.util.Arrays;
 @Service
 public final class CommonServiceWatchProcessor {
     private final ObjectMapper objectMapper;
+    private final DescriptorService descriptorService;
     private final ModelClasses modelClasses;
     private final WatchEventConsumer watchEventConsumer;
 
     public CommonServiceWatchProcessor(ModelClasses modelClasses,
             ObjectMapper objectMapper,
+            DescriptorService descriptorService,
             WatchEventConsumer watchEventConsumer) {
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
+        this.descriptorService = descriptorService;
         this.watchEventConsumer = watchEventConsumer;
     }
 
-    @UsesStaticDependencies
     public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
         Object[] args = jp.getArgs();
         if (log.isDebugEnabled()) {
@@ -50,9 +52,9 @@ public final class CommonServiceWatchProcessor {
             }
         } else if (isDeleteMethod(jp)) {
             String modelInternalId = (String) args[0];
-            Class<Model> modelClass = StaticDescriptorLoaderAccessor.getDescriptorLoader()
-                    .loadByInternalId(modelInternalId)
-                    .map(descriptor -> modelClasses.getClassByModelName(descriptor.getModelType()))
+            Class<Model> modelClass = descriptorService.loadByInternalId(modelInternalId)
+                    .map(Descriptor::getModelType)
+                    .map(modelClasses::getClassByModelName)
                     .orElse(null);
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
                 String jsonPatch = objectMapper.writeValueAsString(modelInternalId);
