@@ -33,8 +33,6 @@ public class WatchController {
      * This method returns all events after date received from request
      */
 
-    // TODO refactor this method to return only events that current security principal can view
-    // you can get it from autowired SecurityProvider
     @GetMapping
     public Response getEvents(GetEventsRequest request) {
         List<TextWatchEvent> eventsAfter = watchEventService.findEvents(getSubscriber(),
