@@ -19,7 +19,7 @@ import java.util.Arrays;
  */
 @Service
 @Slf4j
-public final class PatchFlowWatchProcessor {
+public class PatchFlowWatchProcessor {
     private final ModelClasses modelClasses;
     private final ObjectMapper objectMapper;
     private final WatchEventConsumer watchEventConsumer;

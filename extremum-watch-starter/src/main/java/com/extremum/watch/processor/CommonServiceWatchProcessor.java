@@ -20,7 +20,7 @@ import java.util.Arrays;
  */
 @Slf4j
 @Service
-public final class CommonServiceWatchProcessor {
+public class CommonServiceWatchProcessor {
     private final ObjectMapper objectMapper;
     private final DescriptorService descriptorService;
     private final ModelClasses modelClasses;
