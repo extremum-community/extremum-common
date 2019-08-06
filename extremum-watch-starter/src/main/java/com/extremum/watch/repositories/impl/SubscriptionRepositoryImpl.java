@@ -31,16 +31,24 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
         subscriptionsMap = client.getMapCache(SUBSCRIPTIONS, MapOptions.defaults());
     }
 
-    @Override
-    public void save(String modelId, String subscriberId) {
+    private void save(String modelId, String subscriberId) {
         subscriptionsMap.put(getKeyPattern(subscriberId, modelId), "",
                 properties.getTimeToLive(), TimeUnit.DAYS,
                 properties.getIdleTime(), TimeUnit.DAYS);
     }
 
     @Override
-    public void remove(String modelId, String subscriberId) {
+    public void saveAll(Collection<String> modelIds, String subscriberId) {
+        modelIds.forEach(modelId -> save(modelId, subscriberId));
+    }
+
+    private void remove(String modelId, String subscriberId) {
         subscriptionsMap.remove(getKeyPattern(subscriberId, modelId));
+    }
+
+    @Override
+    public void removeAll(Collection<String> modelIds, String subscriberId) {
+        modelIds.forEach(modelId -> remove(modelId, subscriberId));
     }
 
     @Override

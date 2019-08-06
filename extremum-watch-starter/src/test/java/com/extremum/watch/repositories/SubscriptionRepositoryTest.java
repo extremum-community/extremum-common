@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -21,7 +22,7 @@ class SubscriptionRepositoryTest extends TestWithServices {
 
     @BeforeAll
     void setUp() {
-        subscriptionRepository.save("12", "test");
+        subscriptionRepository.saveAll(Collections.singletonList("12"), "test");
     }
 
     @Test
