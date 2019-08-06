@@ -89,7 +89,7 @@ class WatchControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(successfulResponse()));
 
-        verify(watchSubscriptionService).addSubscriptions(descriptorsCaptor.capture(), eq("Alex"));
+        verify(watchSubscriptionService).subscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> savedDescriptors = descriptorsCaptor.getValue();
         //noinspection unchecked
         assertThat(savedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
@@ -209,7 +209,7 @@ class WatchControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(successfulResponse()));
 
-        verify(watchSubscriptionService).deleteSubscriptions(descriptorsCaptor.capture(), eq("Alex"));
+        verify(watchSubscriptionService).unsubscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> removedDescriptors = descriptorsCaptor.getValue();
         //noinspection unchecked
         assertThat(removedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));

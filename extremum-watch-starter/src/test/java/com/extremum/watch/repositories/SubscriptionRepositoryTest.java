@@ -22,7 +22,7 @@ class SubscriptionRepositoryTest extends TestWithServices {
 
     @BeforeAll
     void setUp() {
-        subscriptionRepository.saveAll(Collections.singletonList("12"), "test");
+        subscriptionRepository.subscribe(Collections.singletonList("12"), "test");
     }
 
     @Test

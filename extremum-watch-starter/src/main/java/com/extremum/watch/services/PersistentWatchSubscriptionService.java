@@ -15,8 +15,8 @@ public class PersistentWatchSubscriptionService implements WatchSubscriptionServ
     private final SubscriptionRepository subscriptionRepository;
 
     @Override
-    public void addSubscriptions(Collection<Descriptor> ids, String subscriber) {
-        subscriptionRepository.saveAll(descriptorsToInternalIds(ids), subscriber);
+    public void subscribe(Collection<Descriptor> ids, String subscriber) {
+        subscriptionRepository.subscribe(descriptorsToInternalIds(ids), subscriber);
     }
 
     private List<String> descriptorsToInternalIds(Collection<Descriptor> ids) {
@@ -26,8 +26,8 @@ public class PersistentWatchSubscriptionService implements WatchSubscriptionServ
     }
 
     @Override
-    public void deleteSubscriptions(Collection<Descriptor> ids, String subscriber) {
-        subscriptionRepository.removeAll(descriptorsToInternalIds(ids), subscriber);
+    public void unsubscribe(Collection<Descriptor> ids, String subscriber) {
+        subscriptionRepository.unsubscribe(descriptorsToInternalIds(ids), subscriber);
     }
 
     @Override

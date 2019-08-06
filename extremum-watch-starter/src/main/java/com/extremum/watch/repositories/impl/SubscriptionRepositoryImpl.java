@@ -38,7 +38,7 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
 
     @Override
-    public void saveAll(Collection<String> modelIds, String subscriberId) {
+    public void subscribe(Collection<String> modelIds, String subscriberId) {
         modelIds.forEach(modelId -> save(modelId, subscriberId));
     }
 
@@ -47,7 +47,7 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
 
     @Override
-    public void removeAll(Collection<String> modelIds, String subscriberId) {
+    public void unsubscribe(Collection<String> modelIds, String subscriberId) {
         modelIds.forEach(modelId -> remove(modelId, subscriberId));
     }
 

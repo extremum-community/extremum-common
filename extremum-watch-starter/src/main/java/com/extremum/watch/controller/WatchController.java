@@ -48,7 +48,7 @@ public class WatchController {
     public Response subscribe(@RequestBody List<String> idsToWatch) {
         List<Descriptor> descriptors = externalIdsToDescriptors(idsToWatch);
 
-        watchSubscriptionService.addSubscriptions(descriptors, getSubscriber());
+        watchSubscriptionService.subscribe(descriptors, getSubscriber());
 
         return Response.ok();
     }
@@ -71,7 +71,7 @@ public class WatchController {
     public Response deleteSubscription(@RequestBody List<String> idsToStopWatching) {
         List<Descriptor> descriptors = externalIdsToDescriptors(idsToStopWatching);
 
-        watchSubscriptionService.deleteSubscriptions(descriptors, getSubscriber());
+        watchSubscriptionService.unsubscribe(descriptors, getSubscriber());
 
         return Response.ok();
     }
