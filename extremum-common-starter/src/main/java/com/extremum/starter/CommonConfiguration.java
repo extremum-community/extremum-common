@@ -145,7 +145,7 @@ public class CommonConfiguration {
     public ObjectMapper jacksonObjectMapper(MapperDependencies mapperDependencies,
                                             List<SystemMapperModulesSupplier> systemModulesSuppliers) {
         SystemJsonObjectMapper objectMapper = new SystemJsonObjectMapper(mapperDependencies);
-        systemModulesSuppliers.forEach(supplier -> objectMapper.registerModules(supplier.apply(objectMapper)));
+        systemModulesSuppliers.forEach(supplier -> objectMapper.registerModules(supplier.makeModules(objectMapper)));
         return objectMapper;
     }
 
@@ -153,7 +153,7 @@ public class CommonConfiguration {
     @Qualifier("redis")
     public ObjectMapper redisObjectMapper(List<RedisMapperModulesSupplier> redisModuleSuppliers) {
         BasicJsonObjectMapper objectMapper = new BasicJsonObjectMapper();
-        redisModuleSuppliers.forEach(supplier -> objectMapper.registerModules(supplier.apply(objectMapper)));
+        redisModuleSuppliers.forEach(supplier -> objectMapper.registerModules(supplier.makeModules(objectMapper)));
         return objectMapper;
     }
 
