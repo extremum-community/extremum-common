@@ -49,7 +49,7 @@ public class WatchController {
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Response addSubscriptions(@RequestBody List<String> idsToWatch) {
+    public Response subscribe(@RequestBody List<String> idsToWatch) {
         List<Descriptor> descriptors = idsToWatch.stream()
                 .map(Descriptor::new)
                 .collect(Collectors.toList());
