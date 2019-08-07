@@ -11,12 +11,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.extremum.common.response.Response.ok;
+
 @RestController
 @RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
 public class DefaultEverythingEverythingCollectionRestController
         implements EverythingEverythingCollectionRestController {
     private final EverythingCollectionManagementService everythingCollectionManagementService;
+
+    @GetMapping(value = "/ping")
+    public Response ping () {
+        return ok();
+    }
 
     @GetMapping(value = "/collection/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Response fetchCollection(@PathVariable String collectionId, Projection projection,
