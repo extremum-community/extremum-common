@@ -24,7 +24,7 @@ public class StringOrObjectSerializer extends StdSerializer<StringOrObject<?>> {
             ser.serialize(value.getObject(), gen, provider);
         }
         else if (value.isSimple()) {
-            gen.writeString(value.getId());
+            gen.writeString(value.getString());
         }
         else {
             log.debug("Nothing to serialize, unknown value type");

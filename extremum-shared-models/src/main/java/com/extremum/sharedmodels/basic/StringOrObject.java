@@ -19,18 +19,18 @@ public class StringOrObject<T> {
      * What of fields of the {@link StringOrObject} is initialized
      */
     private Type type;
-    private String id;
+    private String string;
     @Valid
     private T object;
     
-    private StringOrObject(Type type, String id, T object) {
+    private StringOrObject(Type type, String string, T object) {
         this.type = type;
-        this.id = id;
+        this.string = string;
         this.object = object;
     }
 
-    public StringOrObject(String id) {
-        this(Type.simple, id, null);
+    public StringOrObject(String string) {
+        this(Type.simple, string, null);
     }
 
     public StringOrObject(T object) {
@@ -55,25 +55,25 @@ public class StringOrObject<T> {
 
     public void makeSimple(String id) {
         type = Type.simple;
-        this.id = id;
+        this.string = id;
         object = null;
     }
 
     public void makeComplex(T object) {
         type = Type.complex;
         this.object = object;
-        id = null;
+        string = null;
     }
 
     public enum Type {
         unknown,
         /**
-         * {@link StringOrObject#id} is initialized, {@link StringOrObject#object} are not
+         * {@link StringOrObject#string} is initialized, {@link StringOrObject#object} are not
          */
         simple,
 
         /**
-         * {@link StringOrObject#object} is initialized, {@link StringOrObject#id} are not
+         * {@link StringOrObject#object} is initialized, {@link StringOrObject#string} are not
          */
         complex
     }

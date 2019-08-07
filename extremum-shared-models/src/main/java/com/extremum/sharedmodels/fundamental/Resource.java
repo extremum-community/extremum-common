@@ -32,8 +32,8 @@ public interface Resource {
      *
      * format: uri
      */
-    String getUrl();
-    void setUrl(String url);
+    String getUri();
+    void setUri(String uri);
 
     /**
      * The display name of the object as a Resource.
