@@ -19,9 +19,12 @@ import java.lang.reflect.Field;
 import java.time.ZonedDateTime;
 
 /**
+ * This extension is solely needed to have a possibility to have effects of @Id, @CreatedDate, @Indexed
+ * and so on on Descriptor class but have it not-annotated.
+ *
  * @author rpuch
  */
-class CustomCollectionMappingContext extends MongoMappingContext {
+class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
     private FieldNamingStrategy fieldNamingStrategy;
 
     @Override

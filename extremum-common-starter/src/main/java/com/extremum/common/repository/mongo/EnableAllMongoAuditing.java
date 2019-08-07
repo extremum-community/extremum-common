@@ -7,6 +7,14 @@ import org.springframework.data.domain.AuditorAware;
 import java.lang.annotation.*;
 
 /**
+ * This is essentially the same thing as @{@link org.springframework.data.mongodb.config.EnableMongoAuditing},
+ * but it plays nicer with the case when we have more than one Mongo datasource (and we have at least 2).
+ * The problem with the original @EnableMongoAuditing is that it only allows ZonedDateTime for @CreatedDate
+ * and @LastModifiedDate on one datasource (actually, on one
+ * {@link org.springframework.data.mongodb.core.mapping.MongoMappingContext}).
+ * Our implementation wraps all MongoMappingContext's it finds in the application context in one PersistentEntities
+ * instance, so ZonedDateTime becomes eligible on all Mongo datasources. Magic!
+ *
  * @author rpuch
  */
 @Inherited

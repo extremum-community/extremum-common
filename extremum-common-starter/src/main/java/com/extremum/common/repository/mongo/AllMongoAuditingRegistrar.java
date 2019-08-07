@@ -23,6 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This is essentially MongoAuditingRegistrar with one customization. We cannot extend it as it is package local,
+ * so we had to copy.
+ * The customization is that it applies the auditing to all
+ * {@link org.springframework.data.mongodb.core.mapping.MongoMappingContext}s available in the application context,
+ * and not only to one. This allows to solve a nasty problem with ZonedDateTime used as created/modified field type.
+ * The customization lies entirely in PersistentEntitiesLookup.
+ *
+ * @author Thomas Darimont
+ * @author Oliver Gierke
+ * @author rpuch
+ */
 public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSupport {
     /*
      * (non-Javadoc)

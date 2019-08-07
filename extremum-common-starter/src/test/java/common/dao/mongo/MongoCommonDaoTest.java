@@ -45,7 +45,7 @@ class MongoCommonDaoTest extends TestWithServices {
 
     @Test
     void testCreateModel() {
-        TestMongoModel model = getTestModel();
+        TestMongoModel model = new TestMongoModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
