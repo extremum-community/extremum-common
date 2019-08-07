@@ -7,9 +7,9 @@ import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.services.management.PatchFlow;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.processor.CommonServiceWatchProcessor;
+import com.extremum.watch.processor.Invocation;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
 import com.github.fge.jsonpatch.JsonPatch;
-import org.aspectj.lang.JoinPoint;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class CaptureChangesAspectTest {
     @Mock
     private PatchFlow originalPatchFlow;
     @Captor
-    private ArgumentCaptor<JoinPoint> joinPointCaptor;
+    private ArgumentCaptor<Invocation> invocationCaptor;
 
     @BeforeEach
     void setUp() {
@@ -82,11 +82,11 @@ class CaptureChangesAspectTest {
 
         commonServiceProxy.save(model);
 
-        verify(commonServiceWatchProcessor).process(joinPointCaptor.capture(), same(model));
-        JoinPoint joinPoint = joinPointCaptor.getValue();
-        assertThat(joinPoint.getSignature().getName(), is("save"));
-        assertThat(joinPoint.getArgs().length, is(1));
-        assertThat(joinPoint.getArgs()[0], is(sameInstance(model)));
+        verify(commonServiceWatchProcessor).process(invocationCaptor.capture(), same(model));
+        Invocation invocation = invocationCaptor.getValue();
+        assertThat(invocation.methodName(), is("save"));
+        assertThat(invocation.args().length, is(1));
+        assertThat(invocation.args()[0], is(sameInstance(model)));
     }
 
     @Test
@@ -97,11 +97,11 @@ class CaptureChangesAspectTest {
 
         commonServiceProxy.delete(internalId);
 
-        verify(commonServiceWatchProcessor).process(joinPointCaptor.capture(), same(model));
-        JoinPoint joinPoint = joinPointCaptor.getValue();
-        assertThat(joinPoint.getSignature().getName(), is("delete"));
-        assertThat(joinPoint.getArgs().length, is(1));
-        assertThat(joinPoint.getArgs()[0], is(equalTo(internalId)));
+        verify(commonServiceWatchProcessor).process(invocationCaptor.capture(), same(model));
+        Invocation invocation = invocationCaptor.getValue();
+        assertThat(invocation.methodName(), is("delete"));
+        assertThat(invocation.args().length, is(1));
+        assertThat(invocation.args()[0], is(equalTo(internalId)));
     }
 
     @Test
@@ -114,12 +114,12 @@ class CaptureChangesAspectTest {
 
         patchFlowProxy.patch(descriptor, jsonPatch);
 
-        verify(patchFlowWatchProcessor).process(joinPointCaptor.capture(), same(model));
-        JoinPoint joinPoint = joinPointCaptor.getValue();
-        assertThat(joinPoint.getSignature().getName(), is("patch"));
-        assertThat(joinPoint.getArgs().length, is(2));
-        assertThat(joinPoint.getArgs()[0], is(sameInstance(descriptor)));
-        assertThat(joinPoint.getArgs()[1], is(sameInstance(jsonPatch)));
+        verify(patchFlowWatchProcessor).process(invocationCaptor.capture(), same(model));
+        Invocation invocation = invocationCaptor.getValue();
+        assertThat(invocation.methodName(), is("patch"));
+        assertThat(invocation.args().length, is(2));
+        assertThat(invocation.args()[0], is(sameInstance(descriptor)));
+        assertThat(invocation.args()[1], is(sameInstance(jsonPatch)));
     }
 
     private static class TestModel extends MongoCommonModel {

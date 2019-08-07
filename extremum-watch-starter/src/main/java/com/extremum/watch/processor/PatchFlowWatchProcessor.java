@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -32,18 +31,22 @@ public class PatchFlowWatchProcessor {
         this.watchEventConsumer = watchEventConsumer;
     }
 
-    public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
-        Object[] args = jp.getArgs();
-        if (isModelWatched(args[0])) {
-            log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
-            JsonPatch jsonPatch = (JsonPatch) args[1];
-            String jsonPatchString = objectMapper.writeValueAsString(jsonPatch);
-            log.debug("Convert JsonPatch into string {}", jsonPatchString);
-
-            String modelInternalId = ((Descriptor) args[0]).getInternalId();
-            TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId, returnedModel);
-            watchEventConsumer.consume(event);
+    public void process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
+        Object[] args = invocation.args();
+        if (!isModelWatched(args[0])) {
+            return;
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Captured method {} with args {}", invocation.methodName(), Arrays.toString(args));
+        }
+        JsonPatch jsonPatch = (JsonPatch) args[1];
+        String jsonPatchString = objectMapper.writeValueAsString(jsonPatch);
+        log.debug("Convert JsonPatch into string {}", jsonPatchString);
+
+        String modelInternalId = ((Descriptor) args[0]).getInternalId();
+        TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId, returnedModel);
+        watchEventConsumer.consume(event);
     }
 
     private boolean isModelWatched(Object descriptor) {

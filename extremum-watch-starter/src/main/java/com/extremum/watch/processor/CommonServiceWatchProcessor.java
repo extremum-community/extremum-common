@@ -10,7 +10,6 @@ import com.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -36,12 +35,12 @@ public class CommonServiceWatchProcessor {
         this.watchEventConsumer = watchEventConsumer;
     }
 
-    public void process(JoinPoint jp, Model returnedModel) throws JsonProcessingException {
-        Object[] args = jp.getArgs();
+    public void process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
+        Object[] args = invocation.args();
         if (log.isDebugEnabled()) {
-            log.debug("Captured method {} with args {}", jp.getSignature().getName(), Arrays.toString(args));
+            log.debug("Captured method {} with args {}", invocation.methodName(), Arrays.toString(args));
         }
-        if (isSaveMethod(jp)) {
+        if (isSaveMethod(invocation)) {
             Model model = (Model) args[0];
             if (model.getClass().getAnnotation(CapturedModel.class) != null
                     && BasicModel.class.isAssignableFrom(model.getClass())) {
@@ -50,7 +49,7 @@ public class CommonServiceWatchProcessor {
                 TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, model);
                 watchEventConsumer.consume(event);
             }
-        } else if (isDeleteMethod(jp)) {
+        } else if (isDeleteMethod(invocation)) {
             String modelInternalId = (String) args[0];
             Class<Model> modelClass = descriptorService.loadByInternalId(modelInternalId)
                     .map(Descriptor::getModelType)
@@ -66,11 +65,11 @@ public class CommonServiceWatchProcessor {
         }
     }
 
-    private boolean isDeleteMethod(JoinPoint jp) {
-        return jp.getSignature().getName().equals("delete");
+    private boolean isDeleteMethod(Invocation invocation) {
+        return "delete".equals(invocation.methodName());
     }
 
-    private boolean isSaveMethod(JoinPoint jp) {
-        return jp.getSignature().getName().equals("save");
+    private boolean isSaveMethod(Invocation invocation) {
+        return "save".equals(invocation.methodName());
     }
 }

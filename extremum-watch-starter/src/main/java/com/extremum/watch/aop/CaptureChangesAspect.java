@@ -2,6 +2,7 @@ package com.extremum.watch.aop;
 
 import com.extremum.common.models.Model;
 import com.extremum.watch.processor.CommonServiceWatchProcessor;
+import com.extremum.watch.processor.MethodJoinPointInvocation;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class CaptureChangesAspect {
                 log.debug("Watch PatchFlow method with name {} and args {}",
                         jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
             }
-            patchFlowProcessor.process(jp, returnedModel);
+            patchFlowProcessor.process(new MethodJoinPointInvocation(jp), returnedModel);
         } catch (Exception e) {
             log.error("Exception on watchPatchChanges() : ", e);
         }
@@ -46,8 +47,8 @@ public class CaptureChangesAspect {
                 log.debug("Watch CommonService method with name {} and args {}",
                         jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
             }
-            commonServiceProcessor.process(jp, returnedModel);
-        } catch (JsonProcessingException e) {
+            commonServiceProcessor.process(new MethodJoinPointInvocation(jp), returnedModel);
+        } catch (Exception e) {
             log.error("Exception on watchCommonServiceChanges() : ", e);
         }
     }
