@@ -47,7 +47,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import java.util.List;
 
 @Configuration
-@Import({DescriptorMongoConfiguration.class, MongoRepositoriesConfiguration.class})
+@Import({MainMongoConfiguration.class, DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("com.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class,
@@ -85,7 +85,7 @@ public class CommonConfiguration {
 
     @Bean
     public MongoClientURI mongoDatabaseUri() {
-        return new MongoClientURI(mongoProperties.getUri());
+        return new MongoClientURI(mongoProperties.getServiceDbUri());
     }
 
     @Bean

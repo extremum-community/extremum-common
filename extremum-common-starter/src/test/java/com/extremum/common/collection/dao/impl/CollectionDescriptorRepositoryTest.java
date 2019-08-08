@@ -14,6 +14,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -40,6 +41,7 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
     @Autowired
     private DescriptorService descriptorService;
     @Autowired
+    @Qualifier("descriptorsMongoClient")
     private MongoClient mongoClient;
     @Autowired
     private MongoProperties mongoProperties;
@@ -62,7 +64,7 @@ class CollectionDescriptorRepositoryTest extends TestWithServices {
         repository.save(collectionDescriptor);
         assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
 
-        List<Document> documents = mongoClient.getDatabase(mongoProperties.getDbName())
+        List<Document> documents = mongoClient.getDatabase(mongoProperties.getDescriptorsDbName())
                 .getCollection("collection-descriptors")
                 .find(Filters.eq("_id", collectionDescriptor.getExternalId()), Document.class)
                 .into(new ArrayList<>());

@@ -1,9 +1,7 @@
 package com.extremum.starter;
 
-import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import com.extremum.common.collection.spring.CollectionDescriptorLifecycleListener;
-import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.repository.mongo.SoftDeleteMongoRepositoryFactoryBean;
+import com.extremum.common.repository.mongo.EnableAllMongoAuditing;
 import com.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -14,26 +12,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author rpuch
  */
 @Configuration
 @EnableConfigurationProperties(MongoProperties.class)
-@EnableMongoRepositories(basePackageClasses = {DescriptorRepository.class, CollectionDescriptorRepository.class},
-        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class)
-@EnableMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
+@EnableAllMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
-public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
+public class MainMongoConfiguration extends AbstractMongoConfiguration {
     private final MongoProperties mongoProps;
     private final MongoClientURI databaseUri;
 
@@ -52,7 +48,7 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return mongoProps.getDbName();
+        return mongoProps.getServiceDbName();
     }
 
     @Override
@@ -105,10 +101,5 @@ public class DescriptorMongoConfiguration extends AbstractMongoConfiguration {
     public CollectionDescriptorLifecycleListener collectionDescriptorLifecycleListener() {
         return new CollectionDescriptorLifecycleListener();
     }
-
-    @Override
-    public MongoMappingContext mongoMappingContext() {
-        return new CustomCollectionMappingContext();
-    }
-
+    
 }
