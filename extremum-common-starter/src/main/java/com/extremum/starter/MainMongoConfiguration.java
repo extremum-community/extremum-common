@@ -48,7 +48,7 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return mongoProps.getMainDbName();
+        return mongoProps.getServiceDbName();
     }
 
     @Override

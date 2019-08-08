@@ -85,7 +85,7 @@ public class CommonConfiguration {
 
     @Bean
     public MongoClientURI mongoDatabaseUri() {
-        return new MongoClientURI(mongoProperties.getMainUri());
+        return new MongoClientURI(mongoProperties.getServiceDbUri());
     }
 
     @Bean

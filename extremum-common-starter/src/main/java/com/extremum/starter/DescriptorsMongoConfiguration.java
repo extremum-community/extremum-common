@@ -62,7 +62,7 @@ public class DescriptorsMongoConfiguration {
 
     @Bean
     public MongoClient descriptorsMongoClient() {
-        return new MongoClient(new MongoClientURI(mongoProperties.getDescriptorsUri()));
+        return new MongoClient(new MongoClientURI(mongoProperties.getDescriptorsDbUri()));
     }
 
     private String getDatabaseName() {

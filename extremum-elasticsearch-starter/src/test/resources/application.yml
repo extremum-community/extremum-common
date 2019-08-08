@@ -3,7 +3,7 @@ redis:
   idleTime: 1
 
 mongo:
-  main-db-name: test
+  service-db-name: test
   descriptors-db-name: descriptors
 
 elasticsearch:
