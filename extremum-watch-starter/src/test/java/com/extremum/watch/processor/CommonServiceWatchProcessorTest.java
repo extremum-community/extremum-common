@@ -144,7 +144,7 @@ class CommonServiceWatchProcessorTest {
 
         processor.process(new TestInvocation("save", new Object[]{model}), model);
 
-        verify(watchEventConsumer, never()).consume(watchEventCaptor.capture());
+        verify(watchEventConsumer, never()).consume(any());
     }
 
     @Test
@@ -193,7 +193,16 @@ class CommonServiceWatchProcessorTest {
 
         processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model);
 
-        verify(watchEventConsumer, never()).consume(watchEventCaptor.capture());
+        verify(watchEventConsumer, never()).consume(any());
+    }
+
+    @Test
+    void whenProcessingUnknownInvocation_thenInvocationShouldBeIgnored() throws Exception {
+        NonWatchedModel model = new NonWatchedModel();
+
+        processor.process(new TestInvocation("method-we-are-not-interested-in", new Object[]{model}), model);
+
+        verify(watchEventConsumer, never()).consume(any());
     }
 
     private static class TestInvocation implements Invocation {
