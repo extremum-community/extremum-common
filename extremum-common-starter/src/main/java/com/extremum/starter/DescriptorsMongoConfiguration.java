@@ -100,10 +100,19 @@ public class DescriptorsMongoConfiguration {
     }
 
     private Collection<String> getMappingBasePackages() {
+        // TODO: a better solution?
+        // We explicitly return here an empty set to disable pre-scanning
+        // for entities. If we allow the infrastructure to pre-scan, we would
+        // have to exclude entities from different Mongo databases, and
+        // it is not clear how to do it.
+        // On the other hand, when Repository instances are created, indices
+        // are created within a correct Mongo database (defined by MongoTemplate
+        // which is in turn defined by Repository-scanning annotation like
+        // @EnableMongoRepositories.
+        return emptyMappingBasePackagesSetToAvoidMultipleDatasourceProblems();
+    }
 
-//        Package mappingBasePackage = getClass().getPackage();
-//        return Collections.singleton(mappingBasePackage == null ? null : mappingBasePackage.getName());
-
+    private Collection<String> emptyMappingBasePackagesSetToAvoidMultipleDatasourceProblems() {
         return Collections.emptySet();
     }
 
