@@ -3,12 +3,14 @@ package com.extremum.watch.aop;
 import com.extremum.common.dao.MongoCommonDao;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.service.CommonService;
+import com.extremum.common.service.ThrowOnAlert;
 import com.extremum.common.service.impl.MongoCommonServiceImpl;
 import com.extremum.everything.services.management.PatchFlow;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.processor.CommonServiceWatchProcessor;
 import com.extremum.watch.processor.Invocation;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
@@ -82,11 +85,26 @@ class CaptureChangesAspectTest {
 
         commonServiceProxy.save(model);
 
+        assertThatSaveInvocationIsInvokedWith(model);
+    }
+
+    private void assertThatSaveInvocationIsInvokedWith(TestModel model) throws JsonProcessingException {
         verify(commonServiceWatchProcessor).process(invocationCaptor.capture(), same(model));
         Invocation invocation = invocationCaptor.getValue();
         assertThat(invocation.methodName(), is("save"));
-        assertThat(invocation.args().length, is(1));
+        assertThat(invocation.args().length, is(greaterThanOrEqualTo(1)));
         assertThat(invocation.args()[0], is(sameInstance(model)));
+    }
+
+    @Test
+    void whenInvokingSaveWithProblemsMethodOnCommonService_thenCommonServiceWatchProcessorShouldBeTriggered()
+            throws Exception {
+        TestModel model = new TestModel();
+        when(dao.save(model)).thenReturn(model);
+
+        commonServiceProxy.save(model, new ThrowOnAlert());
+
+        assertThatSaveInvocationIsInvokedWith(model);
     }
 
     @Test
@@ -97,11 +115,28 @@ class CaptureChangesAspectTest {
 
         commonServiceProxy.delete(internalId);
 
+        assertThatDeleteInvocationIsInvokedWith(internalId, model);
+    }
+
+    private void assertThatDeleteInvocationIsInvokedWith(String internalId,
+            TestModel model) throws JsonProcessingException {
         verify(commonServiceWatchProcessor).process(invocationCaptor.capture(), same(model));
         Invocation invocation = invocationCaptor.getValue();
         assertThat(invocation.methodName(), is("delete"));
-        assertThat(invocation.args().length, is(1));
+        assertThat(invocation.args().length, is(greaterThanOrEqualTo(1)));
         assertThat(invocation.args()[0], is(equalTo(internalId)));
+    }
+
+    @Test
+    void whenInvokingDeleteWithProblemsMethodOnCommonService_thenCommonServiceWatchProcessorShouldBeTriggered()
+            throws Exception {
+        String internalId = new ObjectId().toString();
+        TestModel model = new TestModel();
+        when(dao.deleteByIdAndReturn(any())).thenReturn(model);
+
+        commonServiceProxy.delete(internalId, new ThrowOnAlert());
+
+        assertThatDeleteInvocationIsInvokedWith(internalId, model);
     }
 
     @Test
@@ -126,7 +161,7 @@ class CaptureChangesAspectTest {
     }
 
     private static class TestCommonService extends MongoCommonServiceImpl<TestModel> {
-        public TestCommonService(MongoCommonDao<TestModel> dao) {
+        TestCommonService(MongoCommonDao<TestModel> dao) {
             super(dao);
         }
     }
