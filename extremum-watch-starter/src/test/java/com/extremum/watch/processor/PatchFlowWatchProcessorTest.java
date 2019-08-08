@@ -7,11 +7,13 @@ import com.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
+import com.github.fge.jackson.jsonpointer.JsonPointerException;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -21,12 +23,11 @@ import java.util.Collections;
 
 import static com.extremum.watch.processor.ProcessorTests.assertThatEventMetadataMatchesModelMetadataFully;
 import static com.extremum.watch.processor.ProcessorTests.assertThatEventModelIdMatchesModelId;
-import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -51,8 +52,7 @@ class PatchFlowWatchProcessorTest {
     void whenProcessingPatchInvocationInWatchedModel_thenEventShouldBeCreated() throws Exception {
         WatchedModel model = new WatchedModel();
         model.setName("old-name");
-        ReplaceOperation operation = new ReplaceOperation(new JsonPointer("/name"), new TextNode("new-name"));
-        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
+        JsonPatch jsonPatch = replaceNameWithNewName();
 
         processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model);
 
@@ -61,6 +61,12 @@ class PatchFlowWatchProcessorTest {
         assertThatEventModelIdMatchesModelId(model, event);
         assertThatPatchReplacesNameWith(event.getJsonPatch(), "new-name");
         assertThatEventMetadataMatchesModelMetadataFully(model, event);
+    }
+
+    @NotNull
+    private JsonPatch replaceNameWithNewName() throws JsonPointerException {
+        ReplaceOperation operation = new ReplaceOperation(new JsonPointer("/name"), new TextNode("new-name"));
+        return new JsonPatch(Collections.singletonList(operation));
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -74,5 +80,15 @@ class PatchFlowWatchProcessorTest {
         assertThat(operation.get("path"), is("/name"));
 
         assertThat(operation.getString("value"), is(equalTo(expectedName)));
+    }
+
+    @Test
+    void whenProcessingPatchInvocationInNonWatchedModel_thenEventShouldBeCreated() throws Exception {
+        NonWatchedModel model = new NonWatchedModel();
+        JsonPatch jsonPatch = replaceNameWithNewName();
+
+        processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model);
+
+        verify(watchEventConsumer, never()).consume(watchEventCaptor.capture());
     }
 }

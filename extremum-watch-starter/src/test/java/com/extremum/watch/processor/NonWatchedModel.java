@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 @ModelName(ProcessorTests.NON_WATCHED_MODEL_NAME)
 class NonWatchedModel extends FilledModel {
+    private String name;
+
     NonWatchedModel() {
         setUuid(ProcessorTests.descriptor(getId(), ProcessorTests.NON_WATCHED_MODEL_NAME));
     }
