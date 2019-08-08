@@ -2,8 +2,6 @@ package com.extremum.watch.controller;
 
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.common.response.Response;
-import com.extremum.common.response.ResponseStatusEnum;
 import com.extremum.common.utils.DateUtils;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.models.TextWatchEvent;
@@ -19,10 +17,8 @@ import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
 import io.extremum.authentication.SecurityProvider;
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,11 +34,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.extremum.watch.controller.WatchControllerTests.successfulResponse;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -93,30 +88,6 @@ class WatchControllerTest {
         Collection<Descriptor> savedDescriptors = descriptorsCaptor.getValue();
         //noinspection unchecked
         assertThat(savedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
-    }
-
-    private Matcher<? super String> successfulResponse() {
-        return new TypeSafeMatcher<String>() {
-            @Override
-            protected boolean matchesSafely(String item) {
-                SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mock(MapperDependencies.class));
-                Response response = parseResponse(item, mapper);
-                return response.getStatus() == ResponseStatusEnum.OK && response.getCode() == 200;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Successful response with status OK and code 200");
-            }
-        };
-    }
-
-    private Response parseResponse(String item, SystemJsonObjectMapper mapper) {
-        try {
-            return mapper.readValue(new StringReader(item), Response.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private Matcher<Descriptor> withExternalId(String externalId) {

@@ -17,7 +17,7 @@ public class WatchTestConfiguration {
         return new SecurityProvider() {
             @Override
             public Object getPrincipal() {
-                return "";
+                return "Alex";
             }
 
             @Override

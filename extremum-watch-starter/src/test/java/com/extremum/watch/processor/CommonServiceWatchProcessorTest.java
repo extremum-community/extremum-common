@@ -23,6 +23,9 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.extremum.watch.processor.ProcessorTests.assertThatEventMetadataMatchesModelMetadataExceptModifiedField;
+import static com.extremum.watch.processor.ProcessorTests.assertThatEventMetadataMatchesModelMetadataFully;
+import static com.extremum.watch.processor.ProcessorTests.assertThatEventModelIdMatchesModelId;
 import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -69,9 +72,9 @@ class CommonServiceWatchProcessorTest {
 
         verify(watchEventConsumer).consume(watchEventCaptor.capture());
         TextWatchEvent event = watchEventCaptor.getValue();
-        ProcessorTests.assertThatEventModelIdMatchesModelId(model, event);
+        assertThatEventModelIdMatchesModelId(model, event);
         assertThatPatchIsForFullReplaceWithName(event.getJsonPatch(), "the-model");
-        ProcessorTests.assertThatEventMetadataMatchesModelMetadataFully(model, event);
+        assertThatEventMetadataMatchesModelMetadataFully(model, event);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -119,9 +122,9 @@ class CommonServiceWatchProcessorTest {
 
         verify(watchEventConsumer).consume(watchEventCaptor.capture());
         TextWatchEvent event = watchEventCaptor.getValue();
-        ProcessorTests.assertThatEventModelIdMatchesModelId(model, event);
+        assertThatEventModelIdMatchesModelId(model, event);
         assertThatPatchIsForFullRemoval(event);
-        ProcessorTests.assertThatEventMetadataMatchesModelMetadataExceptModifiedField(event, model);
+        assertThatEventMetadataMatchesModelMetadataExceptModifiedField(event, model);
     }
 
     private void assertThatPatchIsForFullRemoval(TextWatchEvent event) throws JSONException {

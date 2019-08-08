@@ -1,7 +1,8 @@
 package com.extremum.watch.controller;
 
-import com.extremum.watch.config.WatchTestConfiguration;
+import com.extremum.common.utils.DateUtils;
 import com.extremum.watch.config.TestWithServices;
+import com.extremum.watch.config.WatchTestConfiguration;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.repositories.TextWatchEventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +19,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.extremum.watch.controller.WatchControllerTests.successfulResponse;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = WatchTestConfiguration.class)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -41,8 +46,10 @@ class WatchControllerEndToEndTest extends TestWithServices {
 
     @BeforeAll
     void setUp() {
+        TextWatchEvent watchEvent = new TextWatchEvent("\"test1\"", "test", new ModelWithFilledValues());
+        watchEvent.setSubscribers(Collections.singleton("Alex"));
         firstEvent = eventRepository
-                .save(new TextWatchEvent("test1", "test", new ModelWithFilledValues()))
+                .save(watchEvent)
                 .getCreated();
         eventsSize++;
     }
@@ -50,7 +57,9 @@ class WatchControllerEndToEndTest extends TestWithServices {
     @Test
     void testFindAllEvents() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
-                .contentType(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
                 .andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         List<Map<String, String>> events = parseEvents(contentAsString);
@@ -63,15 +72,18 @@ class WatchControllerEndToEndTest extends TestWithServices {
 
     @Test
     void testFindAllEventsAfterFirstEvent() throws Exception {
-        TextWatchEvent event = new TextWatchEvent("test2", "test", new ModelWithFilledValues());
+        TextWatchEvent event = new TextWatchEvent("\"test2\"", "test", new ModelWithFilledValues());
+        event.setSubscribers(Collections.singleton("Alex"));
         ZonedDateTime secondEvent = eventRepository.save(event).getCreated();
         eventsSize++;
 
         ZonedDateTime beforeLastEvent = secondEvent.minusNanos(2);
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(beforeLastEvent)))
+                .param("since", DateUtils.formatZonedDateTimeISO_8601(beforeLastEvent))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
                 .andReturn();
 
         String contentAsString = mvcResult.getResponse().getContentAsString();
@@ -85,11 +97,13 @@ class WatchControllerEndToEndTest extends TestWithServices {
 
     @Test
     void testFindAllEventsAfterTomorrow() throws Exception {
-        ZonedDateTime newDate = firstEvent.plusDays(1);
+        ZonedDateTime tomorrow = firstEvent.plusDays(1);
 
         MvcResult mvcResult = mockMvc.perform(get("/api/watch")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newDate)))
+                .param("since", DateUtils.formatZonedDateTimeISO_8601(tomorrow))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
                 .andReturn();
 
         String contentAsString = mvcResult.getResponse().getContentAsString();
