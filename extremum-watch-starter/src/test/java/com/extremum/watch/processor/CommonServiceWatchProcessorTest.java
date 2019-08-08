@@ -164,7 +164,6 @@ class CommonServiceWatchProcessorTest {
         assertThatEventMetadataMatchesModelMetadataExceptModifiedField(event, model);
     }
 
-    @SuppressWarnings("SameParameterValue")
     @NotNull
     private Class<Model> modelClass(Class<? extends Model> modelClass) {
         @SuppressWarnings("unchecked")
@@ -188,6 +187,9 @@ class CommonServiceWatchProcessorTest {
     void whenProcessingDeleteInvocationOnNonWatchedModel_thenInvocationShouldBeIgnored() throws Exception {
         NonWatchedModel model = new NonWatchedModel();
         String modelInternalId = model.getId().toString();
+        when(descriptorService.loadByInternalId(modelInternalId))
+                .thenReturn(Optional.ofNullable(model.getUuid()));
+        when(modelClasses.getClassByModelName(NON_WATCHED_MODEL_NAME)).thenReturn(modelClass(NonWatchedModel.class));
 
         processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model);
 
