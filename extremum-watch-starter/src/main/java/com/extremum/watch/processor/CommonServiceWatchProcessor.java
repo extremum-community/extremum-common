@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.POJONode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jackson.jsonpointer.JsonPointerException;
 import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.RemoveOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +60,7 @@ public class CommonServiceWatchProcessor {
                     .map(modelClasses::getClassByModelName)
                     .orElse(null);
             if (modelClass != null && modelClass.getAnnotation(CapturedModel.class) != null) {
-                String jsonPatch = objectMapper.writeValueAsString(modelInternalId);
+                String jsonPatch = constructFullRemovalJsonPatch();
                 TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, returnedModel);
                 // TODO: should we just ALWAYS set modification time in CommonService.delete()?
                 event.touchModelMotificationTime();
@@ -83,6 +84,12 @@ public class CommonServiceWatchProcessor {
             throw new ProgrammingErrorException("Invalid JSON pointer", e);
         }
         return pointer;
+    }
+
+    private String constructFullRemovalJsonPatch() throws JsonProcessingException {
+        RemoveOperation operation = new RemoveOperation(rootPointer());
+        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
+        return objectMapper.writeValueAsString(jsonPatch);
     }
 
     private boolean isDeleteMethod(Invocation invocation) {

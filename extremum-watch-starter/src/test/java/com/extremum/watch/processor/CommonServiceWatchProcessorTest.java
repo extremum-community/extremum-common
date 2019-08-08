@@ -1,10 +1,13 @@
 package com.extremum.watch.processor;
 
+import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
+import com.extremum.common.models.Model;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.annotation.ModelName;
+import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.RequestDto;
@@ -17,6 +20,7 @@ import org.bson.types.ObjectId;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -24,11 +28,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
@@ -42,6 +48,9 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 class CommonServiceWatchProcessorTest {
+    private static final String WATCHED_MODEL_NAME = "WatchedModel";
+    private static final String NON_WATCHED_MODEL_NAME = "NonWatchedModel";
+
     @InjectMocks
     private CommonServiceWatchProcessor processor;
 
@@ -50,7 +59,11 @@ class CommonServiceWatchProcessorTest {
     @Mock
     private WatchEventConsumer watchEventConsumer;
     @Spy
-    private final ObjectMapper mapper = new SystemJsonObjectMapper(mock(MapperDependencies.class));
+    private ObjectMapper mapper = new SystemJsonObjectMapper(mock(MapperDependencies.class));
+    @Mock
+    private DescriptorService descriptorService;
+    @Mock
+    private ModelClasses modelClasses;
 
     @Captor
     private ArgumentCaptor<TextWatchEvent> watchEventCaptor;
@@ -66,10 +79,15 @@ class CommonServiceWatchProcessorTest {
 
         verify(watchEventConsumer).consume(watchEventCaptor.capture());
         TextWatchEvent event = watchEventCaptor.getValue();
-        assertThat(event.getModelId(), is(equalTo(model.getId().toString())));
+        assertThatEventModelIdMatchesModelId(model, event);
         assertThatPatchIsForFullReplaceWithName(event.getJsonPatch(), "the-model");
     }
 
+    private void assertThatEventModelIdMatchesModelId(WatchedModel model, TextWatchEvent event) {
+        assertThat(event.getModelId(), is(equalTo(model.getId().toString())));
+    }
+
+    @SuppressWarnings("SameParameterValue")
     private void assertThatPatchIsForFullReplaceWithName(String jsonPatchString, String expectedName)
             throws JSONException {
         JSONArray patch = new JSONArray(jsonPatchString);
@@ -102,6 +120,52 @@ class CommonServiceWatchProcessorTest {
         verify(watchEventConsumer, never()).consume(watchEventCaptor.capture());
     }
 
+    @Test
+    void whenProcessingDeleteInvocationOnWatchedModel_thenEventShouldBeCreatedWithRemovingJsonPatch() throws Exception {
+        WatchedModel model = new WatchedModel();
+        String modelInternalId = model.getId().toString();
+        when(descriptorService.loadByInternalId(modelInternalId))
+                .thenReturn(Optional.ofNullable(model.getUuid()));
+        when(modelClasses.getClassByModelName(WATCHED_MODEL_NAME)).thenReturn(modelClass(WatchedModel.class));
+
+        processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model);
+
+        verify(watchEventConsumer).consume(watchEventCaptor.capture());
+        TextWatchEvent event = watchEventCaptor.getValue();
+        assertThatEventModelIdMatchesModelId(model, event);
+        assertThatPatchIsForFullRemoval(event);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    @NotNull
+    private Class<Model> modelClass(Class<? extends Model> modelClass) {
+        @SuppressWarnings("unchecked")
+        Class<Model> recastClass = (Class<Model>) modelClass;
+        return recastClass;
+    }
+
+    private void assertThatPatchIsForFullRemoval(TextWatchEvent event) throws JSONException {
+        JSONArray patch = new JSONArray(event.getJsonPatch());
+
+        assertThat(patch.length(), is(1));
+        JSONObject operation = patch.getJSONObject(0);
+
+        assertThat(operation.get("op"), is("remove"));
+        assertThat(operation.get("path"), is("/"));
+
+        assertThat(operation.opt("value"), is(nullValue()));
+    }
+
+    @Test
+    void whenProcessingDeleteInvocationOnNonWatchedModel_thenInvocationShouldBeIgnored() throws Exception {
+        NonWatchedModel model = new NonWatchedModel();
+        String modelInternalId = model.getId().toString();
+
+        processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model);
+
+        verify(watchEventConsumer, never()).consume(watchEventCaptor.capture());
+    }
+
     private static class TestInvocation implements Invocation {
         private final String name;
         private final Object[] arguments;
@@ -125,7 +189,7 @@ class CommonServiceWatchProcessorTest {
     @Getter
     @Setter
     @CapturedModel
-    @ModelName("TestModel")
+    @ModelName(WATCHED_MODEL_NAME)
     private static class WatchedModel extends MongoCommonModel {
         private String name;
 
@@ -134,7 +198,7 @@ class CommonServiceWatchProcessorTest {
             setUuid(Descriptor.builder()
                     .externalId("external-id")
                     .internalId(getId().toString())
-                    .modelType("TestModel")
+                    .modelType(WATCHED_MODEL_NAME)
                     .storageType(Descriptor.StorageType.MONGO)
                     .build());
         }
@@ -152,14 +216,14 @@ class CommonServiceWatchProcessorTest {
 
     @Getter
     @Setter
-    @ModelName("NonWatchedModel")
+    @ModelName(NON_WATCHED_MODEL_NAME)
     private static class NonWatchedModel extends MongoCommonModel {
         NonWatchedModel() {
             setId(new ObjectId());
             setUuid(Descriptor.builder()
                     .externalId("external-id")
                     .internalId(getId().toString())
-                    .modelType("NonWatchedModel")
+                    .modelType(NON_WATCHED_MODEL_NAME)
                     .storageType(Descriptor.StorageType.MONGO)
                     .build());
         }
