@@ -1,39 +1,42 @@
 package com.extremum.watch.processor;
 
 import com.extremum.common.descriptor.service.DescriptorService;
+import com.extremum.common.dto.converters.ConversionConfig;
+import com.extremum.common.dto.converters.services.DtoConversionService;
+import com.extremum.common.exceptions.ProgrammingErrorException;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
 import com.extremum.everything.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.POJONode;
+import com.github.fge.jackson.jsonpointer.JsonPointer;
+import com.github.fge.jackson.jsonpointer.JsonPointerException;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.ReplaceOperation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Processor for {@link com.extremum.common.service.CommonService} pointcut
  */
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class CommonServiceWatchProcessor {
     private final ObjectMapper objectMapper;
     private final DescriptorService descriptorService;
     private final ModelClasses modelClasses;
+    private final DtoConversionService dtoConversionService;
     private final WatchEventConsumer watchEventConsumer;
-
-    public CommonServiceWatchProcessor(ModelClasses modelClasses,
-            ObjectMapper objectMapper,
-            DescriptorService descriptorService,
-            WatchEventConsumer watchEventConsumer) {
-        this.modelClasses = modelClasses;
-        this.objectMapper = objectMapper;
-        this.descriptorService = descriptorService;
-        this.watchEventConsumer = watchEventConsumer;
-    }
 
     public void process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
         Object[] args = invocation.args();
@@ -44,9 +47,9 @@ public class CommonServiceWatchProcessor {
             Model model = (Model) args[0];
             if (model.getClass().getAnnotation(CapturedModel.class) != null
                     && BasicModel.class.isAssignableFrom(model.getClass())) {
-                String jsonPatch = objectMapper.writeValueAsString(model);
+                String jsonPatchString = constructFullReplaceJsonPatch(model);
                 String modelInternalId = ((BasicModel) model).getId().toString();
-                TextWatchEvent event = new TextWatchEvent(jsonPatch, modelInternalId, model);
+                TextWatchEvent event = new TextWatchEvent(jsonPatchString, modelInternalId, model);
                 watchEventConsumer.consume(event);
             }
         } else if (isDeleteMethod(invocation)) {
@@ -63,6 +66,23 @@ public class CommonServiceWatchProcessor {
                 watchEventConsumer.consume(event);
             }
         }
+    }
+
+    private String constructFullReplaceJsonPatch(Model model) throws JsonProcessingException {
+        RequestDto dto = dtoConversionService.convertUnknownToRequestDto(model, ConversionConfig.defaults());
+        ReplaceOperation operation = new ReplaceOperation(rootPointer(), new POJONode(dto));
+        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
+        return objectMapper.writeValueAsString(jsonPatch);
+    }
+
+    private JsonPointer rootPointer() {
+        JsonPointer pointer;
+        try {
+            pointer = new JsonPointer("/");
+        } catch (JsonPointerException e) {
+            throw new ProgrammingErrorException("Invalid JSON pointer", e);
+        }
+        return pointer;
     }
 
     private boolean isDeleteMethod(Invocation invocation) {
