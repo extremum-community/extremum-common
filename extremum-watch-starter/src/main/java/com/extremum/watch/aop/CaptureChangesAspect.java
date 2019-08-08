@@ -4,16 +4,16 @@ import com.extremum.common.models.Model;
 import com.extremum.watch.processor.CommonServiceWatchProcessor;
 import com.extremum.watch.processor.MethodJoinPointInvocation;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 
 /**
  * Aspect to implement watch logic.
@@ -22,13 +22,25 @@ import java.util.Arrays;
 @Component
 @Slf4j
 @Aspect
-@RequiredArgsConstructor
 public class CaptureChangesAspect {
     private final PatchFlowWatchProcessor patchFlowProcessor;
     private final CommonServiceWatchProcessor commonServiceProcessor;
+    private final Executor executor;
+
+    public CaptureChangesAspect(PatchFlowWatchProcessor patchFlowProcessor,
+            CommonServiceWatchProcessor commonServiceProcessor,
+            @Qualifier("watchEventsHandlingExecutor") Executor executor) {
+        this.patchFlowProcessor = patchFlowProcessor;
+        this.commonServiceProcessor = commonServiceProcessor;
+        this.executor = executor;
+    }
 
     @AfterReturning(value = "patchMethod()", returning = "returnedModel")
     public void watchPatchChanges(JoinPoint jp, Model returnedModel) {
+        executor.execute(() -> processPatchChanges(jp, returnedModel));
+    }
+
+    private void processPatchChanges(JoinPoint jp, Model returnedModel) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Watch PatchFlow method with name {} and args {}",
@@ -42,6 +54,10 @@ public class CaptureChangesAspect {
 
     @AfterReturning(value = "commonServiceDeleteMethods() || commonServiceSaveMethods()", returning = "returnedModel")
     public void watchCommonServiceChanges(JoinPoint jp, Model returnedModel) {
+        executor.execute(() -> processCommonServiceInvocation(jp, returnedModel));
+    }
+
+    private void processCommonServiceInvocation(JoinPoint jp, Model returnedModel) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Watch CommonService method with name {} and args {}",

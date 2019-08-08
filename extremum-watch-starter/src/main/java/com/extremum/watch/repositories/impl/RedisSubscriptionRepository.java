@@ -1,6 +1,6 @@
 package com.extremum.watch.repositories.impl;
 
-import com.extremum.watch.config.SubscriptionProperties;
+import com.extremum.watch.config.WatchProperties;
 import com.extremum.watch.repositories.SubscriptionRepository;
 import org.redisson.api.RSetCache;
 import org.redisson.api.RedissonClient;
@@ -13,9 +13,9 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class RedisSubscriptionRepository implements SubscriptionRepository {
     private final RedissonClient client;
-    private final SubscriptionProperties properties;
+    private final WatchProperties properties;
 
-    public RedisSubscriptionRepository(RedissonClient client, SubscriptionProperties properties) {
+    public RedisSubscriptionRepository(RedissonClient client, WatchProperties properties) {
         this.client = client;
         this.properties = properties;
     }
@@ -27,7 +27,7 @@ public class RedisSubscriptionRepository implements SubscriptionRepository {
 
     private void subscribeToOne(String modelId, String subscriberId) {
         RSetCache<String> subscribers = subscriptionSet(modelId);
-        subscribers.add(subscriberId, properties.getTimeToLive(), TimeUnit.DAYS);
+        subscribers.add(subscriberId, properties.getSubscriptionTimeToLiveDays(), TimeUnit.DAYS);
     }
 
     private RSetCache<String> subscriptionSet(String modelId) {

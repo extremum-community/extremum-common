@@ -12,20 +12,19 @@ import com.extremum.watch.processor.Invocation;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.framework.DefaultAopProxyFactory;
 
 import java.util.Collections;
+import java.util.concurrent.Executor;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -49,6 +48,8 @@ class CaptureChangesAspectTest {
     private CommonServiceWatchProcessor commonServiceWatchProcessor;
     @Mock
     private PatchFlowWatchProcessor patchFlowWatchProcessor;
+    @Spy
+    private Executor executor = MoreExecutors.sameThreadExecutor();
 
     private CommonService<TestModel> commonServiceProxy;
     private PatchFlow patchFlowProxy;
