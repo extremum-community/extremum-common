@@ -77,13 +77,11 @@ public class CommonServiceWatchProcessor {
     }
 
     private JsonPointer rootPointer() {
-        JsonPointer pointer;
         try {
-            pointer = new JsonPointer("/");
+            return new JsonPointer("/");
         } catch (JsonPointerException e) {
             throw new ProgrammingErrorException("Invalid JSON pointer", e);
         }
-        return pointer;
     }
 
     private String constructFullRemovalJsonPatch() throws JsonProcessingException {
