@@ -1,7 +1,7 @@
 package com.extremum.watch.processor;
 
 import com.extremum.common.models.Model;
-import com.extremum.everything.support.ModelClasses;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.models.TextWatchEvent;

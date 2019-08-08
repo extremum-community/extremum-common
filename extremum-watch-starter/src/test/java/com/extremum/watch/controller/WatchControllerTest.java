@@ -3,6 +3,7 @@ package com.extremum.watch.controller;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
 import com.extremum.common.utils.DateUtils;
+import com.extremum.security.PrincipalSource;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.WatchEventService;
@@ -16,7 +17,6 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
-import io.extremum.authentication.SecurityProvider;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -67,7 +66,7 @@ class WatchControllerTest {
     @MockBean
     private WatchEventService watchEventService;
     @MockBean
-    private SecurityProvider securityProvider;
+    private PrincipalSource principalSource;
     @MockBean
     private WatchSubscriptionService watchSubscriptionService;
 
@@ -76,7 +75,7 @@ class WatchControllerTest {
 
     @Test
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
-        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
         mockMvc.perform(put("/api/watch")
                 .content("[\"dead\",\"beef\"]")
@@ -96,7 +95,7 @@ class WatchControllerTest {
 
     @Test
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
-        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
         when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
@@ -116,7 +115,7 @@ class WatchControllerTest {
         ZonedDateTime since = ZonedDateTime.now().minusDays(1);
         ZonedDateTime until = since.plusDays(2);
 
-        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
         when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
@@ -172,7 +171,7 @@ class WatchControllerTest {
 
     @Test
     void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
-        when(securityProvider.getPrincipal()).thenReturn("Alex");
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
         mockMvc.perform(delete("/api/watch")
                 .content("[\"dead\",\"beef\"]")

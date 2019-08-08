@@ -6,7 +6,7 @@ import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.exceptions.ProgrammingErrorException;
 import com.extremum.common.models.BasicModel;
 import com.extremum.common.models.Model;
-import com.extremum.everything.support.ModelClasses;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.sharedmodels.annotation.CapturedModel;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.sharedmodels.dto.RequestDto;

@@ -2,7 +2,7 @@ package com.extremum.watch.processor;
 
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.everything.support.ModelClasses;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;

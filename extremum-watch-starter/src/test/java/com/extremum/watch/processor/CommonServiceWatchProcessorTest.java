@@ -4,7 +4,7 @@ import com.extremum.common.descriptor.service.DescriptorService;
 import com.extremum.common.dto.converters.services.DtoConversionService;
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.everything.support.ModelClasses;
+import com.extremum.common.support.ModelClasses;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.annotation.JsonProperty;

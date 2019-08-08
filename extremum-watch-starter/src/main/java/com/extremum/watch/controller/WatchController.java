@@ -2,6 +2,7 @@ package com.extremum.watch.controller;
 
 import com.extremum.common.descriptor.factory.DescriptorFactory;
 import com.extremum.common.response.Response;
+import com.extremum.security.PrincipalSource;
 import com.extremum.sharedmodels.descriptor.Descriptor;
 import com.extremum.watch.dto.TextWatchEventResponseDto;
 import com.extremum.watch.dto.converter.TextWatchEventConverter;
@@ -9,7 +10,6 @@ import com.extremum.watch.exception.WatchException;
 import com.extremum.watch.models.TextWatchEvent;
 import com.extremum.watch.services.WatchEventService;
 import com.extremum.watch.services.WatchSubscriptionService;
-import io.extremum.authentication.SecurityProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WatchController {
     private final WatchEventService watchEventService;
-    private final SecurityProvider securityProvider;
+    private final PrincipalSource principalSource;
     private final WatchSubscriptionService watchSubscriptionService;
     private final TextWatchEventConverter textWatchEventConverter;
     private final DescriptorFactory descriptorFactory;
@@ -60,11 +60,8 @@ public class WatchController {
     }
 
     private String getSubscriber() {
-        String principalId = securityProvider.getPrincipal().toString();
-        if (principalId == null) {
-            throw new WatchException("Cannot find principal");
-        }
-        return principalId;
+        return principalSource.getPrincipal()
+                .orElseThrow(() -> new WatchException("Cannot find principal"));
     }
 
     @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
