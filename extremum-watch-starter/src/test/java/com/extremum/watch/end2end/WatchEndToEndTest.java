@@ -24,13 +24,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.extremum.watch.Tests.successfulResponse;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -57,26 +55,38 @@ class WatchEndToEndTest extends TestWithServices {
     @Autowired
     private WatchedModelService watchedModelService;
 
-    private final String principal = UUID.randomUUID().toString();
-
     @MockBean
     private PrincipalSource principalSource;
 
+    private WatchedModel model;
+
     @BeforeEach
-    void plugInAFreshPrincipal() {
+    void init() {
+        plugInAFreshPrincipal();
+        saveAFreshModel();
+    }
+
+    private void plugInAFreshPrincipal() {
+        String principal = UUID.randomUUID().toString();
         when(principalSource.getPrincipal()).thenReturn(Optional.of(principal));
     }
 
+    private void saveAFreshModel() {
+        WatchedModel modelToSave = new WatchedModel();
+        modelToSave.setName("old name");
+        model = watchedModelService.create(modelToSave);
+    }
+
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenSaveEventShouldBeReturned()
+    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsPatched_whenGettingWatchEvents_thenOnePatchEventShouldBeReturned()
             throws Exception {
-        String externalId = saveModelWithName("old name");
+        String externalId = model.getUuid().getExternalId();
         subscribeTo(externalId);
         patchToChangeName(externalId, "new name");
 
         List<Map<String, Object>> events = getNonZeroEventsForCurrentPrincipal();
 
-        assertThatOneEventForPatchingNamePropertyIsCreated(externalId, events);
+        assertThatThereIsOneEventForPatchingNameProperty(externalId, events);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -136,7 +146,7 @@ class WatchEndToEndTest extends TestWithServices {
         return JsonPath.parse(response).read("$.result");
     }
 
-    private void assertThatOneEventForPatchingNamePropertyIsCreated(String externalId,
+    private void assertThatThereIsOneEventForPatchingNameProperty(String externalId,
             List<Map<String, Object>> events) {
         assertThat(events, hasSize(1));
         Map<String, Object> event = events.get(0);
@@ -169,5 +179,34 @@ class WatchEndToEndTest extends TestWithServices {
         assertThat(operations, hasSize(1));
 
         return operations.get(0);
+    }
+
+    @Test
+    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenOneSaveEventShouldBeReturned()
+            throws Exception {
+        subscribeTo(model.getUuid().getExternalId());
+        saveToChangeNameTo("new name");
+
+        List<Map<String, Object>> events = getNonZeroEventsForCurrentPrincipal();
+
+        assertThatThereIsOneEventForSaving(events);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void saveToChangeNameTo(String newName) {
+        model.setName(newName);
+        watchedModelService.save(model);
+    }
+
+    private void assertThatThereIsOneEventForSaving(List<Map<String, Object>> events) {
+        assertThat(events, hasSize(1));
+        Map<String, Object> event = events.get(0);
+
+        assertThatEventObjectMetadataIsCorrect(event, model.getUuid().getExternalId());
+        Map<String, Object> operation = getSingleOperation(event);
+
+        assertThat(operation, hasEntry(is("op"), is("replace")));
+        assertThat(operation, hasEntry(is("path"), is("/")));
+        assertThat(operation, hasEntry(is("value"), is(singletonMap("name", "new name"))));
     }
 }
