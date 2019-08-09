@@ -139,9 +139,17 @@ class WatchEndToEndTest extends TestWithServices {
     private void assertThatOneEventForPatchingNamePropertyIsCreated(String externalId,
             List<Map<String, Object>> events) {
         assertThat(events, hasSize(1));
-
         Map<String, Object> event = events.get(0);
 
+        assertThatEventObjectMetadataIsCorrect(event, externalId);
+        Map<String, Object> operation = getSingleOperation(event);
+
+        assertThat(operation, hasEntry(is("op"), is("replace")));
+        assertThat(operation, hasEntry(is("path"), is("/name")));
+        assertThat(operation, hasEntry(is("value"), is("new name")));
+    }
+
+    private void assertThatEventObjectMetadataIsCorrect(Map<String, Object> event, String externalId) {
         assertThat(event.get("object"), is(notNullValue()));
         assertThat(event.get("object"), is(instanceOf(Map.class)));
         @SuppressWarnings("unchecked")
@@ -151,16 +159,15 @@ class WatchEndToEndTest extends TestWithServices {
         assertThat(object, hasKey("created"));
         assertThat(object, hasKey("modified"));
         assertThat(object, hasKey("version"));
+    }
 
+    private Map<String, Object> getSingleOperation(Map<String, Object> event) {
         assertThat(event.get("patch"), is(notNullValue()));
         assertThat(event.get("patch"), is(instanceOf(List.class)));
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> operations = (List<Map<String, Object>>) event.get("patch");
         assertThat(operations, hasSize(1));
 
-        Map<String, Object> operation = operations.get(0);
-        assertThat(operation, hasEntry(is("op"), is("replace")));
-        assertThat(operation, hasEntry(is("path"), is("/name")));
-        assertThat(operation, hasEntry(is("value"), is("new name")));
+        return operations.get(0);
     }
 }
