@@ -1,4 +1,4 @@
-package com.extremum.watch.controller;
+package com.extremum.watch;
 
 import com.extremum.common.mapper.MapperDependencies;
 import com.extremum.common.mapper.SystemJsonObjectMapper;
@@ -16,8 +16,8 @@ import static org.mockito.Mockito.mock;
 /**
  * @author rpuch
  */
-class WatchControllerTests {
-    static Matcher<? super String> successfulResponse() {
+public class Tests {
+    public static Matcher<? super String> successfulResponse() {
         return new TypeSafeMatcher<String>() {
             @Override
             protected boolean matchesSafely(String item) {

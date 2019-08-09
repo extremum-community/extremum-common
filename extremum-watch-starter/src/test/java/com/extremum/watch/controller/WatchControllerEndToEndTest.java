@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.extremum.watch.controller.WatchControllerTests.successfulResponse;
+import static com.extremum.watch.Tests.successfulResponse;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -110,6 +110,11 @@ class WatchControllerEndToEndTest extends TestWithServices {
         List<Map<String, String>> events = parseEvents(contentAsString);
 
         assertEquals(0, events.size());
+    }
+
+    @Test
+    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenSaveEventShouldBeReturned() {
+
     }
 
     private List<Map<String, String>> parseEvents(String response) {

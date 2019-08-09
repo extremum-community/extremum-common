@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.extremum.watch.controller.WatchControllerTests.successfulResponse;
+import static com.extremum.watch.Tests.successfulResponse;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;

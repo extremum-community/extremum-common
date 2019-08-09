@@ -4,6 +4,6 @@ import org.springframework.http.HttpStatus;
 
 public class ConverterNotFoundException extends CommonException {
     public ConverterNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND.value());
+        super(message, HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 }
