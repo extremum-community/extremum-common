@@ -1,4 +1,4 @@
-package com.extremum.watch.end2end;
+package com.extremum.common.utils.poll;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -50,7 +50,7 @@ public class Poller {
         private final Supplier<? extends T> sampler;
         private final Predicate<? super T> finisher;
 
-        public CombiningProbe(Supplier<? extends T> sampler, Predicate<? super T> finisher) {
+        CombiningProbe(Supplier<? extends T> sampler, Predicate<? super T> finisher) {
             this.sampler = sampler;
             this.finisher = finisher;
         }

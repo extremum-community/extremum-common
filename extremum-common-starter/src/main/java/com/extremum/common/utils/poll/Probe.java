@@ -1,4 +1,4 @@
-package com.extremum.watch.end2end;
+package com.extremum.common.utils.poll;
 
 /**
  * @author rpuch
