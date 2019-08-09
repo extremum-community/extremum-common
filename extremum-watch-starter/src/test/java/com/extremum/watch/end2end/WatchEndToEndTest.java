@@ -11,6 +11,7 @@ import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -22,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,43 +62,29 @@ class WatchEndToEndTest extends TestWithServices {
     @MockBean
     private PrincipalSource principalSource;
 
+    @BeforeEach
+    void plugInAFreshPrincipal() {
+        when(principalSource.getPrincipal()).thenReturn(Optional.of(principal));
+    }
+
     @Test
     void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenSaveEventShouldBeReturned()
             throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Optional.of(principal));
-
-        WatchedModel model = new WatchedModel();
-        model.setName("old name");
-        WatchedModel savedModel = watchedModelService.save(model);
-        String externalId = savedModel.getUuid().getExternalId();
-
+        String externalId = saveModelWithName("old name");
         subscribeTo(externalId);
-
         patchToChangeName(externalId, "new name");
 
-        List<Map<String, Object>> events = getWatchEventsForCurrentPrincipal();
+        List<Map<String, Object>> events = getNonZeroEventsForCurrentPrincipal();
 
-        assertThat(events, hasSize(1));
+        assertThatOneEventForPatchingNamePropertyIsCreated(externalId, events);
+    }
 
-        Map<String, Object> event = events.get(0);
-
-        assertThat(event.get("object"), is(notNullValue()));
-        assertThat(event.get("object"), is(instanceOf(Map.class)));
-        Map<String, Object> object = (Map<String, Object>) event.get("object");
-        assertThat(object, hasEntry(is("id"), equalTo(externalId)));
-        assertThat(object, hasEntry(is("model"), is("E2EWatchedModel")));
-        assertThat(object, hasKey("created"));
-        assertThat(object, hasKey("modified"));
-        assertThat(object, hasKey("version"));
-
-        assertThat(event.get("patch"), is(notNullValue()));
-        assertThat(event.get("patch"), is(instanceOf(List.class)));
-        List<Map<String, Object>> operations = (List<Map<String, Object>>) event.get("patch");
-        assertThat(operations, hasSize(1));
-        Map<String, Object> operation = operations.get(0);
-        assertThat(operation, hasEntry(is("op"), is("replace")));
-        assertThat(operation, hasEntry(is("path"), is("/name")));
-        assertThat(operation, hasEntry(is("value"), is("new name")));
+    @SuppressWarnings("SameParameterValue")
+    private String saveModelWithName(String name) {
+        WatchedModel model = new WatchedModel();
+        model.setName(name);
+        WatchedModel savedModel = watchedModelService.save(model);
+        return savedModel.getUuid().getExternalId();
     }
 
     private void subscribeTo(String externalId) throws Exception {
@@ -110,6 +98,7 @@ class WatchEndToEndTest extends TestWithServices {
                 .andReturn();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void patchToChangeName(String externalId, String newName) throws Exception {
         JsonPatch jsonPatch = new JsonPatch(singletonList(
                 new ReplaceOperation(new JsonPointer("/name"), new TextNode(newName))
@@ -122,22 +111,56 @@ class WatchEndToEndTest extends TestWithServices {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(successfulResponse()))
                 .andReturn();
-
-        // poll instead of sleeping
-        Thread.sleep(1000);
     }
 
-    private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(successfulResponse()))
-                .andReturn();
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-        return parseEvents(contentAsString);
+    private List<Map<String, Object>> getNonZeroEventsForCurrentPrincipal() {
+        Poller poller = new Poller(Duration.ofSeconds(10));
+        return poller.poll(this::getWatchEventsForCurrentPrincipal, events -> events.size() > 0);
+    }
+
+    private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() {
+        try {
+            MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().is2xxSuccessful())
+                    .andExpect(content().string(successfulResponse()))
+                    .andReturn();
+            String contentAsString = mvcResult.getResponse().getContentAsString();
+            return parseEvents(contentAsString);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<Map<String, Object>> parseEvents(String response) {
         return JsonPath.parse(response).read("$.result");
+    }
+
+    private void assertThatOneEventForPatchingNamePropertyIsCreated(String externalId,
+            List<Map<String, Object>> events) {
+        assertThat(events, hasSize(1));
+
+        Map<String, Object> event = events.get(0);
+
+        assertThat(event.get("object"), is(notNullValue()));
+        assertThat(event.get("object"), is(instanceOf(Map.class)));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> object = (Map<String, Object>) event.get("object");
+        assertThat(object, hasEntry(is("id"), equalTo(externalId)));
+        assertThat(object, hasEntry(is("model"), is("E2EWatchedModel")));
+        assertThat(object, hasKey("created"));
+        assertThat(object, hasKey("modified"));
+        assertThat(object, hasKey("version"));
+
+        assertThat(event.get("patch"), is(notNullValue()));
+        assertThat(event.get("patch"), is(instanceOf(List.class)));
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> operations = (List<Map<String, Object>>) event.get("patch");
+        assertThat(operations, hasSize(1));
+
+        Map<String, Object> operation = operations.get(0);
+        assertThat(operation, hasEntry(is("op"), is("replace")));
+        assertThat(operation, hasEntry(is("path"), is("/name")));
+        assertThat(operation, hasEntry(is("value"), is("new name")));
     }
 }
