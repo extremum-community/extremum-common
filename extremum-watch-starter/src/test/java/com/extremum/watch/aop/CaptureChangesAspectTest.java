@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +35,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,9 +65,14 @@ class CaptureChangesAspectTest {
     private ArgumentCaptor<Invocation> invocationCaptor;
 
     @BeforeEach
-    void setUp() {
+    void createProxies() {
         commonServiceProxy = wrapWithAspect(new TestCommonService(dao));
         patchFlowProxy = wrapWithAspect(originalPatchFlow);
+    }
+
+    @AfterEach
+    void clearPatchingFlag() {
+        WatchCaptureContext.exitPatching();
     }
 
     private <T> T wrapWithAspect(T proxiedObject) {
@@ -143,7 +151,7 @@ class CaptureChangesAspectTest {
     @Test
     void whenInvokingPatchMethodOnPatchFlow_thenPatchFlowWatchProcessorShouldBeTriggered() throws Exception {
         Descriptor descriptor = new Descriptor("external-id");
-        JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
+        JsonPatch jsonPatch = aJsonPatch();
 
         TestModel model = new TestModel();
         when(originalPatchFlow.patch(any(), any())).thenReturn(model);
@@ -156,6 +164,44 @@ class CaptureChangesAspectTest {
         assertThat(invocation.args().length, is(2));
         assertThat(invocation.args()[0], is(sameInstance(descriptor)));
         assertThat(invocation.args()[1], is(sameInstance(jsonPatch)));
+    }
+
+    @NotNull
+    private JsonPatch aJsonPatch() {
+        return new JsonPatch(Collections.emptyList());
+    }
+
+    @Test
+    void beforePatchingThePatchingFlagShouldNotBeSet() {
+        assertThat(WatchCaptureContext.isPatching(), is(false));
+    }
+
+    @Test
+    void whenPatchIsIntercepted_thenInsidePatchProcessingPatchingFlagIsSet() {
+        when(originalPatchFlow.patch(any(), any())).then(invocation -> {
+            assertThat(WatchCaptureContext.isPatching(), is(true));
+            return null;
+        });
+
+        patchFlowProxy.patch(new Descriptor("external-id"), aJsonPatch());
+    }
+
+    @Test
+    void whenPatchIsIntercepted_afterPatchFlowFinishesThePatchingFlagShouldNotBeSet() {
+        when(originalPatchFlow.patch(any(), any())).thenReturn(new TestModel());
+
+        patchFlowProxy.patch(new Descriptor("external-id"), aJsonPatch());
+
+        assertThat(WatchCaptureContext.isPatching(), is(false));
+    }
+
+    @Test
+    void whenInvokingSaveMethodOnCommonServiceAndPatchingFlagIsSet_thenTheInvocationShouldBeIgnored() throws Exception {
+        WatchCaptureContext.enterPatching();
+
+        commonServiceProxy.save(new TestModel());
+
+        verify(commonServiceWatchProcessor, never()).process(any(), any());
     }
 
     private static class TestModel extends MongoCommonModel {

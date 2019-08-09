@@ -6,7 +6,9 @@ import com.extremum.watch.processor.MethodJoinPointInvocation;
 import com.extremum.watch.processor.PatchFlowWatchProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,8 +22,8 @@ import java.util.concurrent.Executor;
  * Have different pointcuts and different handlers to capture events.
  */
 @Component
-@Slf4j
 @Aspect
+@Slf4j
 public class CaptureChangesAspect {
     private final PatchFlowWatchProcessor patchFlowProcessor;
     private final CommonServiceWatchProcessor commonServiceProcessor;
@@ -35,9 +37,30 @@ public class CaptureChangesAspect {
         this.executor = executor;
     }
 
-    @AfterReturning(value = "patchMethod()", returning = "returnedModel")
-    public void watchPatchChanges(JoinPoint jp, Model returnedModel) {
-        executor.execute(() -> processPatchChanges(jp, returnedModel));
+    @Around("patchMethod()")
+    public Object watchPatchChanges(ProceedingJoinPoint jp) throws Throwable {
+        Model returnedModel = proceedWithPatchingFlagSet(jp);
+        processAfterPatchEventSafely(jp, returnedModel);
+        return returnedModel;
+    }
+
+    private Model proceedWithPatchingFlagSet(ProceedingJoinPoint jp) throws Throwable {
+        WatchCaptureContext.enterPatching();
+        Model returnedModel;
+        try {
+            returnedModel = (Model) jp.proceed();
+        } finally {
+            WatchCaptureContext.exitPatching();
+        }
+        return returnedModel;
+    }
+
+    private void processAfterPatchEventSafely(ProceedingJoinPoint jp, Model returnedModel) {
+        try {
+            executor.execute(() -> processPatchChanges(jp, returnedModel));
+        } catch (Exception e) {
+            log.error("Cannot execute advice logic", e);
+        }
     }
 
     private void processPatchChanges(JoinPoint jp, Model returnedModel) {
@@ -52,8 +75,17 @@ public class CaptureChangesAspect {
         }
     }
 
-    @AfterReturning(value = "commonServiceDeleteMethods() || commonServiceSaveMethods()", returning = "returnedModel")
-    public void watchCommonServiceChanges(JoinPoint jp, Model returnedModel) {
+    @Around("commonServiceSaveMethods()")
+    public Object watchCommonServiceSaves(ProceedingJoinPoint jp) throws Throwable {
+        Model returnedModel = (Model) jp.proceed();
+        if (!WatchCaptureContext.isPatching()) {
+            executor.execute(() -> processCommonServiceInvocation(jp, returnedModel));
+        }
+        return returnedModel;
+    }
+
+    @AfterReturning(value = "commonServiceDeleteMethods()", returning = "returnedModel")
+    public void watchCommonServiceDeletions(JoinPoint jp, Model returnedModel) {
         executor.execute(() -> processCommonServiceInvocation(jp, returnedModel));
     }
 
@@ -70,15 +102,15 @@ public class CaptureChangesAspect {
     }
 
     @Pointcut("execution(* com.extremum.everything.services.management.PatchFlow+.patch(..))")
-    public void patchMethod() {
+    private void patchMethod() {
     }
 
     @Pointcut("execution(* com.extremum.common.service.CommonService+.delete(..))")
-    public void commonServiceDeleteMethods() {
+    private void commonServiceDeleteMethods() {
     }
 
     @Pointcut("execution(* com.extremum.common.service.CommonService+.save(..))")
-    public void commonServiceSaveMethods() {
+    private void commonServiceSaveMethods() {
     }
 
     // TODO: add ElasticsearchCommonService.patch(...) methods here?
