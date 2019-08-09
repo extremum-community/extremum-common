@@ -9,24 +9,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.testcontainers.shaded.okio.Options;
 
 import java.util.List;
 import java.util.Map;
@@ -76,37 +70,11 @@ class WatchEndToEndTest extends TestWithServices {
         WatchedModel savedModel = watchedModelService.save(model);
         String externalId = savedModel.getUuid().getExternalId();
 
-        mockMvc.perform(
-                put("/api/watch")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("[\"" + externalId + "\"]")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(successfulResponse()))
-                .andReturn();
+        subscribeTo(externalId);
 
-        JsonPatch jsonPatch = new JsonPatch(singletonList(
-                new ReplaceOperation(new JsonPointer("/name"), new TextNode("new name"))
-        ));
+        patchToChangeName(externalId, "new name");
 
-        mockMvc.perform(
-                patch("/" + externalId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(jsonPatch)))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(successfulResponse()))
-                .andReturn();
-
-        // poll instead of sleeping
-        Thread.sleep(1000);
-
-        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(successfulResponse()))
-                .andReturn();
-        String contentAsString = mvcResult.getResponse().getContentAsString();
-        List<Map<String, Object>> events = parseEvents(contentAsString);
+        List<Map<String, Object>> events = getWatchEventsForCurrentPrincipal();
 
         assertThat(events, hasSize(1));
 
@@ -129,6 +97,44 @@ class WatchEndToEndTest extends TestWithServices {
         assertThat(operation, hasEntry(is("op"), is("replace")));
         assertThat(operation, hasEntry(is("path"), is("/name")));
         assertThat(operation, hasEntry(is("value"), is("new name")));
+    }
+
+    private void subscribeTo(String externalId) throws Exception {
+        mockMvc.perform(
+                put("/api/watch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[\"" + externalId + "\"]")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+    }
+
+    private void patchToChangeName(String externalId, String newName) throws Exception {
+        JsonPatch jsonPatch = new JsonPatch(singletonList(
+                new ReplaceOperation(new JsonPointer("/name"), new TextNode(newName))
+        ));
+
+        mockMvc.perform(
+                patch("/" + externalId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(jsonPatch)))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+
+        // poll instead of sleeping
+        Thread.sleep(1000);
+    }
+
+    private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        return parseEvents(contentAsString);
     }
 
     private List<Map<String, Object>> parseEvents(String response) {
