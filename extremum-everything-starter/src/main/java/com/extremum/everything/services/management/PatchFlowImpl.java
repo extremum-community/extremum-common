@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Objects;
 
 @Slf4j
-public final class PatchFlowImpl implements PatchFlow {
+public class PatchFlowImpl implements PatchFlow {
     private final ModelRetriever modelRetriever;
     private final Patcher patcher;
     private final ModelSaver modelSaver;
@@ -36,7 +36,7 @@ public final class PatchFlowImpl implements PatchFlow {
     }
 
     @Override
-    public final Model patch(Descriptor id, JsonPatch patch) {
+    public Model patch(Descriptor id, JsonPatch patch) {
         Model modelToPatch = findModel(id);
 
         dataSecurity.checkPatchAllowed(modelToPatch);
