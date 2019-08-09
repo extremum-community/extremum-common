@@ -9,6 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 public class WatchProperties {
     private int subscriptionTimeToLiveDays = 30;
-    private int subscriptionIdleTime = 7; // in days
+    private int subscriptionIdleTimeDays = 7;
     private int processingThreads = 4;
 }
