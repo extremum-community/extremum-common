@@ -1,5 +1,6 @@
 package com.extremum.watch.end2end;
 
+import com.extremum.security.PrincipalSource;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.config.WatchTestConfiguration;
 import com.extremum.watch.end2end.fixture.WatchedModel;
@@ -16,15 +17,21 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.shaded.okio.Options;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.extremum.watch.Tests.successfulResponse;
 import static java.util.Collections.singletonList;
@@ -36,6 +43,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -53,9 +61,16 @@ class WatchEndToEndTest extends TestWithServices {
     @Autowired
     private WatchedModelService watchedModelService;
 
+    private final String principal = UUID.randomUUID().toString();
+
+    @MockBean
+    private PrincipalSource principalSource;
+
     @Test
     void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenSaveEventShouldBeReturned()
             throws Exception {
+        when(principalSource.getPrincipal()).thenReturn(Optional.of(principal));
+
         WatchedModel model = new WatchedModel();
         model.setName("old name");
         WatchedModel savedModel = watchedModelService.save(model);
