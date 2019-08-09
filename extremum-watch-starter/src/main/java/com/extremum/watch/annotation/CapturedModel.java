@@ -1,4 +1,4 @@
-package com.extremum.sharedmodels.annotation;
+package com.extremum.watch.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
