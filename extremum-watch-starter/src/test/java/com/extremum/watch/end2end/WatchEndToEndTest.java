@@ -25,7 +25,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.extremum.watch.Tests.successfulResponse;
 import static java.util.Collections.singletonList;
@@ -33,6 +36,7 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
@@ -81,42 +85,37 @@ class WatchEndToEndTest extends TestWithServices {
     @Test
     void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsPatched_whenGettingWatchEvents_thenOnePatchEventShouldBeReturned()
             throws Exception {
-        String externalId = model.getUuid().getExternalId();
-        subscribeTo(externalId);
-        patchToChangeName(externalId, "new name");
+        subscribeToTheModel();
+        patchToChangeNameTo("new name");
 
         List<Map<String, Object>> events = getNonZeroEventsForCurrentPrincipal();
 
-        assertThatThereIsOneEventForPatchingNameProperty(externalId, events);
+        assertThatThereIsOneEventForPatchingNameProperty(events);
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private String saveModelWithName(String name) {
-        WatchedModel model = new WatchedModel();
-        model.setName(name);
-        WatchedModel savedModel = watchedModelService.save(model);
-        return savedModel.getUuid().getExternalId();
-    }
-
-    private void subscribeTo(String externalId) throws Exception {
+    private void subscribeToTheModel() throws Exception {
         mockMvc.perform(
                 put("/api/watch")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("[\"" + externalId + "\"]")
+                        .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(successfulResponse()))
                 .andReturn();
     }
 
+    private String getModelExternalId() {
+        return model.getUuid().getExternalId();
+    }
+
     @SuppressWarnings("SameParameterValue")
-    private void patchToChangeName(String externalId, String newName) throws Exception {
+    private void patchToChangeNameTo(String newName) throws Exception {
         JsonPatch jsonPatch = new JsonPatch(singletonList(
                 new ReplaceOperation(new JsonPointer("/name"), new TextNode(newName))
         ));
 
         mockMvc.perform(
-                patch("/" + externalId)
+                patch("/" +  getModelExternalId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(jsonPatch)))
                 .andExpect(status().is2xxSuccessful())
@@ -147,12 +146,11 @@ class WatchEndToEndTest extends TestWithServices {
         return JsonPath.parse(response).read("$.result");
     }
 
-    private void assertThatThereIsOneEventForPatchingNameProperty(String externalId,
-            List<Map<String, Object>> events) {
+    private void assertThatThereIsOneEventForPatchingNameProperty(List<Map<String, Object>> events) {
         assertThat(events, hasSize(1));
         Map<String, Object> event = events.get(0);
 
-        assertThatEventObjectMetadataIsCorrect(event, externalId);
+        assertThatEventObjectMetadataIsCorrect(event, getModelExternalId());
         Map<String, Object> operation = getSingleOperation(event);
 
         assertThat(operation, hasEntry(is("op"), is("replace")));
@@ -185,7 +183,7 @@ class WatchEndToEndTest extends TestWithServices {
     @Test
     void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenOneSaveEventShouldBeReturned()
             throws Exception {
-        subscribeTo(model.getUuid().getExternalId());
+        subscribeToTheModel();
         saveToChangeNameTo("new name");
 
         List<Map<String, Object>> events = getNonZeroEventsForCurrentPrincipal();
@@ -203,11 +201,38 @@ class WatchEndToEndTest extends TestWithServices {
         assertThat(events, hasSize(1));
         Map<String, Object> event = events.get(0);
 
-        assertThatEventObjectMetadataIsCorrect(event, model.getUuid().getExternalId());
+        assertThatEventObjectMetadataIsCorrect(event, getModelExternalId());
         Map<String, Object> operation = getSingleOperation(event);
 
         assertThat(operation, hasEntry(is("op"), is("replace")));
         assertThat(operation, hasEntry(is("path"), is("/")));
         assertThat(operation, hasEntry(is("value"), is(singletonMap("name", "new name"))));
+    }
+
+    @Test
+    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsDeleted_whenGettingWatchEvents_thenOneDeletionEventShouldBeReturned()
+            throws Exception {
+        subscribeToTheModel();
+        deleteTheModel();
+
+        List<Map<String, Object>> events = getNonZeroEventsForCurrentPrincipal();
+
+        assertThatThereIsOneEventForDeletion(events);
+    }
+
+    private void deleteTheModel() {
+        watchedModelService.delete(model.getId().toString());
+    }
+
+    private void assertThatThereIsOneEventForDeletion(List<Map<String, Object>> events) {
+        assertThat(events, hasSize(1));
+        Map<String, Object> event = events.get(0);
+
+        assertThatEventObjectMetadataIsCorrect(event, getModelExternalId());
+        Map<String, Object> operation = getSingleOperation(event);
+
+        assertThat(operation, hasEntry(is("op"), is("remove")));
+        assertThat(operation, hasEntry(is("path"), is("/")));
+        assertThat(operation, not(hasKey("value")));
     }
 }
