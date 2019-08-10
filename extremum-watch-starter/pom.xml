@@ -12,8 +12,7 @@
     <artifactId>extremum-watch-starter</artifactId>
 
     <properties>
-        <!--        TODO refactor after add tests-->
-        <testcoverage.minimum>0.0</testcoverage.minimum>
+        <testcoverage.minimum>0.79</testcoverage.minimum>
     </properties>
 
     <dependencies>
