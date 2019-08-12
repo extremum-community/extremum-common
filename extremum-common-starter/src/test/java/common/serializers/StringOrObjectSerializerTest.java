@@ -1,16 +1,14 @@
 package common.serializers;
 
-import com.extremum.common.mapper.BasicJsonObjectMapper;
-import com.extremum.sharedmodels.basic.StringOrMultilingual;
-import com.extremum.sharedmodels.basic.StringOrObject;
-import com.extremum.sharedmodels.personal.Name;
-import com.extremum.sharedmodels.personal.PersonRequestDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import io.extremum.common.mapper.BasicJsonObjectMapper;
+import io.extremum.sharedmodels.basic.StringOrMultilingual;
+import io.extremum.sharedmodels.basic.StringOrObject;
+import io.extremum.sharedmodels.personal.Name;
+import io.extremum.sharedmodels.personal.PersonRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

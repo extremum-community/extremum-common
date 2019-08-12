@@ -1,13 +1,13 @@
 package descriptor;
 
-import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.descriptor.dao.DescriptorDao;
-import com.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import com.extremum.common.test.TestWithServices;
-import com.extremum.starter.DescriptorDaoFactory;
-import com.extremum.starter.properties.DescriptorsProperties;
-import com.extremum.starter.properties.RedisProperties;
+import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.common.test.TestWithServices;
+import io.extremum.starter.DescriptorDaoFactory;
+import io.extremum.starter.properties.DescriptorsProperties;
+import io.extremum.starter.properties.RedisProperties;
 import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,6 @@
 package common.dao.mongo;
 
-import com.extremum.common.test.TestWithServices;
+import io.extremum.common.test.TestWithServices;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

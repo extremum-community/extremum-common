@@ -5,7 +5,7 @@ redis:
 mongo:
   service-db-name: test
   descriptors-db-name: descriptors
-  repository-packages: com.extremum.watch.end2end.fixture
+  repository-packages: io.extremum.watch.end2end.fixture
 
 descriptors:
   descriptorsMapName: descriptors
@@ -23,4 +23,4 @@ custom:
   field-destroyer:
     analyzable-package-prefix: com.cybernation.testservice
   model:
-    package-names: com.extremum.watch.end2end.fixture
+    package-names: io.extremum.watch.end2end.fixture

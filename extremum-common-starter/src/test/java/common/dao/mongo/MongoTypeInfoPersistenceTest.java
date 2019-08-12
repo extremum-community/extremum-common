@@ -1,6 +1,6 @@
 package common.dao.mongo;
 
-import com.extremum.common.test.TestWithServices;
+import io.extremum.common.test.TestWithServices;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.types.ObjectId;
