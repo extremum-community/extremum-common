@@ -15,6 +15,7 @@ public final class ModelAnnotationRoleSecurity implements RoleSecurity {
     private final Operation get = new Get();
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
+    private final Operation watch = new Watch();
 
     public ModelAnnotationRoleSecurity(RoleChecker roleChecker,
             ModelClasses modelClasses) {
@@ -39,7 +40,7 @@ public final class ModelAnnotationRoleSecurity implements RoleSecurity {
 
     @Override
     public void checkWatchAllowed(Descriptor id) throws ExtremumSecurityException {
-        throw new UnsupportedOperationException();
+        watch.throwIfNoRolesFor(id);
     }
 
     private abstract class Operation {
@@ -106,6 +107,18 @@ public final class ModelAnnotationRoleSecurity implements RoleSecurity {
         @Override
         String name() {
             return "remove";
+        }
+    }
+
+    private class Watch extends Operation {
+        @Override
+        String[] extractRoles(ExtremumRequiredRolesConfig config) {
+            return config.rolesForWatch();
+        }
+
+        @Override
+        String name() {
+            return "watch";
         }
     }
 }

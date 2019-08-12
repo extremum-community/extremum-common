@@ -158,10 +158,47 @@ class ModelAnnotationRoleSecurityTest {
         }
     }
 
+    @Test
+    void givenCurrentUserHasRoleToWatch_whenCheckingWhetherRolesAllowToWatch_thenNoExceptionShouldBeThrown() {
+        when(roleChecker.currentUserHasOneRoleOf("ROLE_PRIVILEGED")).thenReturn(true);
+
+        security.checkWatchAllowed(secureDescriptor);
+    }
+
+    @Test
+    void givenCurrentUserDoesNotHaveRoleToWatch_whenCheckingWhetherRolesAllowToWatch_thenAccessDeniedExceptionShouldBeThrown() {
+        when(roleChecker.currentUserHasOneRoleOf("ROLE_PRIVILEGED")).thenReturn(false);
+
+        try {
+            security.checkWatchAllowed(secureDescriptor);
+            fail("An exception should be thrown");
+        } catch (ExtremumAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoSecurityAnnotation_whenCheckingWhetherRolesAllowToWatch_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkWatchAllowed(insecureDescriptor);
+            fail("An exception should be thrown");
+        } catch (ExtremumSecurityException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'InsecureModel'"));
+        }
+    }
+
+    @Test
+    void givenModelClassHasNoWatchSecurityAnnotation_whenCheckingWhetherRolesAllowToWatch_thenAccessDeniedExceptionShouldBeThrown() {
+        try {
+            security.checkWatchAllowed(emptySecurityDescriptor);
+            fail("An exception should be thrown");
+        } catch (ExtremumSecurityException e) {
+            assertThat(e.getMessage(), is("Security is not configured for 'EmptySecurityModel' for watch operation"));
+        }
+    }
+
     @ExtremumRequiredRoles(
-            get = "ROLE_PRIVILEGED",
-            patch = "ROLE_PRIVILEGED",
-            remove = "ROLE_PRIVILEGED"
+            defaultAccess = "ROLE_PRIVILEGED"
     )
     private static class SecureModel extends MongoCommonModel {
     }
