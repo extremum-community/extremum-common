@@ -1,6 +1,6 @@
 package com.extremum.everything;
 
-import com.extremum.testcontainers.CoreServices;
+import com.extremum.test.containers.CoreServices;
 
 /**
  * Extend this class in your test to make sure that services are started

@@ -1,4 +1,4 @@
-package com.extremum.common.utils.poll;
+package com.extremum.test.poll;
 
 /**
  * @author rpuch

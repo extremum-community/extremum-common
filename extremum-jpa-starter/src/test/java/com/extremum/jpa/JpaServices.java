@@ -1,6 +1,6 @@
 package com.extremum.jpa;
 
-import com.extremum.testcontainers.CoreServices;
+import com.extremum.test.containers.CoreServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;

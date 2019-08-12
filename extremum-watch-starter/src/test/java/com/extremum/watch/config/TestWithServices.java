@@ -1,6 +1,6 @@
 package com.extremum.watch.config;
 
-import com.extremum.testcontainers.CoreServices;
+import com.extremum.test.containers.CoreServices;
 
 public class TestWithServices  {
     @SuppressWarnings("unused")

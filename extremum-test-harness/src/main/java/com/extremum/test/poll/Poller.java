@@ -1,4 +1,4 @@
-package com.extremum.common.utils.poll;
+package com.extremum.test.poll;
 
 import java.time.Duration;
 import java.time.Instant;

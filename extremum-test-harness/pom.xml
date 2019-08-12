@@ -7,8 +7,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>extremum-test-containers</artifactId>
-    <description>Contains test containers infrastructure common for other modules</description>
+    <artifactId>extremum-test-harness</artifactId>
+    <description>Contains test infrastructure/support common for other modules</description>
 
     <dependencies>
         <dependency>

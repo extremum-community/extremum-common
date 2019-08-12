@@ -1,4 +1,4 @@
-package com.extremum.testcontainers;
+package com.extremum.test.containers;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

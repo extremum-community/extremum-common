@@ -1,6 +1,6 @@
 package com.extremum.watch.end2end;
 
-import com.extremum.common.utils.poll.Poller;
+import com.extremum.test.poll.Poller;
 import com.extremum.security.PrincipalSource;
 import com.extremum.watch.config.TestWithServices;
 import com.extremum.watch.config.WatchTestConfiguration;
