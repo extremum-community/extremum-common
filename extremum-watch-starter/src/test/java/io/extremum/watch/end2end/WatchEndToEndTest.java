@@ -24,7 +24,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -256,7 +255,7 @@ class WatchEndToEndTest extends TestWithServices {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(HttpStatus.FORBIDDEN.value()))
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(responseThat(hasProperty("code", is(403)))))
                 .andReturn();
     }
