@@ -37,6 +37,11 @@ public final class ModelAnnotationRoleSecurity implements RoleSecurity {
         remove.throwIfNoRolesFor(id);
     }
 
+    @Override
+    public void checkWatchAllowed(Descriptor id) throws ExtremumSecurityException {
+        throw new UnsupportedOperationException();
+    }
+
     private abstract class Operation {
         private final ExtremumRequiredRolesParser annotationParser = new ExtremumRequiredRolesParser();
 

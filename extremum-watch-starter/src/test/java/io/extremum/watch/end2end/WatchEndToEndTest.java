@@ -1,18 +1,20 @@
 package io.extremum.watch.end2end;
 
-import io.extremum.test.poll.Poller;
-import io.extremum.security.PrincipalSource;
-import io.extremum.watch.config.TestWithServices;
-import io.extremum.watch.config.WatchTestConfiguration;
-import io.extremum.watch.end2end.fixture.WatchedModel;
-import io.extremum.watch.end2end.fixture.WatchedModelService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
+import io.extremum.security.ExtremumSecurityException;
+import io.extremum.security.PrincipalSource;
+import io.extremum.security.RoleSecurity;
+import io.extremum.test.poll.Poller;
 import io.extremum.watch.Tests;
+import io.extremum.watch.config.TestWithServices;
+import io.extremum.watch.config.WatchTestConfiguration;
+import io.extremum.watch.end2end.fixture.WatchedModel;
+import io.extremum.watch.end2end.fixture.WatchedModelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -42,6 +45,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -62,6 +68,8 @@ class WatchEndToEndTest extends TestWithServices {
 
     @MockBean
     private PrincipalSource principalSource;
+    @SpyBean
+    private RoleSecurity roleSecurity;
 
     private WatchedModel model;
 
@@ -234,5 +242,18 @@ class WatchEndToEndTest extends TestWithServices {
         assertThat(operation, hasEntry(is("op"), is("remove")));
         assertThat(operation, hasEntry(is("path"), is("/")));
         assertThat(operation, not(hasKey("value")));
+    }
+
+    @Test
+    void givenCurrentUserDoesNotHaveRoleRequiredToWatch_whenSubscribing_thenADeniedExceptionShouldBeThrown()
+            throws Exception {
+        doThrow(new ExtremumSecurityException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
+
+        try {
+            subscribeToTheModel();
+            fail("An exception should be thrown");
+        } catch (ExtremumSecurityException e) {
+            assertThat(e.getMessage(), is("Not allowed to watch"));
+        }
     }
 }
