@@ -1,5 +1,6 @@
 package io.extremum.watch.services;
 
+import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.repositories.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +14,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PersistentWatchSubscriptionService implements WatchSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
+    private final RoleSecurity roleSecurity;
 
     @Override
     public void subscribe(Collection<Descriptor> ids, String subscriber) {
+        checkWatchAllowed(ids);
         subscriptionRepository.subscribe(descriptorsToInternalIds(ids), subscriber);
+    }
+
+    private void checkWatchAllowed(Collection<Descriptor> ids) {
+        ids.forEach(roleSecurity::checkWatchAllowed);
     }
 
     private List<String> descriptorsToInternalIds(Collection<Descriptor> ids) {

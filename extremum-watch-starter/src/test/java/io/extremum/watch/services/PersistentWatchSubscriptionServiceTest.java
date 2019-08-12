@@ -1,5 +1,7 @@
 package io.extremum.watch.services;
 
+import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.repositories.SubscriptionRepository;
 import org.hamcrest.Matchers;
@@ -11,8 +13,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +33,8 @@ class PersistentWatchSubscriptionServiceTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepository;
+    @Mock
+    private RoleSecurity roleSecurity;
 
     @Test
     void whenSubscribing_thenAllSubscriptionsShouldBeAddedToTheRepository() {
@@ -54,5 +63,17 @@ class PersistentWatchSubscriptionServiceTest {
 
         Collection<String> subscribers = service.findAllSubscribersBySubscription("beef");
         assertThat(subscribers, Matchers.containsInAnyOrder("Alex", "Ben"));
+    }
+
+    @Test
+    void whenRoleSecurityDoesNotAllowToWatch_thenADeniedExceptionShouldBeThrown() {
+        doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
+
+        try {
+            service.subscribe(Collections.singleton(fromInternalId("dead")), "Alex");
+            fail("An exception should be thrown");
+        } catch (ExtremumAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Not allowed to watch"));
+        }
     }
 }
