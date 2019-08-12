@@ -1,11 +1,15 @@
 package io.extremum.watch.services;
 
+import io.extremum.common.models.Model;
+import io.extremum.common.support.UniversalModelFinder;
+import io.extremum.security.DataSecurity;
 import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.repositories.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +19,8 @@ import java.util.stream.Collectors;
 public class PersistentWatchSubscriptionService implements WatchSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final RoleSecurity roleSecurity;
+    private final DataSecurity dataSecurity;
+    private final UniversalModelFinder universalModelFinder;
 
     @Override
     public void subscribe(Collection<Descriptor> ids, String subscriber) {
@@ -23,6 +29,17 @@ public class PersistentWatchSubscriptionService implements WatchSubscriptionServ
     }
 
     private void checkWatchAllowed(Collection<Descriptor> ids) {
+        checkRoleSecurityAllowsToWatch(ids);
+        checkDataSecurityAllowsToWatch(ids);
+    }
+
+    private void checkDataSecurityAllowsToWatch(Collection<Descriptor> ids) {
+        List<Descriptor> idsList = new ArrayList<>(ids);
+        List<Model> models = universalModelFinder.findModels(idsList);
+        models.forEach(dataSecurity::checkWatchAllowed);
+    }
+
+    private void checkRoleSecurityAllowsToWatch(Collection<Descriptor> ids) {
         ids.forEach(roleSecurity::checkWatchAllowed);
     }
 
