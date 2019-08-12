@@ -8,7 +8,7 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 /**
  * @author rpuch
  */
-public final class ModelAnnotationRoleSecurity implements RoleSecurity {
+public class ModelAnnotationRoleSecurity implements RoleSecurity {
     private final RoleChecker roleChecker;
     private final ModelClasses modelClasses;
 
