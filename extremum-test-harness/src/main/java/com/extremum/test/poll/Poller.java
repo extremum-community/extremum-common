@@ -18,11 +18,11 @@ public class Poller {
         this.maxPollDuration = maxPollDuration;
     }
 
-    public <T> T poll(Supplier<? extends T> sampler, Predicate<? super T> finisher) {
+    public <T> T poll(Supplier<? extends T> sampler, Predicate<? super T> finisher) throws InterruptedException {
         return poll(new CombiningProbe<T>(sampler, finisher));
     }
 
-    public <T> T poll(Probe<T> probe) {
+    public <T> T poll(Probe<T> probe) throws InterruptedException {
         Instant endTime = now().plus(maxPollDuration);
 
         while (now().isBefore(endTime)) {
@@ -31,19 +31,10 @@ public class Poller {
                 return value;
             }
 
-            sleep();
+            Thread.sleep(sleepDuration.toMillis());
         }
 
         throw new RuntimeException("Did not sample anything matching in " + maxPollDuration);
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(sleepDuration.toMillis());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted while waiting", e);
-        }
     }
 
     private static class CombiningProbe<T> implements Probe<T> {

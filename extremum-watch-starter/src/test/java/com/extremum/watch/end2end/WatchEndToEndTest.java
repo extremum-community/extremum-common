@@ -123,7 +123,7 @@ class WatchEndToEndTest extends TestWithServices {
                 .andReturn();
     }
 
-    private List<Map<String, Object>> getNonZeroEventsForCurrentPrincipal() {
+    private List<Map<String, Object>> getNonZeroEventsForCurrentPrincipal() throws InterruptedException {
         Poller poller = new Poller(Duration.ofSeconds(10));
         return poller.poll(this::getWatchEventsForCurrentPrincipal, events -> events.size() > 0);
     }
