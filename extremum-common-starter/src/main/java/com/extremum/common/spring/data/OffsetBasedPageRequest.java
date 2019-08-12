@@ -1,13 +1,14 @@
 package com.extremum.common.spring.data;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;
 
+@EqualsAndHashCode
+@ToString
 public class OffsetBasedPageRequest implements Pageable, Serializable {
 
     private final int limit;
@@ -103,38 +104,5 @@ public class OffsetBasedPageRequest implements Pageable, Serializable {
     @Override
     public boolean hasPrevious() {
         return offset > limit;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (!(o instanceof OffsetBasedPageRequest)) return false;
-
-        OffsetBasedPageRequest that = (OffsetBasedPageRequest) o;
-
-        return new EqualsBuilder()
-                .append(limit, that.limit)
-                .append(offset, that.offset)
-                .append(sort, that.sort)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(limit)
-                .append(offset)
-                .append(sort)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("limit", limit)
-                .append("offset", offset)
-                .append("sort", sort)
-                .toString();
     }
 }
