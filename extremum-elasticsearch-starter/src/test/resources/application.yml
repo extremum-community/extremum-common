@@ -7,7 +7,7 @@ mongo:
   descriptors-db-name: descriptors
 
 elasticsearch:
-  repository-packages: com.extremum.elasticsearch.dao
+  repository-packages: io.extremum.elasticsearch.dao
 
 descriptors:
   descriptorsMapName: descriptors

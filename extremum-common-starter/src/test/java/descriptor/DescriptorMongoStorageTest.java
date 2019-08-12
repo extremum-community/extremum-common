@@ -1,8 +1,8 @@
 package descriptor;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.common.test.TestWithServices;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.test.TestWithServices;
 import com.mongodb.client.model.Filters;
 import config.DescriptorConfiguration;
 import org.bson.Document;

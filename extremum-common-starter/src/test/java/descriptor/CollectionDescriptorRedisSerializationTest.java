@@ -1,16 +1,16 @@
 package descriptor;
 
-import com.extremum.common.collection.CollectionDescriptor;
-import com.extremum.common.collection.OwnedCoordinates;
-import com.extremum.common.collection.dao.CollectionDescriptorDao;
-import com.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
-import com.extremum.common.collection.service.CollectionDescriptorService;
-import com.extremum.common.descriptor.factory.MongoDescriptorFacilities;
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.test.TestWithServices;
-import com.extremum.starter.CollectionDescriptorDaoFactory;
-import com.extremum.starter.properties.DescriptorsProperties;
-import com.extremum.starter.properties.RedisProperties;
+import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.common.collection.OwnedCoordinates;
+import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
+import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.common.test.TestWithServices;
+import io.extremum.starter.CollectionDescriptorDaoFactory;
+import io.extremum.starter.properties.DescriptorsProperties;
+import io.extremum.starter.properties.RedisProperties;
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;

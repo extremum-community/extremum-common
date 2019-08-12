@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.extremum.watch.config.WatchConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.extremum.watch.config.WatchConfiguration
