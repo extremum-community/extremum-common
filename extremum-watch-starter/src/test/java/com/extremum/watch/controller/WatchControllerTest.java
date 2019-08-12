@@ -1,0 +1,188 @@
+package com.extremum.watch.controller;
+
+import com.extremum.common.mapper.MapperDependencies;
+import com.extremum.common.mapper.SystemJsonObjectMapper;
+import com.extremum.common.utils.DateUtils;
+import com.extremum.security.PrincipalSource;
+import com.extremum.sharedmodels.descriptor.Descriptor;
+import com.extremum.watch.models.TextWatchEvent;
+import com.extremum.watch.services.WatchEventService;
+import com.extremum.watch.services.WatchSubscriptionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.github.fge.jackson.jsonpointer.JsonPointer;
+import com.github.fge.jackson.jsonpointer.JsonPointerException;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import com.github.fge.jsonpatch.ReplaceOperation;
+import com.jayway.jsonpath.JsonPath;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.time.ZonedDateTime;
+import java.util.*;
+
+import static com.extremum.watch.Tests.successfulResponse;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(classes = {WatchControllersTestConfiguration.class, WatchController.class})
+@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
+class WatchControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    private ObjectMapper clientMapper = new SystemJsonObjectMapper(Mockito.mock(MapperDependencies.class));
+
+    @MockBean
+    private WatchEventService watchEventService;
+    @MockBean
+    private PrincipalSource principalSource;
+    @MockBean
+    private WatchSubscriptionService watchSubscriptionService;
+
+    @Captor
+    private ArgumentCaptor<Collection<Descriptor>> descriptorsCaptor;
+
+    @Test
+    void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+
+        mockMvc.perform(put("/api/watch")
+                .content("[\"dead\",\"beef\"]")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()));
+
+        verify(watchSubscriptionService).subscribe(descriptorsCaptor.capture(), eq("Alex"));
+        Collection<Descriptor> savedDescriptors = descriptorsCaptor.getValue();
+        //noinspection unchecked
+        assertThat(savedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
+    }
+
+    private Matcher<Descriptor> withExternalId(String externalId) {
+        return Matchers.hasProperty("externalId", equalTo(externalId));
+    }
+
+    @Test
+    void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+        when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
+                .thenReturn(singleEventForReplaceFieldToNewValue());
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        List<Map<String, Object>> events = parseEvents(contentAsString);
+
+        assertThatTheEventIsAsExpected(events);
+    }
+
+    @Test
+    void givenOneEventExists_whenGettingTheEventWithSinceUntil_thenItShouldBeReturned() throws Exception {
+        ZonedDateTime since = ZonedDateTime.now().minusDays(1);
+        ZonedDateTime until = since.plusDays(2);
+
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+        when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
+                .thenReturn(singleEventForReplaceFieldToNewValue());
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+                .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
+                .param("until", DateUtils.formatZonedDateTimeISO_8601(until))
+                .param("limit", "10")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()))
+                .andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        List<Map<String, Object>> events = parseEvents(contentAsString);
+
+        assertThatTheEventIsAsExpected(events);
+    }
+
+    @NotNull
+    private List<TextWatchEvent> singleEventForReplaceFieldToNewValue() throws JsonPointerException, JsonProcessingException {
+        JsonPatchOperation operation = new ReplaceOperation(new JsonPointer("/field"), new TextNode("new-value"));
+        JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
+        String patchAsString = clientMapper.writeValueAsString(jsonPatch);
+        return Collections.singletonList(
+                new TextWatchEvent(patchAsString, "internalId", new ModelWithFilledValues()));
+    }
+
+    private void assertThatTheEventIsAsExpected(List<Map<String, Object>> events) {
+        assertThat(events, hasSize(1));
+        Map<String, Object> event = events.get(0);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> object = (Map<String, Object>) event.get("object");
+        assertThat(object, is(notNullValue()));
+        assertThat(object.get("id"), is(notNullValue()));
+        assertThat(object.get("model"), is("ModelWithExpectedValues"));
+        assertThat(object.get("created"), is(notNullValue()));
+        assertThat(object.get("modified"), is(notNullValue()));
+        assertThat(object.get("version"), is(1));
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> operations = (List<Map<String, Object>>) event.get("patch");
+        assertThat(operations, is(notNullValue()));
+        assertThat(operations, hasSize(1));
+        Map<String, Object> patchOperation = operations.get(0);
+        assertThat(patchOperation.get("path"), is("/field"));
+        assertThat(patchOperation.get("op"), is("replace"));
+        assertThat(patchOperation.get("value"), is("new-value"));
+    }
+
+    private List<Map<String, Object>> parseEvents(String response) {
+        return JsonPath.parse(response).read("$.result");
+    }
+
+    @Test
+    void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
+        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+
+        mockMvc.perform(delete("/api/watch")
+                .content("[\"dead\",\"beef\"]")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(successfulResponse()));
+
+        verify(watchSubscriptionService).unsubscribe(descriptorsCaptor.capture(), eq("Alex"));
+        Collection<Descriptor> removedDescriptors = descriptorsCaptor.getValue();
+        //noinspection unchecked
+        assertThat(removedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
+    }
+
+}

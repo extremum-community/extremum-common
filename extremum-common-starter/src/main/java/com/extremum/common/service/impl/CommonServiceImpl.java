@@ -81,7 +81,7 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
         checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Create model {}", data);
 
-        if(data == null) {
+        if (data == null) {
             fillAlertsOrThrowException(problems, new WrongArgumentException("Model can't be null"));
             return null;
         }
@@ -100,7 +100,7 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
             LOGGER.debug("Create models {}", data != null ?
                     data.stream().map(Object::toString).collect(Collectors.joining(", ")) : "-none-");
         }
-        if(data == null) {
+        if (data == null) {
             fillAlertsOrThrowException(problems, new WrongArgumentException("Models can't be null"));
             return null;
         }
@@ -149,20 +149,20 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public void delete(String id) {
-        delete(id, new ThrowOnAlert());
+    public M delete(String id) {
+        return delete(id, new ThrowOnAlert());
     }
 
     @Override
-    public void delete(String id, Problems problems) {
+    public M delete(String id, Problems problems) {
         checkThatProblemsIsNotNull(problems);
         LOGGER.debug("Delete model {} with id {}", modelTypeName, id);
 
         if (!checkId(id, problems)) {
-            return;
+            return null;
         }
 
-        dao.deleteById(stringToId(id));
+        return dao.deleteByIdAndReturn(stringToId(id));
     }
 
     protected final boolean checkId(String id, Problems problems) {

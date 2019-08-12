@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoleSecurityEverythingEverythingManagementService implements EverythingEverythingManagementService {
     private final EverythingEverythingManagementService everythingService;
-
     private final RoleSecurity roleSecurity;
 
     @Override

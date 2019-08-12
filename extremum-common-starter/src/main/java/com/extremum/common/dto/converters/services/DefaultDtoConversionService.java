@@ -6,14 +6,12 @@ import com.extremum.common.models.Model;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
 
-@Setter
 @RequiredArgsConstructor
 @Service
 public class DefaultDtoConversionService implements DtoConversionService {
@@ -31,7 +29,9 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     private ToResponseDtoConverter<Model, ResponseDto> warnAndGetStubConverter(Model model) {
         LOGGER.error("Unable to find a to-response-dto-converter for model {}: {}", model.getClass().getSimpleName(), model);
-        return stubDtoConverter;
+        @SuppressWarnings("unchecked")
+        ToResponseDtoConverter<Model, ResponseDto> castConverter = this.stubDtoConverter;
+        return castConverter;
     }
 
     @Override

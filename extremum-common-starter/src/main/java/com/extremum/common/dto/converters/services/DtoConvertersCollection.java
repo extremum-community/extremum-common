@@ -8,7 +8,6 @@ import com.extremum.common.models.Model;
 import com.extremum.common.utils.ModelUtils;
 import com.extremum.sharedmodels.dto.RequestDto;
 import com.extremum.sharedmodels.dto.ResponseDto;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class DtoConvertersCollection implements DtoConverters {
-    @Getter
     private final List<FromRequestDtoConverter<?, ?>> fromRequestConverters;
-    @Getter
     private final List<ToRequestDtoConverter<?, ?>> toRequestConverters;
     private final List<ToResponseDtoConverter<?, ?>> toResponseConverters;
 

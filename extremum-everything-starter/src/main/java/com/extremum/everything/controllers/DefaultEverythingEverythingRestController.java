@@ -30,7 +30,6 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
 
     @DeleteMapping
     public Response remove(@PathVariable Descriptor id) {
-        // todo exception handler required for handle the EverythingEverythingException
         evrEvrManagementService.remove(id);
         return ok();
     }

@@ -2,6 +2,7 @@ package com.extremum.everything.support;
 
 import com.extremum.common.models.Model;
 import com.extremum.common.service.CommonService;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ResolvableType;
 
 /**
@@ -15,7 +16,7 @@ class CommonServiceUtils {
     }
 
     private static ResolvableType findCommonServiceInterface(CommonService<?> service) {
-        ResolvableType currentType = ResolvableType.forClass(service.getClass());
+        ResolvableType currentType = ResolvableType.forClass(AopUtils.getTargetClass(service));
         ResolvableType commonServiceInterface = ResolvableType.NONE;
 
         do {

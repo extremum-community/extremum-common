@@ -27,7 +27,7 @@ public class ScanningModelClasses implements ModelClasses {
                         aClass -> aClass,
                         (aClass, aClass2) -> {
                             throw new IllegalStateException(
-                                    "Found a model with duplicate ModelName value: " + ModelUtils.getModelName(aClass));
+                                    "Found 2 model classes with same model name: " + aClass + " and " + aClass2);
                         }));
         modelNameToClassMap = ImmutableMap.copyOf(modelClasses);
     }

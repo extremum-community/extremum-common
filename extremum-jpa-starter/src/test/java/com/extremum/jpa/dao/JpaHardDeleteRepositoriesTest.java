@@ -2,10 +2,8 @@ package com.extremum.jpa.dao;
 
 import com.extremum.jpa.TestWithServices;
 import com.extremum.jpa.models.HardDeleteJpaModel;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
+import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,19 +13,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
-public class JpaHardDeleteRepositoriesTest extends TestWithServices {
+class JpaHardDeleteRepositoriesTest extends TestWithServices {
     @Autowired
     private HardDeleteJpaDao dao;
 
     @Test
-    public void testCreateModel() {
+    void testCreateModel() {
         HardDeleteJpaModel model = new HardDeleteJpaModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
@@ -43,14 +45,14 @@ public class JpaHardDeleteRepositoriesTest extends TestWithServices {
     }
 
     @Test
-    public void testThatFindByIdWorksForAnEntityWithoutDeletedColumn() {
+    void testThatFindByIdWorksForAnEntityWithoutDeletedColumn() {
         HardDeleteJpaModel entity = dao.save(new HardDeleteJpaModel());
         Optional<HardDeleteJpaModel> opt = dao.findById(entity.getId());
         assertThat(opt.isPresent(), is(true));
     }
 
     @Test
-    public void testThatSpringDataMagicQueryMethodWorksAndIgnoresDeletedAttribute() {
+    void testThatSpringDataMagicQueryMethodWorksAndIgnoresDeletedAttribute() {
         String uniqueName = UUID.randomUUID().toString();
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
@@ -69,5 +71,24 @@ public class JpaHardDeleteRepositoriesTest extends TestWithServices {
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
+    }
+
+    @Test
+    void givenEntityExists_whenCallingDeleteById_thenItShouldNotBeFoundLater() {
+        HardDeleteJpaModel model = dao.save(new HardDeleteJpaModel());
+
+        dao.deleteById(model.getId());
+
+        assertThat(dao.findById(model.getId()).isPresent(), CoreMatchers.is(false));
+    }
+
+    @Test
+    void givenEntityExists_whenCallingDeleteByIdAndReturn_thenItShouldBeReturnedAndShouldNotBeFoundLater() {
+        HardDeleteJpaModel model = dao.save(new HardDeleteJpaModel());
+
+        HardDeleteJpaModel deletedModel = dao.deleteByIdAndReturn(model.getId());
+        assertThat(deletedModel.getId(), CoreMatchers.is(equalTo(model.getId())));
+
+        assertThat(dao.findById(model.getId()).isPresent(), CoreMatchers.is(false));
     }
 }

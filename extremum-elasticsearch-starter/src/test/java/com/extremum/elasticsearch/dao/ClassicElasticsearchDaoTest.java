@@ -419,6 +419,16 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenEntityExists_whenCallingDeleteByIdAndReturn_thenItShouldBeReturnedAndShouldNotBeFoundLater() {
+        TestElasticsearchModel model = dao.save(new TestElasticsearchModel());
+
+        TestElasticsearchModel deletedModel = dao.deleteByIdAndReturn(model.getId());
+        assertThat(deletedModel.getId(), is(equalTo(model.getId())));
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
     void given1ExactFieldMatchAnd2NonExactMatchesExist_whenSearchingWithExactSemantics_then1ResultShouldBeFound() {
         ElasticsearchExactSearchTests tests = new ElasticsearchExactSearchTests(dao);
         String exactName = tests.generate1ModelWithExactNameAnd2ModelsWithReversedAndAmendedNamesAndReturnExactName();

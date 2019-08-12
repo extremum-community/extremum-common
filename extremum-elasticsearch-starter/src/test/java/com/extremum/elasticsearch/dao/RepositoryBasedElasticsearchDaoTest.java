@@ -315,6 +315,16 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenEntityExists_whenCallingDeleteByIdAndReturn_thenItShouldBeReturnedAndShouldNotBeFoundLater() {
+        TestElasticsearchModel model = dao.save(new TestElasticsearchModel());
+
+        TestElasticsearchModel deletedModel = dao.deleteByIdAndReturn(model.getId());
+        assertThat(deletedModel.getId(), is(equalTo(model.getId())));
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
     void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
         String uniqueName = UUID.randomUUID().toString();
 

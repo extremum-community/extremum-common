@@ -53,7 +53,7 @@
 
         <dependency>
             <groupId>com.extremum</groupId>
-            <artifactId>extremum-test-containers</artifactId>
+            <artifactId>extremum-test-harness</artifactId>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

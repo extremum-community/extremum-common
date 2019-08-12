@@ -18,6 +18,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -113,51 +114,6 @@ class JpaCommonDaoTest extends TestWithServices {
         assertNull(resultModel);
     }
 
-    // TODO: restore?
-//    @Test
-//    void testGetByFieldValue() {
-//        TestJpaModel model = getTestModel();
-//        dao.save(model);
-//
-//        List<TestJpaModel> resultModels = dao.listByFieldValue(created.name(), model.getCreated());
-//        assertEquals(1, resultModels.size());
-//        assertEquals(model.getId(), resultModels.get(0).getId());
-//        assertEquals(model.getCreated().toEpochSecond(), resultModels.get(0).getCreated().toEpochSecond());
-//        assertEquals(model.getModified().toEpochSecond(), resultModels.get(0).getModified().toEpochSecond());
-//        assertEquals(model.getDeleted(), resultModels.get(0).getDeleted());
-//        assertEquals(model.getVersion(), resultModels.get(0).getVersion());
-//
-//        resultModels = dao.listByFieldValue(created.name(), ZonedDateTime.now());
-//        assertTrue(resultModels.isEmpty());
-//
-//        TestJpaModel deletedModel = getDeletedTestModel();
-//        dao.save(deletedModel);
-//
-//        resultModels = dao.listByFieldValue(created.name(), deletedModel.getCreated());
-//        assertTrue(resultModels.isEmpty());
-//    }
-
-    // TODO: restore?
-//    @Test
-//    void testGetSelectedFieldsById() {
-//        TestJpaModel model = getTestModel();
-//        dao.save(model);
-//
-//        String[] fields = {created.name()};
-//        TestJpaModel resultModel = dao.getSelectedFieldsById(model.getId(), fields).orElse(null);
-//        assertNotNull(resultModel);
-//        assertNotNull(resultModel.getId());
-//        assertNotNull(resultModel.getCreated());
-//        assertNull(resultModel.getModified());
-//        assertNull(resultModel.getVersion());
-//
-//        TestJpaModel deletedModel = getDeletedTestModel();
-//        dao.save(deletedModel);
-//
-//        resultModel = dao.getSelectedFieldsById(deletedModel.getId(), fields).orElse(null);
-//        assertNull(resultModel);
-//    }
-
     @Test
     void testListAll() {
         int initCount = dao.findAll().size();
@@ -176,48 +132,6 @@ class JpaCommonDaoTest extends TestWithServices {
         count = dao.findAll().size();
         assertEquals(initCount, count);
     }
-
-    // TODO: restore?
-//    @Test
-//    void testListByParameters() {
-//        int initCount = dao.listByParameters(null).size();
-//        int modelsToCreate = 15;
-//        // limit = 0 означает выбор всего. Такая проверка выполняется отдельно
-//        int limit = RandomUtils.nextInt(modelsToCreate - 1) + 1;
-//        int offset = RandomUtils.nextInt(modelsToCreate);
-//        int idsSize = RandomUtils.nextInt(modelsToCreate);
-//
-//        String name = UUID.randomUUID().toString();
-//        List<ObjectId> createdIds = new ArrayList<>();
-//
-//        for (int i = 0; i < modelsToCreate; i++) {
-//            TestJpaModel testModel = getTestModel();
-//            testModel.name = name;
-//            dao.save(testModel);
-//            createdIds.add(testModel.getId());
-//        }
-//        int count = dao.listByParameters(null).size();
-//        assertEquals(initCount + modelsToCreate, count);
-//
-//        count = dao.listByParameters(Collections.emptyMap()).size();
-//        assertEquals(initCount + modelsToCreate, count);
-//
-//        initCount = count;
-//        count = dao.listByParameters(Collections.singletonMap("limit", limit)).size();
-//        assertEquals(limit, count);
-//
-//        count = dao.listByParameters(Collections.singletonMap("limit", 0)).size();
-//        assertEquals(initCount, count);
-//
-//        count = dao.listByParameters(Collections.singletonMap("offset", offset)).size();
-//        assertEquals(initCount - offset, count);
-//
-//        count = dao.listByParameters(Collections.singletonMap("ids", createdIds.subList(0, idsSize))).size();
-//        assertEquals(idsSize, count);
-//
-//        count = dao.listByParameters(Collections.singletonMap(TestJpaModel.FIELDS.name.name(), name)).size();
-//        assertEquals(modelsToCreate, count);
-//    }
 
     @Test
     void testThatSpringDataMagicQueryMethodRespectsDeletedFlag() {
@@ -269,6 +183,25 @@ class JpaCommonDaoTest extends TestWithServices {
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
+    }
+    
+    @Test
+    void givenEntityExists_whenCallingDeleteById_thenItShouldNotBeFoundLater() {
+        TestJpaModel model = dao.save(new TestJpaModel());
+
+        dao.deleteById(model.getId());
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
+    void givenEntityExists_whenCallingDeleteByIdAndReturn_thenItShouldBeReturnedAndShouldNotBeFoundLater() {
+        TestJpaModel model = dao.save(new TestJpaModel());
+
+        TestJpaModel deletedModel = dao.deleteByIdAndReturn(model.getId());
+        assertThat(deletedModel.getId(), is(equalTo(model.getId())));
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
     }
 
     @Test

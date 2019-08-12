@@ -15,4 +15,6 @@ public interface CommonDao<M, ID> {
     <N extends M> List<N> saveAll(Iterable<N> entities);
 
     void deleteById(ID id);
+
+    M deleteByIdAndReturn(ID id);
 }

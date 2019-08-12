@@ -1,5 +1,6 @@
 package com.extremum.elasticsearch.repositories;
 
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.PersistableCommonModel;
 import com.extremum.common.utils.StreamUtils;
 import com.extremum.elasticsearch.model.ElasticsearchCommonModel;
@@ -12,6 +13,7 @@ import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,20 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     @Override
     public void deleteById(String id) {
         patch(id, "ctx._source.deleted = true");
+    }
+
+    @Override
+    public T deleteByIdAndReturn(String id) {
+        T model = findById(id).orElseThrow(() -> new ModelNotFoundException(entityClass, id));
+
+        deleteById(id);
+
+        // I did not find any way to do it 'honestly', so I'm applying a dirty patch. Actually, this is
+        // deletion, and it seems unlikely that the exact deletion time be so important.
+        model.setModified(ZonedDateTime.now());
+        model.setDeleted(true);
+
+        return model;
     }
 
     @Override

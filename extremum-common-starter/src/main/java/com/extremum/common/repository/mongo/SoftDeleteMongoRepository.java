@@ -1,6 +1,7 @@
 package com.extremum.common.repository.mongo;
 
 import com.extremum.common.dao.MongoCommonDao;
+import com.extremum.common.exceptions.ModelNotFoundException;
 import com.extremum.common.models.MongoCommonModel;
 import com.extremum.common.models.PersistableCommonModel;
 import org.bson.types.ObjectId;
@@ -37,7 +38,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     private static final String ID = "_id";
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
-    private final MongoEntityInformation<T, ObjectId> entityInformation;
+    private final MongoEntityInformation<T, ObjectId> metadata;
     private final MongoOperations mongoOperations;
     private final SoftDeletion softDeletion = new SoftDeletion();
 
@@ -45,7 +46,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
             MongoOperations mongoOperations) {
         super(metadata, mongoOperations);
 
-        this.entityInformation = metadata;
+        this.metadata = metadata;
         this.mongoOperations = mongoOperations;
     }
 
@@ -74,14 +75,14 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
 
     @Override
     public Iterable<T> findAllById(Iterable<ObjectId> ids) {
-        Criteria inCriteria = new Criteria(entityInformation.getIdAttribute())
+        Criteria inCriteria = new Criteria(metadata.getIdAttribute())
                 .in(Streamable.of(ids).stream().collect(StreamUtils.toUnmodifiableList()));
         return findAllByQuery(notDeletedQueryWith(inCriteria));
     }
 
     @Override
     public long count() {
-        return mongoOperations.count(notDeletedQuery(), entityInformation.getCollectionName());
+        return mongoOperations.count(notDeletedQuery(), metadata.getCollectionName());
     }
 
     @Override
@@ -89,7 +90,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
         Assert.notNull(example, "Sample must not be null!");
 
         Query q = notDeletedQueryWith(new Criteria().alike(example));
-        return mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName());
+        return mongoOperations.count(q, example.getProbeType(), metadata.getCollectionName());
     }
 
     private Criteria notDeleted() {
@@ -113,7 +114,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
 
         Query q = queryForNotDeletedAndAlike(example).with(sort);
 
-        return mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
+        return mongoOperations.find(q, example.getProbeType(), metadata.getCollectionName());
     }
 
     @Override
@@ -122,10 +123,10 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
         Assert.notNull(pageable, "Pageable must not be null!");
 
         Query q = queryForNotDeletedAndAlike(example).with(pageable);
-        List<S> list = mongoOperations.find(q, example.getProbeType(), entityInformation.getCollectionName());
+        List<S> list = mongoOperations.find(q, example.getProbeType(), metadata.getCollectionName());
 
         return PageableExecutionUtils.getPage(list, pageable,
-                () -> mongoOperations.count(q, example.getProbeType(), entityInformation.getCollectionName()));
+                () -> mongoOperations.count(q, example.getProbeType(), metadata.getCollectionName()));
     }
 
     @Override
@@ -134,7 +135,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
 
         Query q = queryForNotDeletedAndAlike(example);
         return Optional
-                .ofNullable(mongoOperations.findOne(q, example.getProbeType(), entityInformation.getCollectionName()));
+                .ofNullable(mongoOperations.findOne(q, example.getProbeType(), metadata.getCollectionName()));
     }
 
     @Override
@@ -142,7 +143,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
         Assert.notNull(example, "Sample must not be null!");
 
         Query q = queryForNotDeletedAndAlike(example);
-        return mongoOperations.exists(q, example.getProbeType(), entityInformation.getCollectionName());
+        return mongoOperations.exists(q, example.getProbeType(), metadata.getCollectionName());
     }
 
     private <S extends T> Query queryForNotDeletedAndAlike(Example<S> example) {
@@ -153,21 +154,30 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     public boolean existsById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
-        return mongoOperations.exists(notDeletedQueryWith(where(entityInformation.getIdAttribute()).is(id)),
-                entityInformation.getJavaType(), entityInformation.getCollectionName());
+        return mongoOperations.exists(notDeletedQueryWith(where(metadata.getIdAttribute()).is(id)),
+                metadata.getJavaType(), metadata.getCollectionName());
     }
 
     @Override
     public void deleteById(ObjectId id) {
-        Query query = new Query(where(ID).is(id));
-        Update update = updateDeletedToTrue();
-        mongoOperations.findAndModify(query, update, entityInformation.getJavaType());
+        deleteByIdAndReturn(id);
     }
 
     private Update updateDeletedToTrue() {
         Update update = new Update();
         update.set(DELETED, true);
         return update;
+    }
+
+    @Override
+    public T deleteByIdAndReturn(ObjectId id) {
+        Query query = new Query(where(ID).is(id));
+        Update update = updateDeletedToTrue();
+        T deletedModel = mongoOperations.findAndModify(query, update, metadata.getJavaType());
+        if (deletedModel == null) {
+            throw new ModelNotFoundException(metadata.getJavaType(), id.toString());
+        }
+        return deletedModel;
     }
 
     @Override
