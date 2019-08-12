@@ -83,7 +83,7 @@ public class Tests {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText("Successful response with status OK and code 200");
+            description.appendText("Parseable response that ").appendDescriptionOf(responseMatcher);
         }
     }
 }
