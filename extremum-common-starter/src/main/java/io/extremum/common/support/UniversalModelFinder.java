@@ -9,5 +9,5 @@ import java.util.List;
  * @author rpuch
  */
 public interface UniversalModelFinder {
-    List<Model> findModels(List<Descriptor> ids);
+    List<Model> findModels(List<Descriptor> descriptors);
 }
