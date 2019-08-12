@@ -20,6 +20,7 @@ public final class AccessCheckersDataSecurity implements DataSecurity {
     private final Operation get = new Get();
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
+    private final Operation watch = new Watch();
 
     public AccessCheckersDataSecurity(List<DataAccessChecker<?>> checkers,
             RoleChecker roleChecker, PrincipalSource principalSource) {
@@ -88,6 +89,11 @@ public final class AccessCheckersDataSecurity implements DataSecurity {
         remove.checkDataAccess(model);
     }
 
+    @Override
+    public void checkWatchAllowed(Model model) {
+        watch.checkDataAccess(model);
+    }
+
     private class SimpleCheckerContext implements CheckerContext {
         @Override
         public Optional<String> getCurrentPrincipal() {
@@ -138,6 +144,13 @@ public final class AccessCheckersDataSecurity implements DataSecurity {
         @Override
         boolean allowed(Model model, DataAccessChecker<Model> checker, CheckerContext context) {
             return checker.allowedToRemove(model, context);
+        }
+    }
+
+    private class Watch extends Operation {
+        @Override
+        boolean allowed(Model model, DataAccessChecker<Model> checker, CheckerContext context) {
+            return checker.allowedToWatch(model, context);
         }
     }
 }

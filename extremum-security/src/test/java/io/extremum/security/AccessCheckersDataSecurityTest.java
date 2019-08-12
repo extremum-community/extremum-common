@@ -212,6 +212,53 @@ class AccessCheckersDataSecurityTest {
                 () -> security.checkGetAllowed(new ModelWithPrincipalChecksInContext("Alex")));
     }
 
+    @Test
+    void givenCheckerExistsAndAllows_whenCheckWatch_thenAccessShouldBeAllowed() {
+        security.checkWatchAllowed(new ModelWithAllowingChecker());
+    }
+
+    @Test
+    void givenCheckerExistsAndDenies_whenCheckWatch_thenAccessShouldBeDenied() {
+        try {
+            security.checkWatchAllowed(new ModelWithDenyingChecker());
+            fail("An exception should be thrown");
+        } catch (ExtremumAccessDeniedException e) {
+            assertThat(e.getMessage(), is("Access denied"));
+        }
+    }
+
+    @Test
+    void givenNoCheckerExistAndAnnotatedWithNoDataSecurity_whenCheckWatch_thenAccessShouldBeAllowed() {
+        security.checkWatchAllowed(new ModelWithoutCheckerButWithNoDataSecurityAnnotation());
+    }
+
+    @Test
+    void givenNoCheckerExistAndNotAnnotatedWithNoDataSecurity_whenCheckWatch_thenAnExceptionShouldBeThrown() {
+        try {
+            security.checkWatchAllowed(new ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation());
+            fail("An exception should be thrown");
+        } catch (ExtremumSecurityException e) {
+            assertThat(e.getMessage(), is("No DataAccessChecker was found and no @NoDataSecurity annotation exists" +
+                    " on 'ModelWithoutCheckerAndWithoutNoDataSecurityAnnotation'"));
+        }
+    }
+
+    @Test
+    void givenBothCheckerExistAndAnnotatedWithNoDataSecurity_whenCheckWatch_thenAnExceptionShouldBeThrown() {
+        try {
+            security.checkWatchAllowed(new ModelWithCheckerAndWithNoDataSecurityAnnotation());
+            fail("An exception should be thrown");
+        } catch (ExtremumSecurityException e) {
+            assertThat(e.getMessage(), is("Both DataAccessChecker was found and @NoDataSecurity annotation exists" +
+                    " on 'ModelWithCheckerAndWithNoDataSecurityAnnotation'"));
+        }
+    }
+
+    @Test
+    void givenModelIsNull_whenCheckWatch_thenShouldBeAllowed() {
+        security.checkWatchAllowed(null);
+    }
+
     private static abstract class BaseModel extends MongoCommonModel {
     }
 

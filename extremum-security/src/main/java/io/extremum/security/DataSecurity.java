@@ -11,4 +11,6 @@ public interface DataSecurity {
     void checkPatchAllowed(Model model);
 
     void checkRemovalAllowed(Model model);
+
+    void checkWatchAllowed(Model model);
 }

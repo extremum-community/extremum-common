@@ -6,6 +6,7 @@ import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
+import io.extremum.security.DataSecurity;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
@@ -71,6 +72,8 @@ class WatchEndToEndTest extends TestWithServices {
     private PrincipalSource principalSource;
     @SpyBean
     private RoleSecurity roleSecurity;
+    @SpyBean
+    private DataSecurity dataSecurity;
 
     private WatchedModel model;
 
@@ -250,6 +253,10 @@ class WatchEndToEndTest extends TestWithServices {
             throws Exception {
         doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
 
+        subscribeToCurrentModelAndGet403();
+    }
+
+    private void subscribeToCurrentModelAndGet403() throws Exception {
         mockMvc.perform(
                 put("/watch")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -258,5 +265,13 @@ class WatchEndToEndTest extends TestWithServices {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(responseThat(hasProperty("code", is(403)))))
                 .andReturn();
+    }
+
+    @Test
+    void givenDataSecurityDoesNotAllowCurrentUserToWatch_whenSubscribing_thenADeniedExceptionShouldBeThrown()
+            throws Exception {
+        doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(dataSecurity).checkWatchAllowed(any());
+
+        subscribeToCurrentModelAndGet403();
     }
 }
