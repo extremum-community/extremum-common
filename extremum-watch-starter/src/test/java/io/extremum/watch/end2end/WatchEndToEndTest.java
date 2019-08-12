@@ -104,7 +104,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private void subscribeToTheModel() throws Exception {
         mockMvc.perform(
-                put("/api/watch")
+                put("/watch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
@@ -139,7 +139,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() {
         try {
-            MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+            MvcResult mvcResult = mockMvc.perform(get("/watch")
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().is2xxSuccessful())
                     .andExpect(content().string(Tests.successfulResponse()))
@@ -251,7 +251,7 @@ class WatchEndToEndTest extends TestWithServices {
         doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
 
         mockMvc.perform(
-                put("/api/watch")
+                put("/watch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
