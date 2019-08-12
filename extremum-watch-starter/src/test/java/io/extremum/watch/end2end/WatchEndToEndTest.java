@@ -6,7 +6,7 @@ import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
-import io.extremum.security.ExtremumSecurityException;
+import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
 import io.extremum.test.poll.Poller;
@@ -24,6 +24,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.extremum.watch.Tests.responseThat;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -44,8 +46,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -247,13 +249,15 @@ class WatchEndToEndTest extends TestWithServices {
     @Test
     void givenCurrentUserDoesNotHaveRoleRequiredToWatch_whenSubscribing_thenADeniedExceptionShouldBeThrown()
             throws Exception {
-        doThrow(new ExtremumSecurityException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
+        doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
 
-        try {
-            subscribeToTheModel();
-            fail("An exception should be thrown");
-        } catch (ExtremumSecurityException e) {
-            assertThat(e.getMessage(), is("Not allowed to watch"));
-        }
+        mockMvc.perform(
+                put("/api/watch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[\"" + getModelExternalId() + "\"]")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(HttpStatus.FORBIDDEN.value()))
+                .andExpect(content().string(responseThat(hasProperty("code", is(403)))))
+                .andReturn();
     }
 }
