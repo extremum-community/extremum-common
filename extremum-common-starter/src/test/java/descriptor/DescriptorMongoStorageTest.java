@@ -86,4 +86,12 @@ class DescriptorMongoStorageTest extends TestWithServices {
         assertThat(indices, hasItem(havingName("internalId")));
     }
 
+    @Test
+    void whenDescriptorIsSaved_thenDataStorageTypeShouldBeRepresentedWithInternalValueAndNotWithEnumFieldName() {
+        Descriptor descriptor = createAndSaveNewDescriptor();
+
+        Document document = findDescriptorDocument(descriptor);
+
+        assertThat(document.get("storageType"), is("mongo"));
+    }
 }
