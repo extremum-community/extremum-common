@@ -110,9 +110,9 @@ class DefaultEverythingEverythingExceptionHandlerTest {
     }
 
     @Test
-    void whenEverythingAccessDeniedExceptionIsThrown_thenProper403ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+    void whenExtremumAccessDeniedExceptionIsThrown_thenProper403ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
             throws Exception {
-        JSONObject root = getSuccessfullyAndParseResponse("/everything-access-denied-exception");
+        JSONObject root = getSuccessfullyAndParseResponse("/extremum-access-denied-exception");
 
         assertThat(root.getString("status"), is("FAIL"));
         assertThat(root.getInt("code"), is(403));
@@ -155,7 +155,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throw new CollectionDescriptorNotFoundException("Did not find anything");
         }
 
-        @RequestMapping("/everything-access-denied-exception")
+        @RequestMapping("/extremum-access-denied-exception")
         Response everythingAccessDeniedException() {
             throw new ExtremumAccessDeniedException("Access denied");
         }

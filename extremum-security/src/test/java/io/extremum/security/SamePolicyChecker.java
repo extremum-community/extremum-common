@@ -22,5 +22,10 @@ abstract class SamePolicyChecker<M extends Model> implements DataAccessChecker<M
         return allowed(model, context);
     }
 
+    @Override
+    public boolean allowedToWatch(M model, CheckerContext context) {
+        return allowed(model, context);
+    }
+
     abstract boolean allowed(M model, CheckerContext context);
 }

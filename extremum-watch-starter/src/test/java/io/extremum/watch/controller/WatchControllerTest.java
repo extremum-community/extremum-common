@@ -77,7 +77,7 @@ class WatchControllerTest {
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        mockMvc.perform(put("/api/watch")
+        mockMvc.perform(put("/watch")
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
@@ -99,7 +99,7 @@ class WatchControllerTest {
         when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
-        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+        MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(Tests.successfulResponse()))
@@ -119,7 +119,7 @@ class WatchControllerTest {
         when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
-        MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+        MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
                 .param("until", DateUtils.formatZonedDateTimeISO_8601(until))
                 .param("limit", "10")
@@ -173,7 +173,7 @@ class WatchControllerTest {
     void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        mockMvc.perform(delete("/api/watch")
+        mockMvc.perform(delete("/watch")
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())

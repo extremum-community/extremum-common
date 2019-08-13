@@ -19,6 +19,7 @@ class ExtremumRequiredRolesParserTest {
         assertThat(config.rolesForGet(), equalTo(new String[]{"GET"}));
         assertThat(config.rolesForPatch(), equalTo(new String[]{"PATCH"}));
         assertThat(config.rolesForRemove(), equalTo(new String[]{"REMOVE"}));
+        assertThat(config.rolesForWatch(), equalTo(new String[]{"WATCH"}));
     }
 
     @Test
@@ -29,13 +30,15 @@ class ExtremumRequiredRolesParserTest {
         assertThat(config.rolesForGet(), equalTo(new String[]{"DEFAULT"}));
         assertThat(config.rolesForPatch(), equalTo(new String[]{"DEFAULT"}));
         assertThat(config.rolesForRemove(), equalTo(new String[]{"DEFAULT"}));
+        assertThat(config.rolesForWatch(), equalTo(new String[]{"DEFAULT"}));
     }
 
     @ExtremumRequiredRoles(
             defaultAccess = "DEFAULT",
             get = "GET",
             patch = "PATCH",
-            remove = "REMOVE"
+            remove = "REMOVE",
+            watch = "WATCH"
     )
     private static class Individual {
     }

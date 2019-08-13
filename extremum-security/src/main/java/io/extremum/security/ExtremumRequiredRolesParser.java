@@ -9,7 +9,8 @@ public class ExtremumRequiredRolesParser {
                 extremumRequiredRoles.defaultAccess(),
                 extremumRequiredRoles.get(),
                 extremumRequiredRoles.patch(),
-                extremumRequiredRoles.remove()
+                extremumRequiredRoles.remove(),
+                extremumRequiredRoles.watch()
         );
     }
 }

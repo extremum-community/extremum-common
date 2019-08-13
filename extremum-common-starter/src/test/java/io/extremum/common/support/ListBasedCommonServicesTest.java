@@ -1,4 +1,4 @@
-package io.extremum.everything.support;
+package io.extremum.common.support;
 
 import io.extremum.common.dao.MongoCommonDao;
 import io.extremum.common.service.CommonService;
