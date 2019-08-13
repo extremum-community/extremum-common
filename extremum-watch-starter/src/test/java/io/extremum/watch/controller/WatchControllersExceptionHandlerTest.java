@@ -3,7 +3,7 @@ package io.extremum.watch.controller;
 import io.extremum.common.response.Response;
 import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.sharedmodels.dto.RequestDto;
+import io.extremum.watch.exception.WatchException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +61,16 @@ class WatchControllersExceptionHandlerTest {
         return new JSONObject(content);
     }
 
+    @Test
+    void whenWatchExceptionIsThrown_thenProper500ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+            throws Exception {
+        JSONObject root = getSuccessfullyAndParseResponse("/watch-exception");
+
+        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getInt("code"), is(500));
+        assertThat(root.getString("result"), is(nullValue()));
+    }
+
     @RestController
     @EverythingExceptionHandlerTarget
     private static class TestController {
@@ -69,13 +79,14 @@ class WatchControllersExceptionHandlerTest {
             return Response.ok("Success!");
         }
 
+        @RequestMapping("/watch-exception")
+        Response watchException() {
+            throw new WatchException("Something is wrong");
+        }
+
         @RequestMapping("/extremum-access-denied-exception")
         Response extremumAccessDeniedException() {
             throw new ExtremumAccessDeniedException("Access denied");
         }
-    }
-
-    private static class TestRequestDto implements RequestDto {
-
     }
 }

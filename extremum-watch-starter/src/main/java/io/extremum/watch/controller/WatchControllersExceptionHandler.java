@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class WatchControllersExceptionHandler {
     @ExceptionHandler
     public Response handleWatchException(WatchException e) {
-        log.warn("Handle on {}: ", this.getClass().getSimpleName(), e);
-        return Response.fail(Alert.errorAlert("You are unauthorized!"), HttpStatus.UNAUTHORIZED.value());
+        log.error("Exception has occurred and will be handled in WatchControllersExceptionHandler: {}",
+                e.getLocalizedMessage(), e);
+        return Response.fail(Alert.errorAlert("Internal server error"), HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
     @ExceptionHandler
