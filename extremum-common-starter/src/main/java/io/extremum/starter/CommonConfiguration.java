@@ -1,5 +1,7 @@
 package io.extremum.starter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoClientURI;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
 import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
@@ -18,15 +20,17 @@ import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
+import io.extremum.common.models.Model;
+import io.extremum.common.service.CommonService;
 import io.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
+import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
+import io.extremum.starter.properties.ModelProperties;
 import io.extremum.starter.properties.MongoProperties;
 import io.extremum.starter.properties.RedisProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -51,12 +55,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @ComponentScan("io.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, MongoProperties.class,
-        DescriptorsProperties.class})
+        DescriptorsProperties.class, ModelProperties.class})
 @AutoConfigureBefore(JacksonAutoConfiguration.class)
 public class CommonConfiguration {
     private final RedisProperties redisProperties;
     private final MongoProperties mongoProperties;
     private final DescriptorsProperties descriptorsProperties;
+    private final ModelProperties modelProperties;
 
     @Bean
     public DateTimeProvider dateTimeProvider() {
@@ -180,5 +185,23 @@ public class CommonConfiguration {
     public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener(
             MongoDescriptorFacilities mongoDescriptorFacilities) {
         return new MongoCommonModelLifecycleListener(mongoDescriptorFacilities);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CommonServices commonServices(List<CommonService<? extends Model>> services) {
+        return new ListBasedCommonServices(services);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ModelClasses modelClasses() {
+        return new ScanningModelClasses(modelProperties.getPackageNames());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public UniversalModelFinder universalModelFinder(ModelClasses modelClasses, CommonServices commonServices) {
+        return new UniversalModelFinderImpl(modelClasses, commonServices);
     }
 }

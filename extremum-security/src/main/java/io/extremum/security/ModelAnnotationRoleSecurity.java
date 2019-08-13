@@ -8,13 +8,14 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 /**
  * @author rpuch
  */
-public final class ModelAnnotationRoleSecurity implements RoleSecurity {
+public class ModelAnnotationRoleSecurity implements RoleSecurity {
     private final RoleChecker roleChecker;
     private final ModelClasses modelClasses;
 
     private final Operation get = new Get();
     private final Operation patch = new Patch();
     private final Operation remove = new Remove();
+    private final Operation watch = new Watch();
 
     public ModelAnnotationRoleSecurity(RoleChecker roleChecker,
             ModelClasses modelClasses) {
@@ -35,6 +36,11 @@ public final class ModelAnnotationRoleSecurity implements RoleSecurity {
     @Override
     public void checkRemovalAllowed(Descriptor id) {
         remove.throwIfNoRolesFor(id);
+    }
+
+    @Override
+    public void checkWatchAllowed(Descriptor id) throws ExtremumSecurityException {
+        watch.throwIfNoRolesFor(id);
     }
 
     private abstract class Operation {
@@ -101,6 +107,18 @@ public final class ModelAnnotationRoleSecurity implements RoleSecurity {
         @Override
         String name() {
             return "remove";
+        }
+    }
+
+    private class Watch extends Operation {
+        @Override
+        String[] extractRoles(ExtremumRequiredRolesConfig config) {
+            return config.rolesForWatch();
+        }
+
+        @Override
+        String name() {
+            return "watch";
         }
     }
 }

@@ -20,4 +20,9 @@ public final class AllowEverythingForRoleAccess implements RoleSecurity {
     public void checkRemovalAllowed(Descriptor id) {
         // allow anything
     }
+
+    @Override
+    public void checkWatchAllowed(Descriptor id) throws ExtremumSecurityException {
+        // allow anything
+    }
 }

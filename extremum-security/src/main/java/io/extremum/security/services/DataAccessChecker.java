@@ -13,4 +13,6 @@ public interface DataAccessChecker<M extends Model> extends ModelService {
     boolean allowedToPatch(M model, CheckerContext context);
 
     boolean allowedToRemove(M model, CheckerContext context);
+
+    boolean allowedToWatch(M model, CheckerContext context);
 }

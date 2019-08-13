@@ -259,6 +259,7 @@ class FetchByOwnedCoordinatesTest {
         private List<String> collectionElementOnGetter = Arrays.asList(OBJECT_ID1.toString(), OBJECT_ID2.toString());
     }
 
+    @ModelName("Substreet")
     private static class SubStreet extends Street {
     }
 

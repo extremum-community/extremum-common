@@ -3,7 +3,7 @@ package io.extremum.everything.services.defaultservices;
 import io.extremum.common.models.Model;
 import io.extremum.common.models.MongoCommonModel;
 import io.extremum.common.service.CommonService;
-import io.extremum.everything.support.CommonServices;
+import io.extremum.common.support.CommonServices;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
