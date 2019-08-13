@@ -23,9 +23,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>io.extremum</groupId>
             <artifactId>extremum-common-starter</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
