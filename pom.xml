@@ -5,7 +5,7 @@
     <groupId>io.extremum</groupId>
     <artifactId>extremum-common-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
 
     <modules>
         <module>extremum-shared-models</module>
@@ -67,7 +67,7 @@
                 <version>3.0.0-M2</version>
                 <configuration>
                     <rules>
-                        <banDuplicatePomDependencyVersions/>
+                        <banDuplicatePomDependencyVersions />
                         <banDuplicateClasses>
                             <findAllDuplicates>true</findAllDuplicates>
                             <dependencies />
