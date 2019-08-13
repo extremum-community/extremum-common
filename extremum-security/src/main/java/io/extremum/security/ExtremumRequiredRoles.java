@@ -18,4 +18,6 @@ public @interface ExtremumRequiredRoles {
     String[] patch() default {};
 
     String[] remove() default {};
+
+    String[] watch() default {};
 }

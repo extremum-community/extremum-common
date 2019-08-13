@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * This controller responsible for find appropriate watch events
  */
 @RestController
-@RequestMapping("/api/watch")
+@RequestMapping("/watch")
 @RequiredArgsConstructor
 public class WatchController {
     private final WatchEventService watchEventService;

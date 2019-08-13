@@ -1,18 +1,21 @@
 package io.extremum.watch.end2end;
 
-import io.extremum.test.poll.Poller;
-import io.extremum.security.PrincipalSource;
-import io.extremum.watch.config.TestWithServices;
-import io.extremum.watch.config.WatchTestConfiguration;
-import io.extremum.watch.end2end.fixture.WatchedModel;
-import io.extremum.watch.end2end.fixture.WatchedModelService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.security.PrincipalSource;
+import io.extremum.security.RoleSecurity;
+import io.extremum.test.poll.Poller;
 import io.extremum.watch.Tests;
+import io.extremum.watch.config.TestWithServices;
+import io.extremum.watch.config.WatchTestConfiguration;
+import io.extremum.watch.end2end.fixture.WatchedModel;
+import io.extremum.watch.end2end.fixture.WatchedModelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.extremum.watch.Tests.responseThat;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -41,7 +46,10 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -62,6 +70,10 @@ class WatchEndToEndTest extends TestWithServices {
 
     @MockBean
     private PrincipalSource principalSource;
+    @SpyBean
+    private RoleSecurity roleSecurity;
+    @SpyBean
+    private DataSecurity dataSecurity;
 
     private WatchedModel model;
 
@@ -95,7 +107,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private void subscribeToTheModel() throws Exception {
         mockMvc.perform(
-                put("/api/watch")
+                put("/watch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
@@ -130,7 +142,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() {
         try {
-            MvcResult mvcResult = mockMvc.perform(get("/api/watch")
+            MvcResult mvcResult = mockMvc.perform(get("/watch")
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().is2xxSuccessful())
                     .andExpect(content().string(Tests.successfulResponse()))
@@ -234,5 +246,32 @@ class WatchEndToEndTest extends TestWithServices {
         assertThat(operation, hasEntry(is("op"), is("remove")));
         assertThat(operation, hasEntry(is("path"), is("/")));
         assertThat(operation, not(hasKey("value")));
+    }
+
+    @Test
+    void givenCurrentUserDoesNotHaveRoleRequiredToWatch_whenSubscribing_thenADeniedExceptionShouldBeThrown()
+            throws Exception {
+        doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(roleSecurity).checkWatchAllowed(any());
+
+        subscribeToCurrentModelAndGet403();
+    }
+
+    private void subscribeToCurrentModelAndGet403() throws Exception {
+        mockMvc.perform(
+                put("/watch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[\"" + getModelExternalId() + "\"]")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(responseThat(hasProperty("code", is(403)))))
+                .andReturn();
+    }
+
+    @Test
+    void givenDataSecurityDoesNotAllowCurrentUserToWatch_whenSubscribing_thenADeniedExceptionShouldBeThrown()
+            throws Exception {
+        doThrow(new ExtremumAccessDeniedException("Not allowed to watch")).when(dataSecurity).checkWatchAllowed(any());
+
+        subscribeToCurrentModelAndGet403();
     }
 }

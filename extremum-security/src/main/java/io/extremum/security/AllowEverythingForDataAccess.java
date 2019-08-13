@@ -20,4 +20,9 @@ public class AllowEverythingForDataAccess implements DataSecurity {
     public void checkRemovalAllowed(Model model) {
         // allow anything
     }
+
+    @Override
+    public void checkWatchAllowed(Model model) {
+        // allow anything
+    }
 }

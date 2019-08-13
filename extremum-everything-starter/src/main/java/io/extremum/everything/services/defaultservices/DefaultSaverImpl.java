@@ -2,7 +2,7 @@ package io.extremum.everything.services.defaultservices;
 
 import io.extremum.common.models.Model;
 import io.extremum.common.service.CommonService;
-import io.extremum.everything.support.CommonServices;
+import io.extremum.common.support.CommonServices;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
