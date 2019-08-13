@@ -33,7 +33,7 @@ import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
 import io.extremum.starter.CommonConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.authentication.api.SecurityProvider;
+import io.extremum.authentication.api.interfaces.SecurityProvider;
 import io.extremum.everything.services.*;
 import io.extremum.everything.services.management.*;
 import io.extremum.everything.support.CommonServices;

@@ -5,7 +5,7 @@ import io.extremum.common.models.annotation.ModelName;
 import io.extremum.security.ExtremumRequiredRoles;
 import io.extremum.security.NoDataSecurity;
 import io.extremum.watch.annotation.CapturedModel;
-import io.extremum.authentication.api.RolesConstants;
+import io.extremum.authentication.api.constants.RolesConstants;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
