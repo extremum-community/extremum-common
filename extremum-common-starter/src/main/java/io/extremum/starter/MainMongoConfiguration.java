@@ -1,16 +1,20 @@
 package io.extremum.starter;
 
-import io.extremum.common.collection.spring.CollectionDescriptorLifecycleListener;
-import io.extremum.common.repository.mongo.EnableAllMongoAuditing;
-import io.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import io.extremum.common.collection.spring.CollectionDescriptorLifecycleListener;
+import io.extremum.common.repository.mongo.EnableAllMongoAuditing;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.starter.properties.MongoProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
@@ -93,6 +97,8 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         converters.add(new DateToZonedDateTimeConverter());
         converters.add(new ZonedDateTimeToDateConverter());
         converters.add(new DescriptorToStringConverter());
+        converters.add(new StorageTypeToStringConverter());
+        converters.add(new StringToStorageTypeConverter());
 
         return new MongoCustomConversions(converters);
     }
@@ -101,5 +107,20 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     public CollectionDescriptorLifecycleListener collectionDescriptorLifecycleListener() {
         return new CollectionDescriptorLifecycleListener();
     }
-    
+
+    @WritingConverter
+    private static class StorageTypeToStringConverter implements Converter<Descriptor.StorageType, String> {
+        @Override
+        public String convert(Descriptor.StorageType source) {
+            return source.getValue();
+        }
+    }
+
+    @ReadingConverter
+    private static class StringToStorageTypeConverter implements Converter<String, Descriptor.StorageType> {
+        @Override
+        public Descriptor.StorageType convert(String source) {
+            return Descriptor.StorageType.fromString(source);
+        }
+    }
 }

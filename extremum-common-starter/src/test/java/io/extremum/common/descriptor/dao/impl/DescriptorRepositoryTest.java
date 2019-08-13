@@ -77,7 +77,7 @@ class DescriptorRepositoryTest extends TestWithServices {
         assertThat(document.getString("_id"), is(equalTo(expectedDescriptor.getExternalId())));
         assertThat(document.getString("internalId"), is(equalTo(expectedDescriptor.getInternalId())));
         assertThat(document.getString("modelType"), is("test_model"));
-        assertThat(document.getString("storageType"), is("MONGO"));
+        assertThat(document.getString("storageType"), is("mongo"));
         assertThat(document.get("created", Date.class), is(notNullValue()));
         assertThat(document.get("modified", Date.class), is(notNullValue()));
         assertThat(document.getBoolean("deleted"), is(false));
