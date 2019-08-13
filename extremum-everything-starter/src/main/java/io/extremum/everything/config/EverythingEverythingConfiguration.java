@@ -1,5 +1,7 @@
 package io.extremum.everything.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;
@@ -8,17 +10,14 @@ import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.models.Model;
-import io.extremum.common.service.CommonService;
+import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
-import io.extremum.common.support.ScanningModelClasses;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.ApplicationUrlsImpl;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import io.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import io.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import io.extremum.everything.config.properties.DestroyerProperties;
-import io.extremum.everything.config.properties.ModelProperties;
 import io.extremum.everything.controllers.DefaultEverythingEverythingCollectionRestController;
 import io.extremum.everything.controllers.DefaultEverythingEverythingRestController;
 import io.extremum.everything.controllers.EverythingEverythingCollectionRestController;
@@ -28,18 +27,14 @@ import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
+import io.extremum.everything.services.*;
 import io.extremum.everything.services.defaultservices.*;
+import io.extremum.everything.services.management.*;
+import io.extremum.everything.support.DefaultModelDescriptors;
+import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
 import io.extremum.starter.CommonConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.authentication.api.SecurityProvider;
-import io.extremum.everything.services.*;
-import io.extremum.everything.services.management.*;
-import io.extremum.common.support.CommonServices;
-import io.extremum.everything.support.DefaultModelDescriptors;
-import io.extremum.common.support.ListBasedCommonServices;
-import io.extremum.everything.support.ModelDescriptors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -56,11 +51,10 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties({DestroyerProperties.class, ModelProperties.class})
+@EnableConfigurationProperties({DestroyerProperties.class})
 @AutoConfigureAfter(CommonConfiguration.class)
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class EverythingEverythingConfiguration {
-    private final ModelProperties modelProperties;
     private final DestroyerProperties destroyerProperties;
 
     @Bean
@@ -107,18 +101,6 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public UniversalDao universalDao(MongoOperations mongoOperations) {
         return new SpringDataUniversalDao(mongoOperations);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public CommonServices commonServices(List<CommonService<? extends Model>> services) {
-        return new ListBasedCommonServices(services);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ModelClasses modelClasses() {
-        return new ScanningModelClasses(modelProperties.getPackageNames());
     }
 
     @Bean

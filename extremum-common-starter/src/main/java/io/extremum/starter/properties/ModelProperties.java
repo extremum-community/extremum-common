@@ -1,4 +1,4 @@
-package io.extremum.everything.config.properties;
+package io.extremum.starter.properties;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,5 +19,5 @@ import java.util.List;
 @Valid
 public class ModelProperties {
     @NotEmpty
-    private List<String> packageNames;
+    private List<String> packageNames = new ArrayList<>();
 }

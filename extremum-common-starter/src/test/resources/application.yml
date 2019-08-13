@@ -18,3 +18,7 @@ spring:
 logging:
   level:
     org.springframework.data.mongodb.core: INFO
+
+custom:
+  model:
+    package-names: io.extremum
