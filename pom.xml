@@ -9,7 +9,7 @@
 
     <modules>
         <module>extremum-bom</module>
-        <module>extremum-common-parent</module>
+        <module>extremum-module-parent</module>
         <module>extremum-shared-models</module>
         <module>authentication-api</module>
         <module>extremum-test-harness</module>
