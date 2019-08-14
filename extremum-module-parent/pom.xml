@@ -10,6 +10,10 @@
 
     <artifactId>extremum-module-parent</artifactId>
     <packaging>pom</packaging>
+    <name>extremum-common module parent</name>
+    <description>This module is used as a parent for any extremum-common module.
+        If you are looking for a parent for your application, please use extremum-app-parent.
+    </description>
 
     <build>
         <plugins>

@@ -6,10 +6,18 @@
     <artifactId>extremum-common-project</artifactId>
     <packaging>pom</packaging>
     <version>1.0.9-SNAPSHOT</version>
+    <name>Root extremum-common POM</name>
+    <description>This POM serves as a root of extremum-common multimodule project. Also, it defines release-related
+        settings (scm and distributionManagement).
+        You almost never need to use this module as a parent.
+        If you need to add a new module to extremum-common, please choose extremum-module-parent as its parent.
+        If want to have some extremum parent as a parent of your application, please use extremum-app-parent.
+    </description>
 
     <modules>
         <module>extremum-bom</module>
         <module>extremum-module-parent</module>
+        <module>extremum-app-parent</module>
         <module>extremum-shared-models</module>
         <module>authentication-api</module>
         <module>extremum-test-harness</module>
