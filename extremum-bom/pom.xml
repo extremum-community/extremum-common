@@ -60,6 +60,11 @@
                 <artifactId>extremum-elasticsearch-starter</artifactId>
                 <version>1.0.8-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-watch-starter</artifactId>
+                <version>1.0.8-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.extremum</groupId>
