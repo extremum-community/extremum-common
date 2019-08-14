@@ -14,6 +14,10 @@
         If want to have some extremum parent as a parent of your application, please use extremum-app-parent.
     </description>
 
+    <properties>
+        <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+    </properties>
+
     <modules>
         <module>extremum-bom</module>
         <module>extremum-module-parent</module>
