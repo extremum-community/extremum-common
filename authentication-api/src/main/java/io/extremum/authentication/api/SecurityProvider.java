@@ -1,4 +1,4 @@
-package io.extremum.authentication.api.interfaces;
+package io.extremum.authentication.api;
 
 import java.util.Optional;
 

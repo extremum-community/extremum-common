@@ -1,4 +1,4 @@
-package io.extremum.authentication.api.exceptions;
+package io.extremum.authentication.api;
 
 /**
  * @author rpuch

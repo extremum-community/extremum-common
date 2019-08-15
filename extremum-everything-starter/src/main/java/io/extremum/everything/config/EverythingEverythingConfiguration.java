@@ -1,7 +1,7 @@
 package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.authentication.api.interfaces.SecurityProvider;
+import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;

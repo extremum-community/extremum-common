@@ -5,7 +5,7 @@ import io.extremum.common.models.annotation.ModelName;
 import io.extremum.security.ExtremumRequiredRoles;
 import io.extremum.security.NoDataSecurity;
 import io.extremum.watch.annotation.CapturedModel;
-import io.extremum.authentication.api.constants.RolesConstants;
+import io.extremum.authentication.api.Roles;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,7 +15,7 @@ import lombok.ToString;
  */
 @ModelName(WatchedModel.MODEL_NAME)
 @CapturedModel
-@ExtremumRequiredRoles(defaultAccess = RolesConstants.ANONYMOUS)
+@ExtremumRequiredRoles(defaultAccess = Roles.ANONYMOUS)
 @NoDataSecurity
 @Getter @Setter @ToString
 public class WatchedModel extends MongoCommonModel {

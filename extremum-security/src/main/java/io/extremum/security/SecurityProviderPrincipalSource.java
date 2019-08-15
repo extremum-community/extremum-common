@@ -1,6 +1,6 @@
 package io.extremum.security;
 
-import io.extremum.authentication.api.interfaces.SecurityProvider;
+import io.extremum.authentication.api.SecurityProvider;
 
 import java.util.Optional;
 
