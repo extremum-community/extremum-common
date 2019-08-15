@@ -60,7 +60,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
