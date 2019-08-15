@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>extremum-common-parent</artifactId>
         <groupId>io.extremum</groupId>
+        <artifactId>extremum-module-parent</artifactId>
         <version>1.0.9-SNAPSHOT</version>
+        <relativePath>../extremum-module-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>extremum-elasticsearch-starter</artifactId>
 
     <properties>
-        <elasticsearch.version>7.1.0</elasticsearch.version>
         <testcoverage.minimum>0.62</testcoverage.minimum>
     </properties>
 
@@ -25,30 +25,25 @@
         <dependency>
             <groupId>io.extremum</groupId>
             <artifactId>extremum-common-starter</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
-            <version>3.2.0.RC1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
-            <version>2.1.5.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>${elasticsearch.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
         </dependency>
 
         <dependency>
