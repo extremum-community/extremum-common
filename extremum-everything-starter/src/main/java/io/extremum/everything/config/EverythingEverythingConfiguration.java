@@ -193,7 +193,7 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker,
-            PrincipalSource principalSource) {
+                                               PrincipalSource principalSource) {
         return new AccessCheckersDataSecurity(checkers, roleChecker, principalSource);
     }
 
