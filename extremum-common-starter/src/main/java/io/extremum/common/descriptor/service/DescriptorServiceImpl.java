@@ -19,16 +19,19 @@ public final class DescriptorServiceImpl implements DescriptorService {
 
     @Override
     public Descriptor store(Descriptor descriptor) {
+        Objects.requireNonNull(descriptor, "Descriptor is null");
         return descriptorDao.store(descriptor);
     }
 
     @Override
     public Optional<Descriptor> loadByExternalId(String externalId) {
+        Objects.requireNonNull(externalId, "externalId is null");
         return descriptorDao.retrieveByExternalId(externalId);
     }
 
     @Override
     public Optional<Descriptor> loadByInternalId(String internalId) {
+        Objects.requireNonNull(internalId, "internalId is null");
         return descriptorDao.retrieveByInternalId(internalId);
     }
 
