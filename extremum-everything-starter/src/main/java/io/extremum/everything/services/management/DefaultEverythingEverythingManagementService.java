@@ -117,13 +117,16 @@ public class DefaultEverythingEverythingManagementService implements EverythingE
             OwnedCoordinates owned = coordinates.getOwnedCoordinates();
             BasicModel host = retrieveHost(owned);
 
-            Optional<CollectionFetcher> collectionFetcher = collectionFetchers.stream()
+            Optional<CollectionFetcher> optFetcher = collectionFetchers.stream()
                     .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
                     .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
                     .findFirst();
 
-            return collectionFetcher.map(fetcher -> fetcher.fetchCollection(host, projection))
+            @SuppressWarnings("unchecked")
+            CollectionFragment<Model> castResult = optFetcher
+                    .map(fetcher -> fetcher.fetchCollection(host, projection))
                     .orElseGet(() -> fetchUsingDefaultConvention(owned, host, projection));
+            return castResult;
         }
 
         private BasicModel retrieveHost(OwnedCoordinates owned) {
