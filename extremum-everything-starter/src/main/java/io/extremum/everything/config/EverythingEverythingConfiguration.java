@@ -201,20 +201,29 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public EverythingEverythingManagementService everythingEverythingManagementService(
             ModelRetriever modelRetriever,
+            PatchFlow patchFlow,
             List<RemovalService> removalServices,
             DefaultRemover defaultRemover,
-            PatchFlow patchFlow,
-            List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
-            UniversalDao universalDao,
             RoleSecurity roleSecurity,
             DataSecurity dataSecurity) {
         EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
                 modelRetriever,
                 patchFlow, removalServices,
                 defaultRemover,
-                collectionFetchers, dtoConversionService, universalDao, dataSecurity);
+                dtoConversionService, dataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, roleSecurity);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CollectionFetcherManagementService collectionFetcherManagementService(
+            ModelRetriever modelRetriever,
+            List<CollectionFetcher> collectionFetchers,
+            DtoConversionService dtoConversionService,
+            UniversalDao universalDao) {
+        return new DefaultCollectionFetcherManagementService(modelRetriever, collectionFetchers,
+                dtoConversionService, universalDao);
     }
 
     @Bean
@@ -247,9 +256,9 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
             CollectionDescriptorService collectionDescriptorService,
-            EverythingEverythingManagementService everythingEverythingManagementService
+            CollectionFetcherManagementService collectionFetcherManagementService
     ) {
         return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
-                everythingEverythingManagementService);
+                collectionFetcherManagementService);
     }
 }
