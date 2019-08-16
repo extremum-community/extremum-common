@@ -18,10 +18,7 @@ import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import io.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import io.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import io.extremum.everything.config.properties.DestroyerProperties;
-import io.extremum.everything.controllers.DefaultEverythingEverythingCollectionRestController;
-import io.extremum.everything.controllers.DefaultEverythingEverythingRestController;
-import io.extremum.everything.controllers.EverythingEverythingCollectionRestController;
-import io.extremum.everything.controllers.EverythingEverythingRestController;
+import io.extremum.everything.controllers.*;
 import io.extremum.everything.dao.SpringDataUniversalDao;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -84,6 +81,12 @@ public class EverythingEverythingConfiguration {
     public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
             EverythingCollectionManagementService collectionManagementService) {
         return new DefaultEverythingEverythingCollectionRestController(collectionManagementService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PingController pingController() {
+        return new PingController();
     }
 
     @Bean
