@@ -9,6 +9,7 @@ import io.extremum.common.response.Response;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 import static io.extremum.common.response.Response.ok;
 
@@ -38,5 +39,10 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
         Pagination pagination = paginationBuilder.build();
 
         return ok(fragment.elements(), pagination);
+    }
+
+    @Override
+    public Flux<ResponseDto> streamCollection(String collectionId, Projection projection, boolean expand) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }
