@@ -41,9 +41,9 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class DefaultCollectionFetcherManagementServiceTest {
+class DefaultEverythingCollectionServiceTest {
     @InjectMocks
-    private DefaultCollectionFetcherManagementService service;
+    private DefaultEverythingCollectionService service;
 
     @Spy
     private GetterService<Street> streetGetterService = new StreetGetter();
@@ -57,7 +57,7 @@ class DefaultCollectionFetcherManagementServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new DefaultCollectionFetcherManagementService(
+        service = new DefaultEverythingCollectionService(
                 new ModelRetriever(ImmutableList.of(streetGetterService), null),
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 dtoConversionService,

@@ -23,7 +23,7 @@ import java.util.Optional;
 import static java.lang.String.format;
 
 @RequiredArgsConstructor
-public class DefaultCollectionFetcherManagementService implements CollectionFetcherManagementService {
+public class DefaultEverythingCollectionService implements EverythingCollectionService {
     private final ModelRetriever modelRetriever;
     private final List<CollectionFetcher> collectionFetchers;
     private final DtoConversionService dtoConversionService;

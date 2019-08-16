@@ -217,12 +217,12 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionFetcherManagementService collectionFetcherManagementService(
+    public EverythingCollectionService everythingCollectionService(
             ModelRetriever modelRetriever,
             List<CollectionFetcher> collectionFetchers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao) {
-        return new DefaultCollectionFetcherManagementService(modelRetriever, collectionFetchers,
+        return new DefaultEverythingCollectionService(modelRetriever, collectionFetchers,
                 dtoConversionService, universalDao);
     }
 
@@ -256,9 +256,9 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
             CollectionDescriptorService collectionDescriptorService,
-            CollectionFetcherManagementService collectionFetcherManagementService
+            EverythingCollectionService everythingCollectionService
     ) {
         return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
-                collectionFetcherManagementService);
+                everythingCollectionService);
     }
 }

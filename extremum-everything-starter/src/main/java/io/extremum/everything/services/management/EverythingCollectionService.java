@@ -8,6 +8,6 @@ import io.extremum.everything.collection.Projection;
 /**
  * @author rpuch
  */
-public interface CollectionFetcherManagementService {
+public interface EverythingCollectionService {
     CollectionFragment<ResponseDto> fetchCollection(CollectionDescriptor id, Projection projection, boolean expand);
 }

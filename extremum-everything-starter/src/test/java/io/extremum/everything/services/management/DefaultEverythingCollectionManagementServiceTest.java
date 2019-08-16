@@ -44,7 +44,7 @@ class DefaultEverythingCollectionManagementServiceTest {
     @Mock
     private CollectionDescriptorService collectionDescriptorService;
     @Mock
-    private CollectionFetcherManagementService collectionFetcherManagementService;
+    private EverythingCollectionService everythingCollectionService;
     private final Collection<ResponseDto> expectedCollection = Arrays.asList(
             mock(ResponseDto.class), mock(ResponseDto.class));
 
@@ -70,7 +70,7 @@ class DefaultEverythingCollectionManagementServiceTest {
     private void setupMocksToReturnACollection() {
         when(collectionDescriptorService.retrieveByExternalId("collection-id"))
                 .thenReturn(Optional.of(new CollectionDescriptor("collection-id")));
-        when(collectionFetcherManagementService.fetchCollection(any(), any(), anyBoolean()))
+        when(everythingCollectionService.fetchCollection(any(), any(), anyBoolean()))
                 .thenReturn(CollectionFragment.forCompleteCollection(expectedCollection));
     }
 

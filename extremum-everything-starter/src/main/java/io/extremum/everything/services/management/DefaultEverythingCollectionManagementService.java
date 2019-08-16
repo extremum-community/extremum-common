@@ -18,7 +18,7 @@ import static io.extremum.common.response.Response.ok;
 @RequiredArgsConstructor
 public class DefaultEverythingCollectionManagementService implements EverythingCollectionManagementService {
     private final CollectionDescriptorService collectionDescriptorService;
-    private final CollectionFetcherManagementService collectionFetcherManagementService;
+    private final EverythingCollectionService everythingCollectionService;
 
     @Override
     public Response fetchCollection(String collectionId, Projection projection, boolean expand) {
@@ -26,7 +26,7 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
                 .orElseThrow(() -> new CollectionDescriptorNotFoundException(
                         String.format("Did not find a collection descriptor by externalId '%s'", collectionId)));
 
-        CollectionFragment<ResponseDto> fragment = collectionFetcherManagementService.fetchCollection(
+        CollectionFragment<ResponseDto> fragment = everythingCollectionService.fetchCollection(
                 collectionDescriptor, projection, expand);
 
         Pagination.PaginationBuilder paginationBuilder = Pagination.builder()

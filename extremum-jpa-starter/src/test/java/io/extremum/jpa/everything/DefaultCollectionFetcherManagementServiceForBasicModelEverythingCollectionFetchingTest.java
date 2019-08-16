@@ -9,7 +9,7 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.services.CollectionFetcher;
 import io.extremum.everything.services.GetterService;
-import io.extremum.everything.services.management.DefaultCollectionFetcherManagementService;
+import io.extremum.everything.services.management.DefaultEverythingCollectionService;
 import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.jpa.models.PostgresBasicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -37,9 +37,9 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class DefaultCollectionFetcherManagementServiceForBasicModelCollectionFetchingTest {
+class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollectionFetchingTest {
     @InjectMocks
-    private DefaultCollectionFetcherManagementService service;
+    private DefaultEverythingCollectionService service;
 
     @Spy
     private GetterService<JpaBasicContainer> jpaBasicContainerGetterService = new JpaBasicContainerGetter();
@@ -50,7 +50,7 @@ class DefaultCollectionFetcherManagementServiceForBasicModelCollectionFetchingTe
 
     @BeforeEach
     void setUp() {
-        service = new DefaultCollectionFetcherManagementService(
+        service = new DefaultEverythingCollectionService(
                 new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
