@@ -43,7 +43,7 @@ class StreamByOwnedCoordinatesTest {
     void whenEverythingIsOk_thenCollectionShouldBeReturned() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        Flux<Model> houses = streamer.fetchCollection(new Street(), "houses", Projection.empty());
+        Flux<Model> houses = streamer.stream(new Street(), "houses", Projection.empty());
         assertThat(houses.toStream().collect(Collectors.toList()), hasSize(2));
     }
 
@@ -56,7 +56,7 @@ class StreamByOwnedCoordinatesTest {
     void whenCollectionElementIsAnnotatedOnGetter_thenCollectionShouldBeReturned() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        Flux<Model> houses = streamer.fetchCollection(new Street(),
+        Flux<Model> houses = streamer.stream(new Street(),
                 "collectionElementOnGetter", Projection.empty());
         assertThat(houses.toStream().collect(Collectors.toList()), hasSize(2));
     }
@@ -66,14 +66,14 @@ class StreamByOwnedCoordinatesTest {
         Street host = new Street();
         host.houses = null;
 
-        Flux<Model> houses = streamer.fetchCollection(host, "houses", Projection.empty());
+        Flux<Model> houses = streamer.stream(host, "houses", Projection.empty());
 
         assertThat(houses.toStream().collect(Collectors.toList()), hasSize(0));
     }
 
     @Test
     void whenCollectionFieldContainsModels_thenTheyShouldBeReturned() {
-        Flux<Model> houses = streamer.fetchCollection(new Street(), "bareHouses", Projection.empty());
+        Flux<Model> houses = streamer.stream(new Street(), "bareHouses", Projection.empty());
         assertThat(houses.toStream().collect(Collectors.toList()), hasSize(2));
     }
 

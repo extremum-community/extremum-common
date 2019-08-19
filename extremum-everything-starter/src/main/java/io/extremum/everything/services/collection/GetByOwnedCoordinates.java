@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 /**
  * @author rpuch
  */
-abstract class ByOwnedCoordinates<T> {
+abstract class GetByOwnedCoordinates<T> {
     private final IdConversion idConversion = new IdConversion();
 
-    public T fetchCollection(BasicModel host, String hostAttributeName, Projection projection) {
+    final T getCollection(BasicModel host, String hostAttributeName, Projection projection) {
         HostAttribute attribute = getAttribute(host, hostAttributeName);
 
         Object attributeValue = getGetterValue(host, attribute);

@@ -1,5 +1,6 @@
 package io.extremum.everything.services.collection;
 
+import io.extremum.common.models.BasicModel;
 import io.extremum.common.models.Model;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
@@ -12,11 +13,15 @@ import java.util.function.Function;
 /**
  * @author rpuch
  */
-public final class StreamByOwnedCoordinates extends ByOwnedCoordinates<Flux<Model>> {
+public final class StreamByOwnedCoordinates extends GetByOwnedCoordinates<Flux<Model>> {
     private final UniversalDao universalDao;
 
     public StreamByOwnedCoordinates(UniversalDao universalDao) {
         this.universalDao = universalDao;
+    }
+
+    public final Flux<Model> stream(BasicModel host, String hostAttributeName, Projection projection) {
+        return getCollection(host, hostAttributeName, projection);
     }
 
     @Override

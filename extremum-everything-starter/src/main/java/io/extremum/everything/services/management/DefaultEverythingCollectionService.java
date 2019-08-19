@@ -107,7 +107,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         private CollectionFragment<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
                 BasicModel host, Projection projection) {
             FetchByOwnedCoordinates fetcher = new FetchByOwnedCoordinates(universalDao);
-            return fetcher.fetchCollection(host, owned.getHostAttributeName(), projection);
+            return fetcher.fetch(host, owned.getHostAttributeName(), projection);
         }
 
         @Override
@@ -141,7 +141,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
                                                                   Projection projection) {
             StreamByOwnedCoordinates streamer = new StreamByOwnedCoordinates(universalDao);
             return hostMono.flatMapMany(host ->
-                    streamer.fetchCollection(host, owned.getHostAttributeName(), projection));
+                    streamer.stream(host, owned.getHostAttributeName(), projection));
         }
     }
 }
