@@ -15,6 +15,7 @@ import io.extremum.everything.services.CollectionFetcher;
 import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import io.extremum.everything.services.collection.StreamByOwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -136,11 +137,11 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         }
 
         private Flux<Model> fetchUsingDefaultConventionReactively(OwnedCoordinates owned,
-                                                                  Mono<BasicModel> hostProducer,
+                                                                  Mono<BasicModel> hostMono,
                                                                   Projection projection) {
-            // TODO: use real reactivity!
-            return hostProducer.map(host -> fetchUsingDefaultConvention(owned, host, projection))
-                    .flatMapIterable(CollectionFragment::elements);
+            StreamByOwnedCoordinates streamer = new StreamByOwnedCoordinates(universalDao);
+            return hostMono.flatMapMany(host ->
+                    streamer.fetchCollection(host, owned.getHostAttributeName(), projection));
         }
     }
 }

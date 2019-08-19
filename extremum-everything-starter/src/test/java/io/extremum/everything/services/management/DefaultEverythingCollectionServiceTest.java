@@ -136,12 +136,9 @@ class DefaultEverythingCollectionServiceTest {
 
     @Test
     void givenHostExistsAndNoCollectionFetcherRegistered_whenCollectionIsStreamed_thenItShouldBeReturned() {
-        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
-        when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
-                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
-        // TODO: uncomment this
-//        when(universalDao.streamByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
-//                .thenReturn(Flux.just(new House(), new House()));
+        returnStreetReactivelyWhenRequested();
+        when(universalDao.streamByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
+                .thenReturn(Flux.just(new House(), new House()));
         convertToResponseDtoWhenRequested();
 
         Descriptor hostId = streetDescriptor();
@@ -151,6 +148,10 @@ class DefaultEverythingCollectionServiceTest {
         Flux<ResponseDto> dtos = service.streamCollection(collectionDescriptor, projection, false);
 
         assertThat(dtos.toStream().collect(Collectors.toList()), hasSize(2));
+    }
+
+    private void returnStreetReactivelyWhenRequested() {
+        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
     }
 
     @Test
