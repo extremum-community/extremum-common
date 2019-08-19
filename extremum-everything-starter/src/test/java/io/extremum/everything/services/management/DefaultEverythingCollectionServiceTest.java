@@ -24,10 +24,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -66,7 +69,7 @@ class DefaultEverythingCollectionServiceTest {
     }
 
     @Test
-    void givenHostExists_whenCollectionIsFetched_thenItShouldBeReturned() {
+    void givenHostExistsAndNoCollectionFetcherRegistered_whenCollectionIsFetched_thenItShouldBeReturned() {
         returnStreetWhenRequested();
         when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
                 .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
@@ -125,6 +128,25 @@ class DefaultEverythingCollectionServiceTest {
         CollectionFragment<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
 
         assertThat(houses.elements(), hasSize(1));
+    }
+
+    @Test
+    void givenHostExistsAndNoCollectionFetcherRegistered_whenCollectionIsStreamed_thenItShouldBeReturned() {
+        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
+        when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
+                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
+        // TODO: uncomment this
+//        when(universalDao.streamByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
+//                .thenReturn(Flux.just(new House(), new House()));
+        convertToResponseDtoWhenRequested();
+
+        Descriptor hostId = streetDescriptor();
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        Projection projection = Projection.empty();
+
+        Flux<ResponseDto> dtos = service.streamCollection(collectionDescriptor, projection, false);
+
+        assertThat(dtos.toStream().collect(Collectors.toList()), hasSize(2));
     }
 
     @ModelName("House")

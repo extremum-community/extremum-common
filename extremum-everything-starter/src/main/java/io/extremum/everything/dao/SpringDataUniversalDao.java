@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,5 +57,10 @@ public class SpringDataUniversalDao implements UniversalDao {
         long count = mongoOperations.count(query, classOfElement);
 
         return CollectionFragment.forFragment(elements, count);
+    }
+
+    @Override
+    public <T> Flux<T> streamByIds(List<?> ids, Class<T> classOfElement, Projection projection) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }
