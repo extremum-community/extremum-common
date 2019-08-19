@@ -27,6 +27,21 @@
         </dependency>
 
         <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <!-- optional because our users will almost surely add spring-boot-starter-web
+                 or spring-boot-starter-webflux that will in turn add some container-specific
+                 servlet-api artifact. To reduce the necessity to exclude duplicates, we just
+                 'auto-exclude' the servlet-api ourselves -->
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
@@ -36,5 +51,11 @@
             <artifactId>extremum-test-harness</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>
