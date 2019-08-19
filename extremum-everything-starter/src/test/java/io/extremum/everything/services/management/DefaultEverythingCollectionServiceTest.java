@@ -12,12 +12,12 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.services.CollectionFetcher;
+import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.GetterService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +65,7 @@ class DefaultEverythingCollectionServiceTest {
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(ImmutableList.of(streetGetterService), null),
                 Collections.singletonList(new ExplicitHouseFetcher()),
+                Collections.singletonList(new ExplicitHouseStreamer()),
                 dtoConversionService,
                 universalDao
         );
@@ -170,6 +171,19 @@ class DefaultEverythingCollectionServiceTest {
         assertThat(throwableRef.get().getMessage(), is("No host entity was found by external ID 'hostId'"));
     }
 
+    @Test
+    void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsStreamed_thenItShouldBeProvidedByTheFetcher() {
+        convertToResponseDtoWhenRequested();
+
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
+                "explicitHouses");
+        Projection projection = Projection.empty();
+
+        Flux<ResponseDto> houses = service.streamCollection(collectionDescriptor, projection, false);
+
+        assertThat(houses.toStream().collect(Collectors.toList()), hasSize(1));
+    }
+
     @ModelName("House")
     private static class House extends MongoCommonModel {
     }
@@ -207,6 +221,24 @@ class DefaultEverythingCollectionServiceTest {
         @Override
         public CollectionFragment<House> fetchCollection(Street street, Projection projection) {
             return CollectionFragment.forCompleteCollection(Collections.singletonList(new House()));
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "Street";
+        }
+    }
+
+    private static class ExplicitHouseStreamer implements CollectionStreamer<Street, House> {
+
+        @Override
+        public String getHostAttributeName() {
+            return "explicitHouses";
+        }
+
+        @Override
+        public Flux<House> streamCollection(Street street, Projection projection) {
+            return Flux.just(new House());
         }
 
         @Override

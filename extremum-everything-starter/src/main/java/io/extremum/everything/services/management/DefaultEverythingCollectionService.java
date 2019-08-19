@@ -12,6 +12,7 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.services.CollectionFetcher;
+import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -28,6 +29,7 @@ import static java.lang.String.format;
 public class DefaultEverythingCollectionService implements EverythingCollectionService {
     private final ModelRetriever modelRetriever;
     private final List<CollectionFetcher> collectionFetchers;
+    private final List<CollectionStreamer> collectionStreamers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
 
@@ -110,20 +112,21 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         @Override
         public Flux<Model> streamCollection(CollectionCoordinates coordinates, Projection projection) {
             OwnedCoordinates owned = coordinates.getOwnedCoordinates();
-            Mono<BasicModel> host = retrieveHostReactively(owned);
+            Mono<BasicModel> hostMono = retrieveHostReactively(owned);
 
-//            Optional<CollectionFetcher> optFetcher = collectionFetchers.stream()
-//                    .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
-//                    .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
-//                    .findFirst();
-//
-//            @SuppressWarnings("unchecked")
-//            CollectionFragment<Model> castResult = optFetcher
-//                    .map(fetcher -> fetcher.fetchCollection(host, projection))
-//                    .orElseGet(() -> fetchUsingDefaultConvention(owned, host, projection));
-//            return castResult;
+            Optional<CollectionStreamer> optStreamer = collectionStreamers.stream()
+                    .filter(streamer -> streamer.getSupportedModel().equals(owned.getHostId().getModelType()))
+                    .filter(streamer -> streamer.getHostAttributeName().equals(owned.getHostAttributeName()))
+                    .findFirst();
 
-            return fetchUsingDefaultConventionReactively(owned, host, projection);
+            if (optStreamer.isPresent()) {
+                CollectionStreamer streamer = optStreamer.get();
+                @SuppressWarnings("unchecked")
+                Flux<Model> castModels = hostMono.flatMapMany(host -> streamer.streamCollection(host, projection));
+                return castModels;
+            } else {
+                return fetchUsingDefaultConventionReactively(owned, hostMono, projection);
+            }
         }
 
         private Mono<BasicModel> retrieveHostReactively(OwnedCoordinates coordinates) {

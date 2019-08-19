@@ -224,10 +224,11 @@ public class EverythingEverythingConfiguration {
     public EverythingCollectionService everythingCollectionService(
             ModelRetriever modelRetriever,
             List<CollectionFetcher> collectionFetchers,
+            List<CollectionStreamer> collectionStreamers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao) {
         return new DefaultEverythingCollectionService(modelRetriever, collectionFetchers,
-                dtoConversionService, universalDao);
+                collectionStreamers, dtoConversionService, universalDao);
     }
 
     @Bean
