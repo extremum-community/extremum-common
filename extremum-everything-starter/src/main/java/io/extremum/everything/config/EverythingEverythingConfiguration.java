@@ -7,6 +7,7 @@ import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -259,9 +260,10 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
             CollectionDescriptorService collectionDescriptorService,
+            ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService
     ) {
         return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
-                everythingCollectionService);
+                reactiveCollectionDescriptorService, everythingCollectionService);
     }
 }

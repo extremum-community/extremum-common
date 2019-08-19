@@ -16,6 +16,7 @@ import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,11 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         CollectionFragment<Model> fragment = coordinatesHandler.fetchCollection(id.getCoordinates(), projection);
         return fragment.map(model -> convertModelToResponseDto(model, expand));
+    }
+
+    @Override
+    public Flux<ResponseDto> streamCollection(CollectionDescriptor id, Projection projection, boolean expand) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     private CoordinatesHandler findCoordinatesHandler(CollectionDescriptor.Type type) {
