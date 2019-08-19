@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -128,5 +129,15 @@ public class MongoCommonServiceImpl<M extends MongoCommonModel> extends CommonSe
         }
         M found = dao.getSelectedFieldsById(new ObjectId(id), fieldNames).orElse(null);
         return getResultWithNullabilityCheck(found, id, problems);
+    }
+
+    @Override
+    public Mono<M> reactiveGet(String id) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public Mono<M> reactiveGet(String id, Problems problems) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

@@ -14,13 +14,18 @@ public class DefaultGetterImpl implements DefaultGetter {
 
     @Override
     public Model get(String internalId) {
-        Class<? extends Model> modelClass = modelDescriptors.getModelClassByDescriptorId(internalId);
-        CommonService<?> service = commonServices.findServiceByModel(modelClass);
+        CommonService<Model> service = findService(internalId);
         return service.get(internalId);
     }
 
+    private CommonService<Model> findService(String internalId) {
+        Class<Model> modelClass = modelDescriptors.getModelClassByDescriptorId(internalId);
+        return commonServices.findServiceByModel(modelClass);
+    }
+
     @Override
-    public Mono<Model> reactiveGet(String id) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public Mono<Model> reactiveGet(String internalId) {
+        CommonService<Model> service = findService(internalId);
+        return service.reactiveGet(internalId);
     }
 }
