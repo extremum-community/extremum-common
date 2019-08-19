@@ -80,12 +80,16 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         private BasicModel retrieveHost(OwnedCoordinates owned) {
             Model host = modelRetriever.retrieveModel(owned.getHostId());
             if (host == null) {
-                String message = format("No host entity was found by external ID '%s'",
-                        owned.getHostId().getExternalId());
-                throw new EverythingEverythingException(message);
+                throw createHostNotFoundException(owned);
             }
 
             return castToBasicModel(owned, host);
+        }
+
+        private EverythingEverythingException createHostNotFoundException(OwnedCoordinates owned) {
+            String message = format("No host entity was found by external ID '%s'",
+                    owned.getHostId().getExternalId());
+            return new EverythingEverythingException(message);
         }
 
         private BasicModel castToBasicModel(OwnedCoordinates owned, Model host) {
@@ -124,6 +128,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
 
         private Mono<BasicModel> retrieveHostReactively(OwnedCoordinates coordinates) {
             return modelRetriever.retrieveModelReactively(coordinates.getHostId())
+                    .switchIfEmpty(Mono.error(() -> createHostNotFoundException(coordinates)))
                     .map(host -> castToBasicModel(coordinates, host));
         }
 

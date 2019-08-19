@@ -17,6 +17,7 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,11 +31,12 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -112,6 +114,7 @@ class DefaultEverythingCollectionServiceTest {
 
         try {
             service.fetchCollection(collectionDescriptor, projection, false);
+            fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("No host entity was found by external ID 'hostId'"));
         }
@@ -147,6 +150,24 @@ class DefaultEverythingCollectionServiceTest {
         Flux<ResponseDto> dtos = service.streamCollection(collectionDescriptor, projection, false);
 
         assertThat(dtos.toStream().collect(Collectors.toList()), hasSize(2));
+    }
+
+    @Test
+    void givenHostDoesNotExist_whenCollectionIsStreamed_thenAnExceptionShouldBeThrown() {
+        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.empty());
+
+        Descriptor hostId = streetDescriptor();
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        Projection projection = Projection.empty();
+
+        AtomicReference<Throwable> throwableRef = new AtomicReference<>();
+
+        service.streamCollection(collectionDescriptor, projection, false)
+                .doOnError(throwableRef::set)
+                .subscribe();
+
+        assertThat(throwableRef.get(), is(notNullValue()));
+        assertThat(throwableRef.get().getMessage(), is("No host entity was found by external ID 'hostId'"));
     }
 
     @ModelName("House")
