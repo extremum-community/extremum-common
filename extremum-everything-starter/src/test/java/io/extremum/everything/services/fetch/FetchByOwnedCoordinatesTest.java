@@ -83,7 +83,7 @@ class FetchByOwnedCoordinatesTest {
     }
 
     @Test
-    void whenFieldContentsIsnull_thenAnEmptyListShouldBeReturned() {
+    void whenFieldContentsIsNull_thenAnEmptyListShouldBeReturned() {
         Street host = new Street();
         host.houses = null;
 
