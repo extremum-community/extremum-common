@@ -44,6 +44,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 import java.util.List;
 
@@ -103,8 +104,9 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UniversalDao universalDao(MongoOperations mongoOperations) {
-        return new SpringDataUniversalDao(mongoOperations);
+    public UniversalDao universalDao(MongoOperations mongoOperations,
+                                     ReactiveMongoOperations reactiveMongoOperations) {
+        return new SpringDataUniversalDao(mongoOperations, reactiveMongoOperations);
     }
 
     @Bean

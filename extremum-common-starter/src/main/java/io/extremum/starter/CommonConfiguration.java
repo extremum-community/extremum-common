@@ -1,7 +1,6 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.MongoClientURI;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
 import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
@@ -29,7 +28,6 @@ import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
-import io.extremum.starter.properties.MongoProperties;
 import io.extremum.starter.properties.RedisProperties;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
@@ -51,15 +49,14 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import java.util.List;
 
 @Configuration
-@Import({MainMongoConfiguration.class, DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
+@Import({MainMongoConfiguration.class, MainReactiveMongoConfiguration.class,
+        DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("io.extremum.common.dto.converters")
-@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class,
-        DescriptorsProperties.class, ModelProperties.class})
+@EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class, ModelProperties.class})
 @AutoConfigureBefore(JacksonAutoConfiguration.class)
 public class CommonConfiguration {
     private final RedisProperties redisProperties;
-    private final MongoProperties mongoProperties;
     private final DescriptorsProperties descriptorsProperties;
     private final ModelProperties modelProperties;
 
@@ -86,11 +83,6 @@ public class CommonConfiguration {
     @ConditionalOnBean(RedissonClient.class)
     public RedisConnectionFactory redisConnectionFactory(RedissonClient client) {
         return new RedissonConnectionFactory(client);
-    }
-
-    @Bean
-    public MongoClientURI mongoDatabaseUri() {
-        return new MongoClientURI(mongoProperties.getServiceDbUri());
     }
 
     @Bean
