@@ -148,9 +148,18 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
-                                                           CollectionDescriptorRepository collectionDescriptorRepository) {
+            CollectionDescriptorRepository collectionDescriptorRepository) {
         return CollectionDescriptorDaoFactory.create(redisProperties, descriptorsProperties, redissonClient,
                 collectionDescriptorRepository);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao(
+            RedissonReactiveClient redissonReactiveClient,
+            CollectionDescriptorRepository collectionDescriptorRepository) {
+        return CollectionDescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
+                redissonReactiveClient, collectionDescriptorRepository);
     }
 
     @Bean

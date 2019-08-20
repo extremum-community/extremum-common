@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-public class MongoCollectionDescriptorDaoTest extends TestWithServices {
+class MongoCollectionDescriptorDaoTest extends TestWithServices {
     @Autowired
     private CollectionDescriptorDao collectionDescriptorDao;
     @Autowired
@@ -37,7 +37,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     @Test
-    public void testRetrieveByExternalId() {
+    void testRetrieveByExternalId() {
         String hostExternalId = createADescriptor();
         CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
 
@@ -76,7 +76,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testRetrieveByInternalId() {
+    void testRetrieveByInternalId() {
         String hostExternalId = createADescriptor();
         CollectionDescriptor collectionDescriptor = createACollectionDescriptor(hostExternalId);
 
@@ -87,7 +87,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void testRetrieveFromMongo() {
+    void testRetrieveFromMongo() {
         String hostExternalId = createADescriptor();
         CollectionDescriptor descriptor = CollectionDescriptor.forOwned(new Descriptor(hostExternalId), "items");
         String coordinatesString = descriptor.toCoordinatesString();
@@ -103,7 +103,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenACollectionDescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
+    void givenACollectionDescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
         String hostExternalId = createADescriptor();
         CollectionDescriptor descriptor = createACollectionDescriptor(hostExternalId);
 
@@ -113,7 +113,7 @@ public class MongoCollectionDescriptorDaoTest extends TestWithServices {
     }
 
     @Test
-    public void givenACollectionDescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
+    void givenACollectionDescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
         String hostExternalId = createADescriptor();
         CollectionDescriptor descriptor = createACollectionDescriptor(hostExternalId);
 
