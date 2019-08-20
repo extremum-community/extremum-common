@@ -32,7 +32,7 @@ class DefaultGetterImplTest {
 
     @Test
     void whenGetting_thenTheResultIsObtainedViaCommonService() {
-        when(modelDescriptors.getModelClassByDescriptorId("internalId"))
+        when(modelDescriptors.getModelClassByModelInternalId("internalId"))
                 .thenReturn(modelClass(TestModel.class));
         when(commonServices.findServiceByModel(TestModel.class)).thenReturn(commonService);
         when(commonService.get("internalId")).thenReturn(modelFromCommonService);
@@ -50,7 +50,7 @@ class DefaultGetterImplTest {
 
     @Test
     void whenGettingReactively_thenTheResultIsObtainedViaCommonService() {
-        when(modelDescriptors.getModelClassByDescriptorId("internalId"))
+        when(modelDescriptors.getModelClassByModelInternalId("internalId"))
                 .thenReturn(modelClass(TestModel.class));
         when(commonServices.findServiceByModel(TestModel.class)).thenReturn(commonService);
         when(commonService.reactiveGet("internalId")).thenReturn(Mono.just(modelFromCommonService));

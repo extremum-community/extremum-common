@@ -13,7 +13,7 @@ public class DefaultModelDescriptors implements ModelDescriptors {
     private final DescriptorService descriptorService;
 
     @Override
-    public <M extends Model> Class<M> getModelClassByDescriptorId(String internalId) {
+    public <M extends Model> Class<M> getModelClassByModelInternalId(String internalId) {
         Descriptor descriptor = descriptorService.loadByInternalId(internalId)
                 .orElseThrow(() -> new DescriptorNotFoundException("For internal id: " + internalId));
 

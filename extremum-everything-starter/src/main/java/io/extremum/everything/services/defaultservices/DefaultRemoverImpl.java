@@ -13,7 +13,7 @@ public class DefaultRemoverImpl implements DefaultRemover {
 
     @Override
     public void remove(String id) {
-        Class<? extends Model> modelClass = modelDescriptors.getModelClassByDescriptorId(id);
+        Class<? extends Model> modelClass = modelDescriptors.getModelClassByModelInternalId(id);
         CommonService<? extends Model> service = commonServices.findServiceByModel(modelClass);
         service.delete(id);
     }

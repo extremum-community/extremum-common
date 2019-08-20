@@ -19,7 +19,7 @@ public class DefaultGetterImpl implements DefaultGetter {
     }
 
     private CommonService<Model> findService(String internalId) {
-        Class<Model> modelClass = modelDescriptors.getModelClassByDescriptorId(internalId);
+        Class<Model> modelClass = modelDescriptors.getModelClassByModelInternalId(internalId);
         return commonServices.findServiceByModel(modelClass);
     }
 
