@@ -4,8 +4,6 @@ import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.models.Model;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.CommonServices;
-import io.extremum.common.support.ModelClasses;
-import io.extremum.common.support.UniversalReactiveModelLoader;
 import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -34,13 +32,10 @@ class DefaultGetterImplTest {
     private UniversalReactiveModelLoaders universalReactiveModelLoaders;
     @Mock
     private ReactiveDescriptorService reactiveDescriptorService;
-    @Mock
-    private ModelClasses modelClasses;
 
     @Mock
     private CommonService<TestModel> commonService;
-    @Mock
-    private UniversalReactiveModelLoader universalReactiveModelLoader;
+
     private final TestModel modelFromDatabase = new TestModel();
     private final Descriptor descriptor = Descriptor.builder()
             .externalId("externalId")
@@ -71,10 +66,7 @@ class DefaultGetterImplTest {
     void whenGettingReactively_thenTheResultIsObtainedViaCommonService() {
         when(reactiveDescriptorService.loadByInternalId("internalId"))
                 .thenReturn(Mono.just(descriptor));
-        when(modelClasses.getClassByModelName("TestModel")).thenReturn(modelClass(TestModel.class));
-        when(universalReactiveModelLoaders.findLoader(descriptor))
-                .thenReturn(universalReactiveModelLoader);
-        when(universalReactiveModelLoader.loadByInternalId("internalId", TestModel.class))
+        when(universalReactiveModelLoaders.loadByDescriptor(descriptor))
                 .thenReturn(Mono.just(modelFromDatabase));
 
         Model model = getter.reactiveGet("internalId").block();

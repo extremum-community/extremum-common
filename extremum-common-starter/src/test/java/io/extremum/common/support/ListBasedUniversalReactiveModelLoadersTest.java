@@ -1,11 +1,13 @@
 package io.extremum.common.support;
 
+import io.extremum.common.models.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
@@ -20,24 +22,40 @@ class ListBasedUniversalReactiveModelLoadersTest {
     private ListBasedUniversalReactiveModelLoaders loaders;
 
     @Mock
+    private ModelClasses modelClasses;
+    @Mock
     private UniversalReactiveModelLoader loader;
 
     private final Descriptor mongoDescriptor = Descriptor.builder()
+            .externalId("externalId")
+            .internalId("internalId")
+            .modelType("TestModel")
             .storageType(Descriptor.StorageType.MONGO)
             .build();
+    private final TestModel modelInDb = new TestModel();
 
     @BeforeEach
     void createLoaders() {
-        loaders = new ListBasedUniversalReactiveModelLoaders(Collections.singletonList(loader));
+        loaders = new ListBasedUniversalReactiveModelLoaders(Collections.singletonList(loader), modelClasses);
     }
 
     @Test
     void whenLoaderSupportsTheDescriptorStorageType_thenTheLoaderShouldBeReturned() {
         when(loader.type()).thenReturn(Descriptor.StorageType.MONGO);
+        when(modelClasses.getClassByModelName("TestModel"))
+                .thenReturn(modelClass(TestModel.class));
+        when(loader.loadByInternalId("internalId", TestModel.class))
+                .thenReturn(Mono.just(modelInDb));
 
-        UniversalReactiveModelLoader foundLoader = loaders.findLoader(mongoDescriptor);
+        Mono<Model> modelMono = loaders.loadByDescriptor(mongoDescriptor);
 
-        assertThat(foundLoader, is(sameInstance(loader)));
+        assertThat(modelMono.block(), is(sameInstance(modelInDb)));
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private Class<Model> modelClass(Class<? extends Model> modelClass) {
+        @SuppressWarnings("unchecked") Class<Model> castClass = (Class<Model>) modelClass;
+        return castClass;
     }
 
     @Test
@@ -45,10 +63,16 @@ class ListBasedUniversalReactiveModelLoadersTest {
         when(loader.type()).thenReturn(Descriptor.StorageType.POSTGRES);
 
         try {
-            loaders.findLoader(mongoDescriptor);
+            //noinspection UnassignedFluxMonoInstance
+            loaders.loadByDescriptor(mongoDescriptor);
             fail("An exception should be thrown");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("No loader supports storage type 'MONGO'"));
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(), is("No loader supports storage type 'MONGO'. " +
+                    "Make sure you have an instance of UniversalReactiveModelLoader that supports 'MONGO' " +
+                    "in the application context."));
         }
+    }
+
+    private static class TestModel implements Model {
     }
 }

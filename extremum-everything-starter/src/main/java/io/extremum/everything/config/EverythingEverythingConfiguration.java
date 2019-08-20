@@ -117,18 +117,18 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UniversalReactiveModelLoaders universalReactiveModelLoader(List<UniversalReactiveModelLoader> loaders) {
-        return new ListBasedUniversalReactiveModelLoaders(loaders);
+    public UniversalReactiveModelLoaders universalReactiveModelLoader(List<UniversalReactiveModelLoader> loaders,
+                                                                      ModelClasses modelClasses) {
+        return new ListBasedUniversalReactiveModelLoaders(loaders, modelClasses);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors,
                                        ReactiveDescriptorService reactiveDescriptorService,
-                                       UniversalReactiveModelLoaders universalReactiveModelLoader,
-                                       ModelClasses modelClasses) {
+                                       UniversalReactiveModelLoaders universalReactiveModelLoader) {
         return new DefaultGetterImpl(commonServices, modelDescriptors, reactiveDescriptorService,
-                universalReactiveModelLoader, modelClasses);
+                universalReactiveModelLoader);
     }
 
     @Bean

@@ -17,7 +17,6 @@ public class DefaultGetterImpl implements DefaultGetter {
     private final ModelDescriptors modelDescriptors;
     private final ReactiveDescriptorService reactiveDescriptorService;
     private final UniversalReactiveModelLoaders universalReactiveModelLoaders;
-    private final ModelClasses modelClasses;
 
     @Override
     public Model get(String internalId) {
@@ -37,8 +36,6 @@ public class DefaultGetterImpl implements DefaultGetter {
     }
 
     private Mono<Model> loadModelByDescriptorReactively(Descriptor descriptor) {
-        Class<Model> modelClass = modelClasses.getClassByModelName(descriptor.getModelType());
-        return universalReactiveModelLoaders.findLoader(descriptor)
-                .loadByInternalId(descriptor.getInternalId(), modelClass);
+        return universalReactiveModelLoaders.loadByDescriptor(descriptor);
     }
 }
