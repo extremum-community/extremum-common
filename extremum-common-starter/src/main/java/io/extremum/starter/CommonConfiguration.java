@@ -32,6 +32,7 @@ import io.extremum.starter.properties.RedisProperties;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.api.RedissonReactiveClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
@@ -66,16 +67,22 @@ public class CommonConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
-    public RedissonClient redissonClient(@Qualifier("redis") ObjectMapper redisMapper) {
+    public Config redissonConfig(@Qualifier("redis") ObjectMapper redisMapper) {
         Config config = new Config();
         config.setCodec(new JsonJacksonCodec(redisMapper));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
         }
-        return Redisson.create(config);
+        return config;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "redis.uri")
+    @ConditionalOnMissingBean
+    public RedissonClient redissonClient(Config redissonConfig) {
+        return Redisson.create(redissonConfig);
     }
 
     @Bean
@@ -83,6 +90,13 @@ public class CommonConfiguration {
     @ConditionalOnBean(RedissonClient.class)
     public RedisConnectionFactory redisConnectionFactory(RedissonClient client) {
         return new RedissonConnectionFactory(client);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "redis.uri")
+    @ConditionalOnMissingBean
+    public RedissonReactiveClient redissonReactiveClient(Config redissonConfig) {
+        return Redisson.createReactive(redissonConfig);
     }
 
     @Bean
@@ -99,10 +113,10 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ReactiveDescriptorDao reactiveDescriptorDao() {
-        return internalId -> {
-            throw new UnsupportedOperationException("Not implemented yet");
-        };
+    public ReactiveDescriptorDao reactiveDescriptorDao(RedissonReactiveClient redissonReactiveClient,
+                                                       DescriptorRepository descriptorRepository) {
+        return DescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
+                redissonReactiveClient, descriptorRepository);
     }
 
     @Bean
