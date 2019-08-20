@@ -12,9 +12,7 @@ import io.extremum.common.collection.spring.StringToCollectionDescriptorConverte
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.support.CommonServices;
-import io.extremum.common.support.ModelClasses;
-import io.extremum.common.support.UniversalReactiveModelLoaders;
+import io.extremum.common.support.*;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.ApplicationUrlsImpl;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
@@ -119,10 +117,8 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UniversalReactiveModelLoaders universalReactiveModelLoader() {
-        return (internalId) -> {
-            throw new UnsupportedOperationException("Not implemented yet");
-        };
+    public UniversalReactiveModelLoaders universalReactiveModelLoader(List<UniversalReactiveModelLoader> loaders) {
+        return new ListBasedUniversalReactiveModelLoaders(loaders);
     }
 
     @Bean
