@@ -1,7 +1,6 @@
 package io.extremum.common.service;
 
 import io.extremum.common.models.Model;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -9,10 +8,6 @@ public interface CommonService<M extends Model> {
     M get(String id);
 
     M get(String id, Problems problems);
-
-    Mono<M> reactiveGet(String id);
-
-    Mono<M> reactiveGet(String id, Problems problems);
 
     M delete(String id);
 
