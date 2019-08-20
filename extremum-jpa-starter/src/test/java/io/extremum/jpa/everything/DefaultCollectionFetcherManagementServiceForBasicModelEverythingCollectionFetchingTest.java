@@ -7,10 +7,9 @@ import io.extremum.common.models.annotation.ModelName;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
-import io.extremum.security.AllowEverythingForDataAccess;
 import io.extremum.everything.services.CollectionFetcher;
 import io.extremum.everything.services.GetterService;
-import io.extremum.everything.services.management.DefaultEverythingEverythingManagementService;
+import io.extremum.everything.services.management.DefaultEverythingCollectionService;
 import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.jpa.models.PostgresBasicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -38,9 +37,9 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class DefaultJpaEverythingEverythingManagementServiceTest {
+class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollectionFetchingTest {
     @InjectMocks
-    private DefaultEverythingEverythingManagementService service;
+    private DefaultEverythingCollectionService service;
 
     @Spy
     private GetterService<JpaBasicContainer> jpaBasicContainerGetterService = new JpaBasicContainerGetter();
@@ -51,14 +50,11 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new DefaultEverythingEverythingManagementService(
+        service = new DefaultEverythingCollectionService(
                 new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
-                null, Collections.emptyList(),
-                null,
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
                 dtoConversionService,
-                universalDao,
-                new AllowEverythingForDataAccess()
+                universalDao
         );
     }
 
@@ -107,6 +103,7 @@ class DefaultJpaEverythingEverythingManagementServiceTest {
     private static class JpaBasicElement extends PostgresBasicModel {
     }
 
+    @SuppressWarnings("WeakerAccess")
     @ModelName("JpaBasicContainer")
     @Getter
     public static class JpaBasicContainer extends PostgresBasicModel {

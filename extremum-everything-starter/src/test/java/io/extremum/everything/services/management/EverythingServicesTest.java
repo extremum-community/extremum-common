@@ -1,32 +1,31 @@
 package io.extremum.everything.services.management;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.google.common.collect.ImmutableList;
 import io.extremum.common.dao.MongoCommonDao;
 import io.extremum.common.descriptor.service.DBDescriptorLoader;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.service.impl.MongoCommonServiceImpl;
+import io.extremum.common.support.CommonServices;
+import io.extremum.common.support.ListBasedCommonServices;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.everything.MockedMapperDependencies;
-import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
-import io.extremum.security.AllowEverythingForDataAccess;
 import io.extremum.everything.services.DefaultRequestDtoValidator;
 import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.RemovalService;
 import io.extremum.everything.services.SaverService;
+import io.extremum.everything.services.defaultservices.*;
+import io.extremum.everything.support.DefaultModelDescriptors;
+import io.extremum.everything.support.ModelDescriptors;
+import io.extremum.security.AllowEverythingForDataAccess;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
 import io.extremum.sharedmodels.dto.ResponseDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.google.common.collect.ImmutableList;
-import io.extremum.everything.services.defaultservices.*;
-import io.extremum.common.support.CommonServices;
-import io.extremum.everything.support.DefaultModelDescriptors;
-import io.extremum.common.support.ListBasedCommonServices;
-import io.extremum.everything.support.ModelDescriptors;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +41,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -55,8 +56,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EverythingServicesTest {
     private DefaultEverythingEverythingManagementService service;
-
-    private static final UniversalDao NOT_USED = null;
 
     private final DtoConversionService dtoConversionService = new MockDtoConversionService();
     private final ObjectMapper objectMapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
@@ -119,8 +118,7 @@ class EverythingServicesTest {
                 patchFlow,
                 removers,
                 defaultRemover,
-                emptyList(),
-                dtoConversionService, NOT_USED,
+                dtoConversionService,
                 new AllowEverythingForDataAccess());
     }
 
