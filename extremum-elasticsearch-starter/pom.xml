@@ -11,7 +11,7 @@
     <artifactId>extremum-elasticsearch-starter</artifactId>
 
     <properties>
-        <testcoverage.minimum>0.62</testcoverage.minimum>
+        <testcoverage.minimum>0.61</testcoverage.minimum>
     </properties>
 
     <repositories>
