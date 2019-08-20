@@ -5,6 +5,8 @@ import io.extremum.common.collection.dao.CollectionDescriptorDao;
 import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorServiceImpl;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
@@ -128,6 +130,12 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
         return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveCollectionDescriptorService reactiveCollectionDescriptorService() {
+        return new ReactiveCollectionDescriptorServiceImpl();
     }
 
     @Bean
