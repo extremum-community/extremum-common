@@ -8,6 +8,7 @@ import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorServiceImpl;
 import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
@@ -24,7 +25,6 @@ import io.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
@@ -45,7 +45,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -100,6 +99,14 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactiveDescriptorDao reactiveDescriptorDao() {
+        return internalId -> {
+            throw new UnsupportedOperationException("Not implemented yet");
+        };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public DescriptorService descriptorService(DescriptorDao descriptorDao, UUIDGenerator uuidGenerator) {
         return new DescriptorServiceImpl(descriptorDao, uuidGenerator);
     }
@@ -119,10 +126,8 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ReactiveDescriptorService reactiveDescriptorService() {
-        return internalId -> {
-            throw new UnsupportedOperationException("Not implemented yet");
-        };
+    public ReactiveDescriptorService reactiveDescriptorService(ReactiveDescriptorDao reactiveDescriptorDao) {
+        return new ReactiveDescriptorServiceImpl(reactiveDescriptorDao);
     }
 
     @Bean
