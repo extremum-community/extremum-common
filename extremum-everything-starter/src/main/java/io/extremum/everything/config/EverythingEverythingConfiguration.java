@@ -10,9 +10,11 @@ import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
+import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.ApplicationUrlsImpl;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
@@ -117,8 +119,20 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
-        return new DefaultGetterImpl(commonServices, modelDescriptors);
+    public UniversalReactiveModelLoaders universalReactiveModelLoader() {
+        return (internalId) -> {
+            throw new UnsupportedOperationException("Not implemented yet");
+        };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors,
+                                       ReactiveDescriptorService reactiveDescriptorService,
+                                       UniversalReactiveModelLoaders universalReactiveModelLoader,
+                                       ModelClasses modelClasses) {
+        return new DefaultGetterImpl(commonServices, modelDescriptors, reactiveDescriptorService,
+                universalReactiveModelLoader, modelClasses);
     }
 
     @Bean

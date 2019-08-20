@@ -1,9 +1,14 @@
 package io.extremum.everything.services.defaultservices;
 
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.models.Model;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.CommonServices;
+import io.extremum.common.support.ModelClasses;
+import io.extremum.common.support.UniversalReactiveModelLoader;
+import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.everything.support.ModelDescriptors;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,21 +30,35 @@ class DefaultGetterImplTest {
     private CommonServices commonServices;
     @Mock
     private ModelDescriptors modelDescriptors;
+    @Mock
+    private UniversalReactiveModelLoaders universalReactiveModelLoaders;
+    @Mock
+    private ReactiveDescriptorService reactiveDescriptorService;
+    @Mock
+    private ModelClasses modelClasses;
 
     @Mock
     private CommonService<TestModel> commonService;
-    private final TestModel modelFromCommonService = new TestModel();
+    @Mock
+    private UniversalReactiveModelLoader universalReactiveModelLoader;
+    private final TestModel modelFromDatabase = new TestModel();
+    private final Descriptor descriptor = Descriptor.builder()
+            .externalId("externalId")
+            .internalId("internalId")
+            .modelType("TestModel")
+            .storageType(Descriptor.StorageType.MONGO)
+            .build();
 
     @Test
     void whenGetting_thenTheResultIsObtainedViaCommonService() {
         when(modelDescriptors.getModelClassByModelInternalId("internalId"))
                 .thenReturn(modelClass(TestModel.class));
         when(commonServices.findServiceByModel(TestModel.class)).thenReturn(commonService);
-        when(commonService.get("internalId")).thenReturn(modelFromCommonService);
+        when(commonService.get("internalId")).thenReturn(modelFromDatabase);
 
         Model model = getter.get("internalId");
 
-        assertThat(model, is(sameInstance(modelFromCommonService)));
+        assertThat(model, is(sameInstance(modelFromDatabase)));
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -50,14 +69,17 @@ class DefaultGetterImplTest {
 
     @Test
     void whenGettingReactively_thenTheResultIsObtainedViaCommonService() {
-        when(modelDescriptors.getModelClassByModelInternalId("internalId"))
-                .thenReturn(modelClass(TestModel.class));
-        when(commonServices.findServiceByModel(TestModel.class)).thenReturn(commonService);
-        when(commonService.reactiveGet("internalId")).thenReturn(Mono.just(modelFromCommonService));
+        when(reactiveDescriptorService.loadByInternalId("internalId"))
+                .thenReturn(Mono.just(descriptor));
+        when(modelClasses.getClassByModelName("TestModel")).thenReturn(modelClass(TestModel.class));
+        when(universalReactiveModelLoaders.findLoader(descriptor))
+                .thenReturn(universalReactiveModelLoader);
+        when(universalReactiveModelLoader.loadByInternalId("internalId", TestModel.class))
+                .thenReturn(Mono.just(modelFromDatabase));
 
         Model model = getter.reactiveGet("internalId").block();
 
-        assertThat(model, is(sameInstance(modelFromCommonService)));
+        assertThat(model, is(sameInstance(modelFromDatabase)));
     }
 
     private static class TestModel implements Model {

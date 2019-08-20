@@ -13,10 +13,7 @@ import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.factory.impl.MongoDescriptorFacilitiesImpl;
-import io.extremum.common.descriptor.service.DBDescriptorLoader;
-import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.descriptor.service.DescriptorServiceImpl;
-import io.extremum.common.descriptor.service.StaticDescriptorLoaderAccessorConfigurator;
+import io.extremum.common.descriptor.service.*;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
@@ -27,6 +24,7 @@ import io.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
@@ -47,6 +45,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -116,6 +115,14 @@ public class CommonConfiguration {
     public StaticDescriptorLoaderAccessorConfigurator staticDescriptorLoaderAccessorConfigurator(
             DescriptorLoader descriptorLoader) {
         return new StaticDescriptorLoaderAccessorConfigurator(descriptorLoader);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveDescriptorService reactiveDescriptorService() {
+        return internalId -> {
+            throw new UnsupportedOperationException("Not implemented yet");
+        };
     }
 
     @Bean
