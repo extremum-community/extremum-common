@@ -25,6 +25,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                          String descriptorsMapName, String internalIdsMapName, Codec codec,
                                          int cacheSize, long idleTime) {
         super(
+                // TODO: here, we use getMap() instead of getMapCache() because the latter causes weird runtime exceptions
                 redissonClient.getMap(
                         descriptorsMapName,
                         codec,
@@ -37,6 +38,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)
                 ),
 
+                // TODO: here, we use getMap() instead of getMapCache() because the latter causes weird runtime exceptions
                 redissonClient.getMap(
                         internalIdsMapName,
                         LocalCachedMapOptions
