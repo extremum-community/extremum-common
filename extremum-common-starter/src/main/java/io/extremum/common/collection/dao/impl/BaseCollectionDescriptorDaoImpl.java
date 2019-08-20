@@ -28,7 +28,7 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                         codec,
                         LocalCachedMapOptions
                                 .<String, CollectionDescriptor>defaults()
-                                .loader(descriptorIdMapLoader(repository))
+                                .loader(new CollectionDescriptorIdMapLoader(repository))
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
@@ -43,23 +43,6 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
                                 .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE))
         );
-    }
-
-    private static MapLoader<String, CollectionDescriptor> descriptorIdMapLoader(
-            CollectionDescriptorRepository repository) {
-        return new MapLoader<String, CollectionDescriptor>() {
-            @Override
-            public CollectionDescriptor load(String key) {
-                return repository.findByExternalId(key).orElse(null);
-            }
-
-            @Override
-            public Iterable<String> loadAllKeys() {
-                return repository.findAllExternalIds().stream()
-                        .map(CollectionDescriptor::getExternalId)
-                        .collect(Collectors.toList());
-            }
-        };
     }
 
     private static MapLoader<String, String> descriptorCoordinatesMapLoader(CollectionDescriptorRepository repository) {
@@ -79,4 +62,5 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
             }
         };
     }
+
 }
