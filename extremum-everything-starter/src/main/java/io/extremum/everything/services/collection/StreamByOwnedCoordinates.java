@@ -31,7 +31,7 @@ public final class StreamByOwnedCoordinates extends GetByOwnedCoordinates<Flux<M
 
     @Override
     Flux<Model> retrieveModelsByIds(List<?> ids, Class<? extends Model> classOfElement,
-                                                  Projection projection) {
+                                    Projection projection) {
         return universalDao.streamByIds(ids, classOfElement, projection)
                 .map(Function.identity());
     }
