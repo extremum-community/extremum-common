@@ -23,14 +23,19 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config) {
-        ToResponseDtoConverter<Model, ResponseDto> converter = dtoConverters.<Model, ResponseDto>findToResponseDtoConverter(model.getClass())
-                .orElseGet(() -> warnAndGetStubConverter(model));
+        ToResponseDtoConverter<Model, ResponseDto> converter = findToResponseConverter(model);
         return converter.convertToResponse(model, config);
+    }
+
+    private ToResponseDtoConverter<Model, ResponseDto> findToResponseConverter(Model model) {
+        return dtoConverters.<Model, ResponseDto>findToResponseDtoConverter(model.getClass())
+                    .orElseGet(() -> warnAndGetStubConverter(model));
     }
 
     @Override
     public Mono<ResponseDto> convertUnknownToResponseDtoReactively(Model model, ConversionConfig config) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        ToResponseDtoConverter<Model, ResponseDto> converter = findToResponseConverter(model);
+        return converter.convertToResponseReactively(model, config);
     }
 
     private ToResponseDtoConverter<Model, ResponseDto> warnAndGetStubConverter(Model model) {
