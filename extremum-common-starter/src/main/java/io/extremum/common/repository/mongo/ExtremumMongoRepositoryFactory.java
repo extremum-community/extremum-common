@@ -1,7 +1,7 @@
 package io.extremum.common.repository.mongo;
 
-import io.extremum.common.models.annotation.HardDelete;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
+import io.extremum.common.utils.ModelUtils;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -52,7 +52,6 @@ public class ExtremumMongoRepositoryFactory extends MongoRepositoryFactory {
 
     private boolean isSoftDelete() {
         RepositoryMetadata metadata = getRepositoryMetadata(repositoryInterface);
-        boolean isHardDelete = metadata.getDomainType().isAnnotationPresent(HardDelete.class);
-        return !isHardDelete;
+        return ModelUtils.usesSoftDeletion(metadata.getDomainType());
     }
 }

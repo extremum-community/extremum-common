@@ -1,5 +1,6 @@
 package io.extremum.common.repository.mongo;
 
+import io.extremum.common.mongo.SoftDeletion;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
