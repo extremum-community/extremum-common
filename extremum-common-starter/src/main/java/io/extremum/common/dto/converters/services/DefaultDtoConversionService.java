@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import static java.lang.String.format;
 
@@ -27,6 +28,11 @@ public class DefaultDtoConversionService implements DtoConversionService {
         return converter.convertToResponse(model, config);
     }
 
+    @Override
+    public Mono<ResponseDto> convertUnknownToResponseDtoReactively(Model model, ConversionConfig config) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     private ToResponseDtoConverter<Model, ResponseDto> warnAndGetStubConverter(Model model) {
         LOGGER.error("Unable to find a to-response-dto-converter for model {}: {}", model.getClass().getSimpleName(), model);
         @SuppressWarnings("unchecked")
@@ -42,7 +48,9 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
-        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter((Class<? extends M>) modelClass)
+        @SuppressWarnings("unchecked")
+        Class<? extends M> castModelClass = (Class<? extends M>) modelClass;
+        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter(castModelClass)
                 .orElseThrow(() -> new ConverterNotFoundException(
                         format("Unable to find converter for model '%s'", modelClass.getSimpleName())));
         return converter.convertFromRequest(dto);
