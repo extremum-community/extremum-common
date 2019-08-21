@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Flux;
 
@@ -47,7 +48,7 @@ class DefaultEverythingEverythingCollectionRestControllerTest {
         when(collectionManagementService.streamCollection(anyString(), any(), anyBoolean()))
                 .thenReturn(Flux.just(new TestResponseDto("first"), new TestResponseDto("second")));
 
-        String responseText = mockMvc.perform(get("/stream-collection/dead-beef"))
+        String responseText = mockMvc.perform(get("/collection/dead-beef").accept(MediaType.TEXT_EVENT_STREAM))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(not(isEmptyString())))
                 .andReturn()

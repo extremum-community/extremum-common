@@ -23,7 +23,7 @@ public class DefaultEverythingEverythingCollectionRestController
         return collectionManagementService.fetchCollection(collectionId, projection, expand);
     }
 
-    @GetMapping(value = "/stream-collection/{collectionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/collection/{collectionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public @ResponseBody
     Flux<ResponseDto> streamCollection(@PathVariable String collectionId, Projection projection,
                                        @RequestParam(defaultValue = "false") boolean expand) {
