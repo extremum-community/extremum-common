@@ -22,6 +22,9 @@ import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.models.Model;
 import io.extremum.common.mongo.MongoUniversalReactiveModelLoader;
+import io.extremum.common.reactive.IsolatedSchedulerReactifier;
+import io.extremum.common.reactive.Reactifier;
+import io.extremum.common.reactive.ReactiveProperties;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.common.support.*;
@@ -49,20 +52,26 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Configuration
 @Import({MainMongoConfiguration.class, MainReactiveMongoConfiguration.class,
         DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("io.extremum.common.dto.converters")
-@EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class, ModelProperties.class})
+@EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class, ModelProperties.class,
+        ReactiveProperties.class})
 @AutoConfigureBefore(JacksonAutoConfiguration.class)
 public class CommonConfiguration {
     private final RedisProperties redisProperties;
     private final DescriptorsProperties descriptorsProperties;
     private final ModelProperties modelProperties;
+    private final ReactiveProperties reactiveProperties;
 
     @Bean
     public DateTimeProvider dateTimeProvider() {
@@ -249,5 +258,18 @@ public class CommonConfiguration {
     public MongoUniversalReactiveModelLoader mongoUniversalReactiveModelLoader(
             ReactiveMongoOperations reactiveMongoOperations) {
         return new MongoUniversalReactiveModelLoader(reactiveMongoOperations);
+    }
+
+    @Bean(destroyMethod = "dispose")
+    public Scheduler reactifierScheduler() {
+        ExecutorService executorService = Executors.newFixedThreadPool(
+                reactiveProperties.getReactifierThreadPoolSize());
+        return Schedulers.fromExecutorService(executorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Reactifier reactifier(@Qualifier("reactifierScheduler") Scheduler reactifierScheduler) {
+        return new IsolatedSchedulerReactifier(reactifierScheduler);
     }
 }

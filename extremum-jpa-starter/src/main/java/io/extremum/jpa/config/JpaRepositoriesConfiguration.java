@@ -2,10 +2,13 @@ package io.extremum.jpa.config;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.reactive.Reactifier;
+import io.extremum.common.support.CommonServices;
 import io.extremum.jpa.facilities.PostgresDescriptorFacilities;
 import io.extremum.jpa.facilities.PostgresDescriptorFacilitiesAccessorConfigurator;
 import io.extremum.jpa.facilities.PostgresDescriptorFacilitiesImpl;
 import io.extremum.jpa.properties.JpaProperties;
+import io.extremum.jpa.reactive.JpaUniversalReactiveModelLoader;
 import io.extremum.jpa.repositories.EnableExtremumJpaRepositories;
 import io.extremum.jpa.repositories.ExtremumJpaRepositoryFactoryBean;
 import lombok.RequiredArgsConstructor;
@@ -81,5 +84,12 @@ public class JpaRepositoriesConfiguration {
         JpaTransactionManager txManager = new JpaTransactionManager();
         txManager.setEntityManagerFactory(entityManagerFactory);
         return txManager;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JpaUniversalReactiveModelLoader jpaUniversalReactiveModelLoader(CommonServices commonServices,
+                                                                           Reactifier reactifier) {
+        return new JpaUniversalReactiveModelLoader(commonServices, reactifier);
     }
 }
