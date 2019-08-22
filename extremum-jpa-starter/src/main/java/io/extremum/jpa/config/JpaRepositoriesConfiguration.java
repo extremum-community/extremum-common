@@ -2,16 +2,15 @@ package io.extremum.jpa.config;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.reactive.Reactifier;
-import io.extremum.common.support.CommonServices;
 import io.extremum.jpa.facilities.PostgresDescriptorFacilities;
 import io.extremum.jpa.facilities.PostgresDescriptorFacilitiesAccessorConfigurator;
 import io.extremum.jpa.facilities.PostgresDescriptorFacilitiesImpl;
 import io.extremum.jpa.properties.JpaProperties;
-import io.extremum.jpa.reactive.JpaUniversalReactiveModelLoader;
 import io.extremum.jpa.repositories.EnableExtremumJpaRepositories;
 import io.extremum.jpa.repositories.ExtremumJpaRepositoryFactoryBean;
+import io.extremum.jpa.tx.JpaCollectionTransactor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,6 +22,8 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -88,8 +89,14 @@ public class JpaRepositoriesConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public JpaUniversalReactiveModelLoader jpaUniversalReactiveModelLoader(CommonServices commonServices,
-                                                                           Reactifier reactifier) {
-        return new JpaUniversalReactiveModelLoader(commonServices, reactifier);
+    public TransactionOperations jpaTransactionOperations(PlatformTransactionManager transactionManager) {
+        return new TransactionTemplate(transactionManager);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JpaCollectionTransactor jpaCollectionTransactor(
+            @Qualifier("jpaTransactionOperations") TransactionOperations transactionOperations) {
+        return new JpaCollectionTransactor(transactionOperations);
     }
 }

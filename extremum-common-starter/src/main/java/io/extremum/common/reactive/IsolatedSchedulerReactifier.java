@@ -1,6 +1,7 @@
 package io.extremum.common.reactive;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -18,6 +19,12 @@ public class IsolatedSchedulerReactifier implements Reactifier {
     @Override
     public <T> Mono<T> mono(Supplier<T> objectSupplier) {
         return Mono.defer(() -> Mono.just(objectSupplier.get()))
+                .subscribeOn(scheduler);
+    }
+
+    @Override
+    public <T> Flux<T> flux(Supplier<Iterable<T>> iterableSupplier) {
+        return Flux.defer(() -> Flux.fromIterable(iterableSupplier.get()))
                 .subscribeOn(scheduler);
     }
 }

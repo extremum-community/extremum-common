@@ -12,7 +12,11 @@ import io.extremum.common.collection.spring.StringToCollectionDescriptorConverte
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
+import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.support.*;
+import io.extremum.common.tx.CollectionTransactivity;
+import io.extremum.common.tx.CollectionTransactor;
+import io.extremum.common.tx.TransactorsCollectionTransactivity;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.ApplicationUrlsImpl;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
@@ -233,14 +237,21 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public CollectionTransactivity collectionTransactivity(List<CollectionTransactor> transactors) {
+        return new TransactorsCollectionTransactivity(transactors);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EverythingCollectionService everythingCollectionService(
             ModelRetriever modelRetriever,
             List<CollectionFetcher> collectionFetchers,
             List<CollectionStreamer> collectionStreamers,
             DtoConversionService dtoConversionService,
-            UniversalDao universalDao) {
+            UniversalDao universalDao, Reactifier reactifier,
+            CollectionTransactivity transactivity) {
         return new DefaultEverythingCollectionService(modelRetriever, collectionFetchers,
-                collectionStreamers, dtoConversionService, universalDao);
+                collectionStreamers, dtoConversionService, universalDao, reactifier, transactivity);
     }
 
     @Bean

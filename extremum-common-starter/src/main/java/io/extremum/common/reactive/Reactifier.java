@@ -1,5 +1,6 @@
 package io.extremum.common.reactive;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Supplier;
@@ -20,4 +21,14 @@ public interface Reactifier {
      * @return Mono
      */
     <T> Mono<T> mono(Supplier<T> objectSupplier);
+
+    /**
+     * Creates a {@link Flux} that produces reactively (as possible) the result
+     * that would be supplied blockingly by the given {@link Supplier}.
+     *
+     * @param iterableSupplier    the supplier
+     * @param <T> type of the produced object
+     * @return Mono
+     */
+    <T> Flux<T> flux(Supplier<Iterable<T>> iterableSupplier);
 }
