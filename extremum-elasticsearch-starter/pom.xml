@@ -46,6 +46,16 @@
             <artifactId>elasticsearch</artifactId>
         </dependency>
 
+        <!-- spring-webflux and reactor-netty are needed for spring-data-elasticsearch reactive client -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.extremum</groupId>
             <artifactId>extremum-test-harness</artifactId>
