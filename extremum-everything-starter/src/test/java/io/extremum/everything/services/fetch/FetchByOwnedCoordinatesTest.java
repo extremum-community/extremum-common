@@ -54,7 +54,7 @@ class FetchByOwnedCoordinatesTest {
     void whenEverythingIsOk_thenCollectionShouldBeReturned() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(), "houses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetch(new Street(), "houses", Projection.empty());
         assertThat(houses.elements(), hasSize(2));
     }
 
@@ -67,7 +67,7 @@ class FetchByOwnedCoordinatesTest {
     void whenCollectionElementIsAnnotatedOnGetter_thenCollectionShouldBeReturned() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(),
+        CollectionFragment<Model> houses = fetcher.fetch(new Street(),
                 "collectionElementOnGetter", Projection.empty());
         assertThat(houses.elements(), hasSize(2));
     }
@@ -75,7 +75,7 @@ class FetchByOwnedCoordinatesTest {
     @Test
     void whenGetterIsNotFound_thenAnExceptionShouldBeThrown() {
         try {
-            fetcher.fetchCollection(new Street(), "noSuchField", Projection.empty());
+            fetcher.fetch(new Street(), "noSuchField", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("No method 'getNoSuchField' was found in class" +
                     " 'class io.extremum.everything.services.fetch.FetchByOwnedCoordinatesTest$Street'"));
@@ -83,11 +83,11 @@ class FetchByOwnedCoordinatesTest {
     }
 
     @Test
-    void whenFieldContentsIsnull_thenAnEmptyListShouldBeReturned() {
+    void whenFieldContentsIsNull_thenAnEmptyListShouldBeReturned() {
         Street host = new Street();
         host.houses = null;
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(host, "houses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetch(host, "houses", Projection.empty());
 
         assertThat(houses.elements(), hasSize(0));
     }
@@ -95,7 +95,7 @@ class FetchByOwnedCoordinatesTest {
     @Test
     void whenFieldContentsIsNotACollection_thenAnExceptionShouldBeThrown() {
         try {
-            fetcher.fetchCollection(new Street(), "name", Projection.empty());
+            fetcher.fetch(new Street(), "name", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(),
                     is("'name' attribute on 'Street' contains 'class java.lang.String' and not a Collection"));
@@ -104,14 +104,14 @@ class FetchByOwnedCoordinatesTest {
 
     @Test
     void whenFieldContentsIsAnEmptyCollection_thenAnEmptyListShouldBeReturned() {
-        CollectionFragment<Model> fragment = fetcher.fetchCollection(new Street(), "emptyList", Projection.empty());
+        CollectionFragment<Model> fragment = fetcher.fetch(new Street(), "emptyList", Projection.empty());
         assertThat(fragment.elements(), hasSize(0));
     }
 
     @Test
     void whenNoElementTypeIsAnnotated_thenAnExceptionShouldBeThrown() {
         try {
-            fetcher.fetchCollection(new Street(), "noElementType", Projection.empty());
+            fetcher.fetch(new Street(), "noElementType", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(),
                     is("For host type 'Street' attribute 'noElementType' does not contain " +
@@ -122,7 +122,7 @@ class FetchByOwnedCoordinatesTest {
     @Test
     void whenIdFieldIsFoundMoreThanOnceOnCollectionElementClass_thenAnExceptionShouldBeThrown() {
         try {
-            fetcher.fetchCollection(new OwnerWithCollectionWith2Ids(), "items", Projection.empty());
+            fetcher.fetch(new OwnerWithCollectionWith2Ids(), "items", Projection.empty());
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("'class" +
                     " io.extremum.everything.services.fetch.FetchByOwnedCoordinatesTest$Has2Ids' defines" +
@@ -134,13 +134,13 @@ class FetchByOwnedCoordinatesTest {
     void whenFieldIsOnASuperclass_thenItShouldWorkAsWell() {
         whenRetrieveByIdsThenReturn2Houses();
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(new SubStreet(), "houses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetch(new SubStreet(), "houses", Projection.empty());
         assertThat(houses.elements(), hasSize(2));
     }
 
     @Test
     void whenCollectionFieldContainsModels_thenTheyShouldBeReturned() {
-        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(), "bareHouses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetch(new Street(), "bareHouses", Projection.empty());
         assertThat(houses.elements(), hasSize(2));
     }
 
@@ -156,7 +156,7 @@ class FetchByOwnedCoordinatesTest {
         ZonedDateTime somewhereIn2100 = somewhereIn2000.plusYears(100);
         Projection projection = Projection.sinceUntil(somewhereIn2010, somewhereIn2100);
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(street, "bareHouses", projection);
+        CollectionFragment<Model> houses = fetcher.fetch(street, "bareHouses", projection);
         assertThat(houses.elements(), hasSize(1));
     }
 
@@ -164,7 +164,7 @@ class FetchByOwnedCoordinatesTest {
     void givenCollectionContainsModelObjects_whenLimitIsSpecified_thenLimitShouldBeRespected() {
         Projection projection = Projection.offsetLimit(0, 1);
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(new Street(), "bareHouses", projection);
+        CollectionFragment<Model> houses = fetcher.fetch(new Street(), "bareHouses", projection);
         assertThat(houses.elements(), hasSize(1));
     }
 
@@ -173,7 +173,7 @@ class FetchByOwnedCoordinatesTest {
         Street street = new Street();
         street.bareHouses.get(0).setDeleted(true);
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(street, "bareHouses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetch(street, "bareHouses", Projection.empty());
         assertThat(houses.elements(), hasSize(street.bareHouses.size() - 1));
     }
 
@@ -183,7 +183,7 @@ class FetchByOwnedCoordinatesTest {
         model.setUuid(Descriptor.builder().storageType(Descriptor.StorageType.ELASTICSEARCH).build());
 
         try {
-            fetcher.fetchCollection(model, "houses", Projection.empty());
+            fetcher.fetch(model, "houses", Projection.empty());
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is("Only Mongo models can use IDs to fetch collections, " +
@@ -195,7 +195,7 @@ class FetchByOwnedCoordinatesTest {
     void givenModelIsAProxyThatDoesNotStoreDataInOurFields_whenFetchingCollection_thenGetterShouldBeUsed() {
         PersistableCommonModel model = new AProxy$HibernateProxy$ThatIgnoresTheFieldValue();
 
-        CollectionFragment<Model> houses = fetcher.fetchCollection(model, "houses", Projection.empty());
+        CollectionFragment<Model> houses = fetcher.fetch(model, "houses", Projection.empty());
         assertThat(houses.elements(), hasSize(2));
     }
 
@@ -204,7 +204,7 @@ class FetchByOwnedCoordinatesTest {
         PersistableCommonModel model = new HasElementTypeAnnotatedTwice();
 
         try {
-            fetcher.fetchCollection(model, "houses", Projection.empty());
+            fetcher.fetch(model, "houses", Projection.empty());
             fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("For host type 'HasElementTypeAnnotatedTwice' attribute 'houses'" +
@@ -214,7 +214,7 @@ class FetchByOwnedCoordinatesTest {
 
     @Test
     void givenCollectionElementsAreBasicModels_whenFetchingCollection_thenTheCollectionShouldBeReturned() {
-        CollectionFragment<Model> items = fetcher.fetchCollection(new HasCollectionOfBasicModel(), "items",
+        CollectionFragment<Model> items = fetcher.fetch(new HasCollectionOfBasicModel(), "items",
                 Projection.empty());
 
         assertThat(items.elements(), hasSize(2));
@@ -229,7 +229,7 @@ class FetchByOwnedCoordinatesTest {
 
     @Test
     void givenCollectionElementsAreNotBasicModels_whenFetchingCollection_thenTheCollectionShouldBeReturned() {
-        CollectionFragment<Model> items = fetcher.fetchCollection(new HasCollectionOfNonBasicModel(), "items",
+        CollectionFragment<Model> items = fetcher.fetch(new HasCollectionOfNonBasicModel(), "items",
                 Projection.empty());
 
         assertThat(items.elements(), hasSize(2));

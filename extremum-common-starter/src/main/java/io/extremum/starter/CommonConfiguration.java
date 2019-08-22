@@ -1,26 +1,27 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.MongoClientURI;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.common.collection.dao.ReactiveCollectionDescriptorDao;
 import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorServiceImpl;
 import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.factory.impl.MongoDescriptorFacilitiesImpl;
-import io.extremum.common.descriptor.service.DBDescriptorLoader;
-import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.descriptor.service.DescriptorServiceImpl;
-import io.extremum.common.descriptor.service.StaticDescriptorLoaderAccessorConfigurator;
+import io.extremum.common.descriptor.service.*;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.models.Model;
+import io.extremum.common.mongo.MongoUniversalReactiveModelLoader;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.common.support.*;
@@ -29,11 +30,11 @@ import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
-import io.extremum.starter.properties.MongoProperties;
 import io.extremum.starter.properties.RedisProperties;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.api.RedissonReactiveClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
@@ -46,20 +47,20 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.util.List;
 
 @Configuration
-@Import({MainMongoConfiguration.class, DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
+@Import({MainMongoConfiguration.class, MainReactiveMongoConfiguration.class,
+        DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("io.extremum.common.dto.converters")
-@EnableConfigurationProperties({RedisProperties.class, MongoProperties.class,
-        DescriptorsProperties.class, ModelProperties.class})
+@EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class, ModelProperties.class})
 @AutoConfigureBefore(JacksonAutoConfiguration.class)
 public class CommonConfiguration {
     private final RedisProperties redisProperties;
-    private final MongoProperties mongoProperties;
     private final DescriptorsProperties descriptorsProperties;
     private final ModelProperties modelProperties;
 
@@ -69,16 +70,22 @@ public class CommonConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
-    public RedissonClient redissonClient(@Qualifier("redis") ObjectMapper redisMapper) {
+    public Config redissonConfig(@Qualifier("redis") ObjectMapper redisMapper) {
         Config config = new Config();
         config.setCodec(new JsonJacksonCodec(redisMapper));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (redisProperties.getPassword() != null) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
         }
-        return Redisson.create(config);
+        return config;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "redis.uri")
+    @ConditionalOnMissingBean
+    public RedissonClient redissonClient(Config redissonConfig) {
+        return Redisson.create(redissonConfig);
     }
 
     @Bean
@@ -89,8 +96,10 @@ public class CommonConfiguration {
     }
 
     @Bean
-    public MongoClientURI mongoDatabaseUri() {
-        return new MongoClientURI(mongoProperties.getServiceDbUri());
+    @ConditionalOnProperty(value = "redis.uri")
+    @ConditionalOnMissingBean
+    public RedissonReactiveClient redissonReactiveClient(Config redissonConfig) {
+        return Redisson.createReactive(redissonConfig);
     }
 
     @Bean
@@ -103,6 +112,14 @@ public class CommonConfiguration {
     public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
         return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
                 redissonClient, descriptorRepository);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveDescriptorDao reactiveDescriptorDao(RedissonReactiveClient redissonReactiveClient,
+                                                       DescriptorRepository descriptorRepository) {
+        return DescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
+                redissonReactiveClient, descriptorRepository);
     }
 
     @Bean
@@ -126,16 +143,38 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactiveDescriptorService reactiveDescriptorService(ReactiveDescriptorDao reactiveDescriptorDao) {
+        return new ReactiveDescriptorServiceImpl(reactiveDescriptorDao);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
-                                                           CollectionDescriptorRepository collectionDescriptorRepository) {
+            CollectionDescriptorRepository collectionDescriptorRepository) {
         return CollectionDescriptorDaoFactory.create(redisProperties, descriptorsProperties, redissonClient,
                 collectionDescriptorRepository);
     }
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao(
+            RedissonReactiveClient redissonReactiveClient,
+            CollectionDescriptorRepository collectionDescriptorRepository) {
+        return CollectionDescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
+                redissonReactiveClient, collectionDescriptorRepository);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
         return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveCollectionDescriptorService reactiveCollectionDescriptorService(
+            ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao) {
+        return new ReactiveCollectionDescriptorServiceImpl(reactiveCollectionDescriptorDao);
     }
 
     @Bean
@@ -203,5 +242,12 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public UniversalModelFinder universalModelFinder(ModelClasses modelClasses, CommonServices commonServices) {
         return new UniversalModelFinderImpl(modelClasses, commonServices);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MongoUniversalReactiveModelLoader mongoUniversalReactiveModelLoader(
+            ReactiveMongoOperations reactiveMongoOperations) {
+        return new MongoUniversalReactiveModelLoader(reactiveMongoOperations);
     }
 }

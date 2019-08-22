@@ -2,6 +2,7 @@ package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.common.response.Pagination;
@@ -9,6 +10,7 @@ import io.extremum.common.response.Response;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 import static io.extremum.common.response.Response.ok;
 
@@ -18,6 +20,7 @@ import static io.extremum.common.response.Response.ok;
 @RequiredArgsConstructor
 public class DefaultEverythingCollectionManagementService implements EverythingCollectionManagementService {
     private final CollectionDescriptorService collectionDescriptorService;
+    private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
     private final EverythingCollectionService everythingCollectionService;
 
     @Override
@@ -38,5 +41,12 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
         Pagination pagination = paginationBuilder.build();
 
         return ok(fragment.elements(), pagination);
+    }
+
+    @Override
+    public Flux<ResponseDto> streamCollection(String collectionId, Projection projection, boolean expand) {
+        return reactiveCollectionDescriptorService.retrieveByExternalId(collectionId)
+                .flatMapMany(collDescriptor
+                        -> everythingCollectionService.streamCollection(collDescriptor, projection, expand));
     }
 }

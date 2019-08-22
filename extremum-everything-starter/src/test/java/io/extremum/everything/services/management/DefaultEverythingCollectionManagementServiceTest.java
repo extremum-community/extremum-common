@@ -2,6 +2,7 @@ package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.common.response.Response;
@@ -10,23 +11,29 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -45,6 +52,9 @@ class DefaultEverythingCollectionManagementServiceTest {
     private CollectionDescriptorService collectionDescriptorService;
     @Mock
     private EverythingCollectionService everythingCollectionService;
+    @Mock
+    private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
+
     private final Collection<ResponseDto> expectedCollection = Arrays.asList(
             mock(ResponseDto.class), mock(ResponseDto.class));
 
@@ -102,5 +112,17 @@ class DefaultEverythingCollectionManagementServiceTest {
         assertThat(response.getPagination().getTotal(), is(2L));
         assertThat(response.getPagination().getSince(), is(since));
         assertThat(response.getPagination().getUntil(), is(until));
+    }
+
+    @Test
+    void whenStreamingACollection_thenItShouldBeStreamed() {
+        when(reactiveCollectionDescriptorService.retrieveByExternalId("collection-id"))
+                .thenReturn(Mono.just(new CollectionDescriptor("collection-id")));
+        when(everythingCollectionService.streamCollection(any(), any(), anyBoolean()))
+                .thenReturn(Flux.just(expectedCollection.toArray(new ResponseDto[0])));
+
+        Flux<ResponseDto> dtoFlux = service.streamCollection("collection-id", emptyProjection, true);
+        List<ResponseDto> dtos = dtoFlux.toStream().collect(Collectors.toList());
+        assertThat(dtos, hasSize(2));
     }
 }

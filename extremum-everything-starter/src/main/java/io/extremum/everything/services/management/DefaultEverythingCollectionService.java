@@ -12,10 +12,14 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.services.CollectionFetcher;
+import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import io.extremum.everything.services.collection.StreamByOwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +30,7 @@ import static java.lang.String.format;
 public class DefaultEverythingCollectionService implements EverythingCollectionService {
     private final ModelRetriever modelRetriever;
     private final List<CollectionFetcher> collectionFetchers;
+    private final List<CollectionStreamer> collectionStreamers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
 
@@ -35,6 +40,13 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         CollectionFragment<Model> fragment = coordinatesHandler.fetchCollection(id.getCoordinates(), projection);
         return fragment.map(model -> convertModelToResponseDto(model, expand));
+    }
+
+    @Override
+    public Flux<ResponseDto> streamCollection(CollectionDescriptor id, Projection projection, boolean expand) {
+        CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
+        Flux<Model> models = coordinatesHandler.streamCollection(id.getCoordinates(), projection);
+        return models.map(model -> convertModelToResponseDto(model, expand));
     }
 
     private CoordinatesHandler findCoordinatesHandler(CollectionDescriptor.Type type) {
@@ -71,11 +83,19 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         private BasicModel retrieveHost(OwnedCoordinates owned) {
             Model host = modelRetriever.retrieveModel(owned.getHostId());
             if (host == null) {
-                String message = format("No host entity was found by external ID '%s'",
-                        owned.getHostId().getExternalId());
-                throw new EverythingEverythingException(message);
+                throw createHostNotFoundException(owned);
             }
 
+            return castToBasicModel(owned, host);
+        }
+
+        private EverythingEverythingException createHostNotFoundException(OwnedCoordinates owned) {
+            String message = format("No host entity was found by external ID '%s'",
+                    owned.getHostId().getExternalId());
+            return new EverythingEverythingException(message);
+        }
+
+        private BasicModel castToBasicModel(OwnedCoordinates owned, Model host) {
             if (!(host instanceof BasicModel)) {
                 throw new EverythingEverythingException(String.format("Host '%s' is not a BasicModel",
                         owned.getHostId().getModelType()));
@@ -87,7 +107,41 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         private CollectionFragment<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
                 BasicModel host, Projection projection) {
             FetchByOwnedCoordinates fetcher = new FetchByOwnedCoordinates(universalDao);
-            return fetcher.fetchCollection(host, owned.getHostAttributeName(), projection);
+            return fetcher.fetch(host, owned.getHostAttributeName(), projection);
+        }
+
+        @Override
+        public Flux<Model> streamCollection(CollectionCoordinates coordinates, Projection projection) {
+            OwnedCoordinates owned = coordinates.getOwnedCoordinates();
+            Mono<BasicModel> hostMono = retrieveHostReactively(owned);
+
+            Optional<CollectionStreamer> optStreamer = collectionStreamers.stream()
+                    .filter(streamer -> streamer.getSupportedModel().equals(owned.getHostId().getModelType()))
+                    .filter(streamer -> streamer.getHostAttributeName().equals(owned.getHostAttributeName()))
+                    .findFirst();
+
+            if (optStreamer.isPresent()) {
+                CollectionStreamer streamer = optStreamer.get();
+                @SuppressWarnings("unchecked")
+                Flux<Model> castModels = hostMono.flatMapMany(host -> streamer.streamCollection(host, projection));
+                return castModels;
+            } else {
+                return fetchUsingDefaultConventionReactively(owned, hostMono, projection);
+            }
+        }
+
+        private Mono<BasicModel> retrieveHostReactively(OwnedCoordinates coordinates) {
+            return modelRetriever.retrieveModelReactively(coordinates.getHostId())
+                    .switchIfEmpty(Mono.error(() -> createHostNotFoundException(coordinates)))
+                    .map(host -> castToBasicModel(coordinates, host));
+        }
+
+        private Flux<Model> fetchUsingDefaultConventionReactively(OwnedCoordinates owned,
+                                                                  Mono<BasicModel> hostMono,
+                                                                  Projection projection) {
+            StreamByOwnedCoordinates streamer = new StreamByOwnedCoordinates(universalDao);
+            return hostMono.flatMapMany(host ->
+                    streamer.stream(host, owned.getHostAttributeName(), projection));
         }
     }
 }

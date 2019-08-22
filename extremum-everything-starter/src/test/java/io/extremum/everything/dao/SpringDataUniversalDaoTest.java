@@ -11,10 +11,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -28,6 +31,8 @@ import static org.hamcrest.Matchers.is;
 class SpringDataUniversalDaoTest extends TestWithServices {
     @Autowired
     private MongoOperations mongoOperations;
+    @Autowired
+    private ReactiveMongoOperations reactiveMongoOperations;
 
     private SpringDataUniversalDao universalDao;
 
@@ -35,7 +40,7 @@ class SpringDataUniversalDaoTest extends TestWithServices {
 
     @BeforeEach
     void setUp() {
-        universalDao = new SpringDataUniversalDao(mongoOperations);
+        universalDao = new SpringDataUniversalDao(mongoOperations, reactiveMongoOperations);
 
         House house1 = new House("1");
         House house2 = new House("2a");
@@ -61,6 +66,22 @@ class SpringDataUniversalDaoTest extends TestWithServices {
         
         assertThat(retrievedHouses.elements(), hasSize(1));
         assertThat(retrievedHouses.total().orElse(1000), is(2L));
+    }
+
+    @Test
+    void givenTwoHousesExist_whenStreamingByTheirIdsWithEmptyProjection_then2HousesShouldBeReturned() {
+        Flux<House> retrievedHouses = universalDao.streamByIds(houseIds,
+                House.class, Projection.empty());
+
+        assertThat(retrievedHouses.toStream().collect(Collectors.toList()), hasSize(2));
+    }
+
+    @Test
+    void givenTwoHousesExist_whenStreamingByTheirIdsWithOffset1_then1HouseShouldBeReturnedButTotalShouldBe2() {
+        Flux<House> retrievedHouses = universalDao.streamByIds(houseIds,
+                House.class, Projection.offsetLimit(1, 10));
+
+        assertThat(retrievedHouses.toStream().collect(Collectors.toList()), hasSize(1));
     }
 
 }

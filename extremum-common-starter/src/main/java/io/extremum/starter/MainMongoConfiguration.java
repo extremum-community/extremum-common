@@ -34,8 +34,12 @@ import java.util.List;
 @EnableAllMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
 public class MainMongoConfiguration extends AbstractMongoConfiguration {
-    private final MongoProperties mongoProps;
-    private final MongoClientURI databaseUri;
+    private final MongoProperties mongoProperties;
+
+    @Bean
+    public MongoClientURI mongoDatabaseUri() {
+        return new MongoClientURI(mongoProperties.getServiceDbUri());
+    }
 
     @Override
     @Bean
@@ -47,12 +51,12 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     @Override
     @Bean
     public MongoClient mongoClient() {
-        return new MongoClient(databaseUri);
+        return new MongoClient(mongoDatabaseUri());
     }
 
     @Override
     protected String getDatabaseName() {
-        return mongoProps.getServiceDbName();
+        return mongoProperties.getServiceDbName();
     }
 
     @Override

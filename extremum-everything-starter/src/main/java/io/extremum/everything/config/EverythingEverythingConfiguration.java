@@ -7,21 +7,19 @@ import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.support.CommonServices;
-import io.extremum.common.support.ModelClasses;
+import io.extremum.common.support.*;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.ApplicationUrlsImpl;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import io.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import io.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import io.extremum.everything.config.properties.DestroyerProperties;
-import io.extremum.everything.controllers.DefaultEverythingEverythingCollectionRestController;
-import io.extremum.everything.controllers.DefaultEverythingEverythingRestController;
-import io.extremum.everything.controllers.EverythingEverythingCollectionRestController;
-import io.extremum.everything.controllers.EverythingEverythingRestController;
+import io.extremum.everything.controllers.*;
 import io.extremum.everything.dao.SpringDataUniversalDao;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -46,6 +44,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 import java.util.List;
 
@@ -87,6 +86,12 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    public PingController pingController() {
+        return new PingController();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(EverythingEverythingExceptionHandler.class)
     public EverythingEverythingExceptionHandler everythingEverythingExceptionHandler() {
         return new DefaultEverythingEverythingExceptionHandler();
@@ -99,8 +104,9 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UniversalDao universalDao(MongoOperations mongoOperations) {
-        return new SpringDataUniversalDao(mongoOperations);
+    public UniversalDao universalDao(MongoOperations mongoOperations,
+                                     ReactiveMongoOperations reactiveMongoOperations) {
+        return new SpringDataUniversalDao(mongoOperations, reactiveMongoOperations);
     }
 
     @Bean
@@ -111,8 +117,18 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
-        return new DefaultGetterImpl(commonServices, modelDescriptors);
+    public UniversalReactiveModelLoaders universalReactiveModelLoader(List<UniversalReactiveModelLoader> loaders,
+                                                                      ModelClasses modelClasses) {
+        return new ListBasedUniversalReactiveModelLoaders(loaders, modelClasses);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors,
+                                       ReactiveDescriptorService reactiveDescriptorService,
+                                       UniversalReactiveModelLoaders universalReactiveModelLoader) {
+        return new DefaultGetterImpl(commonServices, modelDescriptors, reactiveDescriptorService,
+                universalReactiveModelLoader);
     }
 
     @Bean
@@ -220,10 +236,11 @@ public class EverythingEverythingConfiguration {
     public EverythingCollectionService everythingCollectionService(
             ModelRetriever modelRetriever,
             List<CollectionFetcher> collectionFetchers,
+            List<CollectionStreamer> collectionStreamers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao) {
         return new DefaultEverythingCollectionService(modelRetriever, collectionFetchers,
-                dtoConversionService, universalDao);
+                collectionStreamers, dtoConversionService, universalDao);
     }
 
     @Bean
@@ -256,9 +273,10 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
             CollectionDescriptorService collectionDescriptorService,
+            ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService
     ) {
         return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
-                everythingCollectionService);
+                reactiveCollectionDescriptorService, everythingCollectionService);
     }
 }

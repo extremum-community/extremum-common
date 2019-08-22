@@ -12,6 +12,7 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.services.CollectionFetcher;
+import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.GetterService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -24,14 +25,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -60,13 +65,14 @@ class DefaultEverythingCollectionServiceTest {
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(ImmutableList.of(streetGetterService), null),
                 Collections.singletonList(new ExplicitHouseFetcher()),
+                Collections.singletonList(new ExplicitHouseStreamer()),
                 dtoConversionService,
                 universalDao
         );
     }
 
     @Test
-    void givenHostExists_whenCollectionIsFetched_thenItShouldBeReturned() {
+    void givenHostExistsAndNoCollectionFetcherRegistered_whenCollectionIsFetched_thenItShouldBeReturned() {
         returnStreetWhenRequested();
         when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
                 .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
@@ -109,6 +115,7 @@ class DefaultEverythingCollectionServiceTest {
 
         try {
             service.fetchCollection(collectionDescriptor, projection, false);
+            fail("An exception should be thrown");
         } catch (EverythingEverythingException e) {
             assertThat(e.getMessage(), is("No host entity was found by external ID 'hostId'"));
         }
@@ -125,6 +132,57 @@ class DefaultEverythingCollectionServiceTest {
         CollectionFragment<ResponseDto> houses = service.fetchCollection(collectionDescriptor, projection, false);
 
         assertThat(houses.elements(), hasSize(1));
+    }
+
+    @Test
+    void givenHostExistsAndNoCollectionFetcherRegistered_whenCollectionIsStreamed_thenItShouldBeReturned() {
+        returnStreetReactivelyWhenRequested();
+        when(universalDao.streamByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
+                .thenReturn(Flux.just(new House(), new House()));
+        convertToResponseDtoWhenRequested();
+
+        Descriptor hostId = streetDescriptor();
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        Projection projection = Projection.empty();
+
+        Flux<ResponseDto> dtos = service.streamCollection(collectionDescriptor, projection, false);
+
+        assertThat(dtos.toStream().collect(Collectors.toList()), hasSize(2));
+    }
+
+    private void returnStreetReactivelyWhenRequested() {
+        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
+    }
+
+    @Test
+    void givenHostDoesNotExist_whenCollectionIsStreamed_thenAnExceptionShouldBeThrown() {
+        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.empty());
+
+        Descriptor hostId = streetDescriptor();
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        Projection projection = Projection.empty();
+
+        AtomicReference<Throwable> throwableRef = new AtomicReference<>();
+
+        service.streamCollection(collectionDescriptor, projection, false)
+                .doOnError(throwableRef::set)
+                .subscribe();
+
+        assertThat(throwableRef.get(), is(notNullValue()));
+        assertThat(throwableRef.get().getMessage(), is("No host entity was found by external ID 'hostId'"));
+    }
+
+    @Test
+    void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsStreamed_thenItShouldBeProvidedByTheFetcher() {
+        convertToResponseDtoWhenRequested();
+
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
+                "explicitHouses");
+        Projection projection = Projection.empty();
+
+        Flux<ResponseDto> houses = service.streamCollection(collectionDescriptor, projection, false);
+
+        assertThat(houses.toStream().collect(Collectors.toList()), hasSize(1));
     }
 
     @ModelName("House")
@@ -164,6 +222,24 @@ class DefaultEverythingCollectionServiceTest {
         @Override
         public CollectionFragment<House> fetchCollection(Street street, Projection projection) {
             return CollectionFragment.forCompleteCollection(Collections.singletonList(new House()));
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "Street";
+        }
+    }
+
+    private static class ExplicitHouseStreamer implements CollectionStreamer<Street, House> {
+
+        @Override
+        public String getHostAttributeName() {
+            return "explicitHouses";
+        }
+
+        @Override
+        public Flux<House> streamCollection(Street street, Projection projection) {
+            return Flux.just(new House());
         }
 
         @Override

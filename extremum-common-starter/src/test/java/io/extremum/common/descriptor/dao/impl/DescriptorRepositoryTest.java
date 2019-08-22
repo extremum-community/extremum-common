@@ -1,19 +1,20 @@
 package io.extremum.common.descriptor.dao.impl;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.test.TestWithServices;
-import io.extremum.starter.properties.MongoProperties;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Updates;
 import common.dao.mongo.MongoCommonDaoConfiguration;
+import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.test.TestWithServices;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.starter.properties.MongoProperties;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,17 +22,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
 /**
  * @author rpuch
  */
-@DataMongoTest
-@ContextConfiguration(classes = MongoCommonDaoConfiguration.class)
+@SpringBootTest(classes = MongoCommonDaoConfiguration.class)
+@ImportAutoConfiguration(exclude = MongoReactiveRepositoriesAutoConfiguration.class)
 class DescriptorRepositoryTest extends TestWithServices {
     @Autowired
     private DescriptorRepository descriptorRepository;

@@ -53,6 +53,7 @@ class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollection
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
+                Collections.emptyList(),
                 dtoConversionService,
                 universalDao
         );

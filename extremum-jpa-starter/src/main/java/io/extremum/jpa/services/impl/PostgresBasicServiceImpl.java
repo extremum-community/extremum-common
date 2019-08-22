@@ -19,4 +19,5 @@ public class PostgresBasicServiceImpl<M extends PostgresBasicModel> extends Comm
     protected UUID stringToId(String id) {
         return UUID.fromString(id);
     }
+
 }
