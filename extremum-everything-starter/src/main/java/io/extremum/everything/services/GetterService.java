@@ -20,6 +20,6 @@ public interface GetterService<M extends Model> extends EverythingEverythingServ
 
     default Mono<M> reactiveGet(String id) {
         // TODO: use real reactivity
-        return Mono.justOrEmpty(get(id));
+        return Mono.defer(() -> Mono.justOrEmpty(get(id)));
     }
 }
