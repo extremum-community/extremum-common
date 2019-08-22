@@ -11,12 +11,12 @@ import java.util.function.Supplier;
  */
 public class NaiveReactifier implements Reactifier {
     @Override
-    public <T> Mono<T> mono(Supplier<T> objectSupplier) {
+    public <T> Mono<T> mono(Supplier<? extends T> objectSupplier) {
         return Mono.defer(() -> Mono.just(objectSupplier.get()));
     }
 
     @Override
-    public <T> Flux<T> flux(Supplier<Iterable<T>> iterableSupplier) {
+    public <T> Flux<T> flux(Supplier<? extends Iterable<? extends T>> iterableSupplier) {
         return Flux.defer(() -> Flux.fromIterable(iterableSupplier.get()));
     }
 }

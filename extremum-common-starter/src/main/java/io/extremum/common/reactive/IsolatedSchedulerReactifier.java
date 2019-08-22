@@ -5,6 +5,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -17,14 +18,16 @@ public class IsolatedSchedulerReactifier implements Reactifier {
     private final Scheduler scheduler;
 
     @Override
-    public <T> Mono<T> mono(Supplier<T> objectSupplier) {
+    public <T> Mono<T> mono(Supplier<? extends T> objectSupplier) {
         return Mono.defer(() -> Mono.just(objectSupplier.get()))
-                .subscribeOn(scheduler);
+                .subscribeOn(scheduler)
+                .map(Function.identity());
     }
 
     @Override
-    public <T> Flux<T> flux(Supplier<Iterable<T>> iterableSupplier) {
+    public <T> Flux<T> flux(Supplier<? extends Iterable<? extends T>> iterableSupplier) {
         return Flux.defer(() -> Flux.fromIterable(iterableSupplier.get()))
-                .subscribeOn(scheduler);
+                .subscribeOn(scheduler)
+                .map(Function.identity());
     }
 }

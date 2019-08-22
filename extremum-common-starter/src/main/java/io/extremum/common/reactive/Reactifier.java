@@ -20,7 +20,7 @@ public interface Reactifier {
      * @param <T> type of the produced object
      * @return Mono
      */
-    <T> Mono<T> mono(Supplier<T> objectSupplier);
+    <T> Mono<T> mono(Supplier<? extends T> objectSupplier);
 
     /**
      * Creates a {@link Flux} that produces reactively (as possible) the result
@@ -30,5 +30,5 @@ public interface Reactifier {
      * @param <T> type of the produced object
      * @return Mono
      */
-    <T> Flux<T> flux(Supplier<Iterable<T>> iterableSupplier);
+    <T> Flux<T> flux(Supplier<? extends Iterable<? extends T>> iterableSupplier);
 }
