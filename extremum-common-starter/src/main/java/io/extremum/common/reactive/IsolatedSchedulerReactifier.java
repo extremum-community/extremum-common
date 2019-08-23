@@ -19,14 +19,15 @@ public class IsolatedSchedulerReactifier implements Reactifier {
 
     @Override
     public <T> Mono<T> mono(Supplier<? extends T> objectSupplier) {
-        return Mono.defer(() -> Mono.just(objectSupplier.get()))
+        return Mono.fromCallable(objectSupplier::get)
                 .subscribeOn(scheduler)
                 .map(Function.identity());
     }
 
     @Override
     public <T> Flux<T> flux(Supplier<? extends Iterable<? extends T>> iterableSupplier) {
-        return Flux.defer(() -> Flux.fromIterable(iterableSupplier.get()))
+        return Mono.fromCallable(iterableSupplier::get)
+                .flatMapMany(Flux::fromIterable)
                 .subscribeOn(scheduler)
                 .map(Function.identity());
     }
