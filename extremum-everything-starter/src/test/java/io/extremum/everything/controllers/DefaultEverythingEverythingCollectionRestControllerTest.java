@@ -1,11 +1,8 @@
 package io.extremum.everything.controllers;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.fundamental.CommonResponseDto;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,11 +13,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,37 +72,18 @@ class DefaultEverythingEverythingCollectionRestControllerTest {
         }
     }
 
-    private static Descriptor forName(String name) {
-        return Descriptor.builder()
-                .externalId("external-id-" + name)
-                .internalId("internal-id-" + name)
-                .modelType("Test")
-                .storageType(Descriptor.StorageType.MONGO)
-                .build();
-    }
+    @Test
+    @Disabled("Enable when a concurrency bug that makes one (or even both) tests in this file fail is identified and fixed")
+    void whenAnExceptionOccursDuringStreaming_thenItShouldBeHandled() throws Exception {
+        when(collectionManagementService.streamCollection(anyString(), any(), anyBoolean()))
+                .thenReturn(Flux.error(new RuntimeException("Oops!")));
 
-    private static class TestResponseDto extends CommonResponseDto {
-        @JsonProperty
-        public String name;
-        @JsonProperty
-        public String model;
+        String responseText = mockMvc.perform(get("/collection/dead-beef").accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        @JsonCreator
-        public TestResponseDto() {
-        }
-
-        TestResponseDto(String name) {
-            this.name = name;
-
-            setId(forName(name));
-            setCreated(ZonedDateTime.now());
-            setModified(ZonedDateTime.now());
-            setVersion(1L);
-        }
-
-        @Override
-        public String getModel() {
-            return "Test";
-        }
+        assertThat(responseText, startsWith("event:internal-error\ndata:Internal error "));
     }
 }
