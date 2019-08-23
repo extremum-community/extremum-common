@@ -10,8 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Flux;
 
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,6 +38,6 @@ class DefaultEverythingEverythingCollectionRestControllerFailingStreamingTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertThat(responseText, is("event:internal-error\ndata:Oops!\n\n"));
+        assertThat(responseText, startsWith("event:internal-error\ndata:Internal error "));
     }
 }

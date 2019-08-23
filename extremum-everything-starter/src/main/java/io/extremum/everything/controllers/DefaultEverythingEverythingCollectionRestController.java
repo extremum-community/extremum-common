@@ -1,11 +1,13 @@
 package io.extremum.everything.controllers;
 
 
+import io.extremum.common.logging.InternalErrorLogger;
 import io.extremum.common.response.Response;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +20,11 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
+@Slf4j
 public class DefaultEverythingEverythingCollectionRestController
         implements EverythingEverythingCollectionRestController {
     private final EverythingCollectionManagementService collectionManagementService;
+    private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
 
     @GetMapping(value = "/collection/{collectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Response fetchCollection(@PathVariable String collectionId, Projection projection,
@@ -44,7 +48,7 @@ public class DefaultEverythingEverythingCollectionRestController
 
     private ServerSentEvent<Object> throwableToSse(Throwable e) {
         return ServerSentEvent.builder().event("internal-error")
-                .data(e.getMessage())
+                .data(errorLogger.logErrorAndReturnId(e))
                 .build();
     }
 }
