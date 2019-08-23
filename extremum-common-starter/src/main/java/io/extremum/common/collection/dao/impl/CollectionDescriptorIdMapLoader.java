@@ -1,11 +1,9 @@
 package io.extremum.common.collection.dao.impl;
 
 import io.extremum.common.collection.CollectionDescriptor;
-import org.redisson.api.map.MapLoader;
+import io.extremum.common.descriptor.dao.impl.CarefulMapLoader;
 
-import java.util.stream.Collectors;
-
-class CollectionDescriptorIdMapLoader implements MapLoader<String, CollectionDescriptor> {
+class CollectionDescriptorIdMapLoader extends CarefulMapLoader<String, CollectionDescriptor> {
     private final CollectionDescriptorRepository repository;
 
     CollectionDescriptorIdMapLoader(CollectionDescriptorRepository repository) {
@@ -15,12 +13,5 @@ class CollectionDescriptorIdMapLoader implements MapLoader<String, CollectionDes
     @Override
     public CollectionDescriptor load(String key) {
         return repository.findByExternalId(key).orElse(null);
-    }
-
-    @Override
-    public Iterable<String> loadAllKeys() {
-        return repository.findAllExternalIds().stream()
-                .map(CollectionDescriptor::getExternalId)
-                .collect(Collectors.toList());
     }
 }
