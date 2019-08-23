@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,5 +69,19 @@ class DefaultEverythingEverythingCollectionRestControllerTest {
         } catch (IOException e) {
             throw new RuntimeException("Cannot parse", e);
         }
+    }
+
+    @Test
+    void whenAnExceptionOccursDuringStreaming_thenItShouldBeHandled() throws Exception {
+        when(collectionManagementService.streamCollection(anyString(), any(), anyBoolean()))
+                .thenReturn(Flux.error(new RuntimeException("Oops!")));
+
+        String responseText = mockMvc.perform(get("/collection/dead-beef").accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertThat(responseText, startsWith("event:internal-error\ndata:Internal error "));
     }
 }
