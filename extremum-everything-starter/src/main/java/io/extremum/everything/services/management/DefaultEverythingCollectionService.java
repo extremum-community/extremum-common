@@ -46,7 +46,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     public Flux<ResponseDto> streamCollection(CollectionDescriptor id, Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         Flux<Model> models = coordinatesHandler.streamCollection(id.getCoordinates(), projection);
-        return models.map(model -> convertModelToResponseDto(model, expand));
+        return models.flatMap(model -> convertModelToResponseDtoReactively(model, expand));
     }
 
     private CoordinatesHandler findCoordinatesHandler(CollectionDescriptor.Type type) {
@@ -60,6 +60,11 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     private ResponseDto convertModelToResponseDto(Model model, boolean expand) {
         ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
         return dtoConversionService.convertUnknownToResponseDto(model, conversionConfig);
+    }
+
+    private Mono<ResponseDto> convertModelToResponseDtoReactively(Model model, boolean expand) {
+        ConversionConfig conversionConfig = ConversionConfig.builder().expand(expand).build();
+        return dtoConversionService.convertUnknownToResponseDtoReactively(model, conversionConfig);
     }
 
     private class OwnedCoordinatesHandler implements CoordinatesHandler {

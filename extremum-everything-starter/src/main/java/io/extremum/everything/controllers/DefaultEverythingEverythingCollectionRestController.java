@@ -24,9 +24,8 @@ public class DefaultEverythingEverythingCollectionRestController
     }
 
     @GetMapping(value = "/collection/{collectionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public @ResponseBody
-    Flux<ResponseDto> streamCollection(@PathVariable String collectionId, Projection projection,
-                                       @RequestParam(defaultValue = "false") boolean expand) {
+    public Flux<ResponseDto> streamCollection(@PathVariable String collectionId, Projection projection,
+            @RequestParam(defaultValue = "false") boolean expand) {
         return collectionManagementService.streamCollection(collectionId, projection, expand);
     }
 }

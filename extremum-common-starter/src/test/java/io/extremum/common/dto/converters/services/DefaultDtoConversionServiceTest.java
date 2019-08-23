@@ -11,11 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +52,28 @@ class DefaultDtoConversionServiceTest {
 
         ResponseDto response = dtoConversionService.convertUnknownToResponseDto(new AModel(),
                 ConversionConfig.defaults());
+        assertThatResponseIsStub(response);
+    }
+
+    @Test
+    void givenToResponseConverterExists_whenConvertUnknownToResponseDtoReacvitely_thenShouldConvertWithTheGivenConverter() {
+        when(converters.findToResponseDtoConverter(AModel.class))
+                .thenReturn(Optional.of(new AModelToResponseConverter()));
+
+        Mono<ResponseDto> responseMono = dtoConversionService.convertUnknownToResponseDtoReactively(new AModel(),
+                ConversionConfig.defaults());
+        assertThat(responseMono.block(), is(sameInstance(convertedResponse)));
+    }
+
+    @Test
+    void givenToResponseConverterDoesNotExist_whenConvertUnknownToResponseDtoReactively_thenShouldConvertWithStubConverter() {
+        when(converters.findToResponseDtoConverter(AModel.class))
+                .thenReturn(Optional.empty());
+
+        Mono<ResponseDto> responseMono = dtoConversionService.convertUnknownToResponseDtoReactively(new AModel(),
+                ConversionConfig.defaults());
+        ResponseDto response = responseMono.block();
+        assertThat(response, is(notNullValue()));
         assertThatResponseIsStub(response);
     }
 

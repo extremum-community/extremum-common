@@ -7,6 +7,7 @@ import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.Model;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.dto.ResponseDto;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -46,6 +47,11 @@ class MockDtoConversionService implements DtoConversionService {
             return new ResponseDtoForModelWithoutServices();
         }
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Mono<ResponseDto> convertUnknownToResponseDtoReactively(Model model, ConversionConfig config) {
+        return Mono.just(convertUnknownToResponseDto(model, config));
     }
 
     @Override
