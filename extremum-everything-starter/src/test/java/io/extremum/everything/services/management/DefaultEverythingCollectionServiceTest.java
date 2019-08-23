@@ -203,7 +203,9 @@ class DefaultEverythingCollectionServiceTest {
     @Test
     void givenHostExistsAndTransactivityRequiresExecuteInATransaction_whenCollectionIsStreamed_thenItShouldStreamed() {
         when(transactivity.isCollectionTransactional(any())).thenReturn(true);
-        returnStreetAndHousesAndConvertToDtosInBlockingMode();
+        returnStreetWhenRequested();
+        retrieve2HousesWhenRequestedByIds();
+        convertToResponseDtoReactivelyWhenRequested();
 
         Flux<ResponseDto> dtos = service.streamCollection(housesCollectionDescriptor(), Projection.empty(), false);
 
@@ -225,7 +227,9 @@ class DefaultEverythingCollectionServiceTest {
     @Test
     void givenHostExistsAndTransactivityRequiresExecuteInATransaction_whenCollectionIsStreamed_thenItShouldBeFetchedInsideATransactionAndReactified() {
         when(transactivity.isCollectionTransactional(any())).thenReturn(true);
-        returnStreetAndHousesAndConvertToDtosInBlockingMode();
+        returnStreetWhenRequested();
+        retrieve2HousesWhenRequestedByIds();
+        convertToResponseDtoReactivelyWhenRequested();
 
         Flux<ResponseDto> dtos = service.streamCollection(housesCollectionDescriptor(), Projection.empty(), false);
         dtos.blockLast();
