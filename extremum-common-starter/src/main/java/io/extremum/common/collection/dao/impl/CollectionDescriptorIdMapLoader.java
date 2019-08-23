@@ -1,9 +1,9 @@
 package io.extremum.common.collection.dao.impl;
 
 import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.common.descriptor.dao.impl.ModestMapLoader;
+import io.extremum.common.descriptor.dao.impl.CarefulMapLoader;
 
-class CollectionDescriptorIdMapLoader extends ModestMapLoader<String, CollectionDescriptor> {
+class CollectionDescriptorIdMapLoader extends CarefulMapLoader<String, CollectionDescriptor> {
     private final CollectionDescriptorRepository repository;
 
     CollectionDescriptorIdMapLoader(CollectionDescriptorRepository repository) {

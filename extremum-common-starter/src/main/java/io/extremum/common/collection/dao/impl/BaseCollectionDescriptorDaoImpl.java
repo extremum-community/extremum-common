@@ -1,7 +1,7 @@
 package io.extremum.common.collection.dao.impl;
 
 import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.common.descriptor.dao.impl.ModestMapLoader;
+import io.extremum.common.descriptor.dao.impl.CarefulMapLoader;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;
@@ -46,7 +46,7 @@ public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao
     }
 
     private static MapLoader<String, String> descriptorCoordinatesMapLoader(CollectionDescriptorRepository repository) {
-        return new ModestMapLoader<String, String>() {
+        return new CarefulMapLoader<String, String>() {
             @Override
             public String load(String key) {
                 return repository.findByCoordinatesString(key)

@@ -2,7 +2,7 @@ package io.extremum.common.descriptor.dao.impl;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
-class DescriptorIdMapLoader extends ModestMapLoader<String, Descriptor> {
+class DescriptorIdMapLoader extends CarefulMapLoader<String, Descriptor> {
     private final DescriptorRepository descriptorRepository;
 
     DescriptorIdMapLoader(DescriptorRepository descriptorRepository) {
