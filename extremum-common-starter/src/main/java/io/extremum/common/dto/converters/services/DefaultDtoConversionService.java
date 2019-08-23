@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import static java.lang.String.format;
 
@@ -22,9 +23,19 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public ResponseDto convertUnknownToResponseDto(Model model, ConversionConfig config) {
-        ToResponseDtoConverter<Model, ResponseDto> converter = dtoConverters.<Model, ResponseDto>findToResponseDtoConverter(model.getClass())
-                .orElseGet(() -> warnAndGetStubConverter(model));
+        ToResponseDtoConverter<Model, ResponseDto> converter = findToResponseConverter(model);
         return converter.convertToResponse(model, config);
+    }
+
+    private ToResponseDtoConverter<Model, ResponseDto> findToResponseConverter(Model model) {
+        return dtoConverters.<Model, ResponseDto>findToResponseDtoConverter(model.getClass())
+                    .orElseGet(() -> warnAndGetStubConverter(model));
+    }
+
+    @Override
+    public Mono<ResponseDto> convertUnknownToResponseDtoReactively(Model model, ConversionConfig config) {
+        ToResponseDtoConverter<Model, ResponseDto> converter = findToResponseConverter(model);
+        return converter.convertToResponseReactively(model, config);
     }
 
     private ToResponseDtoConverter<Model, ResponseDto> warnAndGetStubConverter(Model model) {
@@ -42,7 +53,9 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
-        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter((Class<? extends M>) modelClass)
+        @SuppressWarnings("unchecked")
+        Class<? extends M> castModelClass = (Class<? extends M>) modelClass;
+        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter(castModelClass)
                 .orElseThrow(() -> new ConverterNotFoundException(
                         format("Unable to find converter for model '%s'", modelClass.getSimpleName())));
         return converter.convertFromRequest(dto);
