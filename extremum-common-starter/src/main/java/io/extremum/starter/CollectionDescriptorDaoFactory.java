@@ -21,16 +21,10 @@ public class CollectionDescriptorDaoFactory {
             RedissonClient redissonClient, CollectionDescriptorRepository collectionDescriptorRepository) {
         Codec codec = RedisCodecFactory.codecFor(CollectionDescriptor.class);
 
-        if (noRedis(redisProperties)) {
-            return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository, codec,
-                    descriptorsProperties.getCollectionDescriptorsMapName(),
-                    descriptorsProperties.getCollectionCoordinatesMapName());
-        } else {
-            return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository, codec,
-                    descriptorsProperties.getCollectionDescriptorsMapName(),
-                    descriptorsProperties.getCollectionCoordinatesMapName(),
-                    redisProperties.getCacheSize(), redisProperties.getIdleTime());
-        }
+        return new BaseCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository, codec,
+                descriptorsProperties.getCollectionDescriptorsMapName(),
+                descriptorsProperties.getCollectionCoordinatesMapName(),
+                redisProperties.getCacheSize(), redisProperties.getIdleTime());
     }
 
     public static ReactiveCollectionDescriptorDao createReactive(
@@ -38,18 +32,9 @@ public class CollectionDescriptorDaoFactory {
             RedissonReactiveClient redissonClient, CollectionDescriptorRepository collectionDescriptorRepository) {
         Codec codec = RedisCodecFactory.codecFor(CollectionDescriptor.class);
 
-        if (noRedis(redisProperties)) {
-            return new BaseReactiveCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository, codec,
-                    descriptorsProperties.getCollectionDescriptorsMapName());
-        } else {
-            return new BaseReactiveCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository, codec,
-                    descriptorsProperties.getCollectionDescriptorsMapName(),
-                    redisProperties.getCacheSize(), redisProperties.getIdleTime());
-        }
-    }
-
-    private static boolean noRedis(RedisProperties redisProperties) {
-        return RedisInitialization.noRedis(redisProperties);
+        return new BaseReactiveCollectionDescriptorDaoImpl(redissonClient, collectionDescriptorRepository, codec,
+                descriptorsProperties.getCollectionDescriptorsMapName(),
+                redisProperties.getCacheSize(), redisProperties.getIdleTime());
     }
 
     private CollectionDescriptorDaoFactory() {}

@@ -15,9 +15,9 @@ public class RedisProperties {
 
     private String uri;
 
-    private int cacheSize;
+    private int cacheSize = 500_000;
 
-    private long idleTime;
+    private long idleTime = 30;
 
     private String password;
 }

@@ -8,15 +8,6 @@ import org.redisson.client.codec.Codec;
 import java.util.concurrent.TimeUnit;
 
 public class BaseReactiveCollectionDescriptorDaoImpl extends BaseReactiveCollectionDescriptorDao {
-    private static final int DEFAULT_CACHE_SIZE = 500000;
-    private static final long DEFAULT_IDLE_TIME_DAYS = 30;
-
-    public BaseReactiveCollectionDescriptorDaoImpl(RedissonReactiveClient redissonClient,
-                                                   CollectionDescriptorRepository repository, Codec codec,
-                                                   String descriptorsMapName) {
-        this(redissonClient, repository, codec, descriptorsMapName,
-                DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
-    }
 
     public BaseReactiveCollectionDescriptorDaoImpl(RedissonReactiveClient redissonClient,
                                                    CollectionDescriptorRepository repository,

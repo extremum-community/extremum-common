@@ -10,16 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BaseCollectionDescriptorDaoImpl extends BaseCollectionDescriptorDao {
-    private static final int DEFAULT_CACHE_SIZE = 500000;
-    private static final long DEFAULT_IDLE_TIME_DAYS = 30;
-
-    public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient,
-            CollectionDescriptorRepository repository, Codec codec,
-            String descriptorsMapName, String coordinatesMapName) {
-        this(redissonClient, repository, codec, descriptorsMapName, coordinatesMapName,
-                DEFAULT_CACHE_SIZE, DEFAULT_IDLE_TIME_DAYS);
-    }
-
     public BaseCollectionDescriptorDaoImpl(RedissonClient redissonClient, CollectionDescriptorRepository repository,
             Codec codec, String descriptorsMapName, String coordinatesMapName, int cacheSize, long idleTime) {
         super(repository,
