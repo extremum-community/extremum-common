@@ -25,7 +25,7 @@ public final class ModelUtils {
         return getModelName(model.getClass());
     }
 
-    public static boolean usesSoftDeletion(Class<?> modelClass) {
+    public static boolean isSoftDeletable(Class<?> modelClass) {
         HardDelete hardDelete = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(HardDelete.class, modelClass);
         return hardDelete == null;
     }

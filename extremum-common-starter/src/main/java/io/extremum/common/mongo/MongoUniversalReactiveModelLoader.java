@@ -34,7 +34,7 @@ public class MongoUniversalReactiveModelLoader implements UniversalReactiveModel
         List<Criteria> criteria = new ArrayList<>();
 
         criteria.add(where(PersistableCommonModel.FIELDS.id.name()).is(new ObjectId(id)));
-        if (ModelUtils.usesSoftDeletion(modelClass)) {
+        if (ModelUtils.isSoftDeletable(modelClass)) {
             criteria.add(softDeletion.notDeleted());
         }
 

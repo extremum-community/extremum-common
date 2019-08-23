@@ -56,18 +56,18 @@ class ModelUtilsTest {
     }
 
     @Test
-    void givenModelIsNotAnnotatedAsHardDelete_whenCheckingWhetherItIsSoftDelete_thenTrueShouldBeReturned() {
-        assertThat(ModelUtils.usesSoftDeletion(NotAnnotatedAsHardDelete.class), is(true));
+    void givenModelIsNotAnnotatedAsHardDelete_whenCheckingWhetherItIsSoftDeletable_thenTrueShouldBeReturned() {
+        assertThat(ModelUtils.isSoftDeletable(NotAnnotatedAsHardDelete.class), is(true));
     }
 
     @Test
-    void givenModelIsAnnotatedAsHardDelete_whenCheckingWhetherItIsSoftDelete_thenFalseShouldBeReturned() {
-        assertThat(ModelUtils.usesSoftDeletion(AnnotatedAsHardDelete.class), is(false));
+    void givenModelIsAnnotatedAsHardDelete_whenCheckingWhetherItIsSoftDeletable_thenFalseShouldBeReturned() {
+        assertThat(ModelUtils.isSoftDeletable(AnnotatedAsHardDelete.class), is(false));
     }
 
     @Test
-    void givenModelIsAnnotatedAsHardDelete_whenCheckingWhetherItsProxyIsSoftDelete_thenFalseShouldBeReturned() {
-        assertThat(ModelUtils.usesSoftDeletion(AProxyWithHardDelete$HibernateProxy$Tail.class), is(false));
+    void givenModelIsAnnotatedAsHardDelete_whenCheckingWhetherItsProxyIsSoftDeletable_thenFalseShouldBeReturned() {
+        assertThat(ModelUtils.isSoftDeletable(AProxyWithHardDelete$HibernateProxy$Tail.class), is(false));
     }
 
     @ModelName("the-name")

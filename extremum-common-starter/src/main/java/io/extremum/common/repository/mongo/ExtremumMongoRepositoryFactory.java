@@ -52,6 +52,6 @@ public class ExtremumMongoRepositoryFactory extends MongoRepositoryFactory {
 
     private boolean isSoftDelete() {
         RepositoryMetadata metadata = getRepositoryMetadata(repositoryInterface);
-        return ModelUtils.usesSoftDeletion(metadata.getDomainType());
+        return ModelUtils.isSoftDeletable(metadata.getDomainType());
     }
 }
