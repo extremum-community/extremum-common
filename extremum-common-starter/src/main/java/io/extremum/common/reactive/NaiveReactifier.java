@@ -9,6 +9,7 @@ import java.util.function.Supplier;
  * A naive implementation of {@link Reactifier} suitable for tests.
  * DO NOT USE IN PRODUCTION CODE!
  */
+@Deprecated
 public class NaiveReactifier implements Reactifier {
     @Override
     public <T> Mono<T> mono(Supplier<? extends T> objectSupplier) {
