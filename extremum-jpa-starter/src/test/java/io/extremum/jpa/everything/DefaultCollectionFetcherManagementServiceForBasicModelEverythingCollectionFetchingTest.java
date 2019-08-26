@@ -1,5 +1,6 @@
 package io.extremum.jpa.everything;
 
+import com.google.common.collect.ImmutableList;
 import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -53,9 +54,10 @@ class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollection
 
     @BeforeEach
     void setUp() {
+        //noinspection deprecation
         service = new DefaultEverythingCollectionService(
-                new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
-                Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
+                new ModelRetriever(ImmutableList.of(jpaBasicContainerGetterService), emptyList(), null, null),
+                ImmutableList.of(new ExplicitJpaBasicElementFetcher()),
                 emptyList(),
                 dtoConversionService,
                 universalDao, new NaiveReactifier(), new TransactorsCollectionTransactivity(emptyList())
@@ -113,6 +115,7 @@ class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollection
     public static class JpaBasicContainer extends PostgresBasicModel {
         @OwnedCollection
         private List<JpaBasicElement> elements = Arrays.asList(new JpaBasicElement(), new JpaBasicElement());
+        @SuppressWarnings("unused")
         @OwnedCollection
         private List<JpaBasicElement> explicitElements;
     }
