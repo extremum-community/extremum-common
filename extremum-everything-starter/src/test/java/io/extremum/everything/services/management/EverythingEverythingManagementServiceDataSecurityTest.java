@@ -3,6 +3,7 @@ package io.extremum.everything.services.management;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.MongoCommonModel;
 import io.extremum.everything.services.defaultservices.DefaultGetter;
+import io.extremum.everything.services.defaultservices.DefaultReactiveGetter;
 import io.extremum.everything.services.defaultservices.DefaultRemover;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.ExtremumAccessDeniedException;
@@ -42,6 +43,8 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @Mock
     private DefaultGetter defaultGetter;
     @Mock
+    private DefaultReactiveGetter defaultReactiveGetter;
+    @Mock
     private DefaultRemover defaultRemover;
     @Mock
     private DataSecurity dataSecurity;
@@ -49,7 +52,7 @@ class EverythingEverythingManagementServiceDataSecurityTest {
     @BeforeEach
     void createService() {
         service = new DefaultEverythingEverythingManagementService(
-                new ModelRetriever(emptyList(), defaultGetter),
+                new ModelRetriever(emptyList(), emptyList(), defaultGetter, defaultReactiveGetter),
                 null, emptyList(),
                 defaultRemover,
                 dtoConversionService,

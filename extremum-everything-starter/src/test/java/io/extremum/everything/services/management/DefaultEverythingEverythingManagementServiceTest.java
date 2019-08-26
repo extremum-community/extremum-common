@@ -15,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -35,7 +38,7 @@ class DefaultEverythingEverythingManagementServiceTest {
     @BeforeEach
     void setUp() {
         service = new DefaultEverythingEverythingManagementService(
-                new ModelRetriever(ImmutableList.of(new AlwaysNullGetterService()), null),
+                new ModelRetriever(ImmutableList.of(new AlwaysNullGetterService()), emptyList(), null, null),
                 null, null, null,
                 dtoConversionService,
                 new AllowEverythingForDataAccess()

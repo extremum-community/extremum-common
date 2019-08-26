@@ -17,6 +17,7 @@ import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.services.CollectionFetcher;
 import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.GetterService;
+import io.extremum.everything.services.ReactiveGetterService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
@@ -56,12 +57,15 @@ class DefaultEverythingCollectionServiceTest {
 
     @Spy
     private GetterService<Street> streetGetterService = new StreetGetter();
+    @Spy
+    private ReactiveGetterService<Street> streetReactiveGetterService = new StreetReactiveGetter();
     @Mock
     private UniversalDao universalDao;
     @Mock
     private DtoConversionService dtoConversionService;
     @Spy
     private CollectionTransactivity transactivity = new TestCollectionTransactivity();
+    @SuppressWarnings("deprecation")
     @Spy
     private Reactifier reactifier = new NaiveReactifier();
 
@@ -71,7 +75,8 @@ class DefaultEverythingCollectionServiceTest {
     @BeforeEach
     void setUp() {
         service = new DefaultEverythingCollectionService(
-                new ModelRetriever(ImmutableList.of(streetGetterService), null),
+                new ModelRetriever(ImmutableList.of(streetGetterService),
+                        ImmutableList.of(streetReactiveGetterService), null, null),
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 Collections.singletonList(new ExplicitHouseStreamer()),
                 dtoConversionService,
@@ -162,7 +167,7 @@ class DefaultEverythingCollectionServiceTest {
     }
 
     private void returnStreetReactivelyWhenRequested() {
-        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
+        when(streetReactiveGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
     }
 
     private void convertToResponseDtoReactivelyWhenRequested() {
@@ -172,7 +177,7 @@ class DefaultEverythingCollectionServiceTest {
 
     @Test
     void givenHostDoesNotExist_whenCollectionIsStreamed_thenAnExceptionShouldBeThrown() {
-        when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.empty());
+        when(streetReactiveGetterService.reactiveGet("internalHostId")).thenReturn(Mono.empty());
 
         CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
@@ -259,6 +264,18 @@ class DefaultEverythingCollectionServiceTest {
         @Override
         public Street get(String id) {
             return new Street();
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return "Street";
+        }
+    }
+
+    private static class StreetReactiveGetter implements ReactiveGetterService<Street> {
+        @Override
+        public Mono<Street> reactiveGet(String id) {
+            return Mono.just(new Street());
         }
 
         @Override
