@@ -1,7 +1,7 @@
 package io.extremum.elasticsearch.repositories;
 
-import io.extremum.common.models.annotation.HardDelete;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
+import io.extremum.common.utils.ModelUtils;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchRepositoryFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -53,7 +53,6 @@ public class ExtremumElasticsearchRepositoryFactory extends ElasticsearchReposit
 
     private boolean isSoftDelete() {
         RepositoryMetadata metadata = getRepositoryMetadata(repositoryInterface);
-        boolean isHardDelete = metadata.getDomainType().isAnnotationPresent(HardDelete.class);
-        return !isHardDelete;
+        return ModelUtils.isSoftDeletable(metadata.getDomainType());
     }
 }

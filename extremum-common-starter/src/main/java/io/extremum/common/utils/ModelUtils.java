@@ -1,6 +1,7 @@
 package io.extremum.common.utils;
 
 import io.extremum.common.models.Model;
+import io.extremum.common.models.annotation.HardDelete;
 import io.extremum.common.models.annotation.ModelName;
 
 public final class ModelUtils {
@@ -22,6 +23,11 @@ public final class ModelUtils {
 
     public static <M extends Model> String getModelName(M model) {
         return getModelName(model.getClass());
+    }
+
+    public static boolean isSoftDeletable(Class<?> modelClass) {
+        HardDelete hardDelete = AnnotationUtils.findAnnotationDirectlyOrUnderProxy(HardDelete.class, modelClass);
+        return hardDelete == null;
     }
 
     private ModelUtils() {

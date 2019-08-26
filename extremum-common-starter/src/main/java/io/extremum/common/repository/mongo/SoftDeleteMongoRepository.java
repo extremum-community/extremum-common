@@ -4,6 +4,7 @@ import io.extremum.common.dao.MongoCommonDao;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.models.MongoCommonModel;
 import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.mongo.SoftDeletion;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;

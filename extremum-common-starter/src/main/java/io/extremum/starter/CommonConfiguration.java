@@ -22,6 +22,8 @@ import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.models.Model;
 import io.extremum.common.mongo.MongoUniversalReactiveModelLoader;
+import io.extremum.common.reactive.IsolatedSchedulerReactifier;
+import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.common.support.*;
@@ -49,6 +51,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -249,5 +253,17 @@ public class CommonConfiguration {
     public MongoUniversalReactiveModelLoader mongoUniversalReactiveModelLoader(
             ReactiveMongoOperations reactiveMongoOperations) {
         return new MongoUniversalReactiveModelLoader(reactiveMongoOperations);
+    }
+
+    @Bean(destroyMethod = "dispose")
+    public Scheduler reactifierScheduler() {
+        // per https://projectreactor.io/docs/core/release/reference/#faq.wrap-blocking
+        return Schedulers.elastic();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Reactifier reactifier(@Qualifier("reactifierScheduler") Scheduler reactifierScheduler) {
+        return new IsolatedSchedulerReactifier(reactifierScheduler);
     }
 }

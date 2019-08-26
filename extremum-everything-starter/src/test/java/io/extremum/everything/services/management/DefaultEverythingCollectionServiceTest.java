@@ -6,6 +6,9 @@ import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.MongoCommonModel;
 import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.reactive.NaiveReactifier;
+import io.extremum.common.reactive.Reactifier;
+import io.extremum.common.tx.CollectionTransactivity;
 import io.extremum.everything.collection.CollectionElementType;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
@@ -18,6 +21,7 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,8 +44,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -56,6 +60,10 @@ class DefaultEverythingCollectionServiceTest {
     private UniversalDao universalDao;
     @Mock
     private DtoConversionService dtoConversionService;
+    @Spy
+    private CollectionTransactivity transactivity = new TestCollectionTransactivity();
+    @Spy
+    private Reactifier reactifier = new NaiveReactifier();
 
     private static final ObjectId id1 = new ObjectId();
     private static final ObjectId id2 = new ObjectId();
@@ -67,19 +75,15 @@ class DefaultEverythingCollectionServiceTest {
                 Collections.singletonList(new ExplicitHouseFetcher()),
                 Collections.singletonList(new ExplicitHouseStreamer()),
                 dtoConversionService,
-                universalDao
+                universalDao, reactifier, transactivity
         );
     }
 
     @Test
     void givenHostExistsAndNoCollectionFetcherRegistered_whenCollectionIsFetched_thenItShouldBeReturned() {
-        returnStreetWhenRequested();
-        when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
-                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
-        convertToResponseDtoWhenRequested();
+        returnStreetAndHousesAndConvertToDtosInBlockingMode();
 
-        Descriptor hostId = streetDescriptor();
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
 
         CollectionFragment<ResponseDto> dtos = service.fetchCollection(collectionDescriptor, projection, false);
@@ -87,13 +91,18 @@ class DefaultEverythingCollectionServiceTest {
         assertThat(dtos.elements(), hasSize(2));
     }
 
+    private void returnStreetWhenRequested() {
+        when(streetGetterService.get("internalHostId")).thenReturn(new Street());
+    }
+
+    private void retrieve2HousesWhenRequestedByIds() {
+        when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
+                .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
+    }
+
     private void convertToResponseDtoWhenRequested() {
         when(dtoConversionService.convertUnknownToResponseDto(any(), any()))
                 .thenReturn(mock(ResponseDto.class));
-    }
-
-    private void returnStreetWhenRequested() {
-        when(streetGetterService.get("internalHostId")).thenReturn(new Street());
     }
 
     private Descriptor streetDescriptor() {
@@ -109,8 +118,7 @@ class DefaultEverythingCollectionServiceTest {
     void givenHostDoesNotExist_whenCollectionIsFetched_thenAnExceptionShouldBeThrown() {
         when(streetGetterService.get("internalHostId")).thenReturn(null);
 
-        Descriptor hostId = streetDescriptor();
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
 
         try {
@@ -137,17 +145,20 @@ class DefaultEverythingCollectionServiceTest {
     @Test
     void givenHostExistsAndNoCollectionStreamerRegistered_whenCollectionIsStreamed_thenItShouldBeReturned() {
         returnStreetReactivelyWhenRequested();
-        when(universalDao.streamByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
-                .thenReturn(Flux.just(new House(), new House()));
+        stream2HousesWhenRequestedByIds();
         convertToResponseDtoReactivelyWhenRequested();
 
-        Descriptor hostId = streetDescriptor();
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
 
         Flux<ResponseDto> dtos = service.streamCollection(collectionDescriptor, projection, false);
 
         assertThat(dtos.toStream().collect(Collectors.toList()), hasSize(2));
+    }
+
+    private void stream2HousesWhenRequestedByIds() {
+        when(universalDao.streamByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
+                .thenReturn(Flux.just(new House(), new House()));
     }
 
     private void returnStreetReactivelyWhenRequested() {
@@ -163,8 +174,7 @@ class DefaultEverythingCollectionServiceTest {
     void givenHostDoesNotExist_whenCollectionIsStreamed_thenAnExceptionShouldBeThrown() {
         when(streetGetterService.reactiveGet("internalHostId")).thenReturn(Mono.empty());
 
-        Descriptor hostId = streetDescriptor();
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostId, "houses");
+        CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
 
         AtomicReference<Throwable> throwableRef = new AtomicReference<>();
@@ -190,6 +200,45 @@ class DefaultEverythingCollectionServiceTest {
         assertThat(houses.toStream().collect(Collectors.toList()), hasSize(1));
     }
 
+    @Test
+    void givenHostExistsAndTransactivityRequiresExecuteInATransaction_whenCollectionIsStreamed_thenItShouldStreamed() {
+        when(transactivity.isCollectionTransactional(any())).thenReturn(true);
+        returnStreetWhenRequested();
+        retrieve2HousesWhenRequestedByIds();
+        convertToResponseDtoReactivelyWhenRequested();
+
+        Flux<ResponseDto> dtos = service.streamCollection(housesCollectionDescriptor(), Projection.empty(), false);
+
+        assertThat(dtos.toStream().collect(Collectors.toList()), hasSize(2));
+    }
+
+    private void returnStreetAndHousesAndConvertToDtosInBlockingMode() {
+        returnStreetWhenRequested();
+        retrieve2HousesWhenRequestedByIds();
+        convertToResponseDtoWhenRequested();
+    }
+
+    @NotNull
+    private CollectionDescriptor housesCollectionDescriptor() {
+        Descriptor hostId = streetDescriptor();
+        return CollectionDescriptor.forOwned(hostId, "houses");
+    }
+
+    @Test
+    void givenHostExistsAndTransactivityRequiresExecuteInATransaction_whenCollectionIsStreamed_thenItShouldBeFetchedInsideATransactionAndReactified() {
+        when(transactivity.isCollectionTransactional(any())).thenReturn(true);
+        returnStreetWhenRequested();
+        retrieve2HousesWhenRequestedByIds();
+        convertToResponseDtoReactivelyWhenRequested();
+
+        Flux<ResponseDto> dtos = service.streamCollection(housesCollectionDescriptor(), Projection.empty(), false);
+        dtos.blockLast();
+
+        verify(transactivity).doInTransaction(any(), any());
+        //noinspection UnassignedFluxMonoInstance
+        verify(reactifier).flux(any());
+    }
+
     @ModelName("House")
     private static class House extends MongoCommonModel {
     }
@@ -201,6 +250,7 @@ class DefaultEverythingCollectionServiceTest {
         @OwnedCollection
         @CollectionElementType(House.class)
         private List<String> houses = Arrays.asList(id1.toString(), id2.toString());
+        @SuppressWarnings("unused")
         @OwnedCollection
         private List<String> explicitHouses;
     }
@@ -253,4 +303,15 @@ class DefaultEverythingCollectionServiceTest {
         }
     }
 
+    private static class TestCollectionTransactivity implements CollectionTransactivity {
+        @Override
+        public boolean isCollectionTransactional(Descriptor hostId) {
+            return false;
+        }
+
+        @Override
+        public <T> T doInTransaction(Descriptor hostId, Supplier<T> action) {
+            return action.get();
+        }
+    }
 }

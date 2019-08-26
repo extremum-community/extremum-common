@@ -2,6 +2,7 @@ package io.extremum.everything.services;
 
 import io.extremum.common.models.Model;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Service that is used to obtain a model from the database for Everything-Everything GET operation
@@ -20,6 +21,7 @@ public interface GetterService<M extends Model> extends EverythingEverythingServ
 
     default Mono<M> reactiveGet(String id) {
         // TODO: use real reactivity
-        return Mono.defer(() -> Mono.justOrEmpty(get(id)));
+        // per https://projectreactor.io/docs/core/release/reference/#faq.wrap-blocking
+        return Mono.fromCallable(() -> get(id)).subscribeOn(Schedulers.elastic());
     }
 }

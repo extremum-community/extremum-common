@@ -1,6 +1,7 @@
 package io.extremum.common.utils;
 
 import io.extremum.common.models.MongoCommonModel;
+import io.extremum.common.models.annotation.HardDelete;
 import io.extremum.common.models.annotation.ModelName;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,21 @@ class ModelUtilsTest {
         assertThat(ModelUtils.hasModelName(AProxy$HibernateProxy$Tail.class), is(true));
     }
 
+    @Test
+    void givenModelIsNotAnnotatedAsHardDelete_whenCheckingWhetherItIsSoftDeletable_thenTrueShouldBeReturned() {
+        assertThat(ModelUtils.isSoftDeletable(NotAnnotatedAsHardDelete.class), is(true));
+    }
+
+    @Test
+    void givenModelIsAnnotatedAsHardDelete_whenCheckingWhetherItIsSoftDeletable_thenFalseShouldBeReturned() {
+        assertThat(ModelUtils.isSoftDeletable(AnnotatedAsHardDelete.class), is(false));
+    }
+
+    @Test
+    void givenModelIsAnnotatedAsHardDelete_whenCheckingWhetherItsProxyIsSoftDeletable_thenFalseShouldBeReturned() {
+        assertThat(ModelUtils.isSoftDeletable(AProxyWithHardDelete$HibernateProxy$Tail.class), is(false));
+    }
+
     @ModelName("the-name")
     private static class Annotated extends MongoCommonModel {
     }
@@ -62,5 +78,15 @@ class ModelUtilsTest {
     }
 
     private static class AProxy$HibernateProxy$Tail extends Annotated {
+    }
+
+    private static class NotAnnotatedAsHardDelete extends MongoCommonModel {
+    }
+
+    @HardDelete
+    private static class AnnotatedAsHardDelete extends MongoCommonModel {
+    }
+
+    private static class AProxyWithHardDelete$HibernateProxy$Tail extends AnnotatedAsHardDelete {
     }
 }
