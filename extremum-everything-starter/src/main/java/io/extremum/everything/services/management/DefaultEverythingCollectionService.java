@@ -7,6 +7,8 @@ import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.BasicModel;
 import io.extremum.common.models.Model;
+import io.extremum.common.reactive.Reactifier;
+import io.extremum.common.tx.CollectionTransactivity;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
@@ -33,6 +35,8 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     private final List<CollectionStreamer> collectionStreamers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
+    private final Reactifier reactifier;
+    private final CollectionTransactivity transactivity;
 
     @Override
     public CollectionFragment<ResponseDto> fetchCollection(CollectionDescriptor id,
@@ -73,10 +77,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
             OwnedCoordinates owned = coordinates.getOwnedCoordinates();
             BasicModel host = retrieveHost(owned);
 
-            Optional<CollectionFetcher> optFetcher = collectionFetchers.stream()
-                    .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
-                    .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
-                    .findFirst();
+            Optional<CollectionFetcher> optFetcher = findFetcher(owned);
 
             @SuppressWarnings("unchecked")
             CollectionFragment<Model> castResult = optFetcher
@@ -109,6 +110,13 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
             return (BasicModel) host;
         }
 
+        private Optional<CollectionFetcher> findFetcher(OwnedCoordinates owned) {
+            return collectionFetchers.stream()
+                            .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
+                            .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
+                            .findFirst();
+        }
+
         private CollectionFragment<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
                 BasicModel host, Projection projection) {
             FetchByOwnedCoordinates fetcher = new FetchByOwnedCoordinates(universalDao);
@@ -118,12 +126,30 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         @Override
         public Flux<Model> streamCollection(CollectionCoordinates coordinates, Projection projection) {
             OwnedCoordinates owned = coordinates.getOwnedCoordinates();
+            if (dbAccessShouldBeMadeInATransaction(owned)) {
+                return streamBlockingFetchResult(coordinates, projection, owned);
+            }
+
+            return streamReactively(projection, owned);
+        }
+
+        private boolean dbAccessShouldBeMadeInATransaction(OwnedCoordinates owned) {
+            return transactivity.isCollectionTransactional(owned.getHostId());
+        }
+
+        private Flux<Model> streamBlockingFetchResult(CollectionCoordinates coordinates, Projection projection,
+                                                      OwnedCoordinates owned) {
+            return reactifier.flux(() -> {
+                return transactivity.doInTransaction(owned.getHostId(), () -> {
+                    return fetchCollection(coordinates, projection).elements();
+                });
+            });
+        }
+
+        private Flux<Model> streamReactively(Projection projection, OwnedCoordinates owned) {
             Mono<BasicModel> hostMono = retrieveHostReactively(owned);
 
-            Optional<CollectionStreamer> optStreamer = collectionStreamers.stream()
-                    .filter(streamer -> streamer.getSupportedModel().equals(owned.getHostId().getModelType()))
-                    .filter(streamer -> streamer.getHostAttributeName().equals(owned.getHostAttributeName()))
-                    .findFirst();
+            Optional<CollectionStreamer> optStreamer = findStreamer(owned);
 
             if (optStreamer.isPresent()) {
                 CollectionStreamer streamer = optStreamer.get();
@@ -139,6 +165,13 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
             return modelRetriever.retrieveModelReactively(coordinates.getHostId())
                     .switchIfEmpty(Mono.error(() -> createHostNotFoundException(coordinates)))
                     .map(host -> castToBasicModel(coordinates, host));
+        }
+
+        private Optional<CollectionStreamer> findStreamer(OwnedCoordinates owned) {
+            return collectionStreamers.stream()
+                    .filter(streamer -> streamer.getSupportedModel().equals(owned.getHostId().getModelType()))
+                    .filter(streamer -> streamer.getHostAttributeName().equals(owned.getHostAttributeName()))
+                    .findFirst();
         }
 
         private Flux<Model> fetchUsingDefaultConventionReactively(OwnedCoordinates owned,

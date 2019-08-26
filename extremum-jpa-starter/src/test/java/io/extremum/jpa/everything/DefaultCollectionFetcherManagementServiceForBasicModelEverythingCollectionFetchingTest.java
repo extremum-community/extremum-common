@@ -4,6 +4,8 @@ import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.reactive.NaiveReactifier;
+import io.extremum.common.tx.TransactorsCollectionTransactivity;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
@@ -27,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,9 +56,9 @@ class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollection
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(Collections.singletonList(jpaBasicContainerGetterService), null),
                 Collections.singletonList(new ExplicitJpaBasicElementFetcher()),
-                Collections.emptyList(),
+                emptyList(),
                 dtoConversionService,
-                universalDao
+                universalDao, new NaiveReactifier(), new TransactorsCollectionTransactivity(emptyList())
         );
     }
 

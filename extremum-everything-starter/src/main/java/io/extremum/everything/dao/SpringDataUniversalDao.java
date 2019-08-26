@@ -1,6 +1,7 @@
 package io.extremum.everything.dao;
 
 import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.mongo.SoftDeletion;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import org.springframework.data.domain.Sort;
@@ -26,6 +27,7 @@ public class SpringDataUniversalDao implements UniversalDao {
 
     private final MongoOperations mongoOperations;
     private final ReactiveMongoOperations reactiveMongoOperations;
+    private final SoftDeletion softDeletion = new SoftDeletion();
 
     public SpringDataUniversalDao(MongoOperations mongoOperations, ReactiveMongoOperations reactiveMongoOperations) {
         this.mongoOperations = mongoOperations;
@@ -46,12 +48,7 @@ public class SpringDataUniversalDao implements UniversalDao {
         List<Criteria> criteria = new ArrayList<>();
 
         criteria.add(where(PersistableCommonModel.FIELDS.id.name()).in(ids));
-        criteria.add(
-                new Criteria().orOperator(
-                        where(PersistableCommonModel.FIELDS.deleted.name()).exists(false),
-                        where(PersistableCommonModel.FIELDS.deleted.name()).is(false)
-                )
-        );
+        criteria.add(softDeletion.notDeleted());
 
         projection.getSince().ifPresent(since -> criteria.add(where(CREATED).gte(since)));
         projection.getUntil().ifPresent(until -> criteria.add(where(CREATED).lte(until)));
