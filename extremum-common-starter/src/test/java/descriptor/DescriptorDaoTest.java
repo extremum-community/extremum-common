@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -103,10 +103,19 @@ class DescriptorDaoTest extends TestWithServices {
         descriptor.setExternalId(new StandardUUIDGenerator().generateUUID());
         descriptorDao.store(descriptor);
 
-        Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByCollectionCoordinates(
-                descriptor.getCollection().toCoordinatesString());
-        assertTrue(retrievedDescriptor.isPresent());
-        assertEquals(descriptor, retrievedDescriptor.get());
+        Descriptor retrievedDescriptor = descriptorDao.retrieveByCollectionCoordinates(
+                descriptor.getCollection().toCoordinatesString()).orElse(null);
+        assertThat(retrievedDescriptor, is(notNullValue()));
+        assertThatRetrievedCollectionIsAsExpected(descriptor, retrievedDescriptor);
+    }
+
+    private void assertThatRetrievedCollectionIsAsExpected(Descriptor descriptor, Descriptor retrievedDescriptor) {
+        assertEquals(descriptor.getExternalId(), retrievedDescriptor.getExternalId());
+        assertThat(retrievedDescriptor.getType(), is(Descriptor.Type.COLLECTION));
+        assertThat(retrievedDescriptor.getCollection(), is(notNullValue()));
+        assertThat(retrievedDescriptor.getCollection().getType(), is(CollectionDescriptor.Type.OWNED));
+        assertThat(retrievedDescriptor.getCollection().getCoordinatesString(),
+                is(equalTo(descriptor.getCollection().toCoordinatesString())));
     }
 
     @Test
