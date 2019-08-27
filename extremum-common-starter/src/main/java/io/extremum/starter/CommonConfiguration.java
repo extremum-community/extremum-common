@@ -170,8 +170,9 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
-        return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
+    public CollectionDescriptorService collectionDescriptorService(DescriptorService descriptorService,
+                                                                   CollectionDescriptorDao collectionDescriptorDao) {
+        return new CollectionDescriptorServiceImpl(descriptorService, collectionDescriptorDao);
     }
 
     @Bean
