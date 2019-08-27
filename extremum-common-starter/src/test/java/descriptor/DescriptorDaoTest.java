@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
-class MongoDescriptorDaoTest extends TestWithServices {
+class DescriptorDaoTest extends TestWithServices {
     @Autowired
     private DescriptorDao descriptorDao;
     @Autowired
