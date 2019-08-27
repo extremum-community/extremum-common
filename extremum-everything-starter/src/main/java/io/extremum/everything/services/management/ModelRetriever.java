@@ -3,7 +3,9 @@ package io.extremum.everything.services.management;
 import io.extremum.common.models.Model;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.everything.services.GetterService;
+import io.extremum.everything.services.ReactiveGetterService;
 import io.extremum.everything.services.defaultservices.DefaultGetter;
+import io.extremum.everything.services.defaultservices.DefaultReactiveGetter;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +22,9 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class ModelRetriever {
     private final List<GetterService<?>> getterServices;
+    private final List<ReactiveGetterService<?>> reactiveGetterServices;
     private final DefaultGetter defaultGetter;
+    private final DefaultReactiveGetter defaultReactiveGetter;
 
     private final ModelNames modelNames = new ModelNames();
 
@@ -44,7 +48,7 @@ public class ModelRetriever {
         return defaultGetter;
     }
 
-    private void logModel(Descriptor id, Getter getter, Model model) {
+    private void logModel(Descriptor id, Object getter, Model model) {
         if (log.isDebugEnabled()) {
             if (model != null) {
                 log.debug(format("Model with ID '%s' was found by service '%s': '%s'", id, getter, model));
@@ -55,8 +59,20 @@ public class ModelRetriever {
     }
 
     public Mono<Model> retrieveModelReactively(Descriptor id) {
-        Getter getter = findGetter(id);
+        ReactiveGetter getter = findReactiveGetter(id);
         return getter.reactiveGet(id.getInternalId())
                 .doOnNext(model -> logModel(id, getter, model));
+    }
+
+    private ReactiveGetter findReactiveGetter(Descriptor id) {
+        String modelName = modelNames.determineModelName(id);
+        ReactiveGetterService<? extends Model> service = ModelServices.findServiceForModel(modelName,
+                reactiveGetterServices);
+        if (service != null) {
+            @SuppressWarnings("unchecked") ReactiveGetterService<Model> castService = (ReactiveGetterService<Model>) service;
+            return new NonDefaultReactiveGetter(castService);
+        }
+
+        return defaultReactiveGetter;
     }
 }

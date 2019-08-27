@@ -80,6 +80,7 @@ class EverythingServicesTest {
 
     @BeforeEach
     void initDescriptorLoader() {
+        //noinspection deprecation
         oldDescriptorLoader = StaticDescriptorLoaderAccessor.getDescriptorLoader();
         StaticDescriptorLoaderAccessor.setDescriptorLoader(descriptorLoader);
     }
@@ -101,11 +102,11 @@ class EverythingServicesTest {
         List<SaverService<?>> savers = ImmutableList.of(mongoWithServicesSaverService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
-        DefaultGetter defaultGetter = new DefaultGetterImpl(commonServices, modelDescriptors, null, null);
+        DefaultGetter defaultGetter = new DefaultGetterImpl(commonServices, modelDescriptors);
         DefaultSaver defaultSaver = new DefaultSaverImpl(commonServices);
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 
-        ModelRetriever modelRetriever = new ModelRetriever(getters, defaultGetter);
+        ModelRetriever modelRetriever = new ModelRetriever(getters, emptyList(), defaultGetter, null);
         ModelSaver modelSaver = new ModelSaver(savers, defaultSaver);
         Patcher patcher = new PatcherImpl(dtoConversionService,
                 objectMapper, new PublicEmptyFieldDestroyer(), new DefaultRequestDtoValidator(),

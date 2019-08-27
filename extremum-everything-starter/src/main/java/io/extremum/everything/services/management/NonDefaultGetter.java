@@ -2,7 +2,6 @@ package io.extremum.everything.services.management;
 
 import io.extremum.common.models.Model;
 import io.extremum.everything.services.GetterService;
-import reactor.core.publisher.Mono;
 
 /**
  * Uses GetterService to get an entity.
@@ -19,10 +18,5 @@ final class NonDefaultGetter implements Getter {
     @Override
     public Model get(String id) {
         return getterService.get(id);
-    }
-
-    @Override
-    public Mono<Model> reactiveGet(String id) {
-        return getterService.reactiveGet(id);
     }
 }

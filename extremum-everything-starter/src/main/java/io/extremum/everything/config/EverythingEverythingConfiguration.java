@@ -128,11 +128,16 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors,
-                                       ReactiveDescriptorService reactiveDescriptorService,
-                                       UniversalReactiveModelLoaders universalReactiveModelLoader) {
-        return new DefaultGetterImpl(commonServices, modelDescriptors, reactiveDescriptorService,
-                universalReactiveModelLoader);
+    public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
+        return new DefaultGetterImpl(commonServices, modelDescriptors);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultReactiveGetter defaultReactiveGetter(
+            ReactiveDescriptorService reactiveDescriptorService,
+            UniversalReactiveModelLoaders universalReactiveModelLoader) {
+        return new DefaultReactiveGetterImpl(reactiveDescriptorService, universalReactiveModelLoader);
     }
 
     @Bean
@@ -150,8 +155,10 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ModelRetriever modelRetriever(List<GetterService<?>> getterServices,
-                                         DefaultGetter defaultGetter) {
-        return new ModelRetriever(getterServices, defaultGetter);
+                                         List<ReactiveGetterService<?>> reactiveGetterServices,
+                                         DefaultGetter defaultGetter,
+                                         DefaultReactiveGetter defaultReactiveGetter) {
+        return new ModelRetriever(getterServices, reactiveGetterServices, defaultGetter, defaultReactiveGetter);
     }
 
     @Bean
