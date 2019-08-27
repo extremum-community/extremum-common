@@ -1,6 +1,6 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -15,7 +15,6 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -29,9 +28,8 @@ class CollectionDescriptorServiceImplTest {
     @Mock
     private DescriptorService descriptorService;
     @Mock
-    private CollectionDescriptorDao collectionDescriptorDao;
+    private DescriptorDao descriptorDao;
 
-//    private final CollectionDescriptor collectionDescriptor = new CollectionDescriptor("test");
     private final Descriptor collDescriptorInDb = Descriptor.forCollection(CollectionDescriptor.forOwned(
         new Descriptor("host-id"), "attribute"
     ));
@@ -76,14 +74,11 @@ class CollectionDescriptorServiceImplTest {
 
     @Test
     void whenRetrievingByCoordinates_thenRetrieveFromDaoShouldBeCalled() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        when(descriptorDao.retrieveByCollectionCoordinates("coords"))
+                .thenReturn(Optional.of(collDescriptorInDb));
 
-//        when(collectionDescriptorDao.retrieveByCoordinates("coords"))
-//                .thenReturn(Optional.of(collectionDescriptor));
-//
-//        Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
-//
-//        assertThat(result.isPresent(), is(true));
-//        assertThat(result.get(), is(collectionDescriptor));
+        Optional<Descriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
+
+        assertThat(result.orElse(null), is(collDescriptorInDb));
     }
 }

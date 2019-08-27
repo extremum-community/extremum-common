@@ -68,6 +68,13 @@ public class Descriptor implements Serializable {
         return this.externalId;
     }
 
+    public Type effectiveType() {
+        if (type == null) {
+            return Type.SINGLE;
+        }
+        return type;
+    }
+
     public String getInternalId() {
         if (this.internalId == null) {
             fillByExternalId();

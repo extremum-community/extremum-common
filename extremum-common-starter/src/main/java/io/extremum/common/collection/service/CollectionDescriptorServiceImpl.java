@@ -1,6 +1,6 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -12,11 +12,11 @@ import java.util.Optional;
  */
 public class CollectionDescriptorServiceImpl implements CollectionDescriptorService {
     private final DescriptorService descriptorService;
-    private final CollectionDescriptorDao collectionDescriptorDao;
+    private final DescriptorDao descriptorDao;
 
-    public CollectionDescriptorServiceImpl(DescriptorService descriptorService, CollectionDescriptorDao collectionDescriptorDao) {
+    public CollectionDescriptorServiceImpl(DescriptorService descriptorService, DescriptorDao descriptorDao) {
         this.descriptorService = descriptorService;
-        this.collectionDescriptorDao = collectionDescriptorDao;
+        this.descriptorDao = descriptorDao;
     }
 
     @Override
@@ -45,7 +45,6 @@ public class CollectionDescriptorServiceImpl implements CollectionDescriptorServ
 
     @Override
     public Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
-        throw new UnsupportedOperationException("Not implemented yet");
-//        return collectionDescriptorDao.retrieveByCoordinates(coordinatesString);
+        return descriptorDao.retrieveByCollectionCoordinates(coordinatesString);
     }
 }

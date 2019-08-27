@@ -1,6 +1,7 @@
 package io.extremum.common.descriptor.dao;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import sun.security.krb5.internal.crypto.Des;
 
 import java.util.Collection;
 import java.util.Map;
@@ -11,6 +12,8 @@ public interface DescriptorDao {
     Optional<Descriptor> retrieveByExternalId(String externalId);
 
     Optional<Descriptor> retrieveByInternalId(String internalId);
+
+    Optional<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates);
 
     Map<String, String> retrieveMapByExternalIds(Collection<String> externalIds);
 
