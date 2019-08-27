@@ -7,7 +7,6 @@ import io.extremum.common.collection.conversion.CollectionMakeupImpl;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -35,7 +34,6 @@ import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
-import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -46,7 +44,6 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
@@ -279,13 +276,6 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public ResponseCollectionsMakeupAdvice responseCollectionsMakeupAdvice(CollectionMakeup collectionMakeup) {
         return new ResponseCollectionsMakeupAdvice(collectionMakeup);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public Converter<String, CollectionDescriptor> stringToCollectionDescriptorConverter(
-            CollectionDescriptorService collectionDescriptorService) {
-        return new StringToCollectionDescriptorConverter(collectionDescriptorService);
     }
 
     @Bean
