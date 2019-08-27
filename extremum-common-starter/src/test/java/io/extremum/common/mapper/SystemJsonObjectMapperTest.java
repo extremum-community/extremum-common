@@ -5,7 +5,6 @@ import io.extremum.common.response.AlertLevelEnum;
 import io.extremum.common.response.Pagination;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
-import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -43,16 +42,6 @@ class SystemJsonObjectMapperTest {
     void whenDescriptorIsDeserializedFromAString_thenDescriptorObjectShouldBeTheResult() throws Exception {
         Descriptor result = mapper.readerFor(Descriptor.class).readValue("\"external-id\"");
         assertThat(result.getExternalId(), is("external-id"));
-    }
-
-    @Test
-    void whenCollectionDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
-        CollectionDescriptor descriptor = new CollectionDescriptor("external-id");
-
-        StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, descriptor);
-
-        assertThat(writer.toString(), is("\"external-id\""));
     }
 
     @Test

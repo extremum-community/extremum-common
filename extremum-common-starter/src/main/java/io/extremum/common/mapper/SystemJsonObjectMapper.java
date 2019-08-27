@@ -13,7 +13,6 @@ public class SystemJsonObjectMapper extends BasicJsonObjectMapper {
         this.dependencies = dependencies;
 
         registerModule(new DescriptorsModule(dependencies));
-        registerModule(new CollectionDescriptorsModule(dependencies));
     }
 
     @Override
