@@ -1,9 +1,6 @@
 package io.extremum.common.dto.converters.services;
 
-import io.extremum.common.dto.converters.DtoConverter;
-import io.extremum.common.dto.converters.FromRequestDtoConverter;
-import io.extremum.common.dto.converters.ToRequestDtoConverter;
-import io.extremum.common.dto.converters.ToResponseDtoConverter;
+import io.extremum.common.dto.converters.*;
 import io.extremum.common.models.Model;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.sharedmodels.dto.RequestDto;
@@ -23,6 +20,7 @@ public class DtoConvertersCollection implements DtoConverters {
     private final List<FromRequestDtoConverter<?, ?>> fromRequestConverters;
     private final List<ToRequestDtoConverter<?, ?>> toRequestConverters;
     private final List<ToResponseDtoConverter<?, ?>> toResponseConverters;
+    private final List<ReactiveToResponseDtoConverter<?, ?>> reactiveToResponseDtoConverters;
 
     @Override
     public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
@@ -43,6 +41,12 @@ public class DtoConvertersCollection implements DtoConverters {
             Class<? extends M> modelClass) {
         return findConverter(modelClass, toResponseConverters)
                 .map(converter -> (ToResponseDtoConverter<M, D>) converter);
+    }
+
+    @Override
+    public <M extends Model, D extends ResponseDto> Optional<ReactiveToResponseDtoConverter<M, D>> findReactiveToResponseDtoConverter(Class<? extends M> modelClass) {
+        return findConverter(modelClass, reactiveToResponseDtoConverters)
+                .map(converter -> (ReactiveToResponseDtoConverter<M, D>) converter);
     }
 
     private <T extends DtoConverter> Optional<T> findConverter(Class<? extends Model> modelClass, List<T> converters) {

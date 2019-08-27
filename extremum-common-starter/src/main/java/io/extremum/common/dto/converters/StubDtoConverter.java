@@ -4,14 +4,21 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.common.models.Model;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.ZonedDateTime;
 
 @Service
-public class StubDtoConverter implements ToResponseDtoConverter {
+public class StubDtoConverter implements ToResponseDtoConverter<Model, ResponseDto>,
+        ReactiveToResponseDtoConverter<Model, ResponseDto> {
     @Override
     public ResponseDto convertToResponse(Model model, ConversionConfig config) {
         return new StubResponseDto();
+    }
+
+    @Override
+    public Mono<ResponseDto> convertToResponseReactively(Model model, ConversionConfig config) {
+        return Mono.just(new StubResponseDto());
     }
 
     @Override
