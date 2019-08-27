@@ -1,16 +1,16 @@
 package io.extremum.common.collection.conversion;
 
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.sharedmodels.fundamental.CollectionReference;
-import io.extremum.common.collection.OwnedCoordinates;
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.dto.AbstractResponseDto;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.TestApplicationUrls;
 import io.extremum.sharedmodels.basic.IdOrObject;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
-import org.hamcrest.MatcherAssert;
+import io.extremum.sharedmodels.fundamental.CollectionReference;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,16 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -42,13 +39,21 @@ class CollectionMakeupImplTest {
     private CollectionMakeupImpl collectionMakeup;
 
     @Spy
-    private CollectionDescriptorService collectionDescriptorService = new InMemoryCollectionDescriptorService();
+    private InMemoryDescriptorService descriptorService = new InMemoryDescriptorService();
+    @Spy
+    private CollectionDescriptorService collectionDescriptorService = new InMemoryCollectionDescriptorService(
+            descriptorService);
     @Spy
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
 
     private StreetResponseDto streetDto;
-    private final CollectionDescriptor descriptorInDB = CollectionDescriptor.forOwned(
-            new Descriptor("the-street"), "the-buildings");
+    private final Descriptor descriptorInDB = Descriptor.forCollection(
+            CollectionDescriptor.forOwned(
+                    new Descriptor("the-street"), "the-buildings")
+    );
+    {
+        descriptorInDB.setExternalId(UUID.randomUUID().toString());
+    }
     private OuterResponseDto outerDto;
     private OuterResponseDtoWithObjectTyping outerResponseDtoWithObjectTyping;
 
@@ -71,19 +76,23 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         String collectionId = streetDto.buildings.getId();
-        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptor(collectionId);
+        CollectionDescriptor descriptor = retrieveNonNullSavedCollectionDescriptor(collectionId);
 
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
     }
 
     @NotNull
-    private CollectionDescriptor retrieveNonNullCollectionDescriptor(String collectionId) {
+    private CollectionDescriptor retrieveNonNullSavedCollectionDescriptor(String collectionId) {
         assertThat(collectionId, is(notNullValue()));
 
-        CollectionDescriptor descriptor = collectionDescriptorService.retrieveByExternalId(collectionId)
+        Descriptor descriptor = descriptorService.loadByExternalId(collectionId)
                 .orElse(null);
         assertThat(descriptor, is(notNullValue()));
-        return descriptor;
+        assertThat(descriptor.getType(), is(Descriptor.Type.COLLECTION));
+
+        CollectionDescriptor collectionDescriptor = descriptor.getCollection();
+        assertThat(collectionDescriptor, is(notNullValue()));
+        return collectionDescriptor;
     }
 
     private void assertThatStreetBuildingsCollectionGotMakeupApplied(CollectionDescriptor descriptor,
@@ -92,7 +101,7 @@ class CollectionMakeupImplTest {
         assertThat(descriptor.getCoordinates(), is(notNullValue()));
         OwnedCoordinates ownedCoordinates = descriptor.getCoordinates().getOwnedCoordinates();
         assertThat(ownedCoordinates, is(notNullValue()));
-        MatcherAssert.assertThat(ownedCoordinates.getHostId().getExternalId(), is("the-street"));
+        assertThat(ownedCoordinates.getHostId().getExternalId(), is("the-street"));
         assertThat(ownedCoordinates.getHostAttributeName(), is(expectedHostAttributeName));
     }
 
@@ -102,16 +111,16 @@ class CollectionMakeupImplTest {
 
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        MatcherAssert.assertThat(streetDto.buildings.getId(), is(descriptorInDB.getExternalId()));
+        assertThat(streetDto.buildings.getId(), is(descriptorInDB.getExternalId()));
 
-        verify(collectionDescriptorService, never()).store(any());
+        verify(descriptorService, never()).store(any());
     }
 
     @Test
     void whenApplyingCollectionMakeup_thenPrivateFieldsAreProcessedToo() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptor(streetDto.privateBuildings.getId());
+        CollectionDescriptor descriptor = retrieveNonNullSavedCollectionDescriptor(streetDto.privateBuildings.getId());
 
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-private-buildings");
     }
@@ -122,8 +131,8 @@ class CollectionMakeupImplTest {
 
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        MatcherAssert.assertThat(streetDto.buildings.getId(), is(nullValue()));
-        verify(collectionDescriptorService, never()).store(any());
+        assertThat(streetDto.buildings.getId(), is(nullValue()));
+        verify(descriptorService, never()).store(any());
     }
 
     @Test
@@ -137,7 +146,7 @@ class CollectionMakeupImplTest {
     void givenHostAttributeNameIsNotSpecified_whenApplyingCollectionMakeup_thenHostAttributeNameShouldBeDeducedFromFieldName() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptor(
+        CollectionDescriptor descriptor = retrieveNonNullSavedCollectionDescriptor(
                 streetDto.buildingsWithDefaultName.getId());
 
         assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "buildingsWithDefaultName");
@@ -148,16 +157,16 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         String collectionId = streetDto.buildings.getId();
-        MatcherAssert.assertThat(streetDto.buildings.getUrl(), is("https://example.com/collection/" + collectionId));
+        assertThat(streetDto.buildings.getUrl(), is("https://example.com/collection/" + collectionId));
     }
 
     @Test
     void givenACollectionIsAnnotatedOnAGetter_whenMakeupIsApplied_thenIdAndUrlShouldBeFilled() {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
-        MatcherAssert.assertThat(streetDto.getBuildingsAnnotatedViaGetter().getId(), is(notNullValue()));
+        assertThat(streetDto.getBuildingsAnnotatedViaGetter().getId(), is(notNullValue()));
         String collectionId = streetDto.getBuildingsAnnotatedViaGetter().getId();
-        MatcherAssert.assertThat(streetDto.getBuildingsAnnotatedViaGetter().getUrl(),
+        assertThat(streetDto.getBuildingsAnnotatedViaGetter().getUrl(),
                 is("https://example.com/collection/" + collectionId));
     }
 
@@ -166,10 +175,10 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(outerDto);
 
         String collectionDescriptorId = outerDto.innerDto.buildings.getId();
-        CollectionDescriptor collectionDescriptor = retrieveNonNullCollectionDescriptor(collectionDescriptorId);
+        CollectionDescriptor collectionDescriptor = retrieveNonNullSavedCollectionDescriptor(collectionDescriptorId);
 
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
-        MatcherAssert.assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
+        assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
 
@@ -180,10 +189,10 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(top);
 
         String collectionDescriptorId = outerDto.innerDto.buildings.getId();
-        CollectionDescriptor collectionDescriptor = retrieveNonNullCollectionDescriptor(collectionDescriptorId);
+        CollectionDescriptor collectionDescriptor = retrieveNonNullSavedCollectionDescriptor(collectionDescriptorId);
 
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
-        MatcherAssert.assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
+        assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
     
@@ -194,10 +203,10 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(outerResponseDtoWithObjectTyping);
 
         String collectionDescriptorId = innerDto.buildings.getId();
-        CollectionDescriptor collectionDescriptor = retrieveNonNullCollectionDescriptor(collectionDescriptorId);
+        CollectionDescriptor collectionDescriptor = retrieveNonNullSavedCollectionDescriptor(collectionDescriptorId);
 
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
-        MatcherAssert.assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
+        assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
 

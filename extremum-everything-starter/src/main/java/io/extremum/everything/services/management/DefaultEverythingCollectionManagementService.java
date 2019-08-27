@@ -1,9 +1,9 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.common.response.Pagination;
 import io.extremum.common.response.Response;

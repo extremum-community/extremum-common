@@ -1,7 +1,7 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.dao.ReactiveCollectionDescriptorDao;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

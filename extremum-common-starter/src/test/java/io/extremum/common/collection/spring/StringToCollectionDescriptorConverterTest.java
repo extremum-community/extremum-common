@@ -1,7 +1,7 @@
 package io.extremum.common.collection.spring;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-public class StringToCollectionDescriptorConverterTest {
+class StringToCollectionDescriptorConverterTest {
     @InjectMocks
     private StringToCollectionDescriptorConverter converter;
 
@@ -28,12 +28,13 @@ public class StringToCollectionDescriptorConverterTest {
     private CollectionDescriptorService collectionDescriptorService;
 
     @Test
-    public void testConversion() {
-        when(collectionDescriptorService.retrieveByExternalId("external-id"))
-                .thenReturn(Optional.of(new CollectionDescriptor("external-id")));
-
-        CollectionDescriptor descriptor = converter.convert("external-id");
-        assertThat(descriptor, is(notNullValue()));
-        assertThat(descriptor.getExternalId(), is(equalTo("external-id")));
+    void testConversion() {
+        throw new UnsupportedOperationException("Not implemented yet");
+//        when(collectionDescriptorService.retrieveByExternalId("external-id"))
+//                .thenReturn(Optional.of(new CollectionDescriptor("external-id")));
+//
+//        CollectionDescriptor descriptor = converter.convert("external-id");
+//        assertThat(descriptor, is(notNullValue()));
+//        assertThat(descriptor.getExternalId(), is(equalTo("external-id")));
     }
 }

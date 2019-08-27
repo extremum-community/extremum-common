@@ -1,7 +1,7 @@
 package io.extremum.common.collection.dao.impl;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 

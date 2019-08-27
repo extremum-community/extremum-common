@@ -1,6 +1,6 @@
 package io.extremum.common.collection.dao.impl;
 
-import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

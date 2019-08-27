@@ -1,6 +1,6 @@
 package io.extremum.common.collection.dao;
 
-import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 
 import java.util.Optional;
 

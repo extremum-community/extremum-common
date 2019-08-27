@@ -1,6 +1,6 @@
 package io.extremum.common.collection.spring;
 
-import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 
@@ -14,7 +14,6 @@ public class CollectionDescriptorLifecycleListener extends AbstractMongoEventLis
 
         CollectionDescriptor collectionDescriptor = event.getSource();
 
-        collectionDescriptor.generateExternalIdIfNeeded();
         collectionDescriptor.refreshCoordinatesString();
     }
 }

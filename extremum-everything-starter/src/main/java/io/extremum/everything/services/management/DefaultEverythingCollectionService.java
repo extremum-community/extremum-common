@@ -1,8 +1,5 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.collection.CollectionCoordinates;
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.common.collection.OwnedCoordinates;
 import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.BasicModel;
@@ -18,6 +15,9 @@ import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import io.extremum.everything.services.collection.StreamByOwnedCoordinates;
+import io.extremum.sharedmodels.descriptor.CollectionCoordinates;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -40,7 +40,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
 
     @Override
     public CollectionFragment<ResponseDto> fetchCollection(CollectionDescriptor id,
-            Projection projection, boolean expand) {
+                                                           Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         CollectionFragment<Model> fragment = coordinatesHandler.fetchCollection(id.getCoordinates(), projection);
         return fragment.map(model -> convertModelToResponseDto(model, expand));

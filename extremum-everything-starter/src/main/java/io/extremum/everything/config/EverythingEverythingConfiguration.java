@@ -2,7 +2,6 @@ package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
@@ -36,6 +35,7 @@ import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.starter.CommonConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -269,9 +269,10 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
+    public CollectionMakeup collectionMakeup(DescriptorService descriptorService,
+                                             CollectionDescriptorService collectionDescriptorService,
                                              ApplicationUrls applicationUrls) {
-        return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls);
+        return new CollectionMakeupImpl(descriptorService, collectionDescriptorService, applicationUrls);
     }
 
     @Bean

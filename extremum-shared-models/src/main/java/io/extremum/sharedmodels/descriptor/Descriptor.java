@@ -20,12 +20,19 @@ public class Descriptor implements Serializable {
 
     @JsonProperty("externalId")
     private String externalId;
+
+    @JsonProperty("type")
+    private Type type;
+
     @JsonProperty("internalId")
     private String internalId;
     @JsonProperty("modelType")
     private String modelType;
     @JsonProperty("storageType")
     private StorageType storageType;
+
+    @JsonProperty("collection")
+    private CollectionDescriptor collection;
 
     @JsonProperty("created")
     private ZonedDateTime created;
@@ -45,6 +52,13 @@ public class Descriptor implements Serializable {
 
     public Descriptor(String externalId) {
         this.externalId = externalId;
+    }
+
+    public static Descriptor forCollection(CollectionDescriptor collectionDescriptor) {
+        Descriptor descriptor = new Descriptor();
+        descriptor.type = Type.COLLECTION;
+        descriptor.collection = collectionDescriptor;
+        return descriptor;
     }
 
     public String getExternalId() {
@@ -91,6 +105,7 @@ public class Descriptor implements Serializable {
 
     @UsesStaticDependencies
     private void fillByInternalId() {
+        //noinspection deprecation
         StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByInternalId(internalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.externalId != null)
@@ -102,6 +117,7 @@ public class Descriptor implements Serializable {
 
     @UsesStaticDependencies
     private void fillByExternalId() {
+        //noinspection deprecation
         StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByExternalId(this.externalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.internalId != null)
@@ -150,6 +166,37 @@ public class Descriptor implements Serializable {
         return this.getExternalId();
     }
 
+
+    public enum Type {
+        SINGLE("single"),
+        COLLECTION("collection");
+
+        private final String value;
+
+        Type(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String getValue() {
+            return value;
+        }
+
+        @JsonCreator
+        public static Type fromString(String value) {
+            if (value == null) {
+                return SINGLE;
+            }
+
+            for (Type type : Type.values()) {
+                if (type.getValue().equalsIgnoreCase(value)) {
+                    return type;
+                }
+            }
+
+            throw new IllegalArgumentException(String.format("'%s' is not a known descriptor type", value));
+        }
+    }
 
     public enum StorageType {
         MONGO("mongo"),

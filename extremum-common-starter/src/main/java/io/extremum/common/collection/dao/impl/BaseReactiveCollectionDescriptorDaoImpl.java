@@ -1,6 +1,6 @@
 package io.extremum.common.collection.dao.impl;
 
-import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonReactiveClient;
 import org.redisson.client.codec.Codec;

@@ -1,6 +1,7 @@
 package io.extremum.common.collection.conversion;
 
-import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.fundamental.CollectionReference;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -18,7 +19,8 @@ import java.util.Optional;
 @Service
 public class CollectionMakeupImpl implements CollectionMakeup {
     private static final String COLLECTION_URI_FORMAT = "/collection/%s";
-    
+
+    private final DescriptorService descriptorService;
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
     private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
@@ -29,8 +31,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return object != null && (!(object instanceof Descriptor));
     }
 
-    public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
-            ApplicationUrls applicationUrls) {
+    public CollectionMakeupImpl(DescriptorService descriptorService,
+                                CollectionDescriptorService collectionDescriptorService,
+                                ApplicationUrls applicationUrls) {
+        this.descriptorService = descriptorService;
         this.collectionDescriptorService = collectionDescriptorService;
         this.applicationUrls = applicationUrls;
     }
@@ -68,7 +72,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) attribute.value();
 
-        CollectionDescriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
+        Descriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
         reference.setId(collectionDescriptorToUse.getExternalId());
 
         String collectionUri = String.format(COLLECTION_URI_FORMAT, reference.getId());
@@ -76,19 +80,21 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         reference.setUrl(externalUrl);
     }
 
-    private CollectionDescriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostAttributeName(attribute));
-        Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
-                newDescriptor.toCoordinatesString());
+    private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
+        CollectionDescriptor newCollectionDescriptor = CollectionDescriptor.forOwned(
+                dto.getId(), getHostAttributeName(attribute));
+        Descriptor newDescriptor = Descriptor.forCollection(newCollectionDescriptor);
+        Optional<Descriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
+                newCollectionDescriptor.toCoordinatesString());
 
-        CollectionDescriptor collectionDescriptorToUse;
+        Descriptor descriptorToUse;
         if (existingDescriptor.isPresent()) {
-            collectionDescriptorToUse = existingDescriptor.get();
+            descriptorToUse = existingDescriptor.get();
         } else {
-            collectionDescriptorService.store(newDescriptor);
-            collectionDescriptorToUse = newDescriptor;
+            descriptorService.store(newDescriptor);
+            descriptorToUse = newDescriptor;
         }
-        return collectionDescriptorToUse;
+        return descriptorToUse;
     }
 
     private String getHostAttributeName(Attribute attribute) {

@@ -1,7 +1,7 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-public class CollectionDescriptorServiceImplTest {
+class CollectionDescriptorServiceImplTest {
     @InjectMocks
     private CollectionDescriptorServiceImpl collectionDescriptorService;
 
@@ -29,31 +29,15 @@ public class CollectionDescriptorServiceImplTest {
     private final CollectionDescriptor collectionDescriptor = new CollectionDescriptor("test");
 
     @Test
-    public void whenRetrievingByExternalId_thenRetrieveFromDaoShouldBeCalled() {
-        when(collectionDescriptorDao.retrieveByExternalId("externalId"))
-                .thenReturn(Optional.of(collectionDescriptor));
+    void whenRetrievingByCoordinates_thenRetrieveFromDaoShouldBeCalled() {
+        throw new UnsupportedOperationException("Not implemented yet");
 
-        Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByExternalId("externalId");
-        
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(collectionDescriptor));
-    }
-
-    @Test
-    public void whenRetrievingByCoordinates_thenRetrieveFromDaoShouldBeCalled() {
-        when(collectionDescriptorDao.retrieveByCoordinates("coords"))
-                .thenReturn(Optional.of(collectionDescriptor));
-
-        Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(collectionDescriptor));
-    }
-
-    @Test
-    public void whenStoring_thenStoreInDaoShouldBeCalled() {
-        collectionDescriptorService.store(collectionDescriptor);
-
-        verify(collectionDescriptorDao).store(collectionDescriptor);
+//        when(collectionDescriptorDao.retrieveByCoordinates("coords"))
+//                .thenReturn(Optional.of(collectionDescriptor));
+//
+//        Optional<CollectionDescriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
+//
+//        assertThat(result.isPresent(), is(true));
+//        assertThat(result.get(), is(collectionDescriptor));
     }
 }

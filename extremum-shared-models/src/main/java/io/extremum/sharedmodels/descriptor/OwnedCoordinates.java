@@ -1,6 +1,5 @@
-package io.extremum.common.collection;
+package io.extremum.sharedmodels.descriptor;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.*;
 
 import java.io.Serializable;

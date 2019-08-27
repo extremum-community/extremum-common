@@ -1,7 +1,6 @@
 package io.extremum.everything.services.management;
 
 import com.google.common.collect.ImmutableList;
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.MongoCommonModel;
@@ -18,6 +17,7 @@ import io.extremum.everything.services.CollectionFetcher;
 import io.extremum.everything.services.CollectionStreamer;
 import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.ReactiveGetterService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;

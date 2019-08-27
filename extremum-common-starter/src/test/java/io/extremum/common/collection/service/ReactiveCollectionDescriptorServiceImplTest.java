@@ -1,7 +1,7 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.dao.ReactiveCollectionDescriptorDao;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

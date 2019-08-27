@@ -1,7 +1,7 @@
 package io.extremum.common.collection.dao.impl;
 
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.descriptor.dao.impl.CarefulMapLoader;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.map.MapLoader;

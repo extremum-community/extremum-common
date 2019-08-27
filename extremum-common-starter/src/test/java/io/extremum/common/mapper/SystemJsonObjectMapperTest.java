@@ -1,27 +1,21 @@
 package io.extremum.common.mapper;
 
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import io.extremum.common.response.Alert;
 import io.extremum.common.response.AlertLevelEnum;
 import io.extremum.common.response.Pagination;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.when;
 
 /**
  * @author rpuch
@@ -59,30 +53,6 @@ class SystemJsonObjectMapperTest {
         mapper.writeValue(writer, descriptor);
 
         assertThat(writer.toString(), is("\"external-id\""));
-    }
-
-    @Test
-    void givenCollectionDescriptorExists_whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
-            throws Exception {
-        when(mapperDependencies.collectionDescriptorService().retrieveByExternalId("external-id"))
-                .thenReturn(Optional.of(new CollectionDescriptor("external-id")));
-
-        CollectionDescriptor result = mapper.readerFor(CollectionDescriptor.class).readValue("\"external-id\"");
-        assertThat(result.getExternalId(), is("external-id"));
-    }
-
-    @Test
-    void whenCollectionDescriptorIsDeserializedFromAString_thenCollectionDescriptorObjectShouldBeTheResult()
-            throws Exception {
-        when(mapperDependencies.collectionDescriptorService().retrieveByExternalId("external-id"))
-                .thenReturn(Optional.empty());
-
-        try {
-            mapper.readerFor(CollectionDescriptor.class).readValue("\"external-id\"");
-            fail("An exception should be thrown");
-        } catch (CollectionDescriptorNotFoundException e) {
-            assertThat(e.getMessage(), is("No collection descriptor was found by external ID 'external-id'"));
-        }
     }
 
     @Test

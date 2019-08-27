@@ -1,14 +1,14 @@
 package descriptor;
 
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.common.collection.OwnedCoordinates;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
 import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.test.TestWithServices;
 import common.dao.mongo.MongoCommonDaoConfiguration;
+import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -60,13 +60,14 @@ class MongoCollectionDescriptorDaoTest extends TestWithServices {
 
     @NotNull
     private CollectionDescriptor createACollectionDescriptor(String hostExternalId) {
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(
-                new Descriptor(hostExternalId), "items");
-
-        collectionDescriptorService.store(collectionDescriptor);
-
-        assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
-        return collectionDescriptor;
+        throw new UnsupportedOperationException("Remove this");
+//        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(
+//                new Descriptor(hostExternalId), "items");
+//
+//        collectionDescriptorService.store(collectionDescriptor);
+//
+//        assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
+//        return collectionDescriptor;
     }
 
     private String createADescriptor() {

@@ -1,13 +1,13 @@
 package descriptor;
 
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.common.collection.OwnedCoordinates;
 import io.extremum.common.collection.dao.CollectionDescriptorDao;
 import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
 import io.extremum.starter.CollectionDescriptorDaoFactory;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.RedisProperties;
@@ -86,13 +86,14 @@ class CollectionDescriptorRedisSerializationTest extends TestWithServices {
 
     @NotNull
     private CollectionDescriptor createACollectionDescriptor(String hostExternalId) {
-        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(
-                new Descriptor(hostExternalId), "items");
-
-        collectionDescriptorService.store(collectionDescriptor);
-
-        assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
-        return collectionDescriptor;
+        throw new UnsupportedOperationException("Not implemented yet");
+//        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(
+//                new Descriptor(hostExternalId), "items");
+//
+//        collectionDescriptorService.store(collectionDescriptor);
+//
+//        assertThat(collectionDescriptor.getExternalId(), is(notNullValue()));
+//        return collectionDescriptor;
     }
 
     private String createADescriptor() {
