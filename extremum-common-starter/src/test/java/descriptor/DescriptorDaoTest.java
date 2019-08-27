@@ -5,11 +5,13 @@ import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.Media;
 import io.extremum.sharedmodels.content.MediaType;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.DescriptorDaoFactory;
 import io.extremum.starter.properties.DescriptorsProperties;
@@ -88,6 +90,21 @@ class DescriptorDaoTest extends TestWithServices {
         assertNotNull(externalId);
 
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(objectId.toString());
+        assertTrue(retrievedDescriptor.isPresent());
+        assertEquals(descriptor, retrievedDescriptor.get());
+    }
+
+    @Test
+    void testRetrieveByCollectionCoordinates() {
+        ObjectId hostId = new ObjectId();
+        Descriptor hostDescriptor = mongoDescriptorFacilities.create(hostId, "test_model");
+
+        Descriptor descriptor = Descriptor.forCollection(CollectionDescriptor.forOwned(hostDescriptor, "attr"));
+        descriptor.setExternalId(new StandardUUIDGenerator().generateUUID());
+        descriptorDao.store(descriptor);
+
+        Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByCollectionCoordinates(
+                descriptor.getCollection().toCoordinatesString());
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
     }

@@ -69,14 +69,7 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
         if (optionalDesc.isPresent()) {
             try {
-                descriptors.put(descriptor.getExternalId(), descriptor);
-                if (descriptor.effectiveType() == Descriptor.Type.SINGLE) {
-                    internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
-                }
-                if (descriptor.effectiveType() == Descriptor.Type.COLLECTION) {
-                    collectionCoordinatesToExternalIds.put(
-                            descriptor.getCollection().toCoordinatesString(), descriptor.getExternalId());
-                }
+                putToMaps(descriptor);
             } catch (RuntimeException e) {
                 Descriptor oldDescriptor = optionalDesc.get();
                 for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
@@ -91,9 +84,19 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 }
             }
         } else {
-            descriptors.put(descriptor.getExternalId(), descriptor);
-            internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
+            putToMaps(descriptor);
         }
         return descriptor;
+    }
+
+    private void putToMaps(Descriptor descriptor) {
+        descriptors.put(descriptor.getExternalId(), descriptor);
+        if (descriptor.effectiveType() == Descriptor.Type.SINGLE) {
+            internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
+        }
+        if (descriptor.effectiveType() == Descriptor.Type.COLLECTION) {
+            collectionCoordinatesToExternalIds.put(
+                    descriptor.getCollection().toCoordinatesString(), descriptor.getExternalId());
+        }
     }
 }
