@@ -14,7 +14,7 @@ public class DescriptorLifecycleListener extends AbstractMongoEventListener<Desc
 
         Descriptor descriptor = event.getSource();
 
-        if (descriptor.getType() == Descriptor.Type.COLLECTION && descriptor.getCollection() != null) {
+        if (descriptor.isCollection() && descriptor.getCollection() != null) {
             descriptor.getCollection().refreshCoordinatesString();
         }
     }

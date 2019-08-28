@@ -1,5 +1,6 @@
 package io.extremum.sharedmodels.descriptor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import io.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -173,6 +174,15 @@ public class Descriptor implements Serializable {
         return this.getExternalId();
     }
 
+    @JsonIgnore
+    public boolean isSingle() {
+        return effectiveType() == Type.SINGLE;
+    }
+
+    @JsonIgnore
+    public boolean isCollection() {
+        return effectiveType() == Type.COLLECTION;
+    }
 
     public enum Type {
         SINGLE("single"),

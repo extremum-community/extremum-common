@@ -25,7 +25,7 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
     @Override
     public Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
         return descriptorService.descriptors()
-                .filter(descriptor -> descriptor.getType() == Descriptor.Type.COLLECTION)
+                .filter(descriptor -> descriptor.effectiveType() == Descriptor.Type.COLLECTION)
                 .filter(descriptor -> descriptor.getCollection().toCoordinatesString().equals(coordinatesString))
                 .findAny();
     }

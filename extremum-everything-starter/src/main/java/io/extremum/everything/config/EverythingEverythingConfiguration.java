@@ -71,16 +71,27 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(RequestDtoValidator.class)
-    public DefaultRequestDtoValidator requestDtoValidator() {
+    public RequestDtoValidator requestDtoValidator() {
         return new DefaultRequestDtoValidator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EverythingMultiplexer everythingMultiplexer(
+            EverythingEverythingManagementService everythingManagementService,
+            EverythingCollectionManagementService everythingCollectionManagementService) {
+        return new EverythingMultiplexerImpl(everythingManagementService,
+                everythingCollectionManagementService);
     }
 
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingRestController.class)
     public DefaultEverythingEverythingRestController everythingEverythingRestController(
-            EverythingEverythingManagementService service,
-            EverythingCollectionManagementService everythingCollectionManagementService) {
-        return new DefaultEverythingEverythingRestController(service, everythingCollectionManagementService);
+            EverythingEverythingManagementService everythingManagementService,
+            EverythingCollectionManagementService everythingCollectionManagementService,
+            EverythingMultiplexer multiplexer) {
+        return new DefaultEverythingEverythingRestController(everythingManagementService,
+                everythingCollectionManagementService, multiplexer);
     }
 
     @Bean

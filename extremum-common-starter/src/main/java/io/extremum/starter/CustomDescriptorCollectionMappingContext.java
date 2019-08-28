@@ -5,10 +5,7 @@ import io.extremum.sharedmodels.descriptor.CollectionCoordinates;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
 import org.springframework.data.mapping.model.FieldNamingStrategy;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
@@ -157,6 +154,9 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
         private boolean deleted;
 
         private Display display;
+
+        @Transient
+        private boolean single;
     }
 
     private static class CollectionDescriptorMirror {

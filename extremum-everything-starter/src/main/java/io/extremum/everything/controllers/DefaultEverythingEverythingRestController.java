@@ -8,6 +8,7 @@ import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.everything.services.management.EverythingEverythingManagementService;
+import io.extremum.everything.services.management.EverythingMultiplexer;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -27,18 +28,14 @@ import reactor.core.publisher.Mono;
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
+    private final EverythingMultiplexer multiplexer;
 
     private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
 
     @GetMapping
     public Response get(@PathVariable Descriptor id, Projection projection,
                         @RequestParam(defaultValue = "false") boolean expand) {
-        if (id.effectiveType() == Descriptor.Type.SINGLE) {
-            Object result = evrEvrManagementService.get(id, expand);
-            return Response.ok(result);
-        } else {
-            return fetchCollection(id, projection, expand);
-        }
+        return multiplexer.get(id, projection, expand);
     }
 
     @PatchMapping
@@ -52,10 +49,6 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
     public Response remove(@PathVariable Descriptor id) {
         evrEvrManagementService.remove(id);
         return Response.ok();
-    }
-
-    private Response fetchCollection(Descriptor id, Projection projection, boolean expand) {
-        return collectionManagementService.fetchCollection(id, projection, expand);
     }
 
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)

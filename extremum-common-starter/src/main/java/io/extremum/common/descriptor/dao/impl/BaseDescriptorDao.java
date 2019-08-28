@@ -91,10 +91,10 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     private void putToMaps(Descriptor descriptor) {
         descriptors.put(descriptor.getExternalId(), descriptor);
-        if (descriptor.effectiveType() == Descriptor.Type.SINGLE) {
+        if (descriptor.isSingle()) {
             internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
         }
-        if (descriptor.effectiveType() == Descriptor.Type.COLLECTION) {
+        if (descriptor.isCollection()) {
             collectionCoordinatesToExternalIds.put(
                     descriptor.getCollection().toCoordinatesString(), descriptor.getExternalId());
         }
