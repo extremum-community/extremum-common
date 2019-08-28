@@ -164,9 +164,8 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public MapperDependencies mapperDependencies(DescriptorFactory descriptorFactory,
-                                                 CollectionDescriptorService collectionDescriptorService) {
-        return new MapperDependenciesImpl(descriptorFactory, collectionDescriptorService);
+    public MapperDependencies mapperDependencies(DescriptorFactory descriptorFactory) {
+        return new MapperDependenciesImpl(descriptorFactory);
     }
 
     @Bean
