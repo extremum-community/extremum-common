@@ -7,6 +7,7 @@ import io.extremum.common.collection.conversion.CollectionMakeupImpl;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -266,10 +267,10 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionMakeup collectionMakeup(DescriptorService descriptorService,
+    public CollectionMakeup collectionMakeup(DescriptorSaver descriptorSaver,
                                              CollectionDescriptorService collectionDescriptorService,
                                              ApplicationUrls applicationUrls) {
-        return new CollectionMakeupImpl(descriptorService, collectionDescriptorService, applicationUrls);
+        return new CollectionMakeupImpl(descriptorSaver, collectionDescriptorService, applicationUrls);
     }
 
     @Bean

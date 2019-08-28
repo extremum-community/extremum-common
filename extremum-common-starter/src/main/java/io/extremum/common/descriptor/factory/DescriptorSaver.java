@@ -1,7 +1,8 @@
 package io.extremum.common.descriptor.factory;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -15,6 +16,13 @@ public class DescriptorSaver {
                 .modelType(modelType)
                 .storageType(storageType)
                 .build();
+
+        return descriptorService.store(descriptor);
+    }
+
+    public Descriptor createAndSave(CollectionDescriptor collectionDescriptor) {
+        Descriptor descriptor = Descriptor.forCollection(collectionDescriptor);
+        descriptor.setExternalId(descriptorService.createExternalId());
 
         return descriptorService.store(descriptor);
     }

@@ -1,6 +1,7 @@
 package io.extremum.common.collection.conversion;
 
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.dto.AbstractResponseDto;
 import io.extremum.common.urls.ApplicationUrls;
@@ -40,6 +41,8 @@ class CollectionMakeupImplTest {
 
     @Spy
     private InMemoryDescriptorService descriptorService = new InMemoryDescriptorService();
+    @Spy
+    private DescriptorSaver descriptorSaver = new DescriptorSaver(descriptorService);
     @Spy
     private CollectionDescriptorService collectionDescriptorService = new InMemoryCollectionDescriptorService(
             descriptorService);
@@ -88,6 +91,7 @@ class CollectionMakeupImplTest {
         Descriptor descriptor = descriptorService.loadByExternalId(collectionId)
                 .orElse(null);
         assertThat(descriptor, is(notNullValue()));
+        assertThat(descriptor.getExternalId(), is(notNullValue()));
         assertThat(descriptor.getType(), is(Descriptor.Type.COLLECTION));
 
         CollectionDescriptor collectionDescriptor = descriptor.getCollection();

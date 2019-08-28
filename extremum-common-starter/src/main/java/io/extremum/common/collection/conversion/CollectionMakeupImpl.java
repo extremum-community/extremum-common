@@ -1,17 +1,15 @@
 package io.extremum.common.collection.conversion;
 
-import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
-import io.extremum.sharedmodels.fundamental.CollectionReference;
 import io.extremum.common.collection.service.CollectionDescriptorService;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.dto.ResponseDto;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.utils.attribute.*;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.ResponseDto;
+import io.extremum.sharedmodels.fundamental.CollectionReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 /**
  * @author rpuch
@@ -20,7 +18,7 @@ import java.util.Optional;
 public class CollectionMakeupImpl implements CollectionMakeup {
     private static final String COLLECTION_URI_FORMAT = "/collection/%s";
 
-    private final DescriptorService descriptorService;
+    private final DescriptorSaver descriptorSaver;
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
     private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
@@ -31,10 +29,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return object != null && (!(object instanceof Descriptor));
     }
 
-    public CollectionMakeupImpl(DescriptorService descriptorService,
+    public CollectionMakeupImpl(DescriptorSaver descriptorSaver,
                                 CollectionDescriptorService collectionDescriptorService,
                                 ApplicationUrls applicationUrls) {
-        this.descriptorService = descriptorService;
+        this.descriptorSaver = descriptorSaver;
         this.collectionDescriptorService = collectionDescriptorService;
         this.applicationUrls = applicationUrls;
     }
@@ -83,18 +81,9 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
         CollectionDescriptor newCollectionDescriptor = CollectionDescriptor.forOwned(
                 dto.getId(), getHostAttributeName(attribute));
-        Descriptor newDescriptor = Descriptor.forCollection(newCollectionDescriptor);
-        Optional<Descriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
-                newCollectionDescriptor.toCoordinatesString());
 
-        Descriptor descriptorToUse;
-        if (existingDescriptor.isPresent()) {
-            descriptorToUse = existingDescriptor.get();
-        } else {
-            descriptorService.store(newDescriptor);
-            descriptorToUse = newDescriptor;
-        }
-        return descriptorToUse;
+        return collectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
+                .orElseGet(() -> descriptorSaver.createAndSave(newCollectionDescriptor));
     }
 
     private String getHostAttributeName(Attribute attribute) {
