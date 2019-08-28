@@ -1,8 +1,6 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.common.collection.dao.ReactiveCollectionDescriptorDao;
-import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
@@ -148,15 +146,6 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public ReactiveDescriptorService reactiveDescriptorService(ReactiveDescriptorDao reactiveDescriptorDao) {
         return new ReactiveDescriptorServiceImpl(reactiveDescriptorDao);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao(
-            RedissonReactiveClient redissonReactiveClient,
-            CollectionDescriptorRepository collectionDescriptorRepository) {
-        return CollectionDescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
-                redissonReactiveClient, collectionDescriptorRepository);
     }
 
     @Bean
