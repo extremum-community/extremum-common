@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CollectionMakeupImpl implements CollectionMakeup {
-    private static final String COLLECTION_URI_FORMAT = "/collection/%s";
+    private static final String COLLECTION_URI_FORMAT = "/%s";
 
     private final DescriptorSaver descriptorSaver;
     private final CollectionDescriptorService collectionDescriptorService;

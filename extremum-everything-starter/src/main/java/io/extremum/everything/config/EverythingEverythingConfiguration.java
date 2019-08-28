@@ -22,7 +22,9 @@ import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import io.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import io.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import io.extremum.everything.config.properties.DestroyerProperties;
-import io.extremum.everything.controllers.*;
+import io.extremum.everything.controllers.DefaultEverythingEverythingRestController;
+import io.extremum.everything.controllers.EverythingEverythingRestController;
+import io.extremum.everything.controllers.PingController;
 import io.extremum.everything.dao.SpringDataUniversalDao;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -76,15 +78,9 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingRestController.class)
     public DefaultEverythingEverythingRestController everythingEverythingRestController(
-            EverythingEverythingManagementService service) {
-        return new DefaultEverythingEverythingRestController(service);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(EverythingEverythingCollectionRestController.class)
-    public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
-            EverythingCollectionManagementService collectionManagementService) {
-        return new DefaultEverythingEverythingCollectionRestController(collectionManagementService);
+            EverythingEverythingManagementService service,
+            EverythingCollectionManagementService everythingCollectionManagementService) {
+        return new DefaultEverythingEverythingRestController(service, everythingCollectionManagementService);
     }
 
     @Bean
@@ -282,11 +278,10 @@ public class EverythingEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
-            CollectionDescriptorService collectionDescriptorService,
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService
     ) {
-        return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
+        return new DefaultEverythingCollectionManagementService(
                 reactiveCollectionDescriptorService, everythingCollectionService);
     }
 }

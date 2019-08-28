@@ -161,7 +161,7 @@ class CollectionMakeupImplTest {
         collectionMakeup.applyCollectionMakeup(streetDto);
 
         String collectionId = streetDto.buildings.getId();
-        assertThat(streetDto.buildings.getUrl(), is("https://example.com/collection/" + collectionId));
+        assertThat(streetDto.buildings.getUrl(), is("https://example.com/" + collectionId));
     }
 
     @Test
@@ -171,7 +171,7 @@ class CollectionMakeupImplTest {
         assertThat(streetDto.getBuildingsAnnotatedViaGetter().getId(), is(notNullValue()));
         String collectionId = streetDto.getBuildingsAnnotatedViaGetter().getId();
         assertThat(streetDto.getBuildingsAnnotatedViaGetter().getUrl(),
-                is("https://example.com/collection/" + collectionId));
+                is("https://example.com/" + collectionId));
     }
 
     @Test

@@ -1,14 +1,13 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
-import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
-import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.common.response.Pagination;
 import io.extremum.common.response.Response;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
@@ -19,15 +18,16 @@ import static io.extremum.common.response.Response.ok;
  */
 @RequiredArgsConstructor
 public class DefaultEverythingCollectionManagementService implements EverythingCollectionManagementService {
-    private final CollectionDescriptorService collectionDescriptorService;
     private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
     private final EverythingCollectionService everythingCollectionService;
 
     @Override
-    public Response fetchCollection(String collectionId, Projection projection, boolean expand) {
-        CollectionDescriptor collectionDescriptor = collectionDescriptorService.retrieveByExternalId(collectionId)
-                .orElseThrow(() -> new CollectionDescriptorNotFoundException(
-                        String.format("Did not find a collection descriptor by externalId '%s'", collectionId)));
+    public Response fetchCollection(Descriptor descriptor, Projection projection, boolean expand) {
+        CollectionDescriptor collectionDescriptor = descriptor.getCollection();
+        if (collectionDescriptor == null) {
+            throw new IllegalStateException(
+                    String.format("For '%s' no collection was in the descriptor", descriptor.getExternalId()));
+        }
 
         CollectionFragment<ResponseDto> fragment = everythingCollectionService.fetchCollection(
                 collectionDescriptor, projection, expand);
