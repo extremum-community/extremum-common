@@ -7,6 +7,7 @@ import com.mongodb.client.model.Filters;
 import config.DescriptorConfiguration;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -79,11 +80,16 @@ class DescriptorMongoStorageTest extends TestWithServices {
 
     @Test
     void makeSureAnIndexIsCreatedForDescriptorInternalId() {
-        ArrayList<Document> indices = mongoOperations.getCollection(EXPECTED_DESCRIPTOR_COLLECTION)
-                .listIndexes()
-                .into(new ArrayList<>());
+        List<Document> indices = getIndicesOnDescriptorsCollection();
 
         assertThat(indices, hasItem(havingName("internalId")));
+    }
+
+    @NotNull
+    private List<Document> getIndicesOnDescriptorsCollection() {
+        return mongoOperations.getCollection(EXPECTED_DESCRIPTOR_COLLECTION)
+                .listIndexes()
+                .into(new ArrayList<>());
     }
 
     @Test
@@ -93,5 +99,12 @@ class DescriptorMongoStorageTest extends TestWithServices {
         Document document = findDescriptorDocument(descriptor);
 
         assertThat(document.get("storageType"), is("mongo"));
+    }
+
+    @Test
+    void makeSureAnIndexIsCreatedForDescriptorCollectionCoordinates() {
+        List<Document> indices = getIndicesOnDescriptorsCollection();
+
+        assertThat(indices, hasItem(havingName("collection.coordinatesString")));
     }
 }
