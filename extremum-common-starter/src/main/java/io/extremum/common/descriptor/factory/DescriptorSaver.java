@@ -21,9 +21,7 @@ public class DescriptorSaver {
     }
 
     public Descriptor createAndSave(CollectionDescriptor collectionDescriptor) {
-        Descriptor descriptor = Descriptor.forCollection(collectionDescriptor);
-        descriptor.setExternalId(descriptorService.createExternalId());
-
+        Descriptor descriptor = Descriptor.forCollection(descriptorService.createExternalId(), collectionDescriptor);
         return descriptorService.store(descriptor);
     }
 }

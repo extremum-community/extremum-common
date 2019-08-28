@@ -99,8 +99,8 @@ class DescriptorDaoTest extends TestWithServices {
         ObjectId hostId = new ObjectId();
         Descriptor hostDescriptor = mongoDescriptorFacilities.create(hostId, "test_model");
 
-        Descriptor descriptor = Descriptor.forCollection(CollectionDescriptor.forOwned(hostDescriptor, "attr"));
-        descriptor.setExternalId(new StandardUUIDGenerator().generateUUID());
+        Descriptor descriptor = Descriptor.forCollection("external-id",
+                CollectionDescriptor.forOwned(hostDescriptor, "attr"));
         descriptorDao.store(descriptor);
 
         Descriptor retrievedDescriptor = descriptorDao.retrieveByCollectionCoordinates(

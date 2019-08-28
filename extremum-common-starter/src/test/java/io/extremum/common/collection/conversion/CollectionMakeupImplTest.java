@@ -50,7 +50,7 @@ class CollectionMakeupImplTest {
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
 
     private StreetResponseDto streetDto;
-    private final Descriptor descriptorInDB = Descriptor.forCollection(
+    private final Descriptor descriptorInDB = Descriptor.forCollection("external-id",
             CollectionDescriptor.forOwned(
                     new Descriptor("the-street"), "the-buildings")
     );

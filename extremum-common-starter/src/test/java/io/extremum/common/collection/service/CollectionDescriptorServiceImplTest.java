@@ -30,9 +30,9 @@ class CollectionDescriptorServiceImplTest {
     @Mock
     private DescriptorDao descriptorDao;
 
-    private final Descriptor collDescriptorInDb = Descriptor.forCollection(CollectionDescriptor.forOwned(
-        new Descriptor("host-id"), "attribute"
-    ));
+    private final Descriptor collDescriptorInDb = Descriptor.forCollection("external-id",
+            CollectionDescriptor.forOwned(new Descriptor("host-id"), "attribute")
+    );
 
     @Test
     void givenDescriptorContainsCollection_whenRetrievingByExternalId_thenShouldBeRetrievedFromDescriptorService() {

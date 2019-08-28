@@ -24,7 +24,7 @@ class ReactiveCollectionDescriptorServiceImplTest {
     @Mock
     private ReactiveDescriptorDao reactiveDescriptorDao;
 
-    private final Descriptor collectionDescriptor = Descriptor.forCollection(
+    private final Descriptor collectionDescriptor = Descriptor.forCollection("external-id",
             CollectionDescriptor.forOwned(new Descriptor("host-id"), "items")
     );
 

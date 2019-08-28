@@ -86,8 +86,7 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     void whenLoadingACollectionDescriptorByCoordinatesFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
         Descriptor hostDescriptor = createADescriptor();
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(hostDescriptor, "items");
-        Descriptor descriptor = Descriptor.forCollection(collectionDescriptor);
-        descriptor.setExternalId(descriptorService.createExternalId());
+        Descriptor descriptor = Descriptor.forCollection(descriptorService.createExternalId(), collectionDescriptor);
         descriptorService.store(descriptor);
 
         Descriptor retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByCollectionCoordinates(

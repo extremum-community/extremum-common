@@ -54,8 +54,8 @@ public class Descriptor implements Serializable {
         this.externalId = externalId;
     }
 
-    public static Descriptor forCollection(CollectionDescriptor collectionDescriptor) {
-        Descriptor descriptor = new Descriptor();
+    public static Descriptor forCollection(String externalId, CollectionDescriptor collectionDescriptor) {
+        Descriptor descriptor = new Descriptor(externalId);
         descriptor.type = Type.COLLECTION;
         descriptor.collection = collectionDescriptor;
         return descriptor;
