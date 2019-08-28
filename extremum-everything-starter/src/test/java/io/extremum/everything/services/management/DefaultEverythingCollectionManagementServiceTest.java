@@ -4,6 +4,7 @@ import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.common.response.Response;
 import io.extremum.common.response.ResponseStatusEnum;
@@ -11,6 +12,7 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -78,9 +80,14 @@ class DefaultEverythingCollectionManagementServiceTest {
 
     private void setupMocksToReturnACollection() {
         when(collectionDescriptorService.retrieveByExternalId("collection-id"))
-                .thenReturn(Optional.of(new CollectionDescriptor("collection-id")));
+                .thenReturn(Optional.of(collectionDescriptor()));
         when(everythingCollectionService.fetchCollection(any(), any(), anyBoolean()))
                 .thenReturn(CollectionFragment.forCompleteCollection(expectedCollection));
+    }
+
+    @NotNull
+    private CollectionDescriptor collectionDescriptor() {
+        return CollectionDescriptor.forOwned(new Descriptor("host-id"), "items");
     }
 
     @Test
@@ -116,7 +123,7 @@ class DefaultEverythingCollectionManagementServiceTest {
     @Test
     void whenStreamingACollection_thenItShouldBeStreamed() {
         when(reactiveCollectionDescriptorService.retrieveByExternalId("collection-id"))
-                .thenReturn(Mono.just(new CollectionDescriptor("collection-id")));
+                .thenReturn(Mono.just(collectionDescriptor()));
         when(everythingCollectionService.streamCollection(any(), any(), anyBoolean()))
                 .thenReturn(Flux.just(expectedCollection.toArray(new ResponseDto[0])));
 
