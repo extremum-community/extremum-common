@@ -12,6 +12,7 @@ public class DescriptorSaver {
     public Descriptor createAndSave(String internalId, String modelType, Descriptor.StorageType storageType) {
         Descriptor descriptor = Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
+                .type(Descriptor.Type.SINGLE)
                 .internalId(internalId)
                 .modelType(modelType)
                 .storageType(storageType)

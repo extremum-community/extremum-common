@@ -23,7 +23,7 @@ public class Descriptor implements Serializable {
     private String externalId;
 
     @JsonProperty("type")
-    private Type type;
+    private Type type = Type.SINGLE;
 
     @JsonProperty("internalId")
     private String internalId;
