@@ -14,6 +14,8 @@ public class CollectionDescriptorServiceImpl implements CollectionDescriptorServ
     private final DescriptorService descriptorService;
     private final DescriptorDao descriptorDao;
 
+    private final CollectionDescriptorVerifier collectionDescriptorVerifier = new CollectionDescriptorVerifier();
+
     public CollectionDescriptorServiceImpl(DescriptorService descriptorService, DescriptorDao descriptorDao) {
         this.descriptorService = descriptorService;
         this.descriptorDao = descriptorDao;
@@ -24,23 +26,10 @@ public class CollectionDescriptorServiceImpl implements CollectionDescriptorServ
         Optional<Descriptor> optDescriptor = descriptorService.loadByExternalId(externalId);
 
         optDescriptor.ifPresent(descriptor -> {
-            makeSureDescriptorContainsCollection(externalId, descriptor);
+            collectionDescriptorVerifier.makeSureDescriptorContainsCollection(externalId, descriptor);
         });
 
         return optDescriptor.map(Descriptor::getCollection);
-    }
-
-    private void makeSureDescriptorContainsCollection(String externalId, Descriptor descriptor) {
-        if (descriptor.getType() != Descriptor.Type.COLLECTION) {
-            throw new IllegalStateException(
-                    String.format("Descriptor '%s' must have type COLLECTION, but it is '%s'",
-                            externalId, descriptor.getType()));
-        }
-        if (descriptor.getCollection() == null) {
-            throw new IllegalStateException(
-                    String.format("Descriptor '%s' has type COLLECTION, but there is no collection in it",
-                            externalId));
-        }
     }
 
     @Override

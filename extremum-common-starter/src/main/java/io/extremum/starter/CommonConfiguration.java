@@ -169,8 +169,8 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ReactiveCollectionDescriptorService reactiveCollectionDescriptorService(
-            ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao) {
-        return new ReactiveCollectionDescriptorServiceImpl(reactiveCollectionDescriptorDao);
+            ReactiveDescriptorDao reactiveDescriptorDao) {
+        return new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao);
     }
 
     @Bean

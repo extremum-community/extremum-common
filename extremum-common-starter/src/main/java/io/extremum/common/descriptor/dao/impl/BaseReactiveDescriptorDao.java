@@ -19,7 +19,13 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
     }
 
     @Override
+    public Mono<Descriptor> retrieveByExternalId(String externalId) {
+        return descriptors.get(externalId);
+    }
+
+    @Override
     public Mono<Descriptor> retrieveByInternalId(String internalId) {
         return internalIdIndex.get(internalId).flatMap(descriptors::get);
     }
+
 }
