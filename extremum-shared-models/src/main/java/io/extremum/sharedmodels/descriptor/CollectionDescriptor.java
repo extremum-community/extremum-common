@@ -1,7 +1,6 @@
 package io.extremum.sharedmodels.descriptor;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,15 +11,7 @@ public final class CollectionDescriptor implements Serializable {
     private CollectionCoordinates coordinates;
     private String coordinatesString;
 
-    @Setter
-    private boolean deleted;
-
     private CollectionDescriptor() {
-    }
-
-    public CollectionDescriptor(String externalId) {
-        // TODO: remove
-        throw new UnsupportedOperationException("Please remove this constructor");
     }
 
     private CollectionDescriptor(Type type, CollectionCoordinates coordinates) {
@@ -31,11 +22,6 @@ public final class CollectionDescriptor implements Serializable {
     public static CollectionDescriptor forOwned(Descriptor hostId, String hostAttributeName) {
         return new CollectionDescriptor(Type.OWNED,
                 new CollectionCoordinates(new OwnedCoordinates(hostId, hostAttributeName)));
-    }
-
-    public String getExternalId() {
-        // TODO: remove this
-        throw new UnsupportedOperationException("Please remove this method");
     }
 
     @Override

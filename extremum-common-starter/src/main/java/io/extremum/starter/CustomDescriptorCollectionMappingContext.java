@@ -1,11 +1,14 @@
 package io.extremum.starter;
 
+import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.descriptor.CollectionCoordinates;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.content.Display;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.data.annotation.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mapping.model.FieldNamingStrategy;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
@@ -157,14 +160,9 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
     }
 
     private static class CollectionDescriptorMirror {
-        // TODO: remove
-        @Transient
-        private String externalId;
         private CollectionDescriptor.Type type;
         private CollectionCoordinates coordinates;
         @Indexed
         private String coordinatesString;
-
-        private boolean deleted;
     }
 }
