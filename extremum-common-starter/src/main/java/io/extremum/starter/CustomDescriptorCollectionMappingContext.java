@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 import java.time.ZonedDateTime;
 
 /**
- * This extension is solely needed to have a possibility to have effects of @Id, @CreatedDate, @Indexed
+ * This extension is solely needed to have effects of @Id, @CreatedDate, @Indexed
  * and so on on Descriptor and CollectionDescriptor classes but have them not-annotated.
  *
  * @author rpuch
