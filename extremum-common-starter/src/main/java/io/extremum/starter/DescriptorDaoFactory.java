@@ -35,7 +35,8 @@ public class DescriptorDaoFactory {
         return new BaseReactiveDescriptorDaoImpl(redissonClient, descriptorRepository,
                 descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(),
-                codec, redisProperties.getCacheSize(),
+                codec,
+                redisProperties.getCacheSize(),
                 redisProperties.getIdleTime());
     }
 
