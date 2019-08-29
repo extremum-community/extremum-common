@@ -1,7 +1,6 @@
 package io.extremum.common.descriptor.dao;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import sun.security.krb5.internal.crypto.Des;
 
 import java.util.Collection;
 import java.util.Map;
