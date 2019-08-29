@@ -34,15 +34,25 @@ public class DefaultDtoConversionService implements DtoConversionService {
 
     @Override
     public Mono<ResponseDto> convertUnknownToResponseDtoReactively(Model model, ConversionConfig config) {
-        ToResponseDtoConverter<Model, ResponseDto> converter = findToResponseConverter(model);
+        ReactiveToResponseDtoConverter<Model, ResponseDto> converter = findReactiveToResponseConverter(model);
         return converter.convertToResponseReactively(model, config);
     }
 
+    private ReactiveToResponseDtoConverter<Model, ResponseDto> findReactiveToResponseConverter(Model model) {
+        return dtoConverters.<Model, ResponseDto>findReactiveToResponseDtoConverter(model.getClass())
+                .orElseGet(() -> warnAndGetReactiveStubConverter(model));
+    }
+
     private ToResponseDtoConverter<Model, ResponseDto> warnAndGetStubConverter(Model model) {
-        LOGGER.error("Unable to find a to-response-dto-converter for model {}: {}", model.getClass().getSimpleName(), model);
-        @SuppressWarnings("unchecked")
-        ToResponseDtoConverter<Model, ResponseDto> castConverter = this.stubDtoConverter;
-        return castConverter;
+        LOGGER.error("Unable to find a to-response-dto-converter for model {}: {}",
+                model.getClass().getSimpleName(), model);
+        return this.stubDtoConverter;
+    }
+
+    private ReactiveToResponseDtoConverter<Model, ResponseDto> warnAndGetReactiveStubConverter(Model model) {
+        LOGGER.error("Unable to find a reactive to-response-dto-converter for model {}: {}",
+                model.getClass().getSimpleName(), model);
+        return this.stubDtoConverter;
     }
 
     @Override
