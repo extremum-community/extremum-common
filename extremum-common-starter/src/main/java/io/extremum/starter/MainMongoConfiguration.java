@@ -2,7 +2,7 @@ package io.extremum.starter;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import io.extremum.common.descriptor.spring.DescriptorLifecycleListener;
+import io.extremum.common.mongo.DescriptorLifecycleListener;
 import io.extremum.common.repository.mongo.EnableAllMongoAuditing;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.properties.MongoProperties;

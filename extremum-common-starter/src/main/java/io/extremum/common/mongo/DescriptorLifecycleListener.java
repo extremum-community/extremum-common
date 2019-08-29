@@ -1,4 +1,4 @@
-package io.extremum.common.descriptor.spring;
+package io.extremum.common.mongo;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
