@@ -22,7 +22,8 @@ public class DescriptorDaoFactory {
                 descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(),
                 descriptorsProperties.getCollectionCoordinatesMapName(),
-                codec, redisProperties.getCacheSize(),
+                codec,
+                redisProperties.getCacheSize(),
                 redisProperties.getIdleTime());
     }
 
