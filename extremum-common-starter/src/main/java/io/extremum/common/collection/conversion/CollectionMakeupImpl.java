@@ -5,6 +5,7 @@ import io.extremum.common.collection.visit.CollectionVisitDriver;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.utils.attribute.Attribute;
+import io.extremum.common.utils.attribute.VisitDirection;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -24,7 +25,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private final ApplicationUrls applicationUrls;
 
     private final CollectionVisitDriver collectionVisitDriver = new CollectionVisitDriver(
-            this::applyToCollection);
+            VisitDirection.ROOT_TO_LEAVES, this::applyToCollection);
 
     public CollectionMakeupImpl(DescriptorSaver descriptorSaver,
                                 CollectionDescriptorService collectionDescriptorService,

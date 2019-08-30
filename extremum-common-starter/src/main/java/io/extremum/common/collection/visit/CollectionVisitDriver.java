@@ -15,11 +15,11 @@ public class CollectionVisitDriver {
 
     private final CollectionVisitor collectionVisitor;
 
-    private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
-            CollectionVisitDriver::shouldGoDeeper);
+    private final AttributeGraphWalker deepWalker;
     private final AttributeGraphWalker shallowWalker = new ShallowAttributeGraphWalker();
 
-    public CollectionVisitDriver(CollectionVisitor collectionVisitor) {
+    public CollectionVisitDriver(VisitDirection visitDirection, CollectionVisitor collectionVisitor) {
+        deepWalker = new DeepAttributeGraphWalker(visitDirection, 10, CollectionVisitDriver::shouldGoDeeper);
         this.collectionVisitor = collectionVisitor;
     }
 

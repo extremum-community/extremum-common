@@ -8,6 +8,10 @@ package io.extremum.common.exceptions;
  * @author rpuch
  */
 public class ProgrammingErrorException extends RuntimeException {
+    public ProgrammingErrorException(String message) {
+        super(message);
+    }
+
     public ProgrammingErrorException(String message, Throwable cause) {
         super(message, cause);
     }
