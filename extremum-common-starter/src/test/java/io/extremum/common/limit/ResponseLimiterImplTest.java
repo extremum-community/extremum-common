@@ -5,8 +5,8 @@ import io.extremum.common.mapper.MockedMapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.sharedmodels.fundamental.CollectionReference;
 import io.extremum.sharedmodels.fundamental.CommonResponseDto;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +66,28 @@ class ResponseLimiterImplTest {
         assertThat(dto.collection.getTop(), hasSize(0));
     }
 
-    @NoArgsConstructor
+    @Test
+    void test() {
+        List<TestResponseDto> dtos = Stream.of(1, 2)
+                .map(n -> nestedDtoWithTopOfSize3k())
+                .collect(Collectors.toList());
+        CollectionReference<TestResponseDto> outerReference = new CollectionReference<>(dtos);
+        NestingResponseDto outerDto = new NestingResponseDto(outerReference);
+
+        limiter.limit(outerDto);
+
+        assertThat(outerDto.dtos.getTop(), hasSize(1));
+    }
+
+    @NotNull
+    private TestResponseDto nestedDtoWithTopOfSize3k() {
+        List<String> strings = Stream.of("a", "b", "c")
+                .map(str -> StringUtils.repeat(str, 1000))
+                .collect(Collectors.toList());
+        CollectionReference<String> reference = new CollectionReference<>(strings);
+        return new TestResponseDto(reference);
+    }
+
     public static class TestResponseDto extends CommonResponseDto {
         public CollectionReference<String> collection;
 
@@ -76,7 +97,20 @@ class ResponseLimiterImplTest {
 
         @Override
         public String getModel() {
-            return "TestModel";
+            return "Test";
+        }
+    }
+
+    public static class NestingResponseDto extends CommonResponseDto {
+        public CollectionReference<TestResponseDto> dtos;
+
+        NestingResponseDto(CollectionReference<TestResponseDto> dtos) {
+            this.dtos = dtos;
+        }
+
+        @Override
+        public String getModel() {
+            return "Nesting";
         }
     }
 }
