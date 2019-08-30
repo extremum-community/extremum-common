@@ -1,4 +1,4 @@
-package io.extremum.common.advice;
+package io.extremum.common.response.advice;
 
 import io.extremum.common.response.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;

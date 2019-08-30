@@ -1,6 +1,6 @@
 package io.extremum.common.limit;
 
-import io.extremum.common.advice.ResponseDtoHandlingAdvice;
+import io.extremum.common.response.advice.ResponseDtoHandlingAdvice;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
