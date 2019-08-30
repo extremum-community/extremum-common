@@ -11,6 +11,9 @@ import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
+import io.extremum.common.limit.ResponseLimiter;
+import io.extremum.common.limit.ResponseLimiterAdvice;
+import io.extremum.common.limit.ResponseLimiterImpl;
 import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.support.*;
 import io.extremum.common.tx.CollectionTransactivity;
@@ -38,6 +41,7 @@ import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
 import io.extremum.starter.CommonConfiguration;
+import io.extremum.starter.properties.LimitsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -54,11 +58,12 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties({DestroyerProperties.class})
+@EnableConfigurationProperties({DestroyerProperties.class, LimitsProperties.class})
 @AutoConfigureAfter(CommonConfiguration.class)
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class EverythingEverythingConfiguration {
     private final DestroyerProperties destroyerProperties;
+    private final LimitsProperties limitsProperties;
 
     @Bean
     @ConditionalOnMissingBean
@@ -284,6 +289,18 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public ResponseCollectionsMakeupAdvice responseCollectionsMakeupAdvice(CollectionMakeup collectionMakeup) {
         return new ResponseCollectionsMakeupAdvice(collectionMakeup);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ResponseLimiter responseLimiter(ObjectMapper objectMapper) {
+        return new ResponseLimiterImpl(limitsProperties.getCollectionTopMaxSizeBytes(), objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ResponseLimiterAdvice responseLimiterAdvice(ResponseLimiter limiter) {
+        return new ResponseLimiterAdvice(limiter);
     }
 
     @Bean
