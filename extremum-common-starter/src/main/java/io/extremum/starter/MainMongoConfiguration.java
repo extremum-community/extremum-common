@@ -2,7 +2,7 @@ package io.extremum.starter;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import io.extremum.common.collection.spring.CollectionDescriptorLifecycleListener;
+import io.extremum.common.mongo.DescriptorLifecycleListener;
 import io.extremum.common.repository.mongo.EnableAllMongoAuditing;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.properties.MongoProperties;
@@ -108,8 +108,8 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     }
 
     @Bean
-    public CollectionDescriptorLifecycleListener collectionDescriptorLifecycleListener() {
-        return new CollectionDescriptorLifecycleListener();
+    public DescriptorLifecycleListener descriptorLifecycleListener() {
+        return new DescriptorLifecycleListener();
     }
 
     @WritingConverter

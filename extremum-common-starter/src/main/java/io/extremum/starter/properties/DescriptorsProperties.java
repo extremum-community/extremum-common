@@ -14,6 +14,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DescriptorsProperties {
     private String descriptorsMapName;
     private String internalIdsMapName;
-    private String collectionDescriptorsMapName = "collection_descriptors";
     private String collectionCoordinatesMapName = "collection_descriptors_coordinates_idx";
 }

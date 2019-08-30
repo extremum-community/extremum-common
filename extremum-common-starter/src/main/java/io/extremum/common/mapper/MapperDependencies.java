@@ -1,6 +1,5 @@
 package io.extremum.common.mapper;
 
-import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 
 /**
@@ -8,6 +7,4 @@ import io.extremum.common.descriptor.factory.DescriptorFactory;
  */
 public interface MapperDependencies {
     DescriptorFactory descriptorFactory();
-
-    CollectionDescriptorService collectionDescriptorService();
 }

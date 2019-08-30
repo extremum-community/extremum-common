@@ -67,7 +67,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
 
     private final RestClientBuilder restClientBuilder;
     private final DescriptorService descriptorService;
-    private final ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory;
+    private final ElasticsearchDescriptorFacilities descriptorFacilities;
 
     private final ObjectMapper mapper;
     private final String indexName;
@@ -81,7 +81,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
             String indexType) {
         this.modelClass = modelClass;
         this.descriptorService = descriptorService;
-        this.elasticsearchDescriptorFactory = descriptorFacilities;
+        this.descriptorFacilities = descriptorFacilities;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
@@ -94,7 +94,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
             ElasticsearchDescriptorFacilities descriptorFactory,
             ObjectMapper mapper, String indexName, String indexType) {
         this.descriptorService = descriptorService;
-        this.elasticsearchDescriptorFactory = descriptorFactory;
+        this.descriptorFacilities = descriptorFactory;
         this.mapper = mapper;
         this.indexName = indexName;
         this.indexType = indexType;
@@ -318,8 +318,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
         if (model.getUuid() != null) {
             return model.getUuid();
         } else {
-            Descriptor descriptor = elasticsearchDescriptorFactory.create(newInternalId(), name);
-            return descriptorService.store(descriptor);
+            return descriptorFacilities.create(newInternalId(), name);
         }
     }
 

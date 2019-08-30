@@ -1,11 +1,10 @@
 package io.extremum.starter;
 
-import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.repository.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import io.extremum.starter.properties.MongoProperties;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -42,7 +41,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Configuration
 @EnableConfigurationProperties(MongoProperties.class)
-@EnableMongoRepositories(basePackageClasses = {DescriptorRepository.class, CollectionDescriptorRepository.class},
+@EnableMongoRepositories(basePackageClasses = {DescriptorRepository.class},
         repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
         mongoTemplateRef = "descriptorsMongoTemplate"
 )

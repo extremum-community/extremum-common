@@ -1,7 +1,9 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.common.collection.dao.CollectionDescriptorDao;
+import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Optional;
 
@@ -9,24 +11,29 @@ import java.util.Optional;
  * @author rpuch
  */
 public class CollectionDescriptorServiceImpl implements CollectionDescriptorService {
-    private final CollectionDescriptorDao collectionDescriptorDao;
+    private final DescriptorService descriptorService;
+    private final DescriptorDao descriptorDao;
 
-    public CollectionDescriptorServiceImpl(CollectionDescriptorDao collectionDescriptorDao) {
-        this.collectionDescriptorDao = collectionDescriptorDao;
+    private final CollectionDescriptorVerifier collectionDescriptorVerifier = new CollectionDescriptorVerifier();
+
+    public CollectionDescriptorServiceImpl(DescriptorService descriptorService, DescriptorDao descriptorDao) {
+        this.descriptorService = descriptorService;
+        this.descriptorDao = descriptorDao;
     }
 
     @Override
     public Optional<CollectionDescriptor> retrieveByExternalId(String externalId) {
-        return collectionDescriptorDao.retrieveByExternalId(externalId);
+        Optional<Descriptor> optDescriptor = descriptorService.loadByExternalId(externalId);
+
+        optDescriptor.ifPresent(descriptor -> {
+            collectionDescriptorVerifier.makeSureDescriptorContainsCollection(externalId, descriptor);
+        });
+
+        return optDescriptor.map(Descriptor::getCollection);
     }
 
     @Override
-    public Optional<CollectionDescriptor> retrieveByCoordinates(String coordinatesString) {
-        return collectionDescriptorDao.retrieveByCoordinates(coordinatesString);
-    }
-
-    @Override
-    public void store(CollectionDescriptor descriptor) {
-        collectionDescriptorDao.store(descriptor);
+    public Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
+        return descriptorDao.retrieveByCollectionCoordinates(coordinatesString);
     }
 }

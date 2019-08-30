@@ -1,9 +1,6 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.common.collection.dao.CollectionDescriptorDao;
-import io.extremum.common.collection.dao.ReactiveCollectionDescriptorDao;
-import io.extremum.common.collection.dao.impl.CollectionDescriptorRepository;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
@@ -153,39 +150,22 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionDescriptorDao collectionDescriptorDao(RedissonClient redissonClient,
-            CollectionDescriptorRepository collectionDescriptorRepository) {
-        return CollectionDescriptorDaoFactory.create(redisProperties, descriptorsProperties, redissonClient,
-                collectionDescriptorRepository);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao(
-            RedissonReactiveClient redissonReactiveClient,
-            CollectionDescriptorRepository collectionDescriptorRepository) {
-        return CollectionDescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
-                redissonReactiveClient, collectionDescriptorRepository);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public CollectionDescriptorService collectionDescriptorService(CollectionDescriptorDao collectionDescriptorDao) {
-        return new CollectionDescriptorServiceImpl(collectionDescriptorDao);
+    public CollectionDescriptorService collectionDescriptorService(DescriptorService descriptorService,
+                                                                   DescriptorDao descriptorDao) {
+        return new CollectionDescriptorServiceImpl(descriptorService, descriptorDao);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public ReactiveCollectionDescriptorService reactiveCollectionDescriptorService(
-            ReactiveCollectionDescriptorDao reactiveCollectionDescriptorDao) {
-        return new ReactiveCollectionDescriptorServiceImpl(reactiveCollectionDescriptorDao);
+            ReactiveDescriptorDao reactiveDescriptorDao) {
+        return new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public MapperDependencies mapperDependencies(DescriptorFactory descriptorFactory,
-                                                 CollectionDescriptorService collectionDescriptorService) {
-        return new MapperDependenciesImpl(descriptorFactory, collectionDescriptorService);
+    public MapperDependencies mapperDependencies(DescriptorFactory descriptorFactory) {
+        return new MapperDependenciesImpl(descriptorFactory);
     }
 
     @Bean

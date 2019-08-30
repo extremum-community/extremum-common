@@ -2,13 +2,12 @@ package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.collection.spring.StringToCollectionDescriptorConverter;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -23,7 +22,9 @@ import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFoundAspect;
 import io.extremum.everything.aop.DefaultEverythingEverythingExceptionHandler;
 import io.extremum.everything.aop.EverythingEverythingExceptionHandler;
 import io.extremum.everything.config.properties.DestroyerProperties;
-import io.extremum.everything.controllers.*;
+import io.extremum.everything.controllers.DefaultEverythingEverythingRestController;
+import io.extremum.everything.controllers.EverythingEverythingRestController;
+import io.extremum.everything.controllers.PingController;
 import io.extremum.everything.dao.SpringDataUniversalDao;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -46,7 +47,6 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
@@ -71,22 +71,27 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(RequestDtoValidator.class)
-    public DefaultRequestDtoValidator requestDtoValidator() {
+    public RequestDtoValidator requestDtoValidator() {
         return new DefaultRequestDtoValidator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EverythingGetDemultiplexer everythingMultiplexer(
+            EverythingEverythingManagementService everythingManagementService,
+            EverythingCollectionManagementService everythingCollectionManagementService) {
+        return new EverythingGetDemultiplexerOnDescriptor(everythingManagementService,
+                everythingCollectionManagementService);
     }
 
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingRestController.class)
     public DefaultEverythingEverythingRestController everythingEverythingRestController(
-            EverythingEverythingManagementService service) {
-        return new DefaultEverythingEverythingRestController(service);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(EverythingEverythingCollectionRestController.class)
-    public DefaultEverythingEverythingCollectionRestController everythingEverythingCollectionRestController(
-            EverythingCollectionManagementService collectionManagementService) {
-        return new DefaultEverythingEverythingCollectionRestController(collectionManagementService);
+            EverythingEverythingManagementService everythingManagementService,
+            EverythingCollectionManagementService everythingCollectionManagementService,
+            EverythingGetDemultiplexer multiplexer) {
+        return new DefaultEverythingEverythingRestController(everythingManagementService,
+                everythingCollectionManagementService, multiplexer);
     }
 
     @Bean
@@ -269,9 +274,10 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
+    public CollectionMakeup collectionMakeup(DescriptorSaver descriptorSaver,
+                                             CollectionDescriptorService collectionDescriptorService,
                                              ApplicationUrls applicationUrls) {
-        return new CollectionMakeupImpl(collectionDescriptorService, applicationUrls);
+        return new CollectionMakeupImpl(descriptorSaver, collectionDescriptorService, applicationUrls);
     }
 
     @Bean
@@ -281,20 +287,12 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public Converter<String, CollectionDescriptor> stringToCollectionDescriptorConverter(
-            CollectionDescriptorService collectionDescriptorService) {
-        return new StringToCollectionDescriptorConverter(collectionDescriptorService);
-    }
-
-    @Bean
     @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
     public EverythingCollectionManagementService everythingCollectionManagementService(
-            CollectionDescriptorService collectionDescriptorService,
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService
     ) {
-        return new DefaultEverythingCollectionManagementService(collectionDescriptorService,
+        return new DefaultEverythingCollectionManagementService(
                 reactiveCollectionDescriptorService, everythingCollectionService);
     }
 }

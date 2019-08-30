@@ -1,24 +1,24 @@
 package io.extremum.common.collection.conversion;
 
-import io.extremum.common.collection.CollectionDescriptor;
-import io.extremum.sharedmodels.fundamental.CollectionReference;
 import io.extremum.common.collection.service.CollectionDescriptorService;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.dto.ResponseDto;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.utils.attribute.*;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.ResponseDto;
+import io.extremum.sharedmodels.fundamental.CollectionReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 /**
  * @author rpuch
  */
 @Service
 public class CollectionMakeupImpl implements CollectionMakeup {
-    private static final String COLLECTION_URI_FORMAT = "/collection/%s";
-    
+    private static final String COLLECTION_URI_FORMAT = "/%s";
+
+    private final DescriptorSaver descriptorSaver;
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
     private final AttributeGraphWalker deepWalker = new DeepAttributeGraphWalker(10,
@@ -29,8 +29,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return object != null && (!(object instanceof Descriptor));
     }
 
-    public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
-            ApplicationUrls applicationUrls) {
+    public CollectionMakeupImpl(DescriptorSaver descriptorSaver,
+                                CollectionDescriptorService collectionDescriptorService,
+                                ApplicationUrls applicationUrls) {
+        this.descriptorSaver = descriptorSaver;
         this.collectionDescriptorService = collectionDescriptorService;
         this.applicationUrls = applicationUrls;
     }
@@ -68,7 +70,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
         CollectionReference reference = (CollectionReference) attribute.value();
 
-        CollectionDescriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
+        Descriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
         reference.setId(collectionDescriptorToUse.getExternalId());
 
         String collectionUri = String.format(COLLECTION_URI_FORMAT, reference.getId());
@@ -76,19 +78,12 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         reference.setUrl(externalUrl);
     }
 
-    private CollectionDescriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
-        CollectionDescriptor newDescriptor = CollectionDescriptor.forOwned(dto.getId(), getHostAttributeName(attribute));
-        Optional<CollectionDescriptor> existingDescriptor = collectionDescriptorService.retrieveByCoordinates(
-                newDescriptor.toCoordinatesString());
+    private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
+        CollectionDescriptor newCollectionDescriptor = CollectionDescriptor.forOwned(
+                dto.getId(), getHostAttributeName(attribute));
 
-        CollectionDescriptor collectionDescriptorToUse;
-        if (existingDescriptor.isPresent()) {
-            collectionDescriptorToUse = existingDescriptor.get();
-        } else {
-            collectionDescriptorService.store(newDescriptor);
-            collectionDescriptorToUse = newDescriptor;
-        }
-        return collectionDescriptorToUse;
+        return collectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
+                .orElseGet(() -> descriptorSaver.createAndSave(newCollectionDescriptor));
     }
 
     private String getHostAttributeName(Attribute attribute) {

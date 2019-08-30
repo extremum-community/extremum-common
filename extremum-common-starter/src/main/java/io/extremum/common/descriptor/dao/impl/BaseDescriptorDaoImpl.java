@@ -9,8 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
     public BaseDescriptorDaoImpl(RedissonClient redissonClient, DescriptorRepository descriptorRepository,
-                                 String descriptorsMapName, String internalIdsMapName, Codec codec,
-            int cacheSize, long idleTime) {
+                                 String descriptorsMapName, String internalIdsMapName,
+                                 String collectionCoordinatesMapName,
+                                 Codec codec,
+                                 int cacheSize, long idleTime) {
         super(descriptorRepository,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
@@ -31,6 +33,17 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
-                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)));
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
+
+                redissonClient.getLocalCachedMap(
+                        collectionCoordinatesMapName,
+                        LocalCachedMapOptions
+                                .<String, String>defaults()
+                                .loader(new DescriptorCoordinatesMapLoader(descriptorRepository))
+                                .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+                                .cacheSize(cacheSize)
+                                .maxIdle(idleTime, TimeUnit.DAYS)
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE))
+        );
     }
 }

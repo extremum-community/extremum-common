@@ -14,4 +14,6 @@ public interface DescriptorRepository extends MongoRepository<Descriptor, String
     Optional<Descriptor> findByExternalId(String externalId);
 
     Optional<Descriptor> findByInternalId(String internalId);
+
+    Optional<Descriptor> findByCollectionCoordinatesString(String coordinatesString);
 }

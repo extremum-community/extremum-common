@@ -25,8 +25,10 @@ public class InMemoryDescriptorService implements DescriptorService {
     public Descriptor store(Descriptor descriptor) {
         String externalId = ReflectionUtils.getFieldValue(descriptor, "externalId");
         if (externalId == null) {
+            externalId = createExternalId();
             ReflectionUtils.setFieldValue(descriptor, "externalId", externalId);
         }
+
         return descriptor;
     }
 

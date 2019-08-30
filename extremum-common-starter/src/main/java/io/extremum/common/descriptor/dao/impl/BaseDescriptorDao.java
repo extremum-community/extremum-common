@@ -18,13 +18,15 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     private final DescriptorRepository descriptorRepository;
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
+    private final RMap<String, String> collectionCoordinatesToExternalIds;
     private static final int RETRY_ATTEMPTS = 3;
 
     BaseDescriptorDao(DescriptorRepository descriptorRepository, RMap<String, Descriptor> descriptors,
-            RMap<String, String> internalIdIndex) {
+            RMap<String, String> internalIdIndex, RMap<String, String> collectionCoordinatesToExternalIds) {
         this.descriptorRepository = descriptorRepository;
         this.descriptors = descriptors;
         this.internalIdIndex = internalIdIndex;
+        this.collectionCoordinatesToExternalIds = collectionCoordinatesToExternalIds;
     }
 
     @Override
@@ -35,6 +37,13 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     @Override
     public Optional<Descriptor> retrieveByInternalId(String internalId) {
         String descriptorId = internalIdIndex.get(internalId);
+
+        return Optional.ofNullable(descriptorId).map(descriptors::get);
+    }
+
+    @Override
+    public Optional<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates) {
+        String descriptorId = collectionCoordinatesToExternalIds.get(collectionCoordinates);
 
         return Optional.ofNullable(descriptorId).map(descriptors::get);
     }
@@ -60,8 +69,7 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
         if (optionalDesc.isPresent()) {
             try {
-                descriptors.put(descriptor.getExternalId(), descriptor);
-                internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
+                putToMaps(descriptor);
             } catch (RuntimeException e) {
                 Descriptor oldDescriptor = optionalDesc.get();
                 for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
@@ -76,9 +84,19 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 }
             }
         } else {
-            descriptors.put(descriptor.getExternalId(), descriptor);
-            internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
+            putToMaps(descriptor);
         }
         return descriptor;
+    }
+
+    private void putToMaps(Descriptor descriptor) {
+        descriptors.put(descriptor.getExternalId(), descriptor);
+        if (descriptor.isSingle()) {
+            internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId());
+        }
+        if (descriptor.isCollection()) {
+            collectionCoordinatesToExternalIds.put(
+                    descriptor.getCollection().toCoordinatesString(), descriptor.getExternalId());
+        }
     }
 }

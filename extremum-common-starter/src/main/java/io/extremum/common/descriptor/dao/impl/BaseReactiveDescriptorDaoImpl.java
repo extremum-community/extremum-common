@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
     public BaseReactiveDescriptorDaoImpl(RedissonReactiveClient redissonClient,
                                          DescriptorRepository descriptorRepository,
-                                         String descriptorsMapName, String internalIdsMapName, Codec codec,
+                                         String descriptorsMapName, String internalIdsMapName,
+                                         Codec codec,
                                          int cacheSize, long idleTime) {
         super(
                 // TODO: here, we use getMap() instead of getMapCache() because the latter causes weird runtime exceptions

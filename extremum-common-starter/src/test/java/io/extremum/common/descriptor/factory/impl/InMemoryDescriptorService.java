@@ -9,12 +9,17 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 /**
  * @author rpuch
  */
 public class InMemoryDescriptorService implements DescriptorService {
     private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
+
+    private final ConcurrentMap<String, Descriptor> externalIdToDescriptorMap = new ConcurrentHashMap<>();
 
     @Override
     public String createExternalId() {
@@ -25,14 +30,18 @@ public class InMemoryDescriptorService implements DescriptorService {
     public Descriptor store(Descriptor descriptor) {
         String externalId = ReflectionUtils.getFieldValue(descriptor, "externalId");
         if (externalId == null) {
+            externalId = createExternalId();
             ReflectionUtils.setFieldValue(descriptor, "externalId", externalId);
         }
+
+        externalIdToDescriptorMap.put(externalId, descriptor);
+
         return descriptor;
     }
 
     @Override
     public Optional<Descriptor> loadByExternalId(String externalId) {
-        throw new UnsupportedOperationException();
+        return Optional.ofNullable(externalIdToDescriptorMap.get(externalId));
     }
 
     @Override
@@ -48,5 +57,9 @@ public class InMemoryDescriptorService implements DescriptorService {
     @Override
     public Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
         throw new UnsupportedOperationException();
+    }
+
+    public Stream<Descriptor> descriptors() {
+        return externalIdToDescriptorMap.values().stream();
     }
 }

@@ -28,6 +28,11 @@ class InMemoryDescriptorDao implements DescriptorDao {
     }
 
     @Override
+    public Optional<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Map<String, String> retrieveMapByExternalIds(Collection<String> collection) {
         throw new UnsupportedOperationException();
     }

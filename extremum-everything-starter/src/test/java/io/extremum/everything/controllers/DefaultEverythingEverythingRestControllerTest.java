@@ -1,6 +1,8 @@
 package io.extremum.everything.controllers;
 
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
+import io.extremum.everything.services.management.EverythingEverythingManagementService;
+import io.extremum.everything.services.management.EverythingGetDemultiplexerOnDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -21,15 +23,20 @@ import static org.mockito.Mockito.when;
 
 @WebFluxTest
 @ContextConfiguration(classes = EverythingControllersTestConfiguration.class)
-class DefaultEverythingEverythingCollectionRestControllerTest {
+class DefaultEverythingEverythingRestControllerTest {
     private WebTestClient webClient;
 
     @MockBean
     private EverythingCollectionManagementService collectionManagementService;
+    @MockBean
+    private EverythingEverythingManagementService everythingEverythingManagementService;
+
 
     @BeforeEach
     void initClient() {
-        Object controller = new DefaultEverythingEverythingCollectionRestController(collectionManagementService);
+        Object controller = new DefaultEverythingEverythingRestController(
+                everythingEverythingManagementService, collectionManagementService,
+                new EverythingGetDemultiplexerOnDescriptor(everythingEverythingManagementService, collectionManagementService));
         webClient = WebTestClient.bindToController(controller).build();
     }
 
@@ -38,7 +45,7 @@ class DefaultEverythingEverythingCollectionRestControllerTest {
         when(collectionManagementService.streamCollection(eq("dead-beef"), any(), anyBoolean()))
                 .thenReturn(Flux.just(new TestResponseDto("first"), new TestResponseDto("second")));
 
-        List<TestResponseDto> dtos = webClient.get().uri("/collection/dead-beef")
+        List<TestResponseDto> dtos = webClient.get().uri("/dead-beef")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -60,7 +67,7 @@ class DefaultEverythingEverythingCollectionRestControllerTest {
         when(collectionManagementService.streamCollection(eq("dead-beef"), any(), anyBoolean()))
                 .thenReturn(Flux.error(new RuntimeException("Oops!")));
 
-        String responseText = webClient.get().uri("/collection/dead-beef")
+        String responseText = webClient.get().uri("/dead-beef")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()

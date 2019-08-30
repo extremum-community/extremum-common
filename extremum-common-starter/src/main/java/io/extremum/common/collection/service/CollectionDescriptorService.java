@@ -1,6 +1,7 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.collection.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Optional;
 
@@ -10,7 +11,5 @@ import java.util.Optional;
 public interface CollectionDescriptorService {
     Optional<CollectionDescriptor> retrieveByExternalId(String externalId);
 
-    Optional<CollectionDescriptor> retrieveByCoordinates(String coordinatesString);
-
-    void store(CollectionDescriptor descriptor);
+    Optional<Descriptor> retrieveByCoordinates(String coordinatesString);
 }

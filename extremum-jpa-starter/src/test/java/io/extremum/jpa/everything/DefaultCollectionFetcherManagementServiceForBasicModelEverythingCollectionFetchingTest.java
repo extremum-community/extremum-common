@@ -1,7 +1,6 @@
 package io.extremum.jpa.everything;
 
 import com.google.common.collect.ImmutableList;
-import io.extremum.common.collection.CollectionDescriptor;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.models.annotation.ModelName;
@@ -15,6 +14,7 @@ import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.management.DefaultEverythingCollectionService;
 import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.jpa.models.PostgresBasicModel;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;

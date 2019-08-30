@@ -5,11 +5,13 @@ import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.Media;
 import io.extremum.sharedmodels.content.MediaType;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.DescriptorDaoFactory;
 import io.extremum.starter.properties.DescriptorsProperties;
@@ -27,7 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
-class MongoDescriptorDaoTest extends TestWithServices {
+class DescriptorDaoTest extends TestWithServices {
     @Autowired
     private DescriptorDao descriptorDao;
     @Autowired
@@ -90,6 +92,30 @@ class MongoDescriptorDaoTest extends TestWithServices {
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(objectId.toString());
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
+    }
+
+    @Test
+    void testRetrieveByCollectionCoordinates() {
+        ObjectId hostId = new ObjectId();
+        Descriptor hostDescriptor = mongoDescriptorFacilities.create(hostId, "test_model");
+
+        Descriptor descriptor = Descriptor.forCollection("external-id",
+                CollectionDescriptor.forOwned(hostDescriptor, "attr"));
+        descriptorDao.store(descriptor);
+
+        Descriptor retrievedDescriptor = descriptorDao.retrieveByCollectionCoordinates(
+                descriptor.getCollection().toCoordinatesString()).orElse(null);
+        assertThat(retrievedDescriptor, is(notNullValue()));
+        assertThatRetrievedCollectionIsAsExpected(descriptor, retrievedDescriptor);
+    }
+
+    private void assertThatRetrievedCollectionIsAsExpected(Descriptor descriptor, Descriptor retrievedDescriptor) {
+        assertEquals(descriptor.getExternalId(), retrievedDescriptor.getExternalId());
+        assertThat(retrievedDescriptor.getType(), is(Descriptor.Type.COLLECTION));
+        assertThat(retrievedDescriptor.getCollection(), is(notNullValue()));
+        assertThat(retrievedDescriptor.getCollection().getType(), is(CollectionDescriptor.Type.OWNED));
+        assertThat(retrievedDescriptor.getCollection().getCoordinatesString(),
+                is(equalTo(descriptor.getCollection().toCoordinatesString())));
     }
 
     @Test

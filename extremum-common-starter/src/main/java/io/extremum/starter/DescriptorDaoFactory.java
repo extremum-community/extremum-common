@@ -20,7 +20,10 @@ public class DescriptorDaoFactory {
 
         return new BaseDescriptorDaoImpl(redissonClient, descriptorRepository,
                 descriptorsProperties.getDescriptorsMapName(),
-                descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(),
+                descriptorsProperties.getInternalIdsMapName(),
+                descriptorsProperties.getCollectionCoordinatesMapName(),
+                codec,
+                redisProperties.getCacheSize(),
                 redisProperties.getIdleTime());
     }
 
@@ -31,7 +34,9 @@ public class DescriptorDaoFactory {
 
         return new BaseReactiveDescriptorDaoImpl(redissonClient, descriptorRepository,
                 descriptorsProperties.getDescriptorsMapName(),
-                descriptorsProperties.getInternalIdsMapName(), codec, redisProperties.getCacheSize(),
+                descriptorsProperties.getInternalIdsMapName(),
+                codec,
+                redisProperties.getCacheSize(),
                 redisProperties.getIdleTime());
     }
 

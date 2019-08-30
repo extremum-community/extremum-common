@@ -12,6 +12,8 @@ public interface DescriptorDao {
 
     Optional<Descriptor> retrieveByInternalId(String internalId);
 
+    Optional<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates);
+
     Map<String, String> retrieveMapByExternalIds(Collection<String> externalIds);
 
     Map<String, String> retrieveMapByInternalIds(Collection<String> internalIds);
