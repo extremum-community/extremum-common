@@ -77,10 +77,10 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingMultiplexer everythingMultiplexer(
+    public EverythingGetDemultiplexer everythingMultiplexer(
             EverythingEverythingManagementService everythingManagementService,
             EverythingCollectionManagementService everythingCollectionManagementService) {
-        return new EverythingMultiplexerImpl(everythingManagementService,
+        return new EverythingGetDemultiplexerOnDescriptor(everythingManagementService,
                 everythingCollectionManagementService);
     }
 
@@ -89,7 +89,7 @@ public class EverythingEverythingConfiguration {
     public DefaultEverythingEverythingRestController everythingEverythingRestController(
             EverythingEverythingManagementService everythingManagementService,
             EverythingCollectionManagementService everythingCollectionManagementService,
-            EverythingMultiplexer multiplexer) {
+            EverythingGetDemultiplexer multiplexer) {
         return new DefaultEverythingEverythingRestController(everythingManagementService,
                 everythingCollectionManagementService, multiplexer);
     }

@@ -7,7 +7,7 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class EverythingMultiplexerImpl implements EverythingMultiplexer {
+public class EverythingGetDemultiplexerOnDescriptor implements EverythingGetDemultiplexer {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
 

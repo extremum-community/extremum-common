@@ -2,7 +2,7 @@ package io.extremum.everything.controllers;
 
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.everything.services.management.EverythingEverythingManagementService;
-import io.extremum.everything.services.management.EverythingMultiplexerImpl;
+import io.extremum.everything.services.management.EverythingGetDemultiplexerOnDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -36,7 +36,7 @@ class DefaultEverythingEverythingRestControllerTest {
     void initClient() {
         Object controller = new DefaultEverythingEverythingRestController(
                 everythingEverythingManagementService, collectionManagementService,
-                new EverythingMultiplexerImpl(everythingEverythingManagementService, collectionManagementService));
+                new EverythingGetDemultiplexerOnDescriptor(everythingEverythingManagementService, collectionManagementService));
         webClient = WebTestClient.bindToController(controller).build();
     }
 

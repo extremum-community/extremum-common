@@ -18,9 +18,9 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class EverythingMultiplexerImplTest {
+class EverythingGetDemultiplexerOnDescriptorTest {
     @InjectMocks
-    private EverythingMultiplexerImpl multiplexer;
+    private EverythingGetDemultiplexerOnDescriptor multiplexer;
 
     @Mock
     private EverythingEverythingManagementService everythingManagementService;

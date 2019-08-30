@@ -8,7 +8,7 @@ import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.everything.services.management.EverythingEverythingManagementService;
-import io.extremum.everything.services.management.EverythingMultiplexer;
+import io.extremum.everything.services.management.EverythingGetDemultiplexer;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
-    private final EverythingMultiplexer multiplexer;
+    private final EverythingGetDemultiplexer multiplexer;
 
     private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
 
