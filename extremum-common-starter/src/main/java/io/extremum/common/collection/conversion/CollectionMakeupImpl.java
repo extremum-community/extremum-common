@@ -41,6 +41,9 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private void applyToCollection(CollectionReference reference, Attribute attribute, ResponseDto dto) {
+        if (dto.getId() == null) {
+            return;
+        }
         if (!attribute.isAnnotatedWith(OwnedCollection.class)) {
             return;
         }

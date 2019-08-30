@@ -1,6 +1,5 @@
 package io.extremum.common.collection.visit;
 
-import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.utils.attribute.*;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -28,10 +27,6 @@ public class CollectionVisitDriver {
     }
 
     public void visitCollections(ResponseDto dto) {
-        if (dto.getId() == null) {
-            return;
-        }
-
         walkResponseDtoWithoutRecursion(dto);
 
         AttributeVisitor dtoVisitor = this::walkResponseDtoInAttribute;
@@ -49,7 +44,7 @@ public class CollectionVisitDriver {
 
     private void walkResponseDtoWithoutRecursion(ResponseDto dto) {
         AttributeVisitor visitor = attribute -> visitCollection(attribute, dto);
-        shallowWalker.walk(dto, new IsCollectionReference(new IsAnnotatedWithOwnedCollection(visitor)));
+        shallowWalker.walk(dto, new IsCollectionReference(visitor));
     }
 
     private void visitCollection(Attribute attribute, ResponseDto dto) {
@@ -97,22 +92,4 @@ public class CollectionVisitDriver {
         }
     }
 
-    private static class IsAnnotatedWithOwnedCollection implements AttributeVisitor {
-        private final AttributeVisitor visitor;
-
-        private IsAnnotatedWithOwnedCollection(AttributeVisitor visitor) {
-            this.visitor = visitor;
-        }
-
-        @Override
-        public void visitAttribute(Attribute attribute) {
-            if (isAnnotatedWithOwnedCollection(attribute)) {
-                visitor.visitAttribute(attribute);
-            }
-        }
-
-        private boolean isAnnotatedWithOwnedCollection(Attribute attribute) {
-            return attribute.isAnnotatedWith(OwnedCollection.class);
-        }
-    }
 }

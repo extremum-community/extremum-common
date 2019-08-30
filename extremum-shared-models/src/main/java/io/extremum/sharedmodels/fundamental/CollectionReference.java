@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author rpuch
@@ -16,7 +17,7 @@ public class CollectionReference<T> {
 
     private String url;
     private final Long count;
-    private final List<T> top;
+    private List<T> top;
 
     public CollectionReference() {
         this(Collections.emptyList());
@@ -27,6 +28,8 @@ public class CollectionReference<T> {
     }
 
     public CollectionReference(List<T> top, long total) {
+        Objects.requireNonNull(top, "top cannot be null");
+
         this.count = total;
         this.top = top;
     }
@@ -37,5 +40,10 @@ public class CollectionReference<T> {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setTop(List<T> top) {
+        Objects.requireNonNull(top, "top cannot be null");
+        this.top = top;
     }
 }
