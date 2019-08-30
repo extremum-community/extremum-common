@@ -1,6 +1,7 @@
 package io.extremum.common.utils.attribute;
 
 import com.google.common.collect.ImmutableList;
+import io.extremum.common.exceptions.ProgrammingErrorException;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -17,14 +18,17 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
     private static final int INITIAL_DEPTH = 1;
 
+    private final VisitDirection visitDirection;
     private final int maxLevel;
     private final Predicate<Object> shouldGoDeeperPredicate;
 
-    public DeepAttributeGraphWalker(int maxLevel) {
-        this(maxLevel, object -> true);
+    public DeepAttributeGraphWalker(VisitDirection visitDirection, int maxLevel) {
+        this(visitDirection, maxLevel, object -> true);
     }
 
-    public DeepAttributeGraphWalker(int maxLevel, Predicate<Object> shouldGoDeeperPredicate) {
+    public DeepAttributeGraphWalker(VisitDirection visitDirection, int maxLevel,
+                                    Predicate<Object> shouldGoDeeperPredicate) {
+        this.visitDirection = visitDirection;
         this.maxLevel = maxLevel;
         this.shouldGoDeeperPredicate = shouldGoDeeperPredicate;
     }
@@ -53,9 +57,15 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
         }
         context.rememberAsSeen(attributeValue);
 
-        context.visitAttribute(attribute);
-
-        goDeeperIfNeeded(attributeValue, context, currentDepth);
+        if (visitDirection == VisitDirection.ROOT_TO_LEAVES) {
+            context.visitAttribute(attribute);
+            goDeeperIfNeeded(attributeValue, context, currentDepth);
+        } else if (visitDirection == VisitDirection.LEAVES_TO_ROOT) {
+            goDeeperIfNeeded(attributeValue, context, currentDepth);
+            context.visitAttribute(attribute);
+        } else {
+            throw new ProgrammingErrorException("Unsupported visit direction " + visitDirection);
+        }
     }
 
     private void goDeeperIfNeeded(Object nextValue, Context context, int currentDepth) {

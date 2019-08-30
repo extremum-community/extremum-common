@@ -2,6 +2,7 @@ package io.extremum.common.utils.annotation;
 
 import io.extremum.common.utils.attribute.DeepAttributeGraphWalker;
 import com.google.common.collect.ImmutableSet;
+import io.extremum.common.utils.attribute.VisitDirection;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -17,19 +18,20 @@ import static org.hamcrest.Matchers.hasSize;
  * @author rpuch
  */
 class DeepAttributeGraphWalkerTest {
-    private final DeepAttributeGraphWalker walker = new DeepAttributeGraphWalker(10);
+    private final DeepAttributeGraphWalker rootToLeavesWalker = new DeepAttributeGraphWalker(
+            VisitDirection.ROOT_TO_LEAVES, 10);
     private final ValueCollector collector = new ValueCollector();
 
     @Test
     void whenObjectHasNoIntanceField_thenNothingShouldBeVisited() {
-        walker.walk(new Object(), collector);
+        rootToLeavesWalker.walk(new Object(), collector);
 
         assertThat(collector.getValues(), hasSize(0));
     }
 
     @Test
     void whenObjectHasInstanceFields_thenAllOfThemShouldBeVisited() {
-        walker.walk(new ShallowBean(), collector);
+        rootToLeavesWalker.walk(new ShallowBean(), collector);
 
         assertThat(collector.getValues(), hasSize(3));
         assertThat(collector.getValues(), hasItems("abc", 10L, 20));
@@ -38,7 +40,7 @@ class DeepAttributeGraphWalkerTest {
     @Test
     void whenRootObjectIsNull_thenaNullPointerExceptionShouldBeThrown() {
         try {
-            walker.walk(null, collector);
+            rootToLeavesWalker.walk(null, collector);
         } catch (NullPointerException e) {
             assertThat(e.getMessage(), is("Root cannot be null"));
         }
@@ -47,7 +49,7 @@ class DeepAttributeGraphWalkerTest {
     @Test
     void whenObjectHasEmbeddedObjects_thenAllTheirFieldsShouldBeVisited() {
         DeepBean root = new DeepBean();
-        walker.walk(root, collector);
+        rootToLeavesWalker.walk(root, collector);
 
         assertThat(collector.getValues(), hasSize(5));
         assertThat(collector.getValues(), hasItems("I'm deep", root.shallowBean, "abc", 10L, 20));
@@ -59,7 +61,7 @@ class DeepAttributeGraphWalkerTest {
         Object embedded2 = new Container("test2");
         List<Object> list = Arrays.asList(embedded1, embedded2);
 
-        walker.walk(new Container(list), collector);
+        rootToLeavesWalker.walk(new Container(list), collector);
 
         assertThat(collector.getValues(), hasSize(3));
         assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(list, "test1", "test2"))));
@@ -71,7 +73,7 @@ class DeepAttributeGraphWalkerTest {
         Object embedded2 = new Container("test2");
         Object[] array = new Object[]{embedded1, embedded2};
 
-        walker.walk(new Container(array), collector);
+        rootToLeavesWalker.walk(new Container(array), collector);
 
         assertThat(collector.getValues(), hasSize(3));
         assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(array, "test1", "test2"))));
@@ -83,7 +85,7 @@ class DeepAttributeGraphWalkerTest {
         Container b = new Container(a);
         a.object = b;
 
-        walker.walk(new Container(a), collector);
+        rootToLeavesWalker.walk(new Container(a), collector);
 
         assertThat(collector.getValues(), hasSize(2));
         assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(a, b))));
@@ -95,7 +97,7 @@ class DeepAttributeGraphWalkerTest {
         Container b = new Container(a);
         a.object = b;
 
-        walker.walk(new Container(a), collector);
+        rootToLeavesWalker.walk(new Container(a), collector);
 
         assertThat(collector.getValues(), hasSize(2));
         assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(a, b))));
@@ -107,7 +109,7 @@ class DeepAttributeGraphWalkerTest {
         Container b = new Container(c);
         Container a = new Container(b);
 
-        DeepAttributeGraphWalker limitedWalker = new DeepAttributeGraphWalker(2);
+        DeepAttributeGraphWalker limitedWalker = new DeepAttributeGraphWalker(VisitDirection.ROOT_TO_LEAVES, 2);
 
         limitedWalker.walk(new Container(a), collector);
 
@@ -117,13 +119,36 @@ class DeepAttributeGraphWalkerTest {
 
     @Test
     void givenPredicateDoesNotAllowToVisitAnything_whenThereAreFieldsToVisit_nothingShouldBeVisited() {
-        DeepAttributeGraphWalker dontGoDeeper = new DeepAttributeGraphWalker(10, object -> false);
+        DeepAttributeGraphWalker dontGoDeeper = new DeepAttributeGraphWalker(VisitDirection.ROOT_TO_LEAVES,
+                10, object -> false);
 
         DeepBean root = new DeepBean();
         dontGoDeeper.walk(root, collector);
 
         assertThat(collector.getValues(), hasSize(2));
         assertThat(collector.getValues(), hasItems("I'm deep", root.shallowBean));
+    }
+
+    @Test
+    void givenWalkerVisitsRootToLeaves_whenVisiting_thenRootShouldBeVisitedFirst() {
+        Object leaf = "leaf";
+        Container root = new Container(leaf);
+
+        rootToLeavesWalker.walk(new Container(root), collector);
+
+        assertThat(collector.getValues(), is(Arrays.asList(root, leaf)));
+    }
+
+    @Test
+    void givenWalkerVisitsLeavesToRoot_whenVisiting_thenRootShouldBeVisitedFirst() {
+        DeepAttributeGraphWalker leavesToRootWalker = new DeepAttributeGraphWalker(VisitDirection.LEAVES_TO_ROOT, 10);
+
+        Object leaf = "leaf";
+        Container root = new Container(leaf);
+
+        leavesToRootWalker.walk(new Container(root), collector);
+
+        assertThat(collector.getValues(), is(Arrays.asList(leaf, root)));
     }
 
     private static class DeepBean {
