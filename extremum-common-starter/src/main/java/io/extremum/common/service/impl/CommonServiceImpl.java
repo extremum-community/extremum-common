@@ -123,8 +123,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
             fillAlertsOrThrowException(problems, new WrongArgumentException("Model can't be null"));
             return null;
         }
-        M returned = null;
 
+        M returned = null;
         if (data.getId() != null) {
             Optional<M> existedOpt = dao.findById(data.getId());
             if (existedOpt.isPresent()) {
