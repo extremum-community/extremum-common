@@ -47,8 +47,7 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
         if (isSoftDelete()) {
             return SoftDeleteReactiveMongoRepository.class;
         } else {
-//            return HardDeleteMongoRepository.class;
-            throw new UnsupportedOperationException("Not implemented yet");
+            return HardDeleteReactiveMongoRepository.class;
         }
     }
 
