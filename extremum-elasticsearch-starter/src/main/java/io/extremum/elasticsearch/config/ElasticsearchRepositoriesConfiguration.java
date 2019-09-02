@@ -11,7 +11,6 @@ import io.extremum.elasticsearch.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,9 +25,6 @@ import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchC
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.http.HttpHeaders;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Configuration
 @ConditionalOnProperty("elasticsearch.repository-packages")
 @EnableConfigurationProperties(ElasticsearchProperties.class)
@@ -40,24 +36,21 @@ public class ElasticsearchRepositoriesConfiguration {
 
     @Bean
     public ElasticsearchDescriptorFacilities elasticsearchDescriptorFacilities(DescriptorFactory descriptorFactory,
-            DescriptorSaver descriptorSaver) {
+                                                                               DescriptorSaver descriptorSaver) {
         return new ElasticsearchDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
     }
 
     @Bean
     public RestHighLevelClient elasticsearchClient() {
-        List<HttpHost> httpHosts = elasticsearchProperties.getHosts().stream()
+        HttpHost[] httpHosts = elasticsearchProperties.getHosts().stream()
                 .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
-                .collect(Collectors.toList());
-
-        RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[0]));
-
-        return new RestHighLevelClient(builder);
+                .toArray(HttpHost[]::new);
+        return new RestHighLevelClient(RestClient.builder(httpHosts));
     }
 
     @Bean
     public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
-            ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
+                                                         ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         return new ExtremumElasticsearchRestTemplate(elasticsearchClient, objectMapper,
                 elasticsearchDescriptorFactory);
     }
