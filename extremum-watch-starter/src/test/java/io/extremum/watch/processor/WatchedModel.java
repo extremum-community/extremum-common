@@ -1,6 +1,6 @@
 package io.extremum.watch.processor;
 
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.annotation.ModelName;
 import io.extremum.watch.annotation.CapturedModel;
 import lombok.Getter;
 import lombok.Setter;

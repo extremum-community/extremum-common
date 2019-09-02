@@ -3,7 +3,7 @@ package io.extremum.jpa.dao;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.jpa.TestWithServices;
-import io.extremum.jpa.models.TestJpaModel;
+import io.extremum.jpa.model.TestJpaModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.hamcrest.MatcherAssert;
 import org.jetbrains.annotations.NotNull;

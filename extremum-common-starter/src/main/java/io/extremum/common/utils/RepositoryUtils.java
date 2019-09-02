@@ -1,7 +1,7 @@
 package io.extremum.common.utils;
 
-import io.extremum.common.dao.impl.SpringDataMongoCommonDao;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.dao.impl.SpringDataMongoCommonDao;
+import io.extremum.mongo.model.MongoCommonModel;
 import org.springframework.data.repository.support.Repositories;
 
 public class RepositoryUtils {

@@ -1,8 +1,7 @@
 package io.extremum.everything.services;
 
-import io.extremum.common.models.BasicModel;
-import io.extremum.common.models.Model;
-import io.extremum.everything.collection.CollectionFragment;
+import io.extremum.common.model.BasicModel;
+import io.extremum.common.model.Model;
 import io.extremum.everything.collection.Projection;
 import reactor.core.publisher.Flux;
 

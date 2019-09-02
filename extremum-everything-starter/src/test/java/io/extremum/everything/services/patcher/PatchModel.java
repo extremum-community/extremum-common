@@ -1,7 +1,7 @@
 package io.extremum.everything.services.patcher;
 
-import io.extremum.common.models.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.common.model.annotation.ModelName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

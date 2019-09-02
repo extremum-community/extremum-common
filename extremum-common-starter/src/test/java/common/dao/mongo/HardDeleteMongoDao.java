@@ -1,6 +1,6 @@
 package common.dao.mongo;
 
-import io.extremum.common.dao.impl.SpringDataMongoCommonDao;
+import io.extremum.mongo.dao.impl.SpringDataMongoCommonDao;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import models.HardDeleteMongoModel;
 import org.springframework.stereotype.Repository;

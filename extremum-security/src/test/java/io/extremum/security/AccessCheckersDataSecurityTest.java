@@ -1,7 +1,7 @@
 package io.extremum.security;
 
-import io.extremum.common.models.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.common.model.annotation.ModelName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

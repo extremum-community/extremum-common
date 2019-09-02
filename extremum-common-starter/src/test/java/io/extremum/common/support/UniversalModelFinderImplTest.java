@@ -1,7 +1,7 @@
 package io.extremum.common.support;
 
-import io.extremum.common.models.Model;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.common.model.Model;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.service.CommonService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.jetbrains.annotations.NotNull;

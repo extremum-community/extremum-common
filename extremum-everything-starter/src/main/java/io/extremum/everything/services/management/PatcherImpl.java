@@ -2,7 +2,7 @@ package io.extremum.everything.services.management;
 
 import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.exceptions.RequestDtoValidationException;
 import io.extremum.everything.services.RequestDtoValidator;

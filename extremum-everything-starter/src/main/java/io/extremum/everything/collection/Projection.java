@@ -1,6 +1,6 @@
 package io.extremum.everything.collection;
 
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.utils.DateUtils;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;

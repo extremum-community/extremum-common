@@ -1,6 +1,6 @@
 package io.extremum.common.service;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 
 import java.util.List;
 

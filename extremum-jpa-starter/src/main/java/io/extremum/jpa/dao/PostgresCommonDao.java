@@ -1,7 +1,7 @@
 package io.extremum.jpa.dao;
 
 import io.extremum.common.dao.CommonDao;
-import io.extremum.common.models.BasicModel;
+import io.extremum.common.model.BasicModel;
 
 import java.util.UUID;
 

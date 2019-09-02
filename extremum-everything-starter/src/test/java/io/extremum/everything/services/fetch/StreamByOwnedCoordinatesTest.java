@@ -1,8 +1,8 @@
 package io.extremum.everything.services.fetch;
 
-import io.extremum.common.models.Model;
-import io.extremum.common.models.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.Model;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.common.model.annotation.ModelName;
 import io.extremum.everything.collection.CollectionElementType;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;

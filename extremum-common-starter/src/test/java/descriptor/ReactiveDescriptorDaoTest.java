@@ -3,7 +3,7 @@ package descriptor;
 import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.sharedmodels.descriptor.Descriptor;

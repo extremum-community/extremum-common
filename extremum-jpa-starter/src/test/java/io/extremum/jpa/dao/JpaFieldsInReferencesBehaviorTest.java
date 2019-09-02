@@ -1,7 +1,7 @@
 package io.extremum.jpa.dao;
 
 import io.extremum.jpa.TestWithServices;
-import io.extremum.jpa.models.Parent;
+import io.extremum.jpa.model.Parent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

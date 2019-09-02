@@ -1,6 +1,6 @@
 package io.extremum.watch.processor;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.support.ModelClasses;
 
 /**

@@ -4,7 +4,7 @@ import io.extremum.common.dto.converters.FromRequestDtoConverter;
 import io.extremum.common.dto.converters.ReactiveToResponseDtoConverter;
 import io.extremum.common.dto.converters.ToRequestDtoConverter;
 import io.extremum.common.dto.converters.ToResponseDtoConverter;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.dto.ResponseDto;
 

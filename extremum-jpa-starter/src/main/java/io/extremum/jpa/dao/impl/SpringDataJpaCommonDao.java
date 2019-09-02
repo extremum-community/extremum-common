@@ -1,6 +1,6 @@
 package io.extremum.jpa.dao.impl;
 
-import io.extremum.common.models.BasicModel;
+import io.extremum.common.model.BasicModel;
 import io.extremum.jpa.dao.PostgresCommonDao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;

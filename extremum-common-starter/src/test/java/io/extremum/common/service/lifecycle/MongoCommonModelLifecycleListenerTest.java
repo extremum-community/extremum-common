@@ -2,10 +2,11 @@ package io.extremum.common.service.lifecycle;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.descriptor.factory.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
-import io.extremum.common.descriptor.factory.impl.MongoDescriptorFacilitiesImpl;
+import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;

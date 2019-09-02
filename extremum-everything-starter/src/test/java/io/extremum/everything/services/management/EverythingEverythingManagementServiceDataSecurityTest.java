@@ -1,7 +1,7 @@
 package io.extremum.everything.services.management;
 
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.everything.services.defaultservices.DefaultGetter;
 import io.extremum.everything.services.defaultservices.DefaultReactiveGetter;
 import io.extremum.everything.services.defaultservices.DefaultRemover;
