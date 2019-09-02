@@ -1,12 +1,11 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.repository;
 
-import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import io.extremum.mongo.SoftDeletion;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import io.extremum.common.repository.SeesSoftlyDeletedRecords;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.ConvertingParameterAccessor;
-import org.springframework.data.mongodb.repository.query.ReactiveMongoQueryMethod;
-import org.springframework.data.mongodb.repository.query.ReactivePartTreeMongoQuery;
+import org.springframework.data.mongodb.repository.query.PartTreeMongoQuery;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -18,13 +17,13 @@ import java.lang.reflect.Method;
 /**
  * @author rpuch
  */
-public class SoftDeleteReactiveMongoQueryLookupStrategy implements QueryLookupStrategy {
+public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
     private final QueryLookupStrategy strategy;
-    private final ReactiveMongoOperations mongoOperations;
+    private final MongoOperations mongoOperations;
     private final SoftDeletion softDeletion = new SoftDeletion();
 
-    public SoftDeleteReactiveMongoQueryLookupStrategy(QueryLookupStrategy strategy,
-                                                      ReactiveMongoOperations mongoOperations) {
+    public SoftDeleteMongoQueryLookupStrategy(QueryLookupStrategy strategy,
+            MongoOperations mongoOperations) {
         this.strategy = strategy;
         this.mongoOperations = mongoOperations;
     }
@@ -38,17 +37,17 @@ public class SoftDeleteReactiveMongoQueryLookupStrategy implements QueryLookupSt
             return repositoryQuery;
         }
 
-        if (!(repositoryQuery instanceof ReactivePartTreeMongoQuery)) {
+        if (!(repositoryQuery instanceof PartTreeMongoQuery)) {
             return repositoryQuery;
         }
-        ReactivePartTreeMongoQuery partTreeQuery = (ReactivePartTreeMongoQuery) repositoryQuery;
+        PartTreeMongoQuery partTreeQuery = (PartTreeMongoQuery) repositoryQuery;
 
-        return new SoftDeleteReactivePartTreeMongoQuery(partTreeQuery);
+        return new SoftDeletePartTreeMongoQuery(partTreeQuery);
     }
 
-    private class SoftDeleteReactivePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
-        SoftDeleteReactivePartTreeMongoQuery(ReactivePartTreeMongoQuery partTreeQuery) {
-            super((ReactiveMongoQueryMethod) partTreeQuery.getQueryMethod(), mongoOperations);
+    private class SoftDeletePartTreeMongoQuery extends PartTreeMongoQuery {
+        SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeQuery) {
+            super(partTreeQuery.getQueryMethod(), mongoOperations);
         }
 
         @Override

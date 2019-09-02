@@ -1,4 +1,4 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
 import io.extremum.mongo.dao.ReactiveMongoCommonDao;
 import io.extremum.mongo.model.MongoCommonModel;

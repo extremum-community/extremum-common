@@ -1,4 +1,4 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.repository.query.QueryLookupStrategy;

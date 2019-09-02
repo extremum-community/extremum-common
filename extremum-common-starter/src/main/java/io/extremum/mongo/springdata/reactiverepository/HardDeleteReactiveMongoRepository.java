@@ -1,4 +1,4 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.mongo.dao.ReactiveMongoCommonDao;

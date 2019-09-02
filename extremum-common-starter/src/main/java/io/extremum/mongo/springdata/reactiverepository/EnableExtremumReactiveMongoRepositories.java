@@ -1,4 +1,4 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
 import io.extremum.common.annotation.InfrastructureElement;
 import org.springframework.beans.factory.FactoryBean;

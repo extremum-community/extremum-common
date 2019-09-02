@@ -1,10 +1,10 @@
 package io.extremum.mongo.config;
 
 import io.extremum.mongo.properties.MongoProperties;
-import io.extremum.mongo.repository.EnableExtremumMongoRepositories;
-import io.extremum.mongo.repository.EnableExtremumReactiveMongoRepositories;
-import io.extremum.mongo.repository.ExtremumMongoRepositoryFactoryBean;
-import io.extremum.mongo.repository.ExtremumReactiveMongoRepositoryFactoryBean;
+import io.extremum.mongo.springdata.repository.EnableExtremumMongoRepositories;
+import io.extremum.mongo.springdata.reactiverepository.EnableExtremumReactiveMongoRepositories;
+import io.extremum.mongo.springdata.repository.ExtremumMongoRepositoryFactoryBean;
+import io.extremum.mongo.springdata.reactiverepository.ExtremumReactiveMongoRepositoryFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 

@@ -1,4 +1,4 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import io.extremum.common.utils.ModelUtils;
