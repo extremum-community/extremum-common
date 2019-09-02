@@ -10,7 +10,12 @@ import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoa
 import io.extremum.elasticsearch.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -45,7 +50,16 @@ public class ElasticsearchRepositoriesConfiguration {
         HttpHost[] httpHosts = elasticsearchProperties.getHosts().stream()
                 .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
                 .toArray(HttpHost[]::new);
-        return new RestHighLevelClient(RestClient.builder(httpHosts));
+        RestClientBuilder restClientBuilder = RestClient.builder(httpHosts);
+
+        if (elasticsearchProperties.getUsername() != null && elasticsearchProperties.getPassword() != null) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY,
+                    new UsernamePasswordCredentials(elasticsearchProperties.getUsername(), elasticsearchProperties.getPassword()));
+            restClientBuilder.setHttpClientConfigCallback(clientBuilder -> clientBuilder
+                    .setDefaultCredentialsProvider(credentialsProvider));
+        }
+        return new RestHighLevelClient(restClientBuilder);
     }
 
     @Bean
