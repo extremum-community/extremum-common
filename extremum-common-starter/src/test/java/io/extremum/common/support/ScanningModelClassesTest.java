@@ -1,6 +1,6 @@
 package io.extremum.common.support;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 

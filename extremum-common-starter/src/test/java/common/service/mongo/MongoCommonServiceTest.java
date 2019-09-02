@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static io.extremum.common.models.PersistableCommonModel.FIELDS.version;
+import static io.extremum.common.model.PersistableCommonModel.FIELDS.version;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

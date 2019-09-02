@@ -1,7 +1,7 @@
 package io.extremum.everything;
 
-import io.extremum.common.models.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.common.model.annotation.ModelName;
 import io.extremum.everything.collection.Projection;
 import org.junit.jupiter.api.Test;
 

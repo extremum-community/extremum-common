@@ -1,7 +1,7 @@
 package io.extremum.jpa.dao;
 
 import io.extremum.jpa.TestWithServices;
-import io.extremum.jpa.models.TestBasicJpaModel;
+import io.extremum.jpa.model.TestBasicJpaModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,7 +1,7 @@
 package io.extremum.common.support;
 
-import io.extremum.common.models.Model;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.Model;
+import io.extremum.common.model.annotation.ModelName;
 import io.extremum.common.utils.FindUtils;
 import io.extremum.common.utils.ModelUtils;
 import com.google.common.collect.ImmutableMap;

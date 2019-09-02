@@ -1,6 +1,6 @@
 package io.extremum.everything.support;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 
 /**
  * @author rpuch

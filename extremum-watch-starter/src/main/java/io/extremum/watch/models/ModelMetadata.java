@@ -1,8 +1,8 @@
 package io.extremum.watch.models;
 
-import io.extremum.common.models.BasicModel;
-import io.extremum.common.models.Model;
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.BasicModel;
+import io.extremum.common.model.Model;
+import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.utils.ModelUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

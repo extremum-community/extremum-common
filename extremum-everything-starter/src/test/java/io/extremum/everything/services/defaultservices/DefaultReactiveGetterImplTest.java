@@ -1,7 +1,7 @@
 package io.extremum.everything.services.defaultservices;
 
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;

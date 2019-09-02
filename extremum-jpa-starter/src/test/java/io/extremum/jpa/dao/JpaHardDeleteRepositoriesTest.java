@@ -1,7 +1,7 @@
 package io.extremum.jpa.dao;
 
 import io.extremum.jpa.TestWithServices;
-import io.extremum.jpa.models.HardDeleteJpaModel;
+import io.extremum.jpa.model.HardDeleteJpaModel;
 import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;

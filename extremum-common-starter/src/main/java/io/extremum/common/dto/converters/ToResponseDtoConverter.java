@@ -1,6 +1,6 @@
 package io.extremum.common.dto.converters;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.sharedmodels.dto.ResponseDto;
 
 public interface ToResponseDtoConverter<M extends Model, D extends ResponseDto> extends DtoConverter {

@@ -2,8 +2,9 @@ package io.extremum.common.mongo;
 
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import common.dao.mongo.TestMongoModelDao;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import models.TestMongoModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

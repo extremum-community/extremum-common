@@ -2,7 +2,7 @@ package io.extremum.jpa.dao;
 
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import io.extremum.jpa.dao.impl.SpringDataJpaCommonDao;
-import io.extremum.jpa.models.TestJpaModel;
+import io.extremum.jpa.model.TestJpaModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

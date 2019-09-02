@@ -96,6 +96,8 @@ public class ReflectionUtils {
     }
 
     public static Object invokeMethod(Method method, Object target, Object... args) {
+        method.setAccessible(true);
+
         try {
             return method.invoke(target, args);
         } catch (IllegalAccessException | InvocationTargetException e) {

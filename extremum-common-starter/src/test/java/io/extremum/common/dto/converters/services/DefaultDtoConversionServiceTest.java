@@ -4,7 +4,7 @@ import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.ReactiveToResponseDtoConverter;
 import io.extremum.common.dto.converters.StubDtoConverter;
 import io.extremum.common.dto.converters.ToResponseDtoConverter;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

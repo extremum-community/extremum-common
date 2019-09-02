@@ -7,7 +7,7 @@ import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilitiesImpl;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoader;
-import io.extremum.elasticsearch.repositories.*;
+import io.extremum.elasticsearch.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;

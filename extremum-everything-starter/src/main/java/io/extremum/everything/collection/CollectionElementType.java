@@ -1,6 +1,6 @@
 package io.extremum.everything.collection;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

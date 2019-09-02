@@ -1,7 +1,7 @@
 package io.extremum.everything.dao;
 
-import io.extremum.common.models.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.common.model.annotation.ModelName;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 

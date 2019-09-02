@@ -1,6 +1,6 @@
 package io.extremum.watch.services;
 
-import io.extremum.common.mongo.MongoConstants;
+import io.extremum.mongo.MongoConstants;
 import io.extremum.common.spring.data.OffsetBasedPageRequest;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.repositories.TextWatchEventRepository;

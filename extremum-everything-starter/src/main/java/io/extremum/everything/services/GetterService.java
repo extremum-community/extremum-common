@@ -1,6 +1,6 @@
 package io.extremum.everything.services;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 
 /**
  * Service that is used to obtain a model from the database for Everything-Everything GET operation

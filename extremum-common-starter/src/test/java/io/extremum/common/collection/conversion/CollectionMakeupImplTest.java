@@ -3,7 +3,6 @@ package io.extremum.common.collection.conversion;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
-import io.extremum.common.dto.AbstractResponseDto;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.TestApplicationUrls;
 import io.extremum.sharedmodels.basic.IdOrObject;
@@ -12,6 +11,7 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.sharedmodels.fundamental.CollectionReference;
+import io.extremum.sharedmodels.fundamental.CommonResponseDto;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -214,16 +214,21 @@ class CollectionMakeupImplTest {
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
     }
 
-    private static class BuildingResponseDto extends AbstractResponseDto {
+    private static class BuildingResponseDto extends CommonResponseDto {
         public String address;
 
         BuildingResponseDto(String externalId, String address) {
             setId(new Descriptor(externalId));
             this.address = address;
         }
+
+        @Override
+        public String getModel() {
+            return "Building";
+        }
     }
 
-    public static class StreetResponseDto extends AbstractResponseDto {
+    public static class StreetResponseDto extends CommonResponseDto {
         @OwnedCollection(hostAttributeName = "the-buildings")
         public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> buildings;
         @OwnedCollection(hostAttributeName = "the-private-buildings")
@@ -245,9 +250,14 @@ class CollectionMakeupImplTest {
         public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> getBuildingsAnnotatedViaGetter() {
             return buildingsAnnotatedViaGetter;
         }
+
+        @Override
+        public String getModel() {
+            return "Street";
+        }
     }
 
-    public static class InnerResponseDto extends AbstractResponseDto {
+    public static class InnerResponseDto extends CommonResponseDto {
         @OwnedCollection(hostAttributeName = "the-buildings")
         public CollectionReference<IdOrObject<Descriptor, BuildingResponseDto>> buildings;
 
@@ -256,9 +266,14 @@ class CollectionMakeupImplTest {
             setId(new Descriptor(externalId));
             this.buildings = new CollectionReference<>(buildings);
         }
+
+        @Override
+        public String getModel() {
+            return "Inner";
+        }
     }
 
-    public static class OuterResponseDto extends AbstractResponseDto {
+    public static class OuterResponseDto extends CommonResponseDto {
         public InnerResponseDto innerDto;
 
         OuterResponseDto(String outerExternalId, String innerExternalId,
@@ -266,9 +281,14 @@ class CollectionMakeupImplTest {
             setId(new Descriptor(outerExternalId));
             innerDto = new InnerResponseDto(innerExternalId, buildings);
         }
+
+        @Override
+        public String getModel() {
+            return "Outer";
+        }
     }
 
-    public static class OuterResponseDtoWithObjectTyping extends AbstractResponseDto {
+    public static class OuterResponseDtoWithObjectTyping extends CommonResponseDto {
         public Object innerDto;
 
         OuterResponseDtoWithObjectTyping(String outerExternalId, String innerExternalId,
@@ -276,14 +296,24 @@ class CollectionMakeupImplTest {
             setId(new Descriptor(outerExternalId));
             innerDto = new InnerResponseDto(innerExternalId, buildings);
         }
+
+        @Override
+        public String getModel() {
+            return "OuterWithObjectTyping";
+        }
     }
 
-    public static class ContainerResponseDto extends AbstractResponseDto {
+    public static class ContainerResponseDto extends CommonResponseDto {
         public ResponseDto dto;
 
         ContainerResponseDto(String id, ResponseDto dto) {
             setId(new Descriptor(id));
             this.dto = dto;
+        }
+
+        @Override
+        public String getModel() {
+            return "Container";
         }
     }
 }

@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static io.extremum.common.mongo.MongoConstants.DISTANT_FUTURE;
-import static io.extremum.common.mongo.MongoConstants.DISTANT_PAST;
+import static io.extremum.mongo.MongoConstants.DISTANT_FUTURE;
+import static io.extremum.mongo.MongoConstants.DISTANT_PAST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
