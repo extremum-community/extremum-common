@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,6 +103,29 @@ class MongoReactiveCommonDaoTest extends TestWithServices {
     }
 
     @Test
+    void testGetByPublisher() {
+        TestMongoModel model = getTestModel();
+        dao.save(model).block();
+
+        TestMongoModel resultModel = dao.findById(Mono.just(model.getId())).block();
+        assertThat(resultModel, is(notNullValue()));
+        assertEquals(model.getId(), resultModel.getId());
+        assertEquals(model.getCreated().toEpochSecond(), resultModel.getCreated().toEpochSecond());
+        assertEquals(model.getModified().toEpochSecond(), resultModel.getModified().toEpochSecond());
+        assertEquals(model.getVersion(), resultModel.getVersion());
+        assertEquals(model.getDeleted(), resultModel.getDeleted());
+
+        resultModel = dao.findById(Mono.just(new ObjectId())).block();
+        assertNull(resultModel);
+
+        TestMongoModel deletedModel = getDeletedTestModel();
+        dao.save(deletedModel).block();
+
+        resultModel = dao.findById(Mono.just(deletedModel.getId())).block();
+        assertNull(resultModel);
+    }
+
+    @Test
     void testFindAll() {
         int initCount = dao.findAll().collectList().block().size();
         int modelsToCreate = 10;
@@ -185,10 +210,26 @@ class MongoReactiveCommonDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenADeletedEntityExists_whenInvokingExistsByIdPublisher_thenFalseShouldBeReturned() {
+        TestMongoModel model = dao.save(getDeletedTestModel()).block();
+
+        assertThat(dao.existsById(Mono.just(model.getId())).block(), is(false));
+    }
+
+    @Test
     void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
         TestMongoModel model = dao.save(getDeletedTestModel()).block();
 
         List<TestMongoModel> all = dao.findAllById(singletonList(model.getId())).collectList().block();
+
+        assertThat(all, hasSize(0));
+    }
+
+    @Test
+    void givenADeletedEntityExists_whenInvokingFindAllByIdPublisher_thenNothingShouldBeReturned() {
+        TestMongoModel model = dao.save(getDeletedTestModel()).block();
+
+        List<TestMongoModel> all = dao.findAllById(Flux.just(model.getId())).collectList().block();
 
         assertThat(all, hasSize(0));
     }
@@ -242,6 +283,32 @@ class MongoReactiveCommonDaoTest extends TestWithServices {
         dao.deleteById(model.getId()).block();
 
         assertThat(dao.findById(model.getId()).block(), is(nullValue()));
+    }
+
+    @Test
+    void givenADocumentExists_whenItIsSoftDeletedWithPublisher_thenItShouldNotBeFoundAnymore() {
+        TestMongoModel model = new TestMongoModel();
+        model.setName("Test");
+        model = dao.save(model).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(notNullValue()));
+
+        dao.deleteById(Mono.just(model.getId())).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(nullValue()));
+    }
+
+    @Test
+    void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymoreWithPublisher() {
+        TestMongoModel model = new TestMongoModel();
+        model.setName("Test");
+        model = dao.save(model).block();
+
+        assertThat(dao.findById(Mono.just(model.getId())).block(), is(notNullValue()));
+
+        dao.deleteById(model.getId()).block();
+
+        assertThat(dao.findById(Mono.just(model.getId())).block(), is(nullValue()));
     }
 
     @Test

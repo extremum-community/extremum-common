@@ -6,6 +6,7 @@ import io.extremum.mongo.SoftDeletion;
 import io.extremum.mongo.dao.ReactiveMongoCommonDao;
 import io.extremum.mongo.model.MongoCommonModel;
 import org.bson.types.ObjectId;
+import org.reactivestreams.Publisher;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -68,6 +69,13 @@ public class SoftDeleteReactiveMongoRepository<T extends MongoCommonModel> exten
         Query query = notDeletedQueryWith(getIdCriteria(id));
 
         return findOneByQuery(query);
+    }
+
+    @Override
+    public Mono<T> findById(Publisher<ObjectId> publisher) {
+        Assert.notNull(publisher, "The given id must not be null!");
+
+        return Mono.from(publisher).flatMap(this::findById);
     }
 
     @Override
@@ -143,8 +151,22 @@ public class SoftDeleteReactiveMongoRepository<T extends MongoCommonModel> exten
     }
 
     @Override
+    public Mono<Boolean> existsById(Publisher<ObjectId> publisher) {
+        Assert.notNull(publisher, "The given id must not be null!");
+
+        return Mono.from(publisher).flatMap(this::existsById);
+    }
+
+    @Override
     public Mono<Void> deleteById(ObjectId id) {
         return deleteByIdAndReturn(id).then();
+    }
+
+    @Override
+    public Mono<Void> deleteById(Publisher<ObjectId> publisher) {
+        Assert.notNull(publisher, "Id must not be null!");
+
+        return Mono.from(publisher).flatMap(this::deleteById);
     }
 
     private Update updateDeletedToTrue() {
