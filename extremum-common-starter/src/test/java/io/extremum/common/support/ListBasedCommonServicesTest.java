@@ -1,8 +1,8 @@
 package io.extremum.common.support;
 
-import io.extremum.common.dao.MongoCommonDao;
+import io.extremum.mongo.dao.MongoCommonDao;
 import io.extremum.common.service.CommonService;
-import io.extremum.common.service.impl.MongoCommonServiceImpl;
+import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableList;
 

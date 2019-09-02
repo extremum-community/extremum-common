@@ -1,6 +1,6 @@
 package io.extremum.elasticsearch.repositories;
 
-import io.extremum.common.repository.common.ExpressionsSupportingRepositoryBeanDefinitionRegistrarSupport;
+import io.extremum.common.repository.ExpressionsSupportingRepositoryBeanDefinitionRegistrarSupport;
 import org.springframework.data.elasticsearch.repository.config.ElasticsearchRepositoryConfigExtension;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
 

@@ -6,7 +6,7 @@ import common.dao.mongo.MongoCommonDaoConfiguration;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.starter.properties.MongoProperties;
+import io.extremum.mongo.properties.MongoProperties;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package io.extremum.common.utils;
 
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.models.annotation.HardDelete;
 import io.extremum.common.models.annotation.ModelName;
 import org.hamcrest.MatcherAssert;

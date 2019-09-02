@@ -1,7 +1,7 @@
 package io.extremum.watch.end2end.fixture;
 
-import io.extremum.common.dao.MongoCommonDao;
-import io.extremum.common.service.impl.MongoCommonServiceImpl;
+import io.extremum.mongo.dao.MongoCommonDao;
+import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

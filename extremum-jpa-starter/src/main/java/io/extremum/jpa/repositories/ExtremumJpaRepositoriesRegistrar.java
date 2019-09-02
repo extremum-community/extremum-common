@@ -1,6 +1,6 @@
 package io.extremum.jpa.repositories;
 
-import io.extremum.common.repository.common.ExpressionsSupportingRepositoryBeanDefinitionRegistrarSupport;
+import io.extremum.common.repository.ExpressionsSupportingRepositoryBeanDefinitionRegistrarSupport;
 import org.springframework.data.jpa.repository.config.JpaRepositoryConfigExtension;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
 

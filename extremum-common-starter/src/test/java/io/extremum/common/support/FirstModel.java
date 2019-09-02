@@ -1,6 +1,6 @@
 package io.extremum.common.support;
 
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.models.annotation.ModelName;
 
 /**

@@ -1,6 +1,6 @@
 package io.extremum.watch.processor;
 
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import org.bson.types.ObjectId;
 
 /**

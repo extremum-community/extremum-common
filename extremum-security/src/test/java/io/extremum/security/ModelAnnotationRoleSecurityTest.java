@@ -1,7 +1,7 @@
 package io.extremum.security;
 
 import io.extremum.common.models.Model;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package common.dao.mongo;
 
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.models.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;

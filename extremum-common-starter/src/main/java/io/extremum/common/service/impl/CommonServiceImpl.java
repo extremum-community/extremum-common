@@ -26,7 +26,7 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
 
     private final CommonDao<M, ID> dao;
     private final Class<M> modelClass;
-    final String modelTypeName;
+    protected final String modelTypeName;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CommonServiceImpl.class);
 

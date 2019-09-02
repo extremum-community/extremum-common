@@ -3,7 +3,7 @@ package io.extremum.everything.services.management;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.models.annotation.ModelName;
 import io.extremum.common.reactive.NaiveReactifier;
 import io.extremum.common.reactive.Reactifier;

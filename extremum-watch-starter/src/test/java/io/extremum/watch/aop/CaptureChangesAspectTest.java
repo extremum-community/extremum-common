@@ -1,10 +1,10 @@
 package io.extremum.watch.aop;
 
-import io.extremum.common.dao.MongoCommonDao;
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.dao.MongoCommonDao;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.ThrowOnAlert;
-import io.extremum.common.service.impl.MongoCommonServiceImpl;
+import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
 import io.extremum.everything.services.management.PatchFlow;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.processor.CommonServiceWatchProcessor;

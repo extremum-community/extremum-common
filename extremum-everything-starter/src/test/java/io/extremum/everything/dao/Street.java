@@ -1,6 +1,6 @@
 package io.extremum.everything.dao;
 
-import io.extremum.common.models.MongoCommonModel;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.models.annotation.ModelName;
 import io.extremum.everything.collection.CollectionElementType;
 import lombok.AllArgsConstructor;

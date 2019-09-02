@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.factory.impl;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
