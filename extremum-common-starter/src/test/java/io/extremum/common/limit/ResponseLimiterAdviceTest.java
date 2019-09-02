@@ -1,7 +1,7 @@
 package io.extremum.common.limit;
 
-import io.extremum.common.dto.AbstractResponseDto;
 import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.fundamental.CommonResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -135,7 +135,11 @@ class ResponseLimiterAdviceTest {
         }
     }
 
-    private static class TestResponseDto extends AbstractResponseDto {
+    private static class TestResponseDto extends CommonResponseDto {
 
+        @Override
+        public String getModel() {
+            return "Test";
+        }
     }
 }
