@@ -1,6 +1,6 @@
 package io.extremum.mongo;
 
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.PersistableCommonModel;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;

@@ -1,7 +1,7 @@
 package io.extremum.common.support;
 
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.annotation.ModelName;
 
 /**
  * @author rpuch

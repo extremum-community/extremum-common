@@ -1,6 +1,6 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.everything.services.SaverService;

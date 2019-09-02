@@ -1,7 +1,7 @@
 package io.extremum.watch.end2end.fixture;
 
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.annotation.ModelName;
 import io.extremum.security.ExtremumRequiredRoles;
 import io.extremum.security.NoDataSecurity;
 import io.extremum.watch.annotation.CapturedModel;

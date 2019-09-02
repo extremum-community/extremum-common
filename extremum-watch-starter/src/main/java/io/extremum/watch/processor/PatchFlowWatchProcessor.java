@@ -1,6 +1,6 @@
 package io.extremum.watch.processor;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.watch.annotation.CapturedModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;

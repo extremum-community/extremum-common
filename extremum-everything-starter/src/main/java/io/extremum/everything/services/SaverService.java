@@ -1,6 +1,6 @@
 package io.extremum.everything.services;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 
 /**
  * Service that is used save a model to the database for Everything-Everything PATCH operation.

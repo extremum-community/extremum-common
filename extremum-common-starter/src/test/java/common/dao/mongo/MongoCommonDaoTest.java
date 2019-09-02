@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.extremum.common.models.PersistableCommonModel.FIELDS.created;
+import static io.extremum.common.model.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

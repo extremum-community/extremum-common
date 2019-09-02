@@ -1,7 +1,7 @@
 package io.extremum.watch.controller;
 
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.annotation.ModelName;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
 

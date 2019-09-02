@@ -1,6 +1,6 @@
 package io.extremum.everything.dao;
 
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.mongo.SoftDeletion;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;

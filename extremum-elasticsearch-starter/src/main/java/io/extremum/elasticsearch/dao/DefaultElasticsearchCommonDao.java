@@ -2,8 +2,8 @@ package io.extremum.elasticsearch.dao;
 
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.models.PersistableCommonModel;
-import io.extremum.common.models.PersistableCommonModel.FIELDS;
+import io.extremum.common.model.PersistableCommonModel;
+import io.extremum.common.model.PersistableCommonModel.FIELDS;
 import io.extremum.common.utils.CollectionUtils;
 import io.extremum.common.utils.DateUtils;
 import io.extremum.common.utils.ModelUtils;

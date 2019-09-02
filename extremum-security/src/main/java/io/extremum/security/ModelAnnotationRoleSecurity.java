@@ -1,6 +1,6 @@
 package io.extremum.security;
 
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.common.utils.AnnotationUtils;
 import io.extremum.sharedmodels.descriptor.Descriptor;

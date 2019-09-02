@@ -3,7 +3,7 @@ package io.extremum.everything.services.management;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.services.GetterService;
 import io.extremum.security.AllowEverythingForDataAccess;
@@ -14,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Collections;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;

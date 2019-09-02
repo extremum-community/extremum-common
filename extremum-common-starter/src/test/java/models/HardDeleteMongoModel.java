@@ -1,8 +1,8 @@
 package models;
 
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.annotation.HardDelete;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.annotation.HardDelete;
+import io.extremum.common.model.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;

@@ -1,7 +1,7 @@
 package io.extremum.mongo.reactive;
 
-import io.extremum.common.models.Model;
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.Model;
+import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.support.UniversalReactiveModelLoader;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.mongo.SoftDeletion;

@@ -4,7 +4,7 @@ import io.extremum.common.dao.CommonDao;
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
-import io.extremum.common.models.BasicModel;
+import io.extremum.common.model.BasicModel;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.Problems;
 import io.extremum.common.service.ThrowOnAlert;

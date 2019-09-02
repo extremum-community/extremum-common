@@ -21,7 +21,7 @@ import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import io.extremum.common.reactive.IsolatedSchedulerReactifier;
 import io.extremum.common.reactive.Reactifier;

@@ -2,7 +2,7 @@ package io.extremum.mongo.repository;
 
 import io.extremum.mongo.dao.MongoCommonDao;
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.QueryFields;
+import io.extremum.common.model.QueryFields;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;

@@ -1,8 +1,8 @@
 package io.extremum.common.utils;
 
-import io.extremum.common.models.Model;
-import io.extremum.common.models.annotation.HardDelete;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.Model;
+import io.extremum.common.model.annotation.HardDelete;
+import io.extremum.common.model.annotation.ModelName;
 
 public final class ModelUtils {
     public static String getModelName(Class<? extends Model> modelClass) {

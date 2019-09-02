@@ -3,7 +3,7 @@ package io.extremum.mongo.repository;
 import io.extremum.mongo.dao.MongoCommonDao;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.mongo.SoftDeletion;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Example;

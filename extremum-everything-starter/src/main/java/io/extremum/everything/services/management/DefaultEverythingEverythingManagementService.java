@@ -4,7 +4,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.models.Model;
+import io.extremum.common.model.Model;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.everything.services.RemovalService;
 import io.extremum.everything.services.defaultservices.DefaultRemover;

@@ -1,8 +1,8 @@
 package io.extremum.common.utils;
 
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.models.annotation.HardDelete;
-import io.extremum.common.models.annotation.ModelName;
+import io.extremum.common.model.annotation.HardDelete;
+import io.extremum.common.model.annotation.ModelName;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 

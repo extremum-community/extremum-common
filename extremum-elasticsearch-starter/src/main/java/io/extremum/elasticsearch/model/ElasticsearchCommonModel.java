@@ -1,8 +1,8 @@
 package io.extremum.elasticsearch.model;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.common.models.Model;
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.Model;
+import io.extremum.common.model.PersistableCommonModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;

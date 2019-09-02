@@ -1,6 +1,6 @@
 package io.extremum.mongo.model;
 
-import io.extremum.common.models.PersistableCommonModel;
+import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.Setter;
