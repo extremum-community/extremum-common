@@ -1,9 +1,10 @@
 package io.extremum.mongo.config;
 
-import io.extremum.mongo.repository.EnableExtremumMongoRepositories;
-import io.extremum.mongo.repository.ExtremumMongoRepositoryFactoryBean;
 import io.extremum.mongo.properties.MongoProperties;
-import lombok.RequiredArgsConstructor;
+import io.extremum.mongo.repository.EnableExtremumMongoRepositories;
+import io.extremum.mongo.repository.EnableExtremumReactiveMongoRepositories;
+import io.extremum.mongo.repository.ExtremumMongoRepositoryFactoryBean;
+import io.extremum.mongo.repository.ExtremumReactiveMongoRepositoryFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,7 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableExtremumMongoRepositories(basePackages = "${mongo.repository-packages}",
         repositoryFactoryBeanClass = ExtremumMongoRepositoryFactoryBean.class)
+@EnableExtremumReactiveMongoRepositories(basePackages = "${mongo.repository-packages}",
+        repositoryFactoryBeanClass = ExtremumReactiveMongoRepositoryFactoryBean.class)
 @ConditionalOnProperty(MongoProperties.REPOSITORY_PACKAGES_PROPERTY)
-@RequiredArgsConstructor
 public class MongoRepositoriesConfiguration {
 }

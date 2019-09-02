@@ -55,7 +55,7 @@ class MongoReactiveCommonDaoTest extends TestWithServices {
         TestMongoModel model = getTestModel();
         model.setId(new ObjectId(model.getUuid().getInternalId()));
         model.setVersion(123L);
-        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model));
+        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model).block());
     }
 
     @Test
@@ -217,18 +217,18 @@ class MongoReactiveCommonDaoTest extends TestWithServices {
     void testThatSpringDataMagicCounterMethodRespectsDeletedFlag() {
         String uniqueName = UUID.randomUUID().toString();
 
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
 
-        assertThat(dao.countByName(uniqueName), is(1L));
+        assertThat(dao.countByName(uniqueName).block(), is(1L));
     }
 
     @Test
     void testThatSpringDataMagicCounterMethodRespects_SeesSoftlyDeletedRecords_annotation() {
         String uniqueName = UUID.randomUUID().toString();
 
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
 
-        assertThat(dao.countEvenDeletedByName(uniqueName), is(2L));
+        assertThat(dao.countEvenDeletedByName(uniqueName).block(), is(2L));
     }
 
     @Test
