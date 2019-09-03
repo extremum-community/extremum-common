@@ -10,6 +10,10 @@ import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoa
 import io.extremum.elasticsearch.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -26,9 +30,6 @@ import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchC
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.http.HttpHeaders;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Configuration
 @ConditionalOnProperty("elasticsearch.repository-packages")
 @EnableConfigurationProperties(ElasticsearchProperties.class)
@@ -40,24 +41,30 @@ public class ElasticsearchRepositoriesConfiguration {
 
     @Bean
     public ElasticsearchDescriptorFacilities elasticsearchDescriptorFacilities(DescriptorFactory descriptorFactory,
-            DescriptorSaver descriptorSaver) {
+                                                                               DescriptorSaver descriptorSaver) {
         return new ElasticsearchDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
     }
 
     @Bean
     public RestHighLevelClient elasticsearchClient() {
-        List<HttpHost> httpHosts = elasticsearchProperties.getHosts().stream()
+        HttpHost[] httpHosts = elasticsearchProperties.getHosts().stream()
                 .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
-                .collect(Collectors.toList());
+                .toArray(HttpHost[]::new);
+        RestClientBuilder restClientBuilder = RestClient.builder(httpHosts);
 
-        RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[0]));
-
-        return new RestHighLevelClient(builder);
+        if (elasticsearchProperties.getUsername() != null && elasticsearchProperties.getPassword() != null) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY,
+                    new UsernamePasswordCredentials(elasticsearchProperties.getUsername(), elasticsearchProperties.getPassword()));
+            restClientBuilder.setHttpClientConfigCallback(clientBuilder -> clientBuilder
+                    .setDefaultCredentialsProvider(credentialsProvider));
+        }
+        return new RestHighLevelClient(restClientBuilder);
     }
 
     @Bean
     public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
-            ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
+                                                         ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         return new ExtremumElasticsearchRestTemplate(elasticsearchClient, objectMapper,
                 elasticsearchDescriptorFactory);
     }
