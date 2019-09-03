@@ -3,7 +3,7 @@
     <parent>
         <groupId>io.extremum</groupId>
         <artifactId>extremum-common-project</artifactId>
-        <version>1.0.11</version>
+        <version>1.0.12-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,48 +28,48 @@
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-shared-models</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-test-harness</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-common-starter</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-security</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-starter</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-jpa-starter</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-elasticsearch-starter</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-watch-starter</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>authentication-api</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12-SNAPSHOT</version>
             </dependency>
 
             <!-- Adding this BEFORE importing spring-boot-dependencies so that our versions win -->
