@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>extremum-common-parent</artifactId>
-        <groupId>com.extremum</groupId>
-        <version>1.0.7-SNAPSHOT</version>
+        <groupId>io.extremum</groupId>
+        <artifactId>extremum-module-parent</artifactId>
+        <version>1.0.13-SNAPSHOT</version>
+        <relativePath>../extremum-module-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>extremum-elasticsearch-starter</artifactId>
 
     <properties>
-        <elasticsearch.version>7.1.0</elasticsearch.version>
-        <testcoverage.minimum>0.61</testcoverage.minimum>
+        <testcoverage.minimum>0.62</testcoverage.minimum>
     </properties>
 
     <repositories>
@@ -23,20 +23,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.extremum</groupId>
+            <groupId>io.extremum</groupId>
             <artifactId>extremum-common-starter</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
-            <version>3.2.0.RC1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
-            <version>2.1.5.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -48,12 +45,21 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <!-- spring-webflux and reactor-netty are needed for spring-data-elasticsearch reactive client -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.extremum</groupId>
-            <artifactId>extremum-test-containers</artifactId>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-test-harness</artifactId>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -65,7 +71,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

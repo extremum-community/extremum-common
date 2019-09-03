@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>io.extremum</groupId>
+        <artifactId>extremum-common-project</artifactId>
+        <version>1.0.13-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>extremum-bom</artifactId>
+    <packaging>pom</packaging>
+    <name>extremum-common BOM</name>
+    <description>This module serves as a BOM (Bill of Materials) defining versions of the artifacts used
+        by extremum-common (and suggested to the applications that use extremum-common).
+        You almost never need to use this module as a parent.
+        If you need to add a new module to extremum-common, please choose extremum-module-parent as its parent.
+        If want to have some extremum parent as a parent of your application, please use extremum-app-parent.
+    </description>
+
+    <properties>
+        <spring-boot-dependencies.version>2.1.3.RELEASE</spring-boot-dependencies.version>
+        <elasticsearch.version>7.1.0</elasticsearch.version>
+        <testcontainers.version>1.11.3</testcontainers.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-shared-models</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-test-harness</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-common-starter</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-security</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-everything-starter</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-jpa-starter</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-elasticsearch-starter</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-watch-starter</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>authentication-api</artifactId>
+                <version>1.0.13-SNAPSHOT</version>
+            </dependency>
+
+            <!-- Adding this BEFORE importing spring-boot-dependencies so that our versions win -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-elasticsearch</artifactId>
+                <version>3.2.0.RC1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>2.1.5.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>transport</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client</artifactId>
+                <version>${elasticsearch.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.elasticsearch.plugin</groupId>
+                <artifactId>transport-netty4-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jettison</groupId>
+                <artifactId>jettison</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.9.8</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>3.10.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-web</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.fge</groupId>
+                <artifactId>json-patch</artifactId>
+                <version>1.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

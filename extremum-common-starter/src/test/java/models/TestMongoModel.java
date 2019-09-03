@@ -1,7 +1,7 @@
 package models;
 
-import com.extremum.common.models.MongoCommonModel;
-import com.extremum.common.models.annotation.ModelName;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.common.model.annotation.ModelName;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,7 +13,7 @@ import static models.TestMongoModel.COLLECTION;
 @Getter @Setter
 public class TestMongoModel extends MongoCommonModel {
 
-    static final String COLLECTION = "testEntities";
+    public static final String COLLECTION = "testEntities";
     private String name;
 
     public enum FIELDS {

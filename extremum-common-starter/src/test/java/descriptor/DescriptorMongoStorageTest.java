@@ -1,14 +1,16 @@
 package descriptor;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.descriptor.factory.DescriptorSaver;
-import com.extremum.common.test.TestWithServices;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.test.TestWithServices;
 import com.mongodb.client.model.Filters;
 import config.DescriptorConfiguration;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
 
@@ -35,6 +37,7 @@ class DescriptorMongoStorageTest extends TestWithServices {
     @Autowired
     private DescriptorSaver descriptorSaver;
     @Autowired
+    @Qualifier("descriptorsMongoTemplate")
     private MongoOperations mongoOperations;
 
     @Test
@@ -77,11 +80,31 @@ class DescriptorMongoStorageTest extends TestWithServices {
 
     @Test
     void makeSureAnIndexIsCreatedForDescriptorInternalId() {
-        ArrayList<Document> indices = mongoOperations.getCollection(EXPECTED_DESCRIPTOR_COLLECTION)
-                .listIndexes()
-                .into(new ArrayList<>());
+        List<Document> indices = getIndicesOnDescriptorsCollection();
 
         assertThat(indices, hasItem(havingName("internalId")));
     }
 
+    @NotNull
+    private List<Document> getIndicesOnDescriptorsCollection() {
+        return mongoOperations.getCollection(EXPECTED_DESCRIPTOR_COLLECTION)
+                .listIndexes()
+                .into(new ArrayList<>());
+    }
+
+    @Test
+    void whenDescriptorIsSaved_thenDataStorageTypeShouldBeRepresentedWithInternalValueAndNotWithEnumFieldName() {
+        Descriptor descriptor = createAndSaveNewDescriptor();
+
+        Document document = findDescriptorDocument(descriptor);
+
+        assertThat(document.get("storageType"), is("mongo"));
+    }
+
+    @Test
+    void makeSureAnIndexIsCreatedForDescriptorCollectionCoordinates() {
+        List<Document> indices = getIndicesOnDescriptorsCollection();
+
+        assertThat(indices, hasItem(havingName("collection.coordinatesString")));
+    }
 }

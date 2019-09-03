@@ -1,14 +1,14 @@
 package common.service.mongo;
 
-import com.extremum.sharedmodels.descriptor.Descriptor;
-import com.extremum.common.exceptions.ModelNotFoundException;
-import com.extremum.common.exceptions.WrongArgumentException;
-import com.extremum.common.response.Alert;
-import com.extremum.common.service.AlertsCollector;
-import com.extremum.common.service.Problems;
-import com.extremum.common.utils.ModelUtils;
-import com.extremum.common.uuid.StandardUUIDGenerator;
-import com.extremum.common.uuid.UUIDGenerator;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.common.exceptions.ModelNotFoundException;
+import io.extremum.common.exceptions.WrongArgumentException;
+import io.extremum.common.response.Alert;
+import io.extremum.common.service.AlertsCollector;
+import io.extremum.common.service.Problems;
+import io.extremum.common.utils.ModelUtils;
+import io.extremum.common.uuid.StandardUUIDGenerator;
+import io.extremum.common.uuid.UUIDGenerator;
 import common.dao.mongo.TestMongoModelDao;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.extremum.common.models.PersistableCommonModel.FIELDS.version;
+import static io.extremum.common.model.PersistableCommonModel.FIELDS.version;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

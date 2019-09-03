@@ -1,9 +1,9 @@
 package models.deserialization;
 
-import com.extremum.common.mapper.MockedMapperDependencies;
-import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.sharedmodels.basic.MultilingualLanguage;
-import com.extremum.sharedmodels.basic.StringOrMultilingual;
+import io.extremum.common.mapper.MockedMapperDependencies;
+import io.extremum.common.mapper.SystemJsonObjectMapper;
+import io.extremum.sharedmodels.basic.MultilingualLanguage;
+import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class StringOrMultilingualDeserializerTest {
         assertNotNull(ml);
         assertEquals(StringOrMultilingual.Type.TEXT, ml.getType());
         assertEquals("В лесу родилась ёлочка", ml.getText());
-        assertNull(ml.getMap());
+        assertNull(ml.getMultilingual());
     }
 
     @Test
@@ -38,13 +38,13 @@ public class StringOrMultilingualDeserializerTest {
         assertNotNull(ml);
         assertEquals(StringOrMultilingual.Type.MAP, ml.getType());
         assertNull(ml.getText());
-        assertFalse(ml.getMap().isEmpty());
-        assertEquals(2, ml.getMap().size());
+        assertFalse(ml.getMultilingual().getMap().isEmpty());
+        assertEquals(2, ml.getMultilingual().getMap().size());
 
-        String ru_RU_text = ml.getMap().get(MultilingualLanguage.ru_RU);
+        String ru_RU_text = ml.getMultilingual().getMap().get(MultilingualLanguage.ru_RU);
         assertEquals("В лесу родилась ёлочка", ru_RU_text);
 
-        String en_US_text = ml.getMap().get(MultilingualLanguage.en_US);
+        String en_US_text = ml.getMultilingual().getMap().get(MultilingualLanguage.en_US);
         assertEquals("The forest raised a christmas tree", en_US_text);
     }
 }

@@ -1,9 +1,9 @@
 package common.dao.mongo;
 
-import com.extremum.common.descriptor.service.DescriptorService;
-import com.extremum.common.test.TestWithServices;
-import com.extremum.common.utils.ModelUtils;
-import com.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.test.TestWithServices;
+import io.extremum.common.utils.ModelUtils;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.extremum.common.models.PersistableCommonModel.FIELDS.created;
+import static io.extremum.common.model.PersistableCommonModel.FIELDS.created;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,7 +45,7 @@ class MongoCommonDaoTest extends TestWithServices {
 
     @Test
     void testCreateModel() {
-        TestMongoModel model = getTestModel();
+        TestMongoModel model = new TestMongoModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
@@ -343,6 +343,16 @@ class MongoCommonDaoTest extends TestWithServices {
         assertThat(dao.findById(model.getId()).isPresent(), is(true));
 
         dao.deleteById(model.getId());
+
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
+    }
+
+    @Test
+    void givenEntityExists_whenCallingDeleteByIdAndReturn_thenItShouldBeReturnedAndShouldNotBeFoundLater() {
+        TestMongoModel model = dao.save(new TestMongoModel());
+
+        TestMongoModel deletedModel = dao.deleteByIdAndReturn(model.getId());
+        assertThat(deletedModel.getId(), is(equalTo(model.getId())));
 
         assertThat(dao.findById(model.getId()).isPresent(), is(false));
     }

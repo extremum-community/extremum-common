@@ -1,8 +1,8 @@
 package models.serialization;
 
-import com.extremum.common.mapper.SystemJsonObjectMapper;
-import com.extremum.common.mapper.MockedMapperDependencies;
-import com.extremum.common.stucts.DurationVariativeValue;
+import io.extremum.common.mapper.SystemJsonObjectMapper;
+import io.extremum.common.mapper.MockedMapperDependencies;
+import io.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.codehaus.jettison.json.JSONException;

@@ -3,7 +3,8 @@ redis:
   idleTime: 1
 
 mongo:
-  dbName: test
+  service-db-name: test
+  descriptors-db-name: descriptors
   repository-packages: abc,common.dao.mongo
 
 descriptors:
@@ -13,3 +14,11 @@ descriptors:
 spring:
   main:
     allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.data.mongodb.core: INFO
+
+custom:
+  model:
+    package-names: io.extremum
