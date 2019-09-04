@@ -9,7 +9,9 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface TestReactiveMongoModelDao extends SpringDataReactiveMongoCommonDao<TestMongoModel> {
-    Flux<TestMongoModel> findByName(String name);
+    Mono<TestMongoModel> findOneByName(String name);
+
+    Flux<TestMongoModel> findAllByName(String name);
 
     @SeesSoftlyDeletedRecords
     Flux<TestMongoModel> findEvenDeletedByName(String name);

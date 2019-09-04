@@ -225,7 +225,7 @@ class ReactiveMongoCommonDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
 
-        List<TestMongoModel> results = dao.findByName(uniqueName).collectList().block();
+        List<TestMongoModel> results = dao.findAllByName(uniqueName).collectList().block();
         assertThat(results, hasSize(1));
     }
 
