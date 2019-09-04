@@ -2,7 +2,13 @@ package io.extremum.mongo.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import io.extremum.common.descriptor.factory.DescriptorFactory;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorLifecycleListener;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
+import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
+import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleListener;
 import io.extremum.mongo.springdata.EnableAllMongoAuditing;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.mongo.properties.MongoProperties;
@@ -10,6 +16,7 @@ import io.extremum.starter.DateToZonedDateTimeConverter;
 import io.extremum.starter.DescriptorToStringConverter;
 import io.extremum.starter.ZonedDateTimeToDateConverter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -108,6 +115,19 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         converters.add(new StringToStorageTypeConverter());
 
         return new MongoCustomConversions(converters);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
+                                                               DescriptorSaver descriptorSaver) {
+        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
+    }
+
+    @Bean
+    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener(
+            MongoDescriptorFacilities mongoDescriptorFacilities) {
+        return new MongoCommonModelLifecycleListener(mongoDescriptorFacilities);
     }
 
     @Bean

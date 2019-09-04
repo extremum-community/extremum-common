@@ -3,27 +3,32 @@ package io.extremum.mongo.service.lifecycle;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.mongo.springdata.lifecycle.AbstractReactiveMongoEventListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import reactor.core.publisher.Mono;
 
 /**
  * @author rpuch
  */
-public final class MongoCommonModelLifecycleListener extends BlockingMongoEventListener<MongoCommonModel> {
+public final class ReactiveMongoCommonModelLifecycleListener
+        extends AbstractReactiveMongoEventListener<MongoCommonModel> {
     private final MongoDescriptorFacilities mongoDescriptorFacilities;
 
-    public MongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
+    public ReactiveMongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
         this.mongoDescriptorFacilities = mongoDescriptorFacilities;
     }
 
     @Override
-    protected void onBeforeConvertBlockingly(BeforeConvertEvent<MongoCommonModel> event) {
+    public Mono<Void> onBeforeConvert(BeforeConvertEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
         fillRequiredFields(model);
+
+        return Mono.empty();
     }
     
     private void fillRequiredFields(MongoCommonModel model) {
@@ -56,10 +61,12 @@ public final class MongoCommonModelLifecycleListener extends BlockingMongoEventL
     }
 
     @Override
-    protected void onAfterSaveBlockingly(AfterSaveEvent<MongoCommonModel> event) {
+    public Mono<Void> onAfterSave(AfterSaveEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
         createDescriptorIfNeeded(model);
+
+        return Mono.empty();
     }
 
     private void createDescriptorIfNeeded(MongoCommonModel model) {
@@ -70,12 +77,14 @@ public final class MongoCommonModelLifecycleListener extends BlockingMongoEventL
     }
 
     @Override
-    protected void onAfterConvertBlockingly(AfterConvertEvent<MongoCommonModel> event) {
+    public Mono<Void> onAfterConvert(AfterConvertEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
         resolveDescriptor(model);
+
+        return Mono.empty();
     }
-    
+
     private void resolveDescriptor(MongoCommonModel model) {
         model.setUuid(mongoDescriptorFacilities.fromInternalId(model.getId()));
     }

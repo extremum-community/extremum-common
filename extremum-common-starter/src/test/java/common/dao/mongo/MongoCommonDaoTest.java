@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.extremum.common.model.PersistableCommonModel.FIELDS.created;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +43,7 @@ class MongoCommonDaoTest extends TestWithServices {
     private DescriptorService descriptorService;
 
     @Test
-    void testCreateModel() {
+    void whenSaving_thenAllAutoFieldsShouldBeFilled() {
         TestMongoModel model = new TestMongoModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
@@ -53,9 +52,30 @@ class MongoCommonDaoTest extends TestWithServices {
         TestMongoModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
+        assertNotNull(model.getUuid());
         assertNotNull(model.getCreated());
         assertNotNull(model.getVersion());
         assertFalse(model.getDeleted());
+    }
+
+    @Test
+    void whenFinding_thenDescriptorShouldBeFilled() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel());
+
+        TestMongoModel loadedModel = dao.findById(savedModel.getId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+
+        assertThat(loadedModel.getUuid(), is(notNullValue()));
+    }
+
+    @Test
+    void whenFinding_thenDescriptorInternalIdShouldMatchTheEntityId() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel());
+
+        TestMongoModel loadedModel = dao.findById(savedModel.getId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+
+        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId().toString())));
     }
 
     @Test
