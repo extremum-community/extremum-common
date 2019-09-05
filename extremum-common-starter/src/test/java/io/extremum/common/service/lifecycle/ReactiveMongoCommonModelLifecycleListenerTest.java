@@ -57,14 +57,12 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
                     return Mono.just(new ObjectId(descriptor.getInternalId()));
                 });
 
-//        alwaysGenerateExpectedExternalId();
         TestMongoModel model = new TestMongoModel();
         
         listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter")).block();
 
         assertThatDescriptorWasGeneratedWithNewInternalId(model);
         assertThatDescriptorInternalIdMatchesEntityId(model);
-//        assertThatDescriptorWasSaved(model);
     }
 
     private void createADescriptorWhenRequested() {
@@ -79,10 +77,6 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
                 ));
     }
 
-    private void alwaysGenerateExpectedExternalId() {
-        when(descriptorService.createExternalId()).thenReturn("new-external-id");
-    }
-
     private void assertThatDescriptorWasGeneratedWithNewInternalId(TestMongoModel model) {
         assertThat(model.getUuid(), is(notNullValue()));
         assertThat(model.getUuid().getExternalId(), is("new-external-id"));
@@ -92,10 +86,6 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
 
     private void assertThatDescriptorInternalIdMatchesEntityId(TestMongoModel model) {
         assertThat(model.getId().toString(), CoreMatchers.is(equalTo(model.getUuid().getInternalId())));
-    }
-
-    private void assertThatDescriptorWasSaved(TestMongoModel model) {
-        verify(descriptorService).store(model.getUuid());
     }
 
     @Test
@@ -128,7 +118,6 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
     @Test
     void givenAnEntityHasIdButNoUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedForThatIdAndAssignedToUuid() {
         createADescriptorWhenRequested();
-//        alwaysGenerateExpectedExternalId();
         TestMongoModel model = new TestMongoModel();
         model.setId(objectId);
 
@@ -136,7 +125,6 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
 
         assertThatDescriptorWasGeneratedWithGivenInternalId(model);
         assertThatEntityIdDidNotChange(model);
-//        assertThatDescriptorWasSaved(model);
     }
 
     private void assertThatDescriptorWasGeneratedWithGivenInternalId(TestMongoModel model) {
