@@ -176,6 +176,25 @@ class DescriptorTest {
     }
 
     @Test
+    void givenStorageTypeIsNullAndExternalIdIsNotNullAndNoDescriptorIsFound_whenGetStorageTypeReactivelyIsUsed_thenAnExceptionShouldBeThrown() {
+        when(descriptorLoader.loadByExternalIdReactively("external-id"))
+                .thenReturn(Mono.empty());
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+
+        StepVerifier.create(storageTypeMono)
+                .expectErrorSatisfies(ex -> {
+                    assertThat(ex, instanceOf(DescriptorNotFoundException.class));
+                    assertThat(ex.getMessage(), is("Internal ID was not found for external ID external-id"));
+                })
+                .verify();
+    }
+
+    @Test
     void givenStorageTypeIsNullAndInternalIdIsNotNull_whenGetStorageTypeReactivelyIsUsed_thenTheStorageTypeShouldBeReturnedAndFilled() {
         when(descriptorLoader.loadByInternalIdReactively("internal-id"))
                 .thenReturn(Mono.just(descriptorInDb));
@@ -191,5 +210,24 @@ class DescriptorTest {
                 .verifyComplete();
 
         assertThat(descriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+    }
+
+    @Test
+    void givenStorageTypeIsNullAndInternalIdIsNotNullAndNoDescriptorIsFound_whenGetStorageTypeReactivelyIsUsed_thenAnExceptionShouldBeThrown() {
+        when(descriptorLoader.loadByInternalIdReactively("internal-id"))
+                .thenReturn(Mono.empty());
+
+        Descriptor descriptor = Descriptor.builder()
+                .internalId("internal-id")
+                .build();
+
+        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+
+        StepVerifier.create(storageTypeMono)
+                .expectErrorSatisfies(ex -> {
+                    assertThat(ex, instanceOf(DescriptorNotFoundException.class));
+                    assertThat(ex.getMessage(), is("Internal id internal-id without corresponding descriptor"));
+                })
+                .verify();
     }
 }
