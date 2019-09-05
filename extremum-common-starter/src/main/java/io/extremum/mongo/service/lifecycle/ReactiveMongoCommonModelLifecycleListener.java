@@ -1,7 +1,7 @@
 package io.extremum.mongo.service.lifecycle;
 
 import io.extremum.common.utils.ModelUtils;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.mongo.springdata.lifecycle.AbstractReactiveMongoEventListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -16,9 +16,9 @@ import reactor.core.publisher.Mono;
  */
 public final class ReactiveMongoCommonModelLifecycleListener
         extends AbstractReactiveMongoEventListener<MongoCommonModel> {
-    private final MongoDescriptorFacilities mongoDescriptorFacilities;
+    private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
 
-    public ReactiveMongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
+    public ReactiveMongoCommonModelLifecycleListener(ReactiveMongoDescriptorFacilities mongoDescriptorFacilities) {
         this.mongoDescriptorFacilities = mongoDescriptorFacilities;
     }
 
@@ -26,32 +26,38 @@ public final class ReactiveMongoCommonModelLifecycleListener
     public Mono<Void> onBeforeConvert(BeforeConvertEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
-        fillRequiredFields(model);
-
-        return Mono.empty();
+        return fillRequiredFields(model);
     }
     
-    private void fillRequiredFields(MongoCommonModel model) {
+    private Mono<Void> fillRequiredFields(MongoCommonModel model) {
         final boolean internalIdGiven = model.getId() != null;
         final boolean uuidGiven = model.getUuid() != null;
 
         if (uuidGiven && !internalIdGiven) {
-            model.setId(getInternalIdFromDescriptor(model));
+            return getInternalIdFromDescriptor(model)
+                    .doOnNext(model::setId)
+                    .then();
         } else if (!uuidGiven && internalIdGiven) {
-            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(model.getId(), model);
-            model.setUuid(descriptor);
+            return createAndSaveDescriptorWithGivenInternalId(model.getId(), model)
+                    .doOnNext(model::setUuid)
+                    .then();
         } else if (!uuidGiven && !internalIdGiven) {
-            Descriptor descriptor = createAndSaveDescriptorWithGivenInternalId(newEntityId(), model);
-            model.setUuid(descriptor);
-            model.setId(getInternalIdFromDescriptor(model));
+            return createAndSaveDescriptorWithGivenInternalId(newEntityId(), model)
+                    .doOnNext(model::setUuid)
+                    .then(getInternalIdFromDescriptor(model).doOnNext(model::setId))
+                    .then();
         }
+
+        return Mono.empty();
     }
 
-    private ObjectId getInternalIdFromDescriptor(MongoCommonModel model) {
-        return mongoDescriptorFacilities.resolve(model.getUuid());
+    private Mono<ObjectId> getInternalIdFromDescriptor(MongoCommonModel model) {
+        return Mono.just(model)
+                .map(MongoCommonModel::getUuid)
+                .flatMap(mongoDescriptorFacilities::resolve);
     }
 
-    private Descriptor createAndSaveDescriptorWithGivenInternalId(ObjectId objectId, MongoCommonModel model) {
+    private Mono<Descriptor> createAndSaveDescriptorWithGivenInternalId(ObjectId objectId, MongoCommonModel model) {
         String modelName = ModelUtils.getModelName(model);
         return mongoDescriptorFacilities.create(objectId, modelName);
     }
@@ -64,28 +70,30 @@ public final class ReactiveMongoCommonModelLifecycleListener
     public Mono<Void> onAfterSave(AfterSaveEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
-        createDescriptorIfNeeded(model);
-
-        return Mono.empty();
+        return createDescriptorIfNeeded(model);
     }
 
-    private void createDescriptorIfNeeded(MongoCommonModel model) {
+    private Mono<Void> createDescriptorIfNeeded(MongoCommonModel model) {
         if (model.getUuid() == null) {
             String name = ModelUtils.getModelName(model.getClass());
-            model.setUuid(mongoDescriptorFacilities.create(model.getId(), name));
+            return mongoDescriptorFacilities.create(model.getId(), name)
+                    .doOnNext(model::setUuid)
+                    .then();
         }
+
+        return Mono.empty();
     }
 
     @Override
     public Mono<Void> onAfterConvert(AfterConvertEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
-        resolveDescriptor(model);
-
-        return Mono.empty();
+        return resolveDescriptor(model);
     }
 
-    private void resolveDescriptor(MongoCommonModel model) {
-        model.setUuid(mongoDescriptorFacilities.fromInternalId(model.getId()));
+    private Mono<Void> resolveDescriptor(MongoCommonModel model) {
+        return mongoDescriptorFacilities.fromInternalId(model.getId())
+                .doOnNext(model::setUuid)
+                .then();
     }
 }

@@ -3,7 +3,7 @@ package io.extremum.mongo.config;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import io.extremum.common.reactive.ReactiveEventPublisher;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleListener;
 import io.extremum.mongo.springdata.ReactiveMongoTemplateWithReactiveEvents;
@@ -45,7 +45,7 @@ public class MainReactiveMongoConfiguration {
 
     @Bean
     public ReactiveMongoCommonModelLifecycleListener reactiveMongoCommonModelLifecycleListener(
-            MongoDescriptorFacilities mongoDescriptorFacilities) {
-        return new ReactiveMongoCommonModelLifecycleListener(mongoDescriptorFacilities);
+            ReactiveMongoDescriptorFacilities reactiveMongoDescriptorFacilities) {
+        return new ReactiveMongoCommonModelLifecycleListener(reactiveMongoDescriptorFacilities);
     }
 }
