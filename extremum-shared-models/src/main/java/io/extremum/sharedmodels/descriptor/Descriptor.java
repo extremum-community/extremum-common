@@ -93,11 +93,15 @@ public class Descriptor implements Serializable {
         if (internalId == null) {
             throw new IllegalStateException("Both internalId and externalId are null");
         }
+        return loadByInternalIdReactively()
+                .then(Mono.defer(() -> Mono.just(externalId)));
+    }
+
+    private Mono<Descriptor> loadByInternalIdReactively() {
         return StaticDescriptorLoaderAccessor.getDescriptorLoader()
                 .loadByInternalIdReactively(internalId)
                 .doOnNext(this::copyFieldsFromAnotherDescriptor)
-                .switchIfEmpty(Mono.error(newDescriptorNotFoundByInternalIdException()))
-                .then(Mono.defer(() -> Mono.just(externalId)));
+                .switchIfEmpty(Mono.error(newDescriptorNotFoundByInternalIdException()));
     }
 
     @JsonIgnore
@@ -109,11 +113,15 @@ public class Descriptor implements Serializable {
         if (externalId == null) {
             throw new IllegalStateException("Both internalId and externalId are null");
         }
+        return loadByExternalIdReactively()
+                .then(Mono.defer(() -> Mono.just(internalId)));
+    }
+
+    private Mono<Descriptor> loadByExternalIdReactively() {
         return StaticDescriptorLoaderAccessor.getDescriptorLoader()
                 .loadByExternalIdReactively(externalId)
                 .doOnNext(this::copyFieldsFromAnotherDescriptor)
-                .switchIfEmpty(Mono.error(newDescriptorNotFoundByExternalIdException()))
-                .then(Mono.defer(() -> Mono.just(internalId)));
+                .switchIfEmpty(Mono.error(newDescriptorNotFoundByExternalIdException()));
     }
 
     public StorageType getStorageType() {
@@ -127,6 +135,24 @@ public class Descriptor implements Serializable {
             }
         }
         return this.storageType;
+    }
+
+    @JsonIgnore
+    @UsesStaticDependencies
+    public Mono<StorageType> getStorageTypeReactively() {
+        if (this.storageType != null) {
+            return Mono.just(storageType);
+        }
+
+        if (this.externalId != null) {
+            return loadByExternalIdReactively()
+                    .then(Mono.defer(() -> Mono.just(storageType)));
+        } else if (this.internalId != null) {
+            return loadByInternalIdReactively()
+                    .then(Mono.defer(() -> Mono.just(storageType)));
+        } else {
+            throw new IllegalStateException("Both externalId and internalId are null");
+        }
     }
 
     public String getModelType() {
@@ -175,9 +201,11 @@ public class Descriptor implements Serializable {
 
     private Descriptor copyFieldsFromAnotherDescriptor(Descriptor d) {
         this.externalId = d.externalId;
+        this.type = d.type;
         this.internalId = d.internalId;
         this.modelType = d.modelType;
         this.storageType = d.storageType;
+        this.collection = d.collection;
         this.created = d.created;
         this.modified = d.modified;
         this.version = d.version;

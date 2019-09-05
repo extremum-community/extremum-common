@@ -163,6 +163,8 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
         private Mono<String> externalIdReactively;
         @Transient
         private Mono<String> internalIdReactively;
+        @Transient
+        private Mono<Descriptor.StorageType> storageTypeReactively;
     }
 
     private static class CollectionDescriptorMirror {

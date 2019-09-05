@@ -29,7 +29,7 @@ class DescriptorTest {
     private final Descriptor descriptorInDb = Descriptor.builder()
             .externalId("external-id")
             .internalId("internal-id")
-            .storageType(Descriptor.StorageType.POSTGRES)
+            .storageType(Descriptor.StorageType.MONGO)
             .build();
 
     @BeforeEach
@@ -142,5 +142,54 @@ class DescriptorTest {
                     assertThat(ex.getMessage(), is("Internal id internal-id without corresponding descriptor"));
                 })
                 .verify();
+    }
+
+    @Test
+    void givenStorageTypeIsNotNull_whenGetStorageTypeReactivelyIsUsed_thenTheStorageTypeShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
+
+        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+
+        StepVerifier.create(storageTypeMono)
+                .expectNext(Descriptor.StorageType.MONGO)
+                .verifyComplete();
+    }
+
+    @Test
+    void givenStorageTypeIsNullAndExternalIdIsNotNull_whenGetStorageTypeReactivelyIsUsed_thenTheStorageTypeShouldBeReturnedAndFilled() {
+        when(descriptorLoader.loadByExternalIdReactively("external-id"))
+                .thenReturn(Mono.just(descriptorInDb));
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+
+        StepVerifier.create(storageTypeMono)
+                .expectNext(Descriptor.StorageType.MONGO)
+                .verifyComplete();
+
+        assertThat(descriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+    }
+
+    @Test
+    void givenStorageTypeIsNullAndInternalIdIsNotNull_whenGetStorageTypeReactivelyIsUsed_thenTheStorageTypeShouldBeReturnedAndFilled() {
+        when(descriptorLoader.loadByInternalIdReactively("internal-id"))
+                .thenReturn(Mono.just(descriptorInDb));
+
+        Descriptor descriptor = Descriptor.builder()
+                .internalId("internal-id")
+                .build();
+
+        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+
+        StepVerifier.create(storageTypeMono)
+                .expectNext(Descriptor.StorageType.MONGO)
+                .verifyComplete();
+
+        assertThat(descriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
     }
 }
