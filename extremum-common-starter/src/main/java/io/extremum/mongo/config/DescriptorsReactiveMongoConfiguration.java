@@ -3,53 +3,47 @@ package io.extremum.mongo.config;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
-import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
-import io.extremum.common.reactive.ReactiveEventPublisher;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
-import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleListener;
-import io.extremum.mongo.springdata.ReactiveMongoTemplateWithReactiveEvents;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 
 @Configuration
 @EnableConfigurationProperties(MongoProperties.class)
 @RequiredArgsConstructor
-public class MainReactiveMongoConfiguration {
+public class DescriptorsReactiveMongoConfiguration {
     private final MongoProperties mongoProperties;
 
     @Bean
-    public MongoClient reactiveMongoClient() {
-        return MongoClients.create(mongoProperties.getServiceDbUri());
+    public MongoClient descriptorsReactiveMongoClient() {
+        return MongoClients.create(mongoProperties.getDescriptorsDbUri());
     }
 
     private String getDatabaseName() {
-        return mongoProperties.getServiceDbName();
+        return mongoProperties.getDescriptorsDbName();
     }
 
     @Bean
-    @Primary
-    public ReactiveMongoOperations reactiveMongoTemplate(MappingMongoConverter mappingMongoConverter,
-                                                         ReactiveEventPublisher reactiveEventPublisher) {
-        return new ReactiveMongoTemplateWithReactiveEvents(reactiveMongoDbFactory(), mappingMongoConverter,
-                reactiveEventPublisher);
+    public ReactiveMongoOperations descriptorsReactiveMongoTemplate(
+            @Qualifier("descriptorsMappingMongoConverter") MappingMongoConverter mappingMongoConverter) {
+        return new ReactiveMongoTemplate(descriptorsReactiveMongoDbFactory(), mappingMongoConverter);
     }
 
     @Bean
-    public ReactiveMongoDatabaseFactory reactiveMongoDbFactory() {
-        return new SimpleReactiveMongoDatabaseFactory(reactiveMongoClient(), getDatabaseName());
+    public ReactiveMongoDatabaseFactory descriptorsReactiveMongoDbFactory() {
+        return new SimpleReactiveMongoDatabaseFactory(descriptorsReactiveMongoClient(), getDatabaseName());
     }
 
     @Bean

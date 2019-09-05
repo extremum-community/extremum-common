@@ -32,6 +32,23 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
     private MongoDescriptorFacilities mongoDescriptorFacilities;
 
     @Test
+    void testStore() {
+        Mono<Descriptor> mono = reactiveDescriptorDao.store(Descriptor.builder()
+                .externalId(descriptorService.createExternalId())
+                .internalId(new ObjectId().toString())
+                .storageType(Descriptor.StorageType.MONGO)
+                .build());
+        Descriptor savedDescriptor = mono.block();
+
+        Descriptor loadedDescriptor = descriptorRepository.findByExternalId(savedDescriptor.getExternalId())
+                .orElse(null);
+        assertThat(loadedDescriptor, is(notNullValue()));
+        assertThat(loadedDescriptor.getExternalId(), is(savedDescriptor.getExternalId()));
+        assertThat(loadedDescriptor.getInternalId(), is(savedDescriptor.getInternalId()));
+        assertThat(loadedDescriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+    }
+
+    @Test
     void testRetrieveByExternalId() {
         ObjectId objectId = new ObjectId();
         Descriptor originalDescriptor = mongoDescriptorFacilities.create(objectId, "test_model");

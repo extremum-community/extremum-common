@@ -1,6 +1,6 @@
 package io.extremum.mongo.springdata.lifecycle;
 
-import io.extremum.common.reactive.DefaultReactiveEventPublisherImpl;
+import io.extremum.common.reactive.DefaultReactiveEventPublisher;
 import io.extremum.common.reactive.ReactiveApplicationListener;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultReactiveEventPublisherImplTest {
+class DefaultReactiveEventPublisherTest {
 
     @Mock
     private ApplicationEvent event;
@@ -27,7 +27,7 @@ class DefaultReactiveEventPublisherImplTest {
     void givenTwoListenersExist_whenAnEventIsPublished_thenBothShouldBeNotifiedOnlyAfterSubscriptionIsMade() {
         TestListener listener1 = new TestListener();
         TestListener listener2 = new TestListener();
-        DefaultReactiveEventPublisherImpl publisher = new DefaultReactiveEventPublisherImpl(
+        DefaultReactiveEventPublisher publisher = new DefaultReactiveEventPublisher(
                 Arrays.asList(listener1, listener2));
 
         Mono<Void> finalMono = publisher.publishEvent(event);
@@ -55,7 +55,7 @@ class DefaultReactiveEventPublisherImplTest {
             throw new RuntimeException("Oops!");
         });
         TestListener listener2 = new TestListener();
-        DefaultReactiveEventPublisherImpl publisher = new DefaultReactiveEventPublisherImpl(
+        DefaultReactiveEventPublisher publisher = new DefaultReactiveEventPublisher(
                 Arrays.asList(listener1, listener2));
 
         Mono<Void> finalMono = publisher.publishEvent(event);

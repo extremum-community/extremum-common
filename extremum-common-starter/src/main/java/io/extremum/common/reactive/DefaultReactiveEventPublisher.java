@@ -7,10 +7,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public class DefaultReactiveEventPublisherImpl implements ReactiveEventPublisher {
+public class DefaultReactiveEventPublisher implements ReactiveEventPublisher {
     private final List<ReactiveApplicationListener<?>> listeners;
 
-    public DefaultReactiveEventPublisherImpl(List<ReactiveApplicationListener<?>> listeners) {
+    public DefaultReactiveEventPublisher(List<ReactiveApplicationListener<?>> listeners) {
         this.listeners = ImmutableList.copyOf(listeners);
     }
 

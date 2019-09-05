@@ -1,6 +1,7 @@
 package io.extremum.common.descriptor.factory;
 
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,9 +10,11 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,22 +22,26 @@ import static org.mockito.Mockito.when;
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class DescriptorSaverTest {
+class ReactiveDescriptorSaverTest {
     @InjectMocks
-    private DescriptorSaver descriptorSaver;
+    private ReactiveDescriptorSaver descriptorSaver;
     @Mock
     private DescriptorService descriptorService;
+    @Mock
+    private ReactiveDescriptorService reactiveDescriptorService;
 
     @Captor
     private ArgumentCaptor<Descriptor> descriptorCaptor;
 
     @Test
-    void whenCreatingADescriptor_thenCorrectDataShouldBeSavedWithDescriptorService() {
+    void whenCreatingADescriptorReactiely_thenCorrectDataShouldBeSavedWithReactiveDescriptorService() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
+        when(reactiveDescriptorService.store(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
 
-        descriptorSaver.createAndSave("internal-id", "Test", Descriptor.StorageType.MONGO);
+        descriptorSaver.createAndSaveReactively("internal-id", "Test", Descriptor.StorageType.MONGO).block();
 
-        verify(descriptorService).store(descriptorCaptor.capture());
+        //noinspection UnassignedFluxMonoInstance
+        verify(reactiveDescriptorService).store(descriptorCaptor.capture());
         Descriptor savedDescriptor = descriptorCaptor.getValue();
 
         assertThatSavedDescriptorWithCorrectData(savedDescriptor);
