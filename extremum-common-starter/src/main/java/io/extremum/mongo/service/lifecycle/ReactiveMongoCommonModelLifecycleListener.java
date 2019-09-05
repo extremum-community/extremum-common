@@ -3,12 +3,12 @@ package io.extremum.mongo.service.lifecycle;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.mongo.springdata.ReactiveAfterConvertEvent;
+import io.extremum.mongo.springdata.ReactiveAfterSaveEvent;
+import io.extremum.mongo.springdata.ReactiveBeforeConvertEvent;
 import io.extremum.mongo.springdata.lifecycle.AbstractReactiveMongoEventListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
-import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
-import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import reactor.core.publisher.Mono;
 
 /**
@@ -23,7 +23,7 @@ public final class ReactiveMongoCommonModelLifecycleListener
     }
 
     @Override
-    public Mono<Void> onBeforeConvert(BeforeConvertEvent<MongoCommonModel> event) {
+    public Mono<Void> onBeforeConvert(ReactiveBeforeConvertEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
         return fillRequiredFields(model);
@@ -67,7 +67,7 @@ public final class ReactiveMongoCommonModelLifecycleListener
     }
 
     @Override
-    public Mono<Void> onAfterSave(AfterSaveEvent<MongoCommonModel> event) {
+    public Mono<Void> onAfterSave(ReactiveAfterSaveEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
         return createDescriptorIfNeeded(model);
@@ -85,7 +85,7 @@ public final class ReactiveMongoCommonModelLifecycleListener
     }
 
     @Override
-    public Mono<Void> onAfterConvert(AfterConvertEvent<MongoCommonModel> event) {
+    public Mono<Void> onAfterConvert(ReactiveAfterConvertEvent<MongoCommonModel> event) {
         MongoCommonModel model = event.getSource();
 
         return resolveDescriptor(model);

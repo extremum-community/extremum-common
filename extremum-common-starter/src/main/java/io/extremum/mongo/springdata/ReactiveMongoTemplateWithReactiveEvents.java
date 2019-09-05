@@ -68,16 +68,15 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
 
     @Override
     protected <T> Mono<T> doInsert(String collectionName, T objectToSave, MongoWriter<Object> writer) {
-        return wrapOneInBeforeConvertAndAfterSaveEvents(objectToSave, collectionName,
+        return wrapOneInBeforeConvertAndAfterSaveEvents(objectToSave,
                 () -> super.doInsert(collectionName, objectToSave, writer));
     }
 
-    private <T> Mono<T> wrapOneInBeforeConvertAndAfterSaveEvents(T objectToSave, String collectionName,
-                                                                 SaveOne<T> saver) {
-        return reactiveEventPublisher.publishEvent(new BeforeConvertEvent<>(objectToSave, collectionName))
+    private <T> Mono<T> wrapOneInBeforeConvertAndAfterSaveEvents(T objectToSave, SaveOne<T> saver) {
+        return reactiveEventPublisher.publishEvent(new ReactiveBeforeConvertEvent<>(objectToSave))
                 .then(saver.save())
                 .flatMap(saved -> {
-                    return reactiveEventPublisher.publishEvent(new AfterSaveEvent<>(saved, null, collectionName))
+                    return reactiveEventPublisher.publishEvent(new ReactiveAfterSaveEvent<>(saved))
                             .thenReturn(saved);
                 });
     }
@@ -85,25 +84,25 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     @Override
     protected <T> Flux<T> doInsertBatch(String collectionName, Collection<? extends T> batchToSave,
                                         MongoWriter<Object> writer) {
-        return wrapManyInBeforeConvertAndAfterSaveEvents(batchToSave, collectionName,
+        return wrapManyInBeforeConvertAndAfterSaveEvents(batchToSave,
                 () -> super.doInsertBatch(collectionName, batchToSave, writer));
     }
 
     private <T> Flux<T> wrapManyInBeforeConvertAndAfterSaveEvents(Iterable<? extends T> batchToSave,
-                                                                  String collectionName, SaveMany<T> saver) {
+                                                                  SaveMany<T> saver) {
         return Flux.fromIterable(batchToSave)
                 .map(objectToSave -> reactiveEventPublisher.publishEvent(
-                        new BeforeConvertEvent<>(objectToSave, collectionName)))
+                        new ReactiveBeforeConvertEvent<>(objectToSave)))
                 .thenMany(saver.save())
                 .flatMap(saved -> {
-                    return reactiveEventPublisher.publishEvent(new AfterSaveEvent<>(saved, null, collectionName))
+                    return reactiveEventPublisher.publishEvent(new ReactiveAfterSaveEvent<>(saved))
                             .thenReturn(saved);
                 });
     }
 
     @Override
     protected <T> Mono<T> doSave(String collectionName, T objectToSave, MongoWriter<Object> writer) {
-        return wrapOneInBeforeConvertAndAfterSaveEvents(objectToSave, collectionName,
+        return wrapOneInBeforeConvertAndAfterSaveEvents(objectToSave,
                 () -> super.doSave(collectionName, objectToSave, writer));
     }
 
@@ -111,7 +110,7 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     public <T> Flux<T> find(@Nullable Query query, Class<T> entityClass, String collectionName) {
         return super.find(query, entityClass, collectionName)
                 .flatMap(loaded -> {
-                    return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, loaded, collectionName))
+                    return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(loaded))
                             .thenReturn(loaded);
                 });
     }
@@ -125,13 +124,14 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
 
     private <T> Mono<T> wrapOneInAfterConvertEvent(Mono<T> result, String collectionName) {
         return result.flatMap(loaded -> {
-            return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, loaded, collectionName))
+            return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(loaded))
                     .thenReturn(loaded);
         });
     }
 
     @Override
-    protected <T> Mono<T> doFindAndModify(String collectionName, Document query, Document fields, Document sort, Class<T> entityClass, Update update, FindAndModifyOptions options) {
+    protected <T> Mono<T> doFindAndModify(String collectionName, Document query, Document fields, Document sort,
+                                          Class<T> entityClass, Update update, FindAndModifyOptions options) {
         Mono<T> result = super.doFindAndModify(collectionName, query, fields, sort, entityClass, update, options);
         return wrapOneInAfterConvertEvent(result, collectionName);
     }

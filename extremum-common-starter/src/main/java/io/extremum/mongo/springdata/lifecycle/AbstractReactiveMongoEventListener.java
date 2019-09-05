@@ -1,14 +1,17 @@
 package io.extremum.mongo.springdata.lifecycle;
 
 import io.extremum.common.reactive.ReactiveApplicationListener;
+import io.extremum.mongo.springdata.ReactiveAfterConvertEvent;
+import io.extremum.mongo.springdata.ReactiveAfterSaveEvent;
+import io.extremum.mongo.springdata.ReactiveBeforeConvertEvent;
+import io.extremum.mongo.springdata.ReactiveMongoMappingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.data.mongodb.core.mapping.event.*;
 import reactor.core.publisher.Mono;
 
 public abstract class AbstractReactiveMongoEventListener<E>
-        implements ReactiveApplicationListener<MongoMappingEvent<?>> {
+        implements ReactiveApplicationListener<ReactiveMongoMappingEvent<?>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractReactiveMongoEventListener.class);
 
@@ -22,17 +25,7 @@ public abstract class AbstractReactiveMongoEventListener<E>
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Mono<Void> onApplicationEvent(MongoMappingEvent<?> event) {
-
-        if (event instanceof AfterLoadEvent) {
-            // we don't support it (yet?)
-            return Mono.empty();
-        }
-
-        if (event instanceof AbstractDeleteEvent) {
-            // we don't support it (yet?)
-            return Mono.empty();
-        }
+    public Mono<Void> onApplicationEvent(ReactiveMongoMappingEvent<?> event) {
 
         Object source = event.getSource();
 
@@ -41,26 +34,23 @@ public abstract class AbstractReactiveMongoEventListener<E>
             return Mono.empty();
         }
 
-        if (event instanceof BeforeConvertEvent) {
-            return onBeforeConvert((BeforeConvertEvent<E>) event);
-        } else if (event instanceof BeforeSaveEvent) {
-            // we don't support it (yet?)
-            return Mono.empty();
-        } else if (event instanceof AfterSaveEvent) {
-            return onAfterSave((AfterSaveEvent<E>) event);
-        } else if (event instanceof AfterConvertEvent) {
-            return onAfterConvert((AfterConvertEvent<E>) event);
+        if (event instanceof ReactiveBeforeConvertEvent) {
+            return onBeforeConvert((ReactiveBeforeConvertEvent<E>) event);
+        } else if (event instanceof ReactiveAfterSaveEvent) {
+            return onAfterSave((ReactiveAfterSaveEvent<E>) event);
+        } else if (event instanceof ReactiveAfterConvertEvent) {
+            return onAfterConvert((ReactiveAfterConvertEvent<E>) event);
         }
 
         return Mono.empty();
     }
 
     /**
-     * Captures {@link BeforeConvertEvent}.
+     * Captures {@link ReactiveBeforeConvertEvent}.
      *
      * @param event never {@literal null}.
      */
-    public Mono<Void> onBeforeConvert(BeforeConvertEvent<E> event) {
+    public Mono<Void> onBeforeConvert(ReactiveBeforeConvertEvent<E> event) {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("onBeforeConvert({})", event.getSource());
@@ -70,28 +60,28 @@ public abstract class AbstractReactiveMongoEventListener<E>
     }
 
     /**
-     * Captures {@link AfterSaveEvent}.
+     * Captures {@link ReactiveAfterSaveEvent}.
      *
      * @param event will never be {@literal null}.
      */
-    public Mono<Void> onAfterSave(AfterSaveEvent<E> event) {
+    public Mono<Void> onAfterSave(ReactiveAfterSaveEvent<E> event) {
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("onAfterSave({}, {})", event.getSource(), event.getDocument());
+            LOG.debug("onAfterSave({})", event.getSource());
         }
 
         return Mono.empty();
     }
 
     /**
-     * Captures {@link AfterConvertEvent}.
+     * Captures {@link ReactiveAfterConvertEvent}.
      *
      * @param event will never be {@literal null}.
      */
-    public Mono<Void> onAfterConvert(AfterConvertEvent<E> event) {
+    public Mono<Void> onAfterConvert(ReactiveAfterConvertEvent<E> event) {
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("onAfterConvert({}, {})", event.getDocument(), event.getSource());
+            LOG.debug("onAfterConvert({})", event.getSource());
         }
 
         return Mono.empty();

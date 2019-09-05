@@ -3,6 +3,7 @@ package io.extremum.mongo.springdata.reactiverepository;
 import io.extremum.common.reactive.ReactiveEventPublisher;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import io.extremum.common.utils.ModelUtils;
+import io.extremum.mongo.springdata.ReactiveAfterConvertEvent;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -96,14 +97,14 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
             if (result instanceof Mono) {
                 Mono<?> mono = (Mono<?>) result;
                 return mono.flatMap(object -> {
-                    return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, object, null))
+                    return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(object))
                             .thenReturn(object);
                 });
             }
             if (result instanceof Flux) {
                 Flux<?> flux = (Flux<?>) result;
                 return flux.flatMap(object -> {
-                    return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, object, null))
+                    return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(object))
                             .thenReturn(object);
                 });
             }
