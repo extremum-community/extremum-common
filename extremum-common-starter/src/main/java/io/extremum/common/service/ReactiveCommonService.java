@@ -11,8 +11,6 @@ public interface ReactiveCommonService<M extends Model> {
 
     Mono<M> delete(String id);
 
-    Flux<M> list();
-
     Mono<M> save(M data);
 
     Mono<M> create(M data);

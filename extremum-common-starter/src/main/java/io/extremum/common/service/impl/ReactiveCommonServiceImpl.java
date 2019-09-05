@@ -47,12 +47,6 @@ public abstract class ReactiveCommonServiceImpl<ID extends Serializable, M exten
     }
 
     @Override
-    public Flux<M> list() {
-        LOGGER.debug("Get list of models of type {}", modelTypeName);
-        return dao.findAll();
-    }
-
-    @Override
     public Mono<M> create(M data) {
         LOGGER.debug("Create model {}", data);
 

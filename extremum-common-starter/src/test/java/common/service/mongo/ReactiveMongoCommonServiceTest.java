@@ -53,17 +53,6 @@ class ReactiveMongoCommonServiceTest {
     }
 
     @Test
-    void testList() {
-        TestMongoModel createdModel = getTestModel();
-        when(dao.findAll()).thenReturn(Flux.just(createdModel));
-
-        List<TestMongoModel> resultModelList = service.list().toStream().collect(Collectors.toList());
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
-    }
-
-    @Test
     void testCreate() {
         TestMongoModel createdModel = getTestModel();
         when(dao.save(any(TestMongoModel.class))).thenReturn(Mono.just(createdModel));

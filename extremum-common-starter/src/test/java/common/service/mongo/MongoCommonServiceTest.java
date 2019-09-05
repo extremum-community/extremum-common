@@ -1,6 +1,6 @@
 package common.service.mongo;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import common.dao.mongo.TestMongoModelDao;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
 import io.extremum.common.response.Alert;
@@ -9,7 +9,7 @@ import io.extremum.common.service.Problems;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
-import common.dao.mongo.TestMongoModelDao;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -22,12 +22,7 @@ import java.util.*;
 import static io.extremum.common.model.PersistableCommonModel.FIELDS.version;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MongoCommonServiceTest {
 
@@ -79,30 +74,6 @@ class MongoCommonServiceTest {
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
         assertEquals("400", alertList.get(0).getCode());
-    }
-
-    @Test
-    void testList() {
-        TestMongoModel createdModel = getTestModel();
-        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestMongoModel> resultModelList = service.list();
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
-    }
-
-    @Test
-    void testListWithAlerts() {
-        TestMongoModel createdModel = getTestModel();
-        List<Alert> alertList = new ArrayList<>();
-        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestMongoModel> resultModelList = service.list(new AlertsCollector(alertList));
-        assertTrue(alertList.isEmpty());
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
     }
 
     @Test
@@ -419,11 +390,6 @@ class MongoCommonServiceTest {
     @Test
     void whenNullCollectionAlertsIsPassedToGet_thenAnExceptionShouldBeThrown() {
         makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.get("id", null));
-    }
-
-    @Test
-    void whenNullCollectionAlertsIsPassedToList_thenAnExceptionShouldBeThrown() {
-        makeSureThatAnExceptionBecauseOfNullAlertsCollectionIsThrown(() -> service.list(null));
     }
 
     @Test
