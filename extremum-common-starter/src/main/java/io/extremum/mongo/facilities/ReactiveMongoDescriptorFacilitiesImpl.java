@@ -27,9 +27,7 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
 
     @Override
     public Mono<ObjectId> resolve(Descriptor descriptor) {
-        return Mono.defer(() -> {
-            String internalId = DescriptorResolver.resolve(descriptor, STORAGE_TYPE);
-            return Mono.just(new ObjectId(internalId));
-        });
+        return DescriptorResolver.resolveReactively(descriptor, STORAGE_TYPE)
+                .map(ObjectId::new);
     }
 }
