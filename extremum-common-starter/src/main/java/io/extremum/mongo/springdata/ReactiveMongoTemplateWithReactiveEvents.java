@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.convert.MongoWriter;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
@@ -16,6 +17,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
 
 public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTemplate {
     private final ReactiveEventPublisher reactiveEventPublisher;
@@ -50,12 +53,37 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     }
 
     @Override
-    public <T> Mono<T> insert(T objectToSave, String collectionName) {
+    protected <T> Mono<T> doInsert(String collectionName, T objectToSave, MongoWriter<Object> writer) {
+        return wrapOneInBeforeConvertAndAfterSaveEvents(objectToSave, collectionName,
+                () -> super.doInsert(collectionName, objectToSave, writer));
+    }
+
+    private <T> Mono<T> wrapOneInBeforeConvertAndAfterSaveEvents(T objectToSave, String collectionName,
+                                                                 SaveOne<T> saver) {
         return reactiveEventPublisher.publishEvent(new BeforeConvertEvent<>(objectToSave, collectionName))
-                .then(super.insert(objectToSave, collectionName))
-                .flatMap(inserted -> {
-                    return reactiveEventPublisher.publishEvent(new AfterSaveEvent<>(inserted, null, collectionName))
-                            .thenReturn(inserted);
+                .then(saver.save())
+                .flatMap(saved -> {
+                    return reactiveEventPublisher.publishEvent(new AfterSaveEvent<>(saved, null, collectionName))
+                            .thenReturn(saved);
+                });
+    }
+
+    @Override
+    protected <T> Flux<T> doInsertBatch(String collectionName, Collection<? extends T> batchToSave,
+                                        MongoWriter<Object> writer) {
+        return wrapManyInBeforeConvertAndAfterSaveEvents(batchToSave, collectionName,
+                () -> super.doInsertBatch(collectionName, batchToSave, writer));
+    }
+
+    private <T> Flux<T> wrapManyInBeforeConvertAndAfterSaveEvents(Iterable<? extends T> batchToSave,
+                                                                  String collectionName, SaveMany<T> saver) {
+        return Flux.fromIterable(batchToSave)
+                .map(objectToSave -> reactiveEventPublisher.publishEvent(
+                        new BeforeConvertEvent<>(objectToSave, collectionName)))
+                .thenMany(saver.save())
+                .flatMap(saved -> {
+                    return reactiveEventPublisher.publishEvent(new AfterSaveEvent<>(saved, null, collectionName))
+                            .thenReturn(saved);
                 });
     }
 
@@ -86,6 +114,14 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     protected <T> Mono<T> doFindAndModify(String collectionName, Document query, Document fields, Document sort, Class<T> entityClass, Update update, FindAndModifyOptions options) {
         Mono<T> result = super.doFindAndModify(collectionName, query, fields, sort, entityClass, update, options);
         return wrapOneInAfterConvertEvent(result, collectionName);
+    }
+
+    private interface SaveOne<T> {
+        Mono<T> save();
+    }
+
+    private interface SaveMany<T> {
+        Flux<T> save();
     }
 
     private static class ReactiveBeforeConvertEvent<T> extends BeforeConvertEvent<T> implements ReactiveOrigin {

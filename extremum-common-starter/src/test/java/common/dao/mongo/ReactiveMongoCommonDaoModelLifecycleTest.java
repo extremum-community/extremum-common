@@ -12,14 +12,13 @@ import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -30,19 +29,46 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
     private TestReactiveMongoModelDao dao;
 
     @Test
-    void whenSaving_thenAllAutoFieldsShouldBeFilled() {
+    void freshModelShouldNotHaveSystemFieldsFilled() {
         TestMongoModel model = new TestMongoModel();
+
+        assertNull(model.getUuid());
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
+    }
 
-        TestMongoModel createdModel = dao.save(model).block();
-        assertEquals(model, createdModel);
-        assertNotNull(model.getId());
-        assertNotNull(model.getUuid());
-        assertNotNull(model.getCreated());
-        assertNotNull(model.getVersion());
-        assertFalse(model.getDeleted());
+    @Test
+    void whenSaving_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel()).block();
+
+        assertThatSystemFieldsAreFilled(savedModel);
+    }
+
+    private void assertThatSystemFieldsAreFilled(TestMongoModel createdModel) {
+        assertNotNull(createdModel.getId());
+        assertNotNull(createdModel.getUuid());
+        assertNotNull(createdModel.getCreated());
+        assertNotNull(createdModel.getVersion());
+        assertFalse(createdModel.getDeleted());
+    }
+
+    @Test
+    void whenSavingAll_thenAllAutoFieldsShouldBeFilled() {
+        List<TestMongoModel> savedModels = dao.saveAll(singletonList(new TestMongoModel()))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(savedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(savedModels.get(0));
+    }
+
+    @Test
+    void whenSavingAllWithPublisher_thenAllAutoFieldsShouldBeFilled() {
+        List<TestMongoModel> savedModels = dao.saveAll(Flux.just(new TestMongoModel()))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(savedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(savedModels.get(0));
     }
 
     @Test
