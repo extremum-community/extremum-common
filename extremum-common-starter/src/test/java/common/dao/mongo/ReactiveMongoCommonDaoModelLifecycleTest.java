@@ -276,6 +276,24 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
         assertThat(loadedModels, everyItem(hasUuidConsistentWithId()));
     }
 
+    @Test
+    void whenDeletingByIdAndReturning_thenDescriptorShouldBeFilled() {
+        TestMongoModel savedModel = saveATestModel();
+
+        TestMongoModel loadedModel = dao.deleteByIdAndReturn(savedModel.getId()).block();
+
+        assertThat(loadedModel, hasNotNullUuid());
+    }
+
+    @Test
+    void whenDeletingByIdAndReturning_thenDescriptorInternalIdShouldMatchTheEntityId() {
+        TestMongoModel savedModel = saveATestModel();
+
+        TestMongoModel loadedModel = dao.deleteByIdAndReturn(savedModel.getId()).block();
+
+        assertThat(loadedModel, hasUuidConsistentWithId());
+    }
+
     private static class ConsistentUuidIdMatcher extends TypeSafeDiagnosingMatcher<TestMongoModel> {
         @Override
         protected boolean matchesSafely(TestMongoModel item, Description mismatchDescription) {

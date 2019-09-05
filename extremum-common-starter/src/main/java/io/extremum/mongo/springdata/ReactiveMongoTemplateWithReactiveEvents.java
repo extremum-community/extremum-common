@@ -4,11 +4,16 @@ import io.extremum.common.reactive.ReactiveEventPublisher;
 import io.extremum.mongo.springdata.lifecycle.ReactiveOrigin;
 import org.bson.Document;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.mapping.event.*;
+import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
+import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
+import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import org.springframework.data.mongodb.core.mapping.event.MongoMappingEvent;
 import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -66,11 +71,21 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     @Override
     protected <T> Mono<T> doFindOne(String collectionName, Document query, Document fields, Class<T> entityClass,
                                     Collation collation) {
-        return super.doFindOne(collectionName, query, fields, entityClass, collation)
-                .flatMap(loaded -> {
-                    return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, loaded, collectionName))
-                            .thenReturn(loaded);
-                });
+        Mono<T> result = super.doFindOne(collectionName, query, fields, entityClass, collation);
+        return wrapOneInAfterConvertEvent(result, collectionName);
+    }
+
+    private <T> Mono<T> wrapOneInAfterConvertEvent(Mono<T> result, String collectionName) {
+        return result.flatMap(loaded -> {
+            return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, loaded, collectionName))
+                    .thenReturn(loaded);
+        });
+    }
+
+    @Override
+    protected <T> Mono<T> doFindAndModify(String collectionName, Document query, Document fields, Document sort, Class<T> entityClass, Update update, FindAndModifyOptions options) {
+        Mono<T> result = super.doFindAndModify(collectionName, query, fields, sort, entityClass, update, options);
+        return wrapOneInAfterConvertEvent(result, collectionName);
     }
 
     private static class ReactiveBeforeConvertEvent<T> extends BeforeConvertEvent<T> implements ReactiveOrigin {

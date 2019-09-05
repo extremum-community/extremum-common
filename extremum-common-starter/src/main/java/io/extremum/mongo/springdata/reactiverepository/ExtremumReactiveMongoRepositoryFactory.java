@@ -8,6 +8,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactory;
+import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
@@ -45,7 +46,7 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
         this.reactiveEventPublisher = reactiveEventPublisher;
 
         addRepositoryProxyPostProcessor((factory, repositoryInformation)
-                -> factory.addAdvice(new QueryMethodAfterLoadEventEmitter()));
+                -> factory.addAdvice(new QueryMethodAfterLoadEventEmitter(repositoryInformation)));
     }
 
     @Override
@@ -74,12 +75,22 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
     }
 
     private class QueryMethodAfterLoadEventEmitter implements MethodInterceptor {
+        private final RepositoryInformation repositoryInformation;
+
+        private QueryMethodAfterLoadEventEmitter(RepositoryInformation repositoryInformation) {
+            this.repositoryInformation = repositoryInformation;
+        }
+
         @Override
         @Nullable
         public Object invoke(MethodInvocation invocation) throws Throwable {
             Object result = invocation.proceed();
             if (result == null) {
                 return null;
+            }
+
+            if (!repositoryInformation.isQueryMethod(invocation.getMethod())) {
+                return result;
             }
 
             if (result instanceof Mono) {
