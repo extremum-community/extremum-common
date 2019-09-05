@@ -131,8 +131,9 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorLoader descriptorLoader(DescriptorService descriptorService) {
-        return new DBDescriptorLoader(descriptorService);
+    public DescriptorLoader descriptorLoader(DescriptorService descriptorService,
+                                             ReactiveDescriptorService reactiveDescriptorService) {
+        return new DBDescriptorLoader(descriptorService, reactiveDescriptorService);
     }
 
     @Bean

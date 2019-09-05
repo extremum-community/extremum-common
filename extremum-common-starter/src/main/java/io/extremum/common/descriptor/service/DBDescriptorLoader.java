@@ -11,9 +11,12 @@ import java.util.Optional;
  */
 public class DBDescriptorLoader implements DescriptorLoader {
     private final DescriptorService descriptorService;
+    private final ReactiveDescriptorService reactiveDescriptorService;
 
-    public DBDescriptorLoader(DescriptorService descriptorService) {
+    public DBDescriptorLoader(DescriptorService descriptorService,
+                              ReactiveDescriptorService reactiveDescriptorService) {
         this.descriptorService = descriptorService;
+        this.reactiveDescriptorService = reactiveDescriptorService;
     }
 
     @Override
@@ -28,11 +31,11 @@ public class DBDescriptorLoader implements DescriptorLoader {
 
     @Override
     public Mono<Descriptor> loadByExternalIdReactively(String externalId) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return reactiveDescriptorService.loadByExternalId(externalId);
     }
 
     @Override
     public Mono<Descriptor> loadByInternalIdReactively(String internalId) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return reactiveDescriptorService.loadByInternalId(internalId);
     }
 }

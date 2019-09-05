@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.Optional;
 
@@ -24,13 +26,15 @@ class DBDescriptorLoaderTest {
 
     @Mock
     private DescriptorService descriptorService;
+    @Mock
+    private ReactiveDescriptorService reactiveDescriptorService;
 
-    private Descriptor descriptor = new Descriptor("external-id");
+    private final Descriptor descriptor = new Descriptor("external-id");
 
     @Test
     void whenLoadingByExternalId_thenDescriptorShouldBeLoadedViaServiceByExternalId() {
         when(descriptorService.loadByExternalId("external-id"))
-                .thenReturn(java.util.Optional.ofNullable(descriptor));
+                .thenReturn(Optional.of(descriptor));
 
         Optional<Descriptor> result = loader.loadByExternalId("external-id");
 
@@ -40,10 +44,34 @@ class DBDescriptorLoaderTest {
     @Test
     void whenLoadingByInternalId_thenDescriptorShouldBeLoadedViaServiceByInternalId() {
         when(descriptorService.loadByInternalId("internal-id"))
-                .thenReturn(java.util.Optional.ofNullable(descriptor));
+                .thenReturn(Optional.of(descriptor));
 
         Optional<Descriptor> result = loader.loadByInternalId("internal-id");
 
         assertThat(result.orElse(null), is(sameInstance(descriptor)));
+    }
+
+    @Test
+    void whenLoadingByExternalIdReactively_thenDescriptorShouldBeLoadedViaServiceByExternalIdReactively() {
+        when(reactiveDescriptorService.loadByExternalId("external-id"))
+                .thenReturn(Mono.just(descriptor));
+
+        Mono<Descriptor> result = loader.loadByExternalIdReactively("external-id");
+
+        StepVerifier.create(result)
+                .assertNext(d -> assertThat(d, sameInstance(descriptor)))
+                .verifyComplete();
+    }
+
+    @Test
+    void whenLoadingByInternalIdReactively_thenDescriptorShouldBeLoadedViaServiceByInternalIdReactively() {
+        when(reactiveDescriptorService.loadByInternalId("internal-id"))
+                .thenReturn(Mono.just(descriptor));
+
+        Mono<Descriptor> result = loader.loadByInternalIdReactively("internal-id");
+
+        StepVerifier.create(result)
+                .assertNext(d -> assertThat(d, sameInstance(descriptor)))
+                .verifyComplete();
     }
 }
