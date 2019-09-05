@@ -2,6 +2,7 @@ package io.extremum.mongo.springdata;
 
 import io.extremum.common.reactive.ReactiveEventPublisher;
 import io.extremum.mongo.springdata.lifecycle.ReactiveOrigin;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.Document;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -20,6 +21,18 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 
+/**
+ * {@link ReactiveMongoTemplate} extension that handles events generation differently.
+ *
+ * 1. Standard spring-data-mongo events interesting for us are marked as 'reactive'
+ * ones so that blocking-only event listeners can distinguish them to ignore them.
+ * 2. Our own restricted set of reactive events are generated to support automatic
+ * {@link Descriptor} creation for new model instances and model ID resolving from
+ * descriptors. These events are not guaranteed to be generated for all possible
+ * cases, just for the cases sufficient for our purposes.
+ *
+ * @author rpuch
+ */
 public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTemplate {
     private final ReactiveEventPublisher reactiveEventPublisher;
 
