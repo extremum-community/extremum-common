@@ -39,8 +39,8 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
     }
 
     @Test
-    void whenSaving_thenAllAutoFieldsShouldBeFilled() {
-        TestMongoModel savedModel = dao.save(new TestMongoModel()).block();
+    void whenInserting_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.insert(new TestMongoModel()).block();
 
         assertThatSystemFieldsAreFilled(savedModel);
     }
@@ -51,31 +51,6 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
         assertNotNull(createdModel.getCreated());
         assertNotNull(createdModel.getVersion());
         assertFalse(createdModel.getDeleted());
-    }
-
-    @Test
-    void whenSavingAll_thenAllAutoFieldsShouldBeFilled() {
-        List<TestMongoModel> savedModels = dao.saveAll(singletonList(new TestMongoModel()))
-                .toStream().collect(Collectors.toList());
-
-        assertThat(savedModels, hasSize(1));
-        assertThatSystemFieldsAreFilled(savedModels.get(0));
-    }
-
-    @Test
-    void whenSavingAllWithPublisher_thenAllAutoFieldsShouldBeFilled() {
-        List<TestMongoModel> savedModels = dao.saveAll(Flux.just(new TestMongoModel()))
-                .toStream().collect(Collectors.toList());
-
-        assertThat(savedModels, hasSize(1));
-        assertThatSystemFieldsAreFilled(savedModels.get(0));
-    }
-
-    @Test
-    void whenInserting_thenAllAutoFieldsShouldBeFilled() {
-        TestMongoModel savedModel = dao.insert(new TestMongoModel()).block();
-
-        assertThatSystemFieldsAreFilled(savedModel);
     }
 
     @Test
@@ -94,6 +69,62 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
 
         assertThat(savedModels, hasSize(1));
         assertThatSystemFieldsAreFilled(savedModels.get(0));
+    }
+
+    @Test
+    void givenEntityIsNew_whenSaving_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel()).block();
+
+        assertThatSystemFieldsAreFilled(savedModel);
+    }
+
+    @Test
+    void givenEntityIsNew_whenSavingAll_thenAllAutoFieldsShouldBeFilled() {
+        List<TestMongoModel> savedModels = dao.saveAll(singletonList(new TestMongoModel()))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(savedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(savedModels.get(0));
+    }
+
+    @Test
+    void givenEntityIsNew_whenSavingAllWithPublisher_thenAllAutoFieldsShouldBeFilled() {
+        List<TestMongoModel> savedModels = dao.saveAll(Flux.just(new TestMongoModel()))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(savedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(savedModels.get(0));
+    }
+
+    @Test
+    void givenEntityIsNotNew_whenSaving_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel()).block();
+        savedModel.setName(randomName());
+        TestMongoModel resavedModel = dao.save(savedModel).block();
+
+        assertThatSystemFieldsAreFilled(resavedModel);
+    }
+
+    @Test
+    void givenEntityIsNotNew_whenSavingAll_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel()).block();
+        savedModel.setName(randomName());
+        List<TestMongoModel> resavedModels = dao.saveAll(singletonList(savedModel))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(resavedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(resavedModels.get(0));
+    }
+
+    @Test
+    void givenEntityIsNotNew_whenSavingAllWithPublisher_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.save(new TestMongoModel()).block();
+        savedModel.setName(randomName());
+        List<TestMongoModel> resavedModels = dao.saveAll(Flux.just(savedModel))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(resavedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(resavedModels.get(0));
     }
 
     @Test

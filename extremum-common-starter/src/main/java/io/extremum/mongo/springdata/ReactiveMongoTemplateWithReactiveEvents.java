@@ -88,6 +88,12 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     }
 
     @Override
+    protected <T> Mono<T> doSave(String collectionName, T objectToSave, MongoWriter<Object> writer) {
+        return wrapOneInBeforeConvertAndAfterSaveEvents(objectToSave, collectionName,
+                () -> super.doSave(collectionName, objectToSave, writer));
+    }
+
+    @Override
     public <T> Flux<T> find(Query query, Class<T> entityClass, String collectionName) {
         return super.find(query, entityClass, collectionName)
                 .flatMap(loaded -> {
