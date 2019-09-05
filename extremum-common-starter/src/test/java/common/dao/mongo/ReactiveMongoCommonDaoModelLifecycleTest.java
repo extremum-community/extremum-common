@@ -2,7 +2,10 @@ package common.dao.mongo;
 
 import io.extremum.common.test.TestWithServices;
 import models.TestMongoModel;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,9 @@ import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
@@ -186,7 +191,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
     void whenFindingAllById_thenDescriptorShouldBeFilled() {
         TestMongoModel savedModel = saveATestModel();
 
-        List<TestMongoModel> loadedModels = dao.findAllById(Arrays.asList(savedModel.getId()))
+        List<TestMongoModel> loadedModels = dao.findAllById(singletonList(savedModel.getId()))
                 .toStream().collect(Collectors.toList());
 
         assertThat(loadedModels, everyItem(hasNotNullUuid()));
@@ -196,7 +201,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
     void whenFindingAllById_thenDescriptorInternalIdShouldMatchTheEntityId() {
         TestMongoModel savedModel = saveATestModel();
 
-        List<TestMongoModel> loadedModels = dao.findAllById(Arrays.asList(savedModel.getId()))
+        List<TestMongoModel> loadedModels = dao.findAllById(singletonList(savedModel.getId()))
                 .toStream().collect(Collectors.toList());
 
         assertThat(loadedModels, everyItem(hasUuidConsistentWithId()));
@@ -242,7 +247,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
 
     @Test
     void whenFindingAll_thenDescriptorShouldBeFilled() {
-        TestMongoModel savedModel = saveATestModel();
+        saveATestModel();
 
         List<TestMongoModel> loadedModels = dao.findAll()
                 .toStream().collect(Collectors.toList());
@@ -252,7 +257,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
 
     @Test
     void whenFindingAll_thenDescriptorInternalIdShouldMatchTheEntityId() {
-        TestMongoModel savedModel = saveATestModel();
+        saveATestModel();
 
         List<TestMongoModel> loadedModels = dao.findAll()
                 .toStream().collect(Collectors.toList());
@@ -262,7 +267,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
 
     @Test
     void whenFindingAllWithSort_thenDescriptorShouldBeFilled() {
-        TestMongoModel savedModel = saveATestModel();
+        saveATestModel();
 
         List<TestMongoModel> loadedModels = dao.findAll(Sort.by("name"))
                 .toStream().collect(Collectors.toList());
@@ -272,7 +277,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
 
     @Test
     void whenFindingAllWithSort_thenDescriptorInternalIdShouldMatchTheEntityId() {
-        TestMongoModel savedModel = saveATestModel();
+        saveATestModel();
 
         List<TestMongoModel> loadedModels = dao.findAll(Sort.by("name"))
                 .toStream().collect(Collectors.toList());
