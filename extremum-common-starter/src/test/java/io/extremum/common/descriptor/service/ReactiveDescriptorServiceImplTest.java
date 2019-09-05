@@ -48,7 +48,16 @@ class ReactiveDescriptorServiceImplTest {
     }
 
     @Test
-    void whenLoading_thenDescriptorShouldBeLoadedFromDao() {
+    void whenLoadingByExternalId_thenDescriptorShouldBeLoadedFromDao() {
+        when(reactiveDescriptorDao.retrieveByExternalId("externalId")).thenReturn(Mono.just(descriptor));
+
+        Mono<Descriptor> mono = reactiveDescriptorService.loadByExternalId("externalId");
+
+        assertThat(mono.block(), is(sameInstance(descriptor)));
+    }
+
+    @Test
+    void whenLoadingByInternalId_thenDescriptorShouldBeLoadedFromDao() {
         when(reactiveDescriptorDao.retrieveByInternalId("internalId")).thenReturn(Mono.just(descriptor));
 
         Mono<Descriptor> mono = reactiveDescriptorService.loadByInternalId("internalId");

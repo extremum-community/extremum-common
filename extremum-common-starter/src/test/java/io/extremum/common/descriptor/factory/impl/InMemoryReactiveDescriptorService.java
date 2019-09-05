@@ -25,6 +25,11 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
     }
 
     @Override
+    public Mono<Descriptor> loadByExternalId(String externalId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Mono<Descriptor> loadByInternalId(String internalId) {
         throw new UnsupportedOperationException();
     }

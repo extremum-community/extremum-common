@@ -19,6 +19,13 @@ public class ReactiveDescriptorServiceImpl implements ReactiveDescriptorService 
     }
 
     @Override
+    public Mono<Descriptor> loadByExternalId(String externalId) {
+        Objects.requireNonNull(externalId, "externalId is null");
+
+        return reactiveDescriptorDao.retrieveByExternalId(externalId);
+    }
+
+    @Override
     public Mono<Descriptor> loadByInternalId(String internalId) {
         Objects.requireNonNull(internalId, "internalId is null");
 
