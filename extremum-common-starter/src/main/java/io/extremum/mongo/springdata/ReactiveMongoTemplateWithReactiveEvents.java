@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -52,15 +53,15 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
             E event) {
         if (event instanceof BeforeConvertEvent) {
             //noinspection unchecked
-            event = (E) new ReactiveBeforeConvertEvent<>((BeforeConvertEvent<T>) event);
+            event = (E) new BeforeConvertEventFromReactiveContext<>((BeforeConvertEvent<T>) event);
         }
         if (event instanceof AfterSaveEvent) {
             //noinspection unchecked
-            event = (E) new ReactiveAfterSaveEvent<>((AfterSaveEvent<T>) event);
+            event = (E) new AfterSaveEventFromReactiveContext<>((AfterSaveEvent<T>) event);
         }
         if (event instanceof AfterConvertEvent) {
             //noinspection unchecked
-            event = (E) new ReactiveAfterConvertEvent<>((AfterConvertEvent<T>) event);
+            event = (E) new AfterConvertEventFromReactiveContext<>((AfterConvertEvent<T>) event);
         }
         return event;
     }
@@ -107,7 +108,7 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     }
 
     @Override
-    public <T> Flux<T> find(Query query, Class<T> entityClass, String collectionName) {
+    public <T> Flux<T> find(@Nullable Query query, Class<T> entityClass, String collectionName) {
         return super.find(query, entityClass, collectionName)
                 .flatMap(loaded -> {
                     return reactiveEventPublisher.publishEvent(new AfterConvertEvent<>(null, loaded, collectionName))
@@ -116,8 +117,8 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     }
 
     @Override
-    protected <T> Mono<T> doFindOne(String collectionName, Document query, Document fields, Class<T> entityClass,
-                                    Collation collation) {
+    protected <T> Mono<T> doFindOne(String collectionName, Document query, @Nullable Document fields,
+                                    Class<T> entityClass, @Nullable Collation collation) {
         Mono<T> result = super.doFindOne(collectionName, query, fields, entityClass, collation);
         return wrapOneInAfterConvertEvent(result, collectionName);
     }
@@ -143,23 +144,25 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
         Flux<T> save();
     }
 
-    private static class ReactiveBeforeConvertEvent<T> extends BeforeConvertEvent<T> implements ReactiveOrigin {
+    private static class BeforeConvertEventFromReactiveContext<T> extends BeforeConvertEvent<T>
+            implements ReactiveOrigin {
         @SuppressWarnings("ConstantConditions")
-        ReactiveBeforeConvertEvent(BeforeConvertEvent<T> event) {
+        BeforeConvertEventFromReactiveContext(BeforeConvertEvent<T> event) {
             super(event.getSource(), event.getCollectionName());
         }
     }
 
-    private static class ReactiveAfterSaveEvent<T> extends AfterSaveEvent<T> implements ReactiveOrigin {
+    private static class AfterSaveEventFromReactiveContext<T> extends AfterSaveEvent<T> implements ReactiveOrigin {
         @SuppressWarnings("ConstantConditions")
-        ReactiveAfterSaveEvent(AfterSaveEvent<T> event) {
+        AfterSaveEventFromReactiveContext(AfterSaveEvent<T> event) {
             super(event.getSource(), event.getDocument(), event.getCollectionName());
         }
     }
 
-    private static class ReactiveAfterConvertEvent<T> extends AfterConvertEvent<T> implements ReactiveOrigin {
+    private static class AfterConvertEventFromReactiveContext<T> extends AfterConvertEvent<T>
+            implements ReactiveOrigin {
         @SuppressWarnings("ConstantConditions")
-        ReactiveAfterConvertEvent(AfterConvertEvent<T> event) {
+        AfterConvertEventFromReactiveContext(AfterConvertEvent<T> event) {
             super(event.getDocument(), event.getSource(), event.getCollectionName());
         }
     }
