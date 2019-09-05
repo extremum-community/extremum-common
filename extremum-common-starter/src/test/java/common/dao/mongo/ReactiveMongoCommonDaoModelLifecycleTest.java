@@ -72,6 +72,31 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
     }
 
     @Test
+    void whenInserting_thenAllAutoFieldsShouldBeFilled() {
+        TestMongoModel savedModel = dao.insert(new TestMongoModel()).block();
+
+        assertThatSystemFieldsAreFilled(savedModel);
+    }
+
+    @Test
+    void whenInsertingAll_thenAllAutoFieldsShouldBeFilled() {
+        List<TestMongoModel> savedModels = dao.insert(singletonList(new TestMongoModel()))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(savedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(savedModels.get(0));
+    }
+
+    @Test
+    void whenInsertingAllWithPublisher_thenAllAutoFieldsShouldBeFilled() {
+        List<TestMongoModel> savedModels = dao.insert(Flux.just(new TestMongoModel()))
+                .toStream().collect(Collectors.toList());
+
+        assertThat(savedModels, hasSize(1));
+        assertThatSystemFieldsAreFilled(savedModels.get(0));
+    }
+
+    @Test
     void whenFindingById_thenDescriptorShouldBeFilled() {
         TestMongoModel savedModel = saveATestModel();
 
