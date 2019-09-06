@@ -2,13 +2,14 @@ package io.extremum.mongo.springdata.repository;
 
 import io.extremum.common.annotation.InfrastructureElement;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactoryBean;
 import org.springframework.data.repository.config.DefaultRepositoryBaseClass;
 import org.springframework.data.repository.query.QueryLookupStrategy;
+import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 
 import java.lang.annotation.*;
 
@@ -52,12 +53,12 @@ public @interface EnableExtremumMongoRepositories {
 	 * Specifies which types are eligible for component scanning. Further narrows the set of candidate components from
 	 * everything in {@link #basePackages()} to everything in the base packages that matches the given filter or filters.
 	 */
-	ComponentScan.Filter[] includeFilters() default {};
+	Filter[] includeFilters() default {};
 
 	/**
 	 * Specifies which types are not eligible for component scanning.
 	 */
-	ComponentScan.Filter[] excludeFilters() default {};
+	Filter[] excludeFilters() default {};
 
 	/**
 	 * Returns the postfix to be used when looking up custom repository implementations. Defaults to {@literal Impl}. So
@@ -78,11 +79,11 @@ public @interface EnableExtremumMongoRepositories {
 
 	/**
 	 * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query methods. Defaults to
-	 * {@link QueryLookupStrategy.Key#CREATE_IF_NOT_FOUND}.
+	 * {@link Key#CREATE_IF_NOT_FOUND}.
 	 *
 	 * @return
 	 */
-	QueryLookupStrategy.Key queryLookupStrategy() default QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND;
+	Key queryLookupStrategy() default Key.CREATE_IF_NOT_FOUND;
 
 	/**
 	 * Returns the {@link FactoryBean} class to be used for each repository instance. Defaults to
