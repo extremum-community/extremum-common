@@ -1,4 +1,4 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata;
 
 import org.springframework.context.annotation.Import;
 import org.springframework.data.auditing.DateTimeProvider;

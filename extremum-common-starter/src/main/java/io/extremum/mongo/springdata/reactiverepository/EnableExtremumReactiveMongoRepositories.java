@@ -1,19 +1,20 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
 import io.extremum.common.annotation.InfrastructureElement;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactoryBean;
+import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactoryBean;
 import org.springframework.data.repository.config.DefaultRepositoryBaseClass;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 
 import java.lang.annotation.*;
 
 /**
- * Our custom analogue of @{@link EnableMongoRepositories}.
+ * Our custom analogue of @{@link EnableReactiveMongoRepositories}.
  * Our annotation is needed to have our common registrar; this is needed
  * because we need to load packages-to-scan from the configuration, and
  * this cannot be achieved with standard Spring Boot means.
@@ -26,12 +27,14 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import(ExtremumMongoRepositoriesRegistrar.class)
+@Import(ExtremumReactiveMongoRepositoriesRegistrar.class)
 @InfrastructureElement
-public @interface EnableExtremumMongoRepositories {
+public @interface EnableExtremumReactiveMongoRepositories {
+
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
-	 * {@code @EnableMongoRepositories("org.my.pkg")} instead of {@code @EnableMongoRepositories(basePackages="org.my.pkg")}.
+	 * {@code @EnableReactiveMongoRepositories("org.my.pkg")} instead of
+	 * {@code @EnableReactiveMongoRepositories(basePackages="org.my.pkg")}.
 	 */
 	String[] value() default {};
 
@@ -70,7 +73,7 @@ public @interface EnableExtremumMongoRepositories {
 
 	/**
 	 * Configures the location of where to find the Spring Data named queries properties file. Will default to
-	 * {@code META-INFO/mongo-named-queries.properties}.
+	 * {@code META-INF/mongo-named-queries.properties}.
 	 *
 	 * @return
 	 */
@@ -90,13 +93,12 @@ public @interface EnableExtremumMongoRepositories {
 	 *
 	 * @return
 	 */
-	Class<?> repositoryFactoryBeanClass() default MongoRepositoryFactoryBean.class;
+	Class<?> repositoryFactoryBeanClass() default ReactiveMongoRepositoryFactoryBean.class;
 
 	/**
 	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
 	 *
 	 * @return
-	 * @since 1.8
 	 */
 	Class<?> repositoryBaseClass() default DefaultRepositoryBaseClass.class;
 
@@ -105,7 +107,7 @@ public @interface EnableExtremumMongoRepositories {
 	 *
 	 * @return
 	 */
-	String mongoTemplateRef() default "mongoTemplate";
+	String reactiveMongoTemplateRef() default "reactiveMongoTemplate";
 
 	/**
 	 * Whether to automatically create indexes for query methods defined in the repository interface.
