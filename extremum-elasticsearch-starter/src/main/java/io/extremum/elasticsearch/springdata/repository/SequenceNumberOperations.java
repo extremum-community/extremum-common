@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.index.IndexRequest;
@@ -7,7 +7,7 @@ import org.elasticsearch.common.lucene.uid.Versions;
 import org.elasticsearch.index.VersionType;
 import org.elasticsearch.index.seqno.SequenceNumbers;
 
-import static io.extremum.elasticsearch.repository.ElasticsearchModels.asElasticsearchModel;
+import static io.extremum.elasticsearch.springdata.repository.ElasticsearchModels.asElasticsearchModel;
 
 /**
  * @author rpuch

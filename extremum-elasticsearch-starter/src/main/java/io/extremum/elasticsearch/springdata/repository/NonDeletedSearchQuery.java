@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.IndicesOptions;

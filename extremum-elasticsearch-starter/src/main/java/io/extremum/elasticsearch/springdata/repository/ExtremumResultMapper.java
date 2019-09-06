@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.fasterxml.jackson.core.JsonEncoding;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static io.extremum.elasticsearch.repository.ElasticsearchModels.asElasticsearchModel;
+import static io.extremum.elasticsearch.springdata.repository.ElasticsearchModels.asElasticsearchModel;
 
 /**
  * @author rpuch

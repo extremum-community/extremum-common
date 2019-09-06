@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.repository.query.QueryLookupStrategy;

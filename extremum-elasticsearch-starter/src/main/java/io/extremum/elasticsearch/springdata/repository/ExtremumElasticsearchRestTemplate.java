@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import com.fasterxml.jackson.databind.ObjectMapper;

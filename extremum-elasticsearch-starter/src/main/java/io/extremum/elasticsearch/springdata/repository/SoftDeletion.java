@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.common.model.PersistableCommonModel;
 import org.elasticsearch.index.query.BoolQueryBuilder;

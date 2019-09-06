@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.index.query.*;

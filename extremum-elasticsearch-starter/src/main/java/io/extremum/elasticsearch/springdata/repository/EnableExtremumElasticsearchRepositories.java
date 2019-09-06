@@ -1,4 +1,4 @@
-package io.extremum.elasticsearch.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.common.annotation.InfrastructureElement;
 import org.springframework.context.annotation.ComponentScan;
