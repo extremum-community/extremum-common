@@ -1,6 +1,5 @@
 package io.extremum.jpa.service;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
 import io.extremum.common.response.Alert;
@@ -10,6 +9,7 @@ import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.jpa.dao.TestJpaModelDao;
 import io.extremum.jpa.model.TestJpaModel;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -17,11 +17,7 @@ import org.mockito.Mockito;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JpaCommonServiceTest {
 
@@ -93,30 +89,6 @@ class JpaCommonServiceTest {
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
         assertEquals("400", alertList.get(0).getCode());
-    }
-
-    @Test
-    void testList() {
-        TestJpaModel createdModel = getTestModel();
-        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestJpaModel> resultModelList = service.list();
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
-    }
-
-    @Test
-    void testListWithAlerts() {
-        TestJpaModel createdModel = getTestModel();
-        List<Alert> alertList = new ArrayList<>();
-        Mockito.when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestJpaModel> resultModelList = service.list(new AlertsCollector(alertList));
-        assertTrue(alertList.isEmpty());
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
     }
 
     @Test

@@ -60,18 +60,6 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
     }
 
     @Override
-    public List<M> list() {
-        return list(new ThrowOnAlert());
-    }
-
-    @Override
-    public List<M> list(Problems problems) {
-        checkThatProblemsIsNotNull(problems);
-        LOGGER.debug("Get list of models of type {}", modelTypeName);
-        return dao.findAll();
-    }
-
-    @Override
     public M create(M data) {
         return create(data, new ThrowOnAlert());
     }
@@ -123,8 +111,8 @@ public abstract class CommonServiceImpl<ID extends Serializable, M extends Basic
             fillAlertsOrThrowException(problems, new WrongArgumentException("Model can't be null"));
             return null;
         }
-        M returned = null;
 
+        M returned = null;
         if (data.getId() != null) {
             Optional<M> existedOpt = dao.findById(data.getId());
             if (existedOpt.isPresent()) {

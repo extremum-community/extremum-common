@@ -1,50 +1,47 @@
-package io.extremum.mongo.repository;
+package io.extremum.mongo.springdata.reactiverepository;
 
-import io.extremum.mongo.dao.MongoCommonDao;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.mongo.SoftDeletion;
+import io.extremum.mongo.dao.ReactiveMongoCommonDao;
+import io.extremum.mongo.model.MongoCommonModel;
 import org.bson.types.ObjectId;
+import org.reactivestreams.Publisher;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
-import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.data.util.Streamable;
 import org.springframework.util.Assert;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
- * Differs from the standard {@link SimpleMongoRepository} in two aspects:
+ * Differs from the standard {@link SimpleReactiveMongoRepository} in two aspects:
  * 1. has implementations for our extension methods
  * 2. implements soft-deletion logic; that is, all deletions are replaced with setting 'deleted' flag to true,
  * and all find operations filter out documents with 'deleted' set to true.
  *
  * @author rpuch
  */
-public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseMongoRepository<T>
-        implements MongoCommonDao<T> {
+public class SoftDeleteReactiveMongoRepository<T extends MongoCommonModel> extends BaseReactiveMongoRepository<T>
+        implements ReactiveMongoCommonDao<T> {
     private static final String ID = "_id";
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
     private final MongoEntityInformation<T, ObjectId> metadata;
-    private final MongoOperations mongoOperations;
+    private final ReactiveMongoOperations mongoOperations;
     private final SoftDeletion softDeletion = new SoftDeletion();
 
-    public SoftDeleteMongoRepository(MongoEntityInformation<T, ObjectId> metadata,
-            MongoOperations mongoOperations) {
+    public SoftDeleteReactiveMongoRepository(MongoEntityInformation<T, ObjectId> metadata,
+                                             ReactiveMongoOperations mongoOperations) {
         super(metadata, mongoOperations);
 
         this.metadata = metadata;
@@ -66,7 +63,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public Optional<T> findById(ObjectId id) {
+    public Mono<T> findById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
         Query query = notDeletedQueryWith(getIdCriteria(id));
@@ -75,19 +72,26 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public Iterable<T> findAllById(Iterable<ObjectId> ids) {
+    public Mono<T> findById(Publisher<ObjectId> publisher) {
+        Assert.notNull(publisher, "The given id must not be null!");
+
+        return Mono.from(publisher).flatMap(this::findById);
+    }
+
+    @Override
+    public Flux<T> findAllById(Iterable<ObjectId> ids) {
         Criteria inCriteria = new Criteria(metadata.getIdAttribute())
                 .in(Streamable.of(ids).stream().collect(StreamUtils.toUnmodifiableList()));
         return findAllByQuery(notDeletedQueryWith(inCriteria));
     }
 
     @Override
-    public long count() {
+    public Mono<Long> count() {
         return mongoOperations.count(notDeletedQuery(), metadata.getCollectionName());
     }
 
     @Override
-    public <S extends T> long count(Example<S> example) {
+    public <S extends T> Mono<Long> count(Example<S> example) {
         Assert.notNull(example, "Sample must not be null!");
 
         Query q = notDeletedQueryWith(new Criteria().alike(example));
@@ -99,17 +103,17 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public List<T> findAll() {
+    public Flux<T> findAll() {
         return findAllByQuery(notDeletedQuery());
     }
 
     @Override
-    public List<T> findAll(Sort sort) {
+    public Flux<T> findAll(Sort sort) {
         return findAllByQuery(notDeletedQuery().with(sort));
     }
 
     @Override
-    public <S extends T> List<S> findAll(Example<S> example, Sort sort) {
+    public <S extends T> Flux<S> findAll(Example<S> example, Sort sort) {
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(sort, "Sort must not be null!");
 
@@ -119,28 +123,15 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public <S extends T> Page<S> findAll(Example<S> example, Pageable pageable) {
-        Assert.notNull(example, "Sample must not be null!");
-        Assert.notNull(pageable, "Pageable must not be null!");
-
-        Query q = queryForNotDeletedAndAlike(example).with(pageable);
-        List<S> list = mongoOperations.find(q, example.getProbeType(), metadata.getCollectionName());
-
-        return PageableExecutionUtils.getPage(list, pageable,
-                () -> mongoOperations.count(q, example.getProbeType(), metadata.getCollectionName()));
-    }
-
-    @Override
-    public <S extends T> Optional<S> findOne(Example<S> example) {
+    public <S extends T> Mono<S> findOne(Example<S> example) {
         Assert.notNull(example, "Sample must not be null!");
 
         Query q = queryForNotDeletedAndAlike(example);
-        return Optional
-                .ofNullable(mongoOperations.findOne(q, example.getProbeType(), metadata.getCollectionName()));
+        return mongoOperations.findOne(q, example.getProbeType(), metadata.getCollectionName());
     }
 
     @Override
-    public <S extends T> boolean exists(Example<S> example) {
+    public <S extends T> Mono<Boolean> exists(Example<S> example) {
         Assert.notNull(example, "Sample must not be null!");
 
         Query q = queryForNotDeletedAndAlike(example);
@@ -152,7 +143,7 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public boolean existsById(ObjectId id) {
+    public Mono<Boolean> existsById(ObjectId id) {
         Assert.notNull(id, "The given id must not be null!");
 
         return mongoOperations.exists(notDeletedQueryWith(where(metadata.getIdAttribute()).is(id)),
@@ -160,8 +151,22 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public void deleteById(ObjectId id) {
-        deleteByIdAndReturn(id);
+    public Mono<Boolean> existsById(Publisher<ObjectId> publisher) {
+        Assert.notNull(publisher, "The given id must not be null!");
+
+        return Mono.from(publisher).flatMap(this::existsById);
+    }
+
+    @Override
+    public Mono<Void> deleteById(ObjectId id) {
+        return deleteByIdAndReturn(id).then();
+    }
+
+    @Override
+    public Mono<Void> deleteById(Publisher<ObjectId> publisher) {
+        Assert.notNull(publisher, "Id must not be null!");
+
+        return Mono.from(publisher).flatMap(this::deleteById);
     }
 
     private Update updateDeletedToTrue() {
@@ -171,26 +176,16 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     }
 
     @Override
-    public T deleteByIdAndReturn(ObjectId id) {
+    public Mono<T> deleteByIdAndReturn(ObjectId id) {
         Query query = new Query(where(ID).is(id));
         Update update = updateDeletedToTrue();
-        T deletedModel = mongoOperations.findAndModify(query, update, metadata.getJavaType());
-        if (deletedModel == null) {
-            throw new ModelNotFoundException(metadata.getJavaType(), id.toString());
-        }
-        return deletedModel;
+        return mongoOperations.findAndModify(query, update, metadata.getJavaType())
+                .switchIfEmpty(Mono.error(new ModelNotFoundException(metadata.getJavaType(), id.toString())));
     }
 
     @Override
-    public void delete(T entity) {
+    public Mono<Void> delete(T entity) {
         entity.setDeleted(true);
-        save(entity);
-    }
-
-    @Override
-    public void deleteAll(Iterable<? extends T> entities) {
-        Assert.notNull(entities, "The given Iterable of entities must not be null!");
-
-        entities.forEach(this::delete);
+        return save(entity).then();
     }
 }

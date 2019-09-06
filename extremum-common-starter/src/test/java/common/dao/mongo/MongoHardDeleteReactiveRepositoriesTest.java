@@ -9,23 +9,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-class MongoHardDeleteRepositoriesTest extends TestWithServices {
+class MongoHardDeleteReactiveRepositoriesTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    private HardDeleteMongoDao dao;
+    private HardDeleteReactiveMongoDao dao;
 
     @Test
     void testCreateModel() {
@@ -34,7 +30,7 @@ class MongoHardDeleteRepositoriesTest extends TestWithServices {
         assertNull(model.getCreated());
         assertNull(model.getModified());
 
-        HardDeleteMongoModel createdModel = dao.save(model);
+        HardDeleteMongoModel createdModel = dao.save(model).block();
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
@@ -45,18 +41,18 @@ class MongoHardDeleteRepositoriesTest extends TestWithServices {
 
     @Test
     void testThatFindByIdWorksForAnEntityWithoutDeletedColumn() {
-        HardDeleteMongoModel entity = dao.save(new HardDeleteMongoModel());
-        Optional<HardDeleteMongoModel> opt = dao.findById(entity.getId());
-        assertThat(opt.isPresent(), is(true));
+        HardDeleteMongoModel entity = dao.save(new HardDeleteMongoModel()).block();
+        HardDeleteMongoModel retrieved = dao.findById(entity.getId()).block();
+        assertThat(retrieved, is(notNullValue()));
     }
 
     @Test
     void testThatSpringDataMagicQueryMethodWorksAndIgnoresDeletedAttribute() {
         String uniqueName = UUID.randomUUID().toString();
 
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
 
-        List<HardDeleteMongoModel> results = dao.findByName(uniqueName);
+        List<HardDeleteMongoModel> results = dao.findByName(uniqueName).toStream().collect(Collectors.toList());
         assertThat(results, hasSize(2));
     }
 
