@@ -1,5 +1,7 @@
 package io.extremum.elasticsearch.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.PersistableCommonModel;
@@ -15,8 +17,6 @@ import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -179,13 +179,6 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
         return StreamUtils.fromIterable(response.getHits())
                 .map(hit -> extract(new SearchHitAccessorFacade(hit, descriptorService)))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<M> findAll() {
-        log.warn("Please use the findById() method or search() method. " +
-                "Method findAll() may produce very large data response");
-        return Collections.emptyList();
     }
 
     @Override
