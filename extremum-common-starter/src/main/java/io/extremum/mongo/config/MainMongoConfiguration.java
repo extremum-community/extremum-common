@@ -3,7 +3,7 @@ package io.extremum.mongo.config;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import io.extremum.common.descriptor.service.DescriptorLifecycleListener;
-import io.extremum.mongo.repository.EnableAllMongoAuditing;
+import io.extremum.mongo.springdata.EnableAllMongoAuditing;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.starter.DateToZonedDateTimeConverter;

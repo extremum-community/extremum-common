@@ -1,6 +1,5 @@
 package io.extremum.elasticsearch.service;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
 import io.extremum.common.response.Alert;
@@ -11,6 +10,7 @@ import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.elasticsearch.dao.SearchOptions;
 import io.extremum.elasticsearch.dao.TestElasticsearchModelDao;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -25,11 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,30 +102,6 @@ class ElasticsearchCommonServiceTest {
         assertEquals(1, alertList.size());
         assertTrue(alertList.get(0).isError());
         assertEquals("400", alertList.get(0).getCode());
-    }
-
-    @Test
-    void testList() {
-        TestElasticsearchModel createdModel = getTestModel();
-        when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestElasticsearchModel> resultModelList = service.list();
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
-    }
-
-    @Test
-    void testListWithAlerts() {
-        TestElasticsearchModel createdModel = getTestModel();
-        List<Alert> alertList = new ArrayList<>();
-        when(dao.findAll()).thenReturn(Collections.singletonList(createdModel));
-
-        List<TestElasticsearchModel> resultModelList = service.list(new AlertsCollector(alertList));
-        assertTrue(alertList.isEmpty());
-        assertNotNull(resultModelList);
-        assertEquals(1, resultModelList.size());
-        assertEquals(createdModel, resultModelList.get(0));
     }
 
     @Test

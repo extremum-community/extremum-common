@@ -3,7 +3,7 @@ package io.extremum.mongo.config;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
-import io.extremum.mongo.repository.SoftDeleteMongoRepositoryFactoryBean;
+import io.extremum.mongo.springdata.repository.SoftDeleteMongoRepositoryFactoryBean;
 import io.extremum.mongo.properties.MongoProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;

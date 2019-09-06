@@ -13,10 +13,6 @@ public interface CommonService<M extends Model> {
 
     M delete(String id, Problems alerts);
 
-    List<M> list();
-
-    List<M> list(Problems problems);
-
     M save(M data);
 
     M save(M data, Problems problems);
