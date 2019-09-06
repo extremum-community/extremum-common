@@ -12,8 +12,8 @@ import static io.extremum.elasticsearch.springdata.repository.ElasticsearchModel
 /**
  * @author rpuch
  */
-class SequenceNumberOperations {
-    void fillSequenceNumberAndPrimaryTermOnIndexRequest(Object object, IndexRequest indexRequest) {
+public class SequenceNumberOperations {
+    public void fillSequenceNumberAndPrimaryTermOnIndexRequest(Object object, IndexRequest indexRequest) {
         asElasticsearchModel(object).ifPresent(model -> {
             if (model.getSeqNo() != null) {
                 indexRequest.setIfSeqNo(model.getSeqNo());
@@ -30,7 +30,7 @@ class SequenceNumberOperations {
         indexRequest.versionType(VersionType.INTERNAL);
     }
 
-    void setSequenceNumberAndPrimaryTermAfterIndexing(Object indexedEntity,
+    public void setSequenceNumberAndPrimaryTermAfterIndexing(Object indexedEntity,
             IndexResponse response) {
         if (indexedEntity == null) {
             return;

@@ -7,6 +7,10 @@ import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilitiesImpl;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoader;
+import io.extremum.elasticsearch.springdata.reactiverepository.EnableExtremumReactiveElasticsearchRepositories;
+import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchClient;
+import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchRepositoryFactoryBean;
+import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchTemplate;
 import io.extremum.elasticsearch.springdata.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
@@ -21,11 +25,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.elasticsearch.client.reactive.DefaultReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +37,8 @@ import org.springframework.http.HttpHeaders;
 @EnableConfigurationProperties(ElasticsearchProperties.class)
 @EnableExtremumElasticsearchRepositories(basePackages = "${elasticsearch.repository-packages}",
         repositoryFactoryBeanClass = ExtremumElasticsearchRepositoryFactoryBean.class)
+@EnableExtremumReactiveElasticsearchRepositories(basePackages = "${elasticsearch.repository-packages}",
+        repositoryFactoryBeanClass = ExtremumReactiveElasticsearchRepositoryFactoryBean.class)
 @RequiredArgsConstructor
 public class ElasticsearchRepositoriesConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
@@ -75,18 +79,20 @@ public class ElasticsearchRepositoriesConfiguration {
                 .map(h -> h.getHost() + ":" + h.getPort())
                 .toArray(String[]::new);
 
-        return DefaultReactiveElasticsearchClient.create(HttpHeaders.EMPTY, hosts);
+        return ExtremumReactiveElasticsearchClient.create(HttpHeaders.EMPTY, hosts);
     }
 
     @Bean
-    public ReactiveElasticsearchOperations reactiveElasticsearchOperations(
-            ReactiveElasticsearchClient reactiveElasticsearchClient, ObjectMapper objectMapper) {
+    public ReactiveElasticsearchOperations reactiveElasticsearchTemplate(
+            ReactiveElasticsearchClient reactiveElasticsearchClient, ObjectMapper objectMapper,
+            ElasticsearchDescriptorFacilities descriptorFacilities) {
         SimpleElasticsearchMappingContext mappingContext = new SimpleElasticsearchMappingContext();
-        return new ReactiveElasticsearchTemplate(reactiveElasticsearchClient,
+        return new ExtremumReactiveElasticsearchTemplate(reactiveElasticsearchClient,
                 new MappingElasticsearchConverter(mappingContext),
                 new ExtremumResultMapper(
                         new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
-                ));
+                ),
+                descriptorFacilities);
     }
 
     @Bean

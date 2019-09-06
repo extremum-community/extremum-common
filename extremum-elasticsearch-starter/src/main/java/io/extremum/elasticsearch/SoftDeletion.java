@@ -1,6 +1,7 @@
-package io.extremum.elasticsearch.springdata.repository;
+package io.extremum.elasticsearch;
 
 import io.extremum.common.model.PersistableCommonModel;
+import io.extremum.elasticsearch.springdata.repository.CriteriaQueryProcessor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -11,14 +12,14 @@ import static org.springframework.data.elasticsearch.core.query.Criteria.where;
 /**
  * @author rpuch
  */
-class SoftDeletion {
+public class SoftDeletion {
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
-    Criteria notDeleted() {
+    public Criteria notDeleted() {
         return where(DELETED).not().is(true);
     }
 
-    QueryBuilder amendQueryBuilderWithNotDeletedCondition(QueryBuilder query) {
+    public QueryBuilder amendQueryBuilderWithNotDeletedCondition(QueryBuilder query) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         boolQueryBuilder.must(query);

@@ -1,6 +1,7 @@
 package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
+import io.extremum.elasticsearch.SoftDeletion;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.repository.query.ElasticsearchPartQuery;

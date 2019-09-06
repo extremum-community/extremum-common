@@ -1,5 +1,6 @@
 package io.extremum.elasticsearch.springdata.repository;
 
+import io.extremum.elasticsearch.SoftDeletion;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.index.query.QueryBuilder;

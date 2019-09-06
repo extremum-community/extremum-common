@@ -1,9 +1,9 @@
 package io.extremum.elasticsearch.springdata.repository;
 
-import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
@@ -31,6 +31,7 @@ import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -102,8 +103,13 @@ public class ExtremumResultMapper extends DefaultResultMapper {
     @Override
     public <T> T mapGetResult(GetResult getResult, Class<T> type) {
         T result = super.mapGetResult(getResult, type);
+        if (result == null) {
+            return null;
+        }
+
         asElasticsearchModel(result).ifPresent(model -> {
             fillSequenceNumberAndPrimaryTerm(getResult.getSeqNo(), getResult.getPrimaryTerm(), model);
+            model.setVersion(getResult.getVersion());
         });
         return result;
     }
@@ -111,6 +117,10 @@ public class ExtremumResultMapper extends DefaultResultMapper {
     @Override
     public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
         T result = super.mapSearchHit(searchHit, type);
+        if (result == null) {
+            return null;
+        }
+
         asElasticsearchModel(result).ifPresent(model -> {
             fillSequenceNumberAndPrimaryTerm(searchHit.getSeqNo(), searchHit.getPrimaryTerm(), model);
         });
@@ -128,26 +138,7 @@ public class ExtremumResultMapper extends DefaultResultMapper {
         List<T> results = new ArrayList<>();
         for (SearchHit hit : response.getHits()) {
             if (hit != null) {
-                T result;
-                String hitSourceAsString = hit.getSourceAsString();
-                if (!StringUtils.isEmpty(hitSourceAsString)) {
-                    result = mapEntity(hitSourceAsString, clazz);
-                } else {
-                    result = mapEntity(hit.getFields().values(), clazz);
-                }
-
-                setPersistentEntityId(result, hit.getId(), clazz);
-                setPersistentEntityVersion(result, hit.getVersion(), clazz);
-                setPersistentEntityScore(result, hit.getScore(), clazz);
-
-                populateScriptFields(result, hit);
-
-                // we also add filling of seqNo and primaryTerm
-                asElasticsearchModel(result).ifPresent(model -> {
-                    fillSequenceNumberAndPrimaryTerm(hit.getSeqNo(), hit.getPrimaryTerm(), model);
-                });
-
-                results.add(result);
+                results.add(mapHit(hit, clazz));
             }
         }
 
@@ -156,6 +147,37 @@ public class ExtremumResultMapper extends DefaultResultMapper {
                 maxScore);
     }
 
+    @Nullable
+    private <T> T mapHit(SearchHit hit, Class<T> clazz) {
+        T result = deserializeHitContent(hit, clazz);
+        if (result == null) {
+            return null;
+        }
+
+        setPersistentEntityId(result, hit.getId(), clazz);
+        setPersistentEntityVersion(result, hit.getVersion(), clazz);
+        setPersistentEntityScore(result, hit.getScore(), clazz);
+
+        populateScriptFields(result, hit);
+
+        // we also add filling of seqNo and primaryTerm
+        asElasticsearchModel(result).ifPresent(model -> {
+            fillSequenceNumberAndPrimaryTerm(hit.getSeqNo(), hit.getPrimaryTerm(), model);
+        });
+        return result;
+    }
+
+    @Nullable
+    private <T> T deserializeHitContent(SearchHit hit, Class<T> clazz) {
+        String hitSourceAsString = hit.getSourceAsString();
+        if (!StringUtils.isEmpty(hitSourceAsString)) {
+            return mapEntity(hitSourceAsString, clazz);
+        } else {
+            return mapEntity(hit.getFields().values(), clazz);
+        }
+    }
+
+    @Nullable
     private <T> T mapEntity(Collection<DocumentField> values, Class<T> clazz) {
         return mapEntity(buildJSONFromFields(values), clazz);
     }

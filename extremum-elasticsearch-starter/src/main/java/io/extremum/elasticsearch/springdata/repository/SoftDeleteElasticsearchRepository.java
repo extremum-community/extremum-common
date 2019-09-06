@@ -3,6 +3,7 @@ package io.extremum.elasticsearch.springdata.repository;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.utils.StreamUtils;
+import io.extremum.elasticsearch.SoftDeletion;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.data.domain.Page;

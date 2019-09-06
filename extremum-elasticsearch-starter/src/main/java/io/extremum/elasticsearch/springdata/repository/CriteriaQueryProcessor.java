@@ -6,16 +6,14 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Criteria;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
 import static org.elasticsearch.index.query.Operator.AND;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.fuzzyQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * CriteriaQueryProcessor
@@ -27,8 +25,8 @@ import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
  */
 public class CriteriaQueryProcessor {
 
-
-    QueryBuilder createQueryFromCriteria(Criteria criteria) {
+    @Nullable
+    public QueryBuilder createQueryFromCriteria(@Nullable Criteria criteria) {
         if (criteria == null) {
             return null;
         }

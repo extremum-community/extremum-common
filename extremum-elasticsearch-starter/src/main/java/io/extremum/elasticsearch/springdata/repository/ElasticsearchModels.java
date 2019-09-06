@@ -7,8 +7,8 @@ import java.util.Optional;
 /**
  * @author rpuch
  */
-class ElasticsearchModels {
-    static Optional<ElasticsearchCommonModel> asElasticsearchModel(Object object) {
+public class ElasticsearchModels {
+    public static Optional<ElasticsearchCommonModel> asElasticsearchModel(Object object) {
         if (object == null) {
             return Optional.empty();
         }

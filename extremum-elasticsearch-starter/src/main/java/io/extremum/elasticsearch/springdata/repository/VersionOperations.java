@@ -6,8 +6,8 @@ import org.elasticsearch.action.index.IndexResponse;
 /**
  * @author rpuch
  */
-class VersionOperations {
-    void setVersionAfterIndexing(Object indexedEntity, IndexResponse response) {
+public class VersionOperations {
+    public void setVersionAfterIndexing(Object indexedEntity, IndexResponse response) {
         if (indexedEntity == null) {
             return;
         }

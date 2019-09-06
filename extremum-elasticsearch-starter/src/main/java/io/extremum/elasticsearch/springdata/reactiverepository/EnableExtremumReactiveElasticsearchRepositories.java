@@ -1,12 +1,10 @@
-package io.extremum.elasticsearch.springdata.repository;
+package io.extremum.elasticsearch.springdata.reactiverepository;
 
 import io.extremum.common.annotation.InfrastructureElement;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
-import org.springframework.data.elasticsearch.repository.support.ElasticsearchRepositoryFactoryBean;
+import org.springframework.data.elasticsearch.repository.config.EnableReactiveElasticsearchRepositories;
 import org.springframework.data.repository.config.DefaultRepositoryBaseClass;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
@@ -14,7 +12,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import java.lang.annotation.*;
 
 /**
- * Our custom analogue of @{@link EnableElasticsearchRepositories}.
+ * Our custom analogue of @{@link EnableReactiveElasticsearchRepositories}.
  * Our annotation is needed to have our common registrar; this is needed
  * because we need to load packages-to-scan from the configuration, and
  * this cannot be achieved with standard Spring Boot means.
@@ -29,19 +27,18 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import(ExtremumElasticsearchRepositoriesRegistrar.class)
+@Import(ExtremumReactiveElasticsearchRepositoriesRegistrar.class)
 @InfrastructureElement
-public @interface EnableExtremumElasticsearchRepositories {
+public @interface EnableExtremumReactiveElasticsearchRepositories {
+
 	/**
-	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
-	 * {@code @EnableElasticsearchRepositories("org.my.pkg")} instead of
-	 * {@code @EnableElasticsearchRepositories(basePackages="org.my.pkg")}.
+	 * Alias for the {@link #basePackages()} attribute.
 	 */
 	String[] value() default {};
 
 	/**
 	 * Base packages to scan for annotated components. {@link #value()} is an alias for (and mutually exclusive with) this
-	 * attribute. Use {@link #basePackageClasses()} for a type-safe alternative to text-based package names.
+	 * attribute. Use {@link #basePackageClasses()} for a type-safe alternative to String-based package names.
 	 */
 	String[] basePackages() default {};
 
@@ -74,48 +71,37 @@ public @interface EnableExtremumElasticsearchRepositories {
 
 	/**
 	 * Configures the location of where to find the Spring Data named queries properties file. Will default to
-	 * {@code META-INFO/elasticsearch-named-queries.properties}.
+	 * {@code META-INF/elasticsearch-named-queries.properties}.
 	 *
 	 * @return
 	 */
 	String namedQueriesLocation() default "";
 
 	/**
-	 * Returns the key of the {@link org.springframework.data.repository.query.QueryLookupStrategy} to be used for lookup
-	 * queries for query methods. Defaults to
+	 * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query methods. Defaults to
 	 * {@link Key#CREATE_IF_NOT_FOUND}.
-	 *
-	 * @return
 	 */
 	Key queryLookupStrategy() default Key.CREATE_IF_NOT_FOUND;
 
 	/**
-	 * Returns the {@link org.springframework.beans.factory.FactoryBean} class to be used for each repository instance.
+	 * Returns the {@link FactoryBean} class to be used for each repository instance.
 	 *
 	 * XXX: this has been changed to Object.class to avoid annotation parsing error in
 	 * case the application does not have spring-data-jpa in classpath. Hence, the default
 	 * is USELESS: repositoryFactoryBeanClass MUST be ALWAYS specified!!!
-	 *
-	 * @return
 	 */
 	Class<?> repositoryFactoryBeanClass() default Object.class;
 
 	/**
 	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
-	 *
-	 * @return
 	 */
 	Class<?> repositoryBaseClass() default DefaultRepositoryBaseClass.class;
 
-	// Elasticsearch specific configuration
-
 	/**
-	 * Configures the name of the {@link ElasticsearchTemplate} bean definition to be used to create repositories
-	 * discovered through this annotation. Defaults to {@code elasticsearchTemplate}.
-	 *
-	 * @return
+	 * Configures the name of the {@link org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations} bean
+	 * to be used with the repositories detected.
 	 */
-	String elasticsearchTemplateRef() default "elasticsearchTemplate";
+	String reactiveElasticsearchTemplateRef() default "reactiveElasticsearchTemplate";
 
 	/**
 	 * Configures whether nested repository-interfaces (e.g. defined as inner classes) should be discovered by the
