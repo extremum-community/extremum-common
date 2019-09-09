@@ -404,6 +404,19 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenADocumentExists_whenItIsSoftDeletedWithDeleteByIdPublisher_thenItShouldNotBeFoundAnymore() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName("Test");
+        model = dao.save(model).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(notNullValue()));
+
+        dao.deleteById(Mono.just(model.getId())).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(nullValue()));
+    }
+
+    @Test
     void givenADocumentExists_whenSearchingForItByName_thenItShouldBeFound() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         String uniqueName = UUID.randomUUID().toString();
