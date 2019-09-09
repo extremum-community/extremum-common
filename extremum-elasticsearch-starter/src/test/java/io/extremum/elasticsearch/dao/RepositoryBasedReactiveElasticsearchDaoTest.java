@@ -71,36 +71,6 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
-    void whenFinding_thenDescriptorShouldBeFilled() {
-        TestElasticsearchModel savedModel = dao.save(new TestElasticsearchModel()).block();
-
-        TestElasticsearchModel loadedModel = dao.findById(savedModel.getId()).block();
-
-        assertThat(loadedModel.getUuid(), is(notNullValue()));
-    }
-
-    @Test
-    void whenFinding_thenDescriptorInternalIdShouldMatchTheEntityId() {
-        TestElasticsearchModel savedModel = dao.save(new TestElasticsearchModel()).block();
-
-        TestElasticsearchModel loadedModel = dao.findById(savedModel.getId()).block();
-
-        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId())));
-    }
-
-    @Test
-    void givenAModelHasAnExternallySuppliedDescriptor_whenSavingIt_thenIdShouldBeFilledFromTheDescriptor() {
-        TestElasticsearchModel model = createModelWithExternalDescriptor();
-        String internalId = model.getUuid().getInternalId();
-
-        assertThat(model.getId(), is(nullValue()));
-
-        dao.save(model).block();
-
-        assertThat(model.getId(), is(internalId));
-    }
-
-    @Test
     void whenAnEntityIsSavedTwice_thenTheVersionShouldBecome2() {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model = dao.save(model).block();
@@ -130,28 +100,6 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         model = dao.save(model).block();
         model = dao.save(model).block();
         return model;
-    }
-
-    @Test
-    void whenSaveAllIsCalled_thenAllSystemFieldsShouldBeFilled() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        model.setName(UUID.randomUUID().toString());
-
-        dao.saveAll(singletonList(model)).blockLast();
-
-        assertThatSystemFieldsAreFilledAfterSave(model);
-    }
-
-    @Test
-    void givenAModelHasAnExternallySuppliedDescriptor_whenSavingTheModelWithSaveAll_thenIdShouldBeFilledFromTheDescriptor() {
-        TestElasticsearchModel model = createModelWithExternalDescriptor();
-        String internalId = model.getUuid().getInternalId();
-
-        assertThat(model.getId(), is(nullValue()));
-
-        dao.saveAll(singletonList(model)).blockLast();
-
-        assertThat(model.getId(), is(internalId));
     }
 
     @Test
@@ -343,7 +291,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
 
-        List<TestElasticsearchModel> results = dao.findByName(uniqueName)
+        List<TestElasticsearchModel> results = dao.findAllByName(uniqueName)
                 .toStream().collect(Collectors.toList());
         assertThat(results, hasSize(1));
     }

@@ -8,7 +8,9 @@ import reactor.core.publisher.Mono;
 
 public interface TestReactiveElasticsearchModelDao
         extends SpringDataReactiveElasticsearchCommonDao<TestElasticsearchModel> {
-    Flux<TestElasticsearchModel> findByName(String name);
+    Mono<TestElasticsearchModel> findOneByName(String name);
+
+    Flux<TestElasticsearchModel> findAllByName(String name);
 
     @SeesSoftlyDeletedRecords
     Flux<TestElasticsearchModel> findEvenDeletedByName(String name);
