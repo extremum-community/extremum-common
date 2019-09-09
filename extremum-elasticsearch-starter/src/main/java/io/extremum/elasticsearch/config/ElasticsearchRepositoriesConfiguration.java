@@ -70,8 +70,8 @@ public class ElasticsearchRepositoriesConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
-                                                         ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
-        return new ExtremumElasticsearchRestTemplate(elasticsearchClient, objectMapper,
+            ResultsMapper resultsMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
+        return new ExtremumElasticsearchRestTemplate(elasticsearchClient, resultsMapper,
                 elasticsearchDescriptorFactory);
     }
 

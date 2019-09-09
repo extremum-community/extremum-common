@@ -1,6 +1,5 @@
 package io.extremum.elasticsearch.springdata.repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -34,11 +33,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.GetResultMapper;
+import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
-import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -62,13 +61,9 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     private final Searcher searcher;
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            ObjectMapper objectMapper,
+            ResultsMapper resultsMapper,
             ElasticsearchDescriptorFacilities descriptorFacilities) {
-        super(client,
-                new ExtremumResultMapper(
-                        new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
-                )
-        );
+        super(client, resultsMapper);
 
         saveProcess = new SaveProcess(descriptorFacilities);
         searcher = new Searcher(this);
