@@ -123,6 +123,7 @@ public class ExtremumResultMapper extends DefaultResultMapper {
 
         asElasticsearchModel(result).ifPresent(model -> {
             fillSequenceNumberAndPrimaryTerm(searchHit.getSeqNo(), searchHit.getPrimaryTerm(), model);
+            model.setVersion(searchHit.getVersion());
         });
         return result;
     }
