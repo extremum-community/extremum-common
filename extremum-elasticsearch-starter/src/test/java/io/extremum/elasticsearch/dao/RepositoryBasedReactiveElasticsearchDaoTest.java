@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -315,6 +316,15 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         dao.save(model).block();
         dao.deleteById(model.getId()).block();
         return model;
+    }
+
+    @Test
+    void givenADeletedEntityExists_whenInvokingFindAllByIdPublisher_thenNothingShouldBeReturned() {
+        TestElasticsearchModel model = saveAndDeleteModel();
+
+        Iterable<TestElasticsearchModel> all = dao.findAllById(Flux.just(model.getId())).toIterable();
+
+        assertThat(all.iterator().hasNext(), is(false));
     }
 
     @Test
