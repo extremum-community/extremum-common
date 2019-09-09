@@ -1,6 +1,7 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.config.EnableReactiveElasticsearchRepositories;
 import org.springframework.data.elasticsearch.repository.support.ReactiveElasticsearchRepositoryFactory;
@@ -30,6 +31,7 @@ import java.io.Serializable;
 public class ExtremumReactiveElasticsearchRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
         extends ReactiveElasticsearchRepositoryFactoryBean<T, S, ID> {
     private final Class<? extends T> repositoryInterface;
+    private ReactiveElasticsearchAdditionalOperations additionalOperations;
 
     public ExtremumReactiveElasticsearchRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
@@ -37,8 +39,14 @@ public class ExtremumReactiveElasticsearchRepositoryFactoryBean<T extends Reposi
         this.repositoryInterface = repositoryInterface;
     }
 
+    @Autowired
+    public void setAdditionalOperations(ReactiveElasticsearchAdditionalOperations additionalOperations) {
+        this.additionalOperations = additionalOperations;
+    }
+
     @Override
     protected RepositoryFactorySupport getFactoryInstance(ReactiveElasticsearchOperations operations) {
-        return new ExtremumReactiveElasticsearchRepositoryFactory(repositoryInterface, operations);
+        return new ExtremumReactiveElasticsearchRepositoryFactory(repositoryInterface, operations,
+                additionalOperations);
     }
 }

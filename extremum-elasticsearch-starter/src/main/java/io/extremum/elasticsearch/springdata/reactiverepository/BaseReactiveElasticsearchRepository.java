@@ -9,8 +9,6 @@ import io.extremum.elasticsearch.springdata.repository.UpdateFailedException;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.springframework.data.domain.Sort;
@@ -43,6 +41,7 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
     private final ElasticsearchEntityInformation<T, String> metadata;
     private final ReactiveElasticsearchOperations elasticsearchOperations;
+    private ReactiveElasticsearchAdditionalOperations additionalOperations;
 
     BaseReactiveElasticsearchRepository(ElasticsearchEntityInformation<T, String> metadata,
                                         ReactiveElasticsearchOperations elasticsearchOperations) {
@@ -50,6 +49,10 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
         this.metadata = metadata;
         this.elasticsearchOperations = elasticsearchOperations;
+    }
+
+    public void setAdditionalOperations(ReactiveElasticsearchAdditionalOperations additionalOperations) {
+        this.additionalOperations = additionalOperations;
     }
 
     @Override
@@ -92,24 +95,19 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
     @Override
     public Mono<Boolean> patch(String id, String painlessScript, Map<String, Object> scriptParams) {
-//        UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexName(), id);
-//        Script script = createScript(painlessScript, scriptParams);
-//        updateRequest.script(script);
-//
-//        UpdateQuery updateQuery = new UpdateQueryBuilder()
-//                .withClass(metadata.getJavaType())
-//                .withId(id)
-//                .withUpdateRequest(updateRequest)
-//                .build();
-//
-//        UpdateResponse updateResponse = elasticsearchOperations.update(updateQuery);
-//
-//        if (updateResponse.getResult() != DocWriteResponse.Result.UPDATED) {
-//            throw new UpdateFailedException("Update result is not UPDATED but " + updateResponse.getResult());
-//        }
-//
-//        return Mono.just(true);
-        throw new UnsupportedOperationException("Not implemented yet");
+        UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexName(), id);
+        Script script = createScript(painlessScript, scriptParams);
+        updateRequest.script(script);
+
+        UpdateQuery updateQuery = new UpdateQueryBuilder()
+                .withClass(metadata.getJavaType())
+                .withId(id)
+                .withUpdateRequest(updateRequest)
+                .build();
+
+        return additionalOperations.update(updateQuery)
+                .doOnNext(this::throwIfUpdateIsNotApplied)
+                .thenReturn(true);
     }
 
     private Script createScript(String painlessScript, Map<String, Object> params) {
@@ -135,5 +133,11 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
     private String getNowAsString() {
         return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
+    }
+
+    private void throwIfUpdateIsNotApplied(UpdateResponse updateResponse) {
+        if (updateResponse.getResult() != DocWriteResponse.Result.UPDATED) {
+            throw new UpdateFailedException("Update result is not UPDATED but " + updateResponse.getResult());
+        }
     }
 }

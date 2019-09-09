@@ -291,7 +291,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         dao.save(model).block();
         dao.deleteById(model.getId()).block();
 
-        assertThat(dao.existsById(model.getId()), is(false));
+        assertThat(dao.existsById(model.getId()).block(), is(false));
     }
 
     @Test

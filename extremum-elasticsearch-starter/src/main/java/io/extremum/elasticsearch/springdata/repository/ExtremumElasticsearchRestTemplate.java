@@ -1,7 +1,7 @@
 package io.extremum.elasticsearch.springdata.repository;
 
-import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
@@ -59,7 +59,6 @@ import java.util.Optional;
 
 import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.springframework.util.CollectionUtils.isEmpty;
-import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @author rpuch
@@ -652,7 +651,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
     @Override
     public UpdateResponse update(UpdateQuery query) {
-        UpdateRequest request = prepareUpdate(query);
+        UpdateRequest request = new UpdatePreparation(this).prepareUpdate(query);
         try {
             return getClient().update(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
@@ -660,33 +659,6 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         }
     }
 
-    private UpdateRequest prepareUpdate(UpdateQuery query) {
-        String indexName = hasText(query.getIndexName()) ? query.getIndexName()
-                : getPersistentEntityFor(query.getClazz()).getIndexName();
-        String type = hasText(query.getType()) ? query.getType() : getPersistentEntityFor(
-                query.getClazz()).getIndexType();
-        Assert.notNull(indexName, "No index defined for Query");
-        Assert.notNull(type, "No type define for Query");
-        Assert.notNull(query.getId(), "No Id define for Query");
-        Assert.notNull(query.getUpdateRequest(), "No IndexRequest define for Query");
-        UpdateRequest updateRequest = new UpdateRequest(indexName, type, query.getId());
-        updateRequest.routing(query.getUpdateRequest().routing());
-
-        if (query.getUpdateRequest().script() == null) {
-            // doc
-            if (query.DoUpsert()) {
-                updateRequest.docAsUpsert(true).doc(query.getUpdateRequest().doc());
-            } else {
-                updateRequest.doc(query.getUpdateRequest().doc());
-            }
-        } else {
-            // or script
-            updateRequest.script(query.getUpdateRequest().script());
-        }
-
-        return updateRequest;
-    }
-
     // Here ends the copy-paste due to the fact that Spring Data Elasticsearch 3.2 uses old
-    // request method signatures which were removed in 7.1.0 (or earlier)
+    // request method signatures which were removed in Elasticsearch 7.1.0 (or earlier)
 }

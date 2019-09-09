@@ -7,10 +7,7 @@ import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilitiesImpl;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoader;
-import io.extremum.elasticsearch.springdata.reactiverepository.EnableExtremumReactiveElasticsearchRepositories;
-import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchClient;
-import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchRepositoryFactoryBean;
-import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchTemplate;
+import io.extremum.elasticsearch.springdata.reactiverepository.*;
 import io.extremum.elasticsearch.springdata.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
@@ -93,6 +90,12 @@ public class ElasticsearchRepositoriesConfiguration {
                         new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
                 ),
                 descriptorFacilities);
+    }
+
+    @Bean
+    public ReactiveElasticsearchAdditionalOperations reactiveElasticsearchAdditionalOperations(
+            ReactiveElasticsearchClient reactiveElasticsearchClient, ElasticsearchOperations elasticsearchOperations) {
+        return new ReactiveElasticsearchAdditionalOperationsImpl(reactiveElasticsearchClient, elasticsearchOperations);
     }
 
     @Bean
