@@ -42,6 +42,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -207,7 +208,7 @@ public class CommonConfiguration {
 
     @Bean
     public ReactiveEventPublisher reactiveEventPublisher(
-            List<ReactiveApplicationListener<?>> listeners) {
+            List<ReactiveApplicationListener<? extends ApplicationEvent>> listeners) {
         return new DefaultReactiveEventPublisher(listeners);
     }
 
