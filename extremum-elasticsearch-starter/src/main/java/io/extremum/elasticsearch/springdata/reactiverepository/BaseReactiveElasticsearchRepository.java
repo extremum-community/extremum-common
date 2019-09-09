@@ -82,7 +82,7 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
         return search(query);
     }
 
-    private Flux<T> search(QueryBuilder query) {
+    protected Flux<T> search(QueryBuilder query) {
         SearchQuery searchQuery = (new NativeSearchQueryBuilder()).withQuery(query).build();
         return additionalOperations.queryForPage(searchQuery, metadata.getJavaType());
     }

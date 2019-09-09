@@ -4,6 +4,7 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.elasticsearch.SoftDeletion;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
@@ -38,16 +39,11 @@ public class SoftDeleteReactiveElasticsearchRepository<T extends ElasticsearchCo
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
-//    @Override
-//    public Flux<T> search(QueryBuilder query) {
-//        QueryBuilder amendedQueryBuilder = softDeletion.amendQueryBuilderWithNotDeletedCondition(query);
-//        return super.search(amendedQueryBuilder);
-//    }
-//
-//    @Override
-//    public Page<T> search(SearchQuery query) {
-//        return super.search(new NonDeletedSearchQuery(query));
-//    }
+    @Override
+    public Flux<T> search(QueryBuilder query) {
+        QueryBuilder amendedQueryBuilder = softDeletion.amendQueryBuilderWithNotDeletedCondition(query);
+        return super.search(amendedQueryBuilder);
+    }
 
     @Override
     public Mono<Void> delete(T entity) {
