@@ -1,7 +1,7 @@
-package common.dao.mongo;
+package io.extremum.elasticsearch.dao;
 
-import io.extremum.common.test.TestWithServices;
-import models.HardDeleteMongoModel;
+import io.extremum.elasticsearch.TestWithServices;
+import io.extremum.elasticsearch.model.HardDeleteElasticsearchModel;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +17,20 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-class MongoHardDeleteRepositoriesTest extends TestWithServices {
+@SpringBootTest(classes = RepositoryBasedElasticsearchDaoConfiguration.class)
+class ElasticsearchHardDeleteRepositoriesTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    private HardDeleteMongoDao dao;
+    private HardDeleteElasticsearchModelDao dao;
 
     @Test
     void testCreateModel() {
-        HardDeleteMongoModel model = new HardDeleteMongoModel();
+        HardDeleteElasticsearchModel model = new HardDeleteElasticsearchModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
         assertNull(model.getModified());
 
-        HardDeleteMongoModel createdModel = dao.save(model);
+        HardDeleteElasticsearchModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
         assertNotNull(model.getCreated());
@@ -45,16 +45,16 @@ class MongoHardDeleteRepositoriesTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
-        List<HardDeleteMongoModel> results = dao.findByName(uniqueName);
+        List<HardDeleteElasticsearchModel> results = dao.findByName(uniqueName);
         assertThat(results, hasSize(2));
     }
 
     @NotNull
-    private List<HardDeleteMongoModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
-        HardDeleteMongoModel notDeleted = new HardDeleteMongoModel();
+    private List<HardDeleteElasticsearchModel> oneDeletedAndOneNonDeletedWithGivenName(String uniqueName) {
+        HardDeleteElasticsearchModel notDeleted = new HardDeleteElasticsearchModel();
         notDeleted.setName(uniqueName);
 
-        HardDeleteMongoModel deleted = new HardDeleteMongoModel();
+        HardDeleteElasticsearchModel deleted = new HardDeleteElasticsearchModel();
         deleted.setName(uniqueName);
         deleted.setDeleted(true);
 
