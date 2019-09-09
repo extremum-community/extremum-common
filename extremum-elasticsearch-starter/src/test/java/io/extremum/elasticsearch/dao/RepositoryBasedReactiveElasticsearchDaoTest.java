@@ -293,6 +293,13 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
+    void givenADeletedEntityExists_whenInvokingExistsByIdWithPublisher_thenFalseShouldBeReturned() {
+        TestElasticsearchModel model = saveAndDeleteModel();
+
+        assertThat(dao.existsById(Mono.just(model.getId())).block(), is(false));
+    }
+
+    @Test
     void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
         TestElasticsearchModel model = saveAndDeleteModel();
 
