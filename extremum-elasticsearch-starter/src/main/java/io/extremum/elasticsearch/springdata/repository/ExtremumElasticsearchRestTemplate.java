@@ -27,23 +27,15 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.VersionType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.GetResultMapper;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
-import org.springframework.data.elasticsearch.core.facet.FacetRequest;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
@@ -55,7 +47,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -68,6 +59,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final SaveProcess saveProcess;
+    private final Searcher searcher;
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
             ObjectMapper objectMapper,
@@ -79,6 +71,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         );
 
         saveProcess = new SaveProcess(descriptorFacilities);
+        searcher = new Searcher(this);
     }
 
     private static String[] toArray(List<String> values) {
@@ -316,7 +309,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return doCount(prepareCount(searchQuery, clazz), elasticsearchQuery);
         } else {
             // filter could not be set into CountRequestBuilder, convert request into search request
-            return doCount(prepareSearch(searchQuery, clazz), elasticsearchQuery, elasticsearchFilter);
+            return doCount(searcher.prepareSearch(searchQuery, clazz), elasticsearchQuery, elasticsearchFilter);
         }
     }
 
@@ -381,94 +374,13 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return doCount(prepareCount(criteriaQuery, clazz), elasticsearchQuery);
         } else {
             // filter could not be set into CountRequestBuilder, convert request into search request
-            return doCount(prepareSearch(criteriaQuery, clazz), elasticsearchQuery, elasticsearchFilter);
-        }
-    }
-
-    private <T> SearchRequest prepareSearch(Query query, Class<T> clazz) {
-        setPersistentEntityIndexAndType(query, clazz);
-        return prepareSearch(query, Optional.empty());
-    }
-
-    private <T> SearchRequest prepareSearch(SearchQuery query, Class<T> clazz) {
-        setPersistentEntityIndexAndType(query, clazz);
-        return prepareSearch(query, Optional.ofNullable(query.getQuery()));
-    }
-
-    private void setPersistentEntityIndexAndType(Query query, Class clazz) {
-        if (query.getIndices().isEmpty()) {
-            query.addIndices(retrieveIndexNameFromPersistentEntity(clazz));
-        }
-        if (query.getTypes().isEmpty()) {
-            query.addTypes(retrieveTypeFromPersistentEntity(clazz));
-        }
-    }
-
-    private SearchRequest prepareSearch(Query query, Optional<QueryBuilder> builder) {
-        Assert.notNull(query.getIndices(), "No index defined for Query");
-        Assert.notNull(query.getTypes(), "No type defined for Query");
-
-        int startRecord = 0;
-        SearchRequest request = new SearchRequest(toArray(query.getIndices()));
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        request.types(toArray(query.getTypes()));
-        sourceBuilder.version(true);
-        sourceBuilder.trackScores(query.getTrackScores());
-
-        if (builder.isPresent()) {
-            sourceBuilder.query(builder.get());
-        }
-
-        if (query.getSourceFilter() != null) {
-            SourceFilter sourceFilter = query.getSourceFilter();
-            sourceBuilder.fetchSource(sourceFilter.getIncludes(), sourceFilter.getExcludes());
-        }
-
-        if (query.getPageable().isPaged()) {
-            startRecord = query.getPageable().getPageNumber() * query.getPageable().getPageSize();
-            sourceBuilder.size(query.getPageable().getPageSize());
-        }
-        sourceBuilder.from(startRecord);
-
-        if (!query.getFields().isEmpty()) {
-            sourceBuilder.fetchSource(toArray(query.getFields()), null);
-        }
-
-        if (query.getIndicesOptions() != null) {
-            request.indicesOptions(query.getIndicesOptions());
-        }
-
-        if (query.getSort() != null) {
-            prepareSort(query, sourceBuilder);
-        }
-
-        if (query.getMinScore() > 0) {
-            sourceBuilder.minScore(query.getMinScore());
-        }
-
-        // extremum addition: request that Elasticsearch return seq_no and primary_term for each search hit
-        sourceBuilder.seqNoAndPrimaryTerm(true);
-
-        request.source(sourceBuilder);
-        return request;
-    }
-
-    private void prepareSort(Query query, SearchSourceBuilder sourceBuilder) {
-        for (Sort.Order order : query.getSort()) {
-            FieldSortBuilder sort = SortBuilders.fieldSort(order.getProperty())
-                    .order(order.getDirection().isDescending() ? SortOrder.DESC : SortOrder.ASC);
-            if (order.getNullHandling() == Sort.NullHandling.NULLS_FIRST) {
-                sort.missing("_first");
-            } else if (order.getNullHandling() == Sort.NullHandling.NULLS_LAST) {
-                sort.missing("_last");
-            }
-            sourceBuilder.sort(sort);
+            return doCount(searcher.prepareSearch(criteriaQuery, clazz), elasticsearchQuery, elasticsearchFilter);
         }
     }
 
     @Override
     public <T> AggregatedPage<T> queryForPage(SearchQuery query, Class<T> clazz, SearchResultMapper mapper) {
-        SearchResponse response = doSearch(prepareSearch(query, clazz), query);
+        SearchResponse response = doSearch(searcher.prepareSearch(query, clazz), query);
         return mapper.mapResults(response, clazz, query.getPageable());
     }
 
@@ -478,7 +390,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
                 criteriaQuery.getCriteria());
         QueryBuilder elasticsearchFilter = new CriteriaFilterProcessor()
                 .createFilterFromCriteria(criteriaQuery.getCriteria());
-        SearchRequest request = prepareSearch(criteriaQuery, clazz);
+        SearchRequest request = searcher.prepareSearch(criteriaQuery, clazz);
 
         if (elasticsearchQuery != null) {
             request.source().query(elasticsearchQuery);
@@ -507,65 +419,13 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     }
 
     private SearchResponse doSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
-        prepareSearch(searchRequest, searchQuery);
+        searcher.prepareSearch(searchRequest, searchQuery);
 
         try {
             return getClient().search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException("Error for search request with scroll: " + searchRequest.toString(), e);
         }
-    }
-
-    private SearchRequest prepareSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
-        if (searchQuery.getFilter() != null) {
-            searchRequest.source().postFilter(searchQuery.getFilter());
-        }
-
-        if (!isEmpty(searchQuery.getElasticsearchSorts())) {
-            for (SortBuilder sort : searchQuery.getElasticsearchSorts()) {
-                searchRequest.source().sort(sort);
-            }
-        }
-
-        if (!searchQuery.getScriptFields().isEmpty()) {
-            // _source should be return all the time
-            // searchRequest.addStoredField("_source");
-            for (ScriptField scriptedField : searchQuery.getScriptFields()) {
-                searchRequest.source().scriptField(scriptedField.fieldName(), scriptedField.script());
-            }
-        }
-
-        if (searchQuery.getHighlightFields() != null || searchQuery.getHighlightBuilder() != null) {
-            HighlightBuilder highlightBuilder = searchQuery.getHighlightBuilder();
-            if (highlightBuilder == null) {
-                highlightBuilder = new HighlightBuilder();
-            }
-            if (searchQuery.getHighlightFields() != null) {
-                for (HighlightBuilder.Field highlightField : searchQuery.getHighlightFields()) {
-                    highlightBuilder.field(highlightField);
-                }
-            }
-            searchRequest.source().highlighter(highlightBuilder);
-        }
-
-        if (!isEmpty(searchQuery.getIndicesBoost())) {
-            for (IndexBoost indexBoost : searchQuery.getIndicesBoost()) {
-                searchRequest.source().indexBoost(indexBoost.getIndexName(), indexBoost.getBoost());
-            }
-        }
-
-        if (!isEmpty(searchQuery.getAggregations())) {
-            for (AbstractAggregationBuilder aggregationBuilder : searchQuery.getAggregations()) {
-                searchRequest.source().aggregation(aggregationBuilder);
-            }
-        }
-
-        if (!isEmpty(searchQuery.getFacets())) {
-            for (FacetRequest aggregatedFacet : searchQuery.getFacets()) {
-                searchRequest.source().aggregation(aggregatedFacet.getFacet());
-            }
-        }
-        return searchRequest;
     }
 
     @Override
