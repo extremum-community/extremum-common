@@ -40,8 +40,7 @@ public class ExtremumReactiveElasticsearchRepositoryFactory extends ReactiveElas
         if (isSoftDelete()) {
             return SoftDeleteReactiveElasticsearchRepository.class;
         } else {
-//            return HardDeleteElasticsearchRepository.class;
-            throw new UnsupportedOperationException("Not implemented yet");
+            return HardDeleteReactiveElasticsearchRepository.class;
         }
     }
 
