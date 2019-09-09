@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperatio
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleReactiveElasticsearchRepository;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -87,5 +88,14 @@ public class SoftDeleteReactiveElasticsearchRepository<T extends ElasticsearchCo
     @Override
     public Mono<Long> count() {
         return elasticsearchOperations.count(new CriteriaQuery(softDeletion.notDeleted()), metadata.getJavaType());
+    }
+
+    @Override
+    public Mono<Boolean> existsById(String id) {
+        Assert.notNull(id, "Id must not be null!");
+
+        return findById(id)
+                .map(model -> true)
+                .switchIfEmpty(Mono.just(false));
     }
 }
