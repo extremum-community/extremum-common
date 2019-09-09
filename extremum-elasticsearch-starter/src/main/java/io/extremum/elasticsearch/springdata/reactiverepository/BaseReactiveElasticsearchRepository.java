@@ -1,7 +1,6 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
 import io.extremum.common.utils.DateUtils;
-import io.extremum.common.utils.StreamUtils;
 import io.extremum.elasticsearch.dao.ReactiveElasticsearchCommonDao;
 import io.extremum.elasticsearch.dao.SearchOptions;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
@@ -9,10 +8,15 @@ import io.extremum.elasticsearch.springdata.repository.UpdateFailedException;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.data.elasticsearch.core.query.UpdateQueryBuilder;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
@@ -23,9 +27,7 @@ import reactor.core.publisher.Mono;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author rpuch
@@ -40,7 +42,6 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
     private static final String ANALYZER_KEYWORD = "keyword";
 
     private final ElasticsearchEntityInformation<T, String> metadata;
-    private final ReactiveElasticsearchOperations elasticsearchOperations;
     private ReactiveElasticsearchAdditionalOperations additionalOperations;
 
     BaseReactiveElasticsearchRepository(ElasticsearchEntityInformation<T, String> metadata,
@@ -48,7 +49,6 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
         super(metadata, elasticsearchOperations);
 
         this.metadata = metadata;
-        this.elasticsearchOperations = elasticsearchOperations;
     }
 
     public void setAdditionalOperations(ReactiveElasticsearchAdditionalOperations additionalOperations) {
@@ -67,10 +67,6 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
                 "Please do not call this method as a list of all documents may be very large");
     }
 
-    private <S> List<S> iterableToList(Iterable<S> iterable) {
-        return StreamUtils.fromIterable(iterable).collect(Collectors.toList());
-    }
-
     @Override
     public final Mono<Void> deleteAll() {
         throw new UnsupportedOperationException("We don't allow to delete all the documents in one go");
@@ -78,14 +74,17 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
     @Override
     public Flux<T> search(String queryString, SearchOptions searchOptions) {
-//        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(queryString);
-//        if (searchOptions.isExactFieldValueMatch()) {
-//            query.analyzer(ANALYZER_KEYWORD);
-//        }
-//
-//        Iterable<T> results = search(query);
-//        return iterableToList(results);
-        throw new UnsupportedOperationException("Not implemented yet");
+        QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(queryString);
+        if (searchOptions.isExactFieldValueMatch()) {
+            query.analyzer(ANALYZER_KEYWORD);
+        }
+
+        return search(query);
+    }
+
+    private Flux<T> search(QueryBuilder query) {
+        SearchQuery searchQuery = (new NativeSearchQueryBuilder()).withQuery(query).build();
+        return additionalOperations.queryForPage(searchQuery, metadata.getJavaType());
     }
 
     @Override

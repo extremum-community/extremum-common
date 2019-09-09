@@ -18,6 +18,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.http.HttpHeaders;
@@ -41,12 +43,14 @@ public class ElasticsearchRepositoriesConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
 
     @Bean
+    @ConditionalOnMissingBean
     public ElasticsearchDescriptorFacilities elasticsearchDescriptorFacilities(DescriptorFactory descriptorFactory,
                                                                                DescriptorSaver descriptorSaver) {
         return new ElasticsearchDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public RestHighLevelClient elasticsearchClient() {
         HttpHost[] httpHosts = elasticsearchProperties.getHosts().stream()
                 .map(h -> new HttpHost(h.getHost(), h.getPort(), h.getProtocol()))
@@ -64,6 +68,7 @@ public class ElasticsearchRepositoriesConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
                                                          ObjectMapper objectMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         return new ExtremumElasticsearchRestTemplate(elasticsearchClient, objectMapper,
@@ -71,6 +76,7 @@ public class ElasticsearchRepositoriesConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ReactiveElasticsearchClient reactiveElasticsearchClient() {
         String[] hosts = elasticsearchProperties.getHosts().stream()
                 .map(h -> h.getHost() + ":" + h.getPort())
@@ -80,25 +86,37 @@ public class ElasticsearchRepositoriesConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    public ExtremumResultMapper resultMapper(ObjectMapper objectMapper) {
+        return new ExtremumResultMapper(
+                new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
+        );
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public ReactiveElasticsearchOperations reactiveElasticsearchTemplate(
             ReactiveElasticsearchClient reactiveElasticsearchClient, ObjectMapper objectMapper,
             ElasticsearchDescriptorFacilities descriptorFacilities) {
         SimpleElasticsearchMappingContext mappingContext = new SimpleElasticsearchMappingContext();
         return new ExtremumReactiveElasticsearchTemplate(reactiveElasticsearchClient,
                 new MappingElasticsearchConverter(mappingContext),
-                new ExtremumResultMapper(
-                        new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
-                ),
+                resultMapper(objectMapper),
                 descriptorFacilities);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ReactiveElasticsearchAdditionalOperations reactiveElasticsearchAdditionalOperations(
-            ReactiveElasticsearchClient reactiveElasticsearchClient, ElasticsearchOperations elasticsearchOperations) {
-        return new ReactiveElasticsearchAdditionalOperationsImpl(reactiveElasticsearchClient, elasticsearchOperations);
+            ReactiveElasticsearchClient reactiveElasticsearchClient,
+            ElasticsearchOperations elasticsearchOperations,
+            ResultsMapper resultsMapper) {
+        return new ReactiveElasticsearchAdditionalOperationsImpl(reactiveElasticsearchClient, resultsMapper,
+                elasticsearchOperations);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ElasticsearchUniversalReactiveModelLoader elasticsearchUniversalReactiveModelLoader(
             ReactiveElasticsearchOperations reactiveElasticsearchOperations) {
         return new ElasticsearchUniversalReactiveModelLoader(reactiveElasticsearchOperations);
