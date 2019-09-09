@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
+import io.extremum.common.model.Model;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -209,9 +211,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void givenEntityIsDeleted_whenFindById_thenNothingShouldBeFound() {
-        TestElasticsearchModel modelToBeDeleted = new TestElasticsearchModel();
-        dao.save(modelToBeDeleted).block();
-        dao.deleteById(modelToBeDeleted.getId()).block();
+        TestElasticsearchModel modelToBeDeleted = saveAndDeleteModel();
 
         TestElasticsearchModel resultModel = dao.findById(modelToBeDeleted.getId()).block();
         assertNull(resultModel);
@@ -287,23 +287,27 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void givenADeletedEntityExists_whenInvokingExistsById_thenFalseShouldBeReturned() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model).block();
-        dao.deleteById(model.getId()).block();
+        TestElasticsearchModel model = saveAndDeleteModel();
 
         assertThat(dao.existsById(model.getId()).block(), is(false));
     }
 
     @Test
     void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model).block();
-        dao.deleteById(model.getId()).block();
+        TestElasticsearchModel model = saveAndDeleteModel();
 
         Iterable<TestElasticsearchModel> all = dao.findAllById(Collections.singletonList(model.getId()))
                 .toIterable();
 
         assertThat(all.iterator().hasNext(), is(false));
+    }
+
+    @NotNull
+    private TestElasticsearchModel saveAndDeleteModel() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        dao.save(model).block();
+        dao.deleteById(model.getId()).block();
+        return model;
     }
 
     @Test
@@ -367,6 +371,19 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         dao.deleteById(model.getId()).block();
 
         assertThat(dao.findById(model.getId()).block(), is(nullValue()));
+    }
+
+    @Test
+    void givenADocumentExists_whenItIsSoftDeleted_thenItShouldNotBeFoundAnymoreByFindIdWithPublisher() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName("Test");
+        model = dao.save(model).block();
+
+        assertThat(dao.findById(Mono.just(model.getId())).block(), is(notNullValue()));
+
+        dao.deleteById(model.getId()).block();
+
+        assertThat(dao.findById(Mono.just(model.getId())).block(), is(nullValue()));
     }
 
     @Test
@@ -498,10 +515,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void whenAnEntityIsDeletedById_thenItShouldBeMarkedAsDeleted() {
-        TestElasticsearchModel model = new TestElasticsearchModel();
-        dao.save(model).block();
-
-        dao.deleteById(model.getId()).block();
+        TestElasticsearchModel model = saveAndDeleteModel();
 
         assertThatEntityWasMarkedAsDeleted(model);
     }
