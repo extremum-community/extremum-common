@@ -52,6 +52,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -80,7 +81,7 @@ public class CommonConfiguration {
         Config config = new Config();
         config.setCodec(new JsonJacksonCodec(redisMapper));
         config.useSingleServer().setAddress(redisProperties.getUri());
-        if (redisProperties.getPassword() != null) {
+        if (StringUtils.hasLength(redisProperties.getPassword())) {
             config.useSingleServer().setPassword(redisProperties.getPassword());
         }
         return config;
