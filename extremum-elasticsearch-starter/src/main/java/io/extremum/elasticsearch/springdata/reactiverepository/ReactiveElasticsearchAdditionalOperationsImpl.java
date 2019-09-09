@@ -1,6 +1,6 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
-import io.extremum.elasticsearch.springdata.repository.Searcher;
+import io.extremum.elasticsearch.springdata.repository.SearchPreparation;
 import io.extremum.elasticsearch.springdata.repository.UpdatePreparation;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -20,7 +20,7 @@ public class ReactiveElasticsearchAdditionalOperationsImpl implements ReactiveEl
     private final ResultsMapper resultsMapper;
 
     private final UpdatePreparation updatePreparation;
-    private final Searcher searcher;
+    private final SearchPreparation searchPreparation;
 
     public ReactiveElasticsearchAdditionalOperationsImpl(ReactiveElasticsearchClient client,
                                                          ResultsMapper resultsMapper,
@@ -29,7 +29,7 @@ public class ReactiveElasticsearchAdditionalOperationsImpl implements ReactiveEl
         this.resultsMapper = resultsMapper;
 
         updatePreparation = new UpdatePreparation(elasticsearchOperations);
-        searcher = new Searcher(elasticsearchOperations);
+        searchPreparation = new SearchPreparation(elasticsearchOperations);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class ReactiveElasticsearchAdditionalOperationsImpl implements ReactiveEl
     }
 
     private <T> Flux<T> queryForPage(SearchQuery query, Class<T> clazz, SearchResultMapper mapper) {
-        Flux<SearchHit> hits = doSearch(searcher.prepareSearch(query, clazz), query);
+        Flux<SearchHit> hits = doSearch(searchPreparation.prepareSearch(query, clazz), query);
         return hits.map(hit -> mapper.mapSearchHit(hit, clazz));
     }
 
     private Flux<SearchHit> doSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
-        searcher.prepareSearch(searchRequest, searchQuery);
+        searchPreparation.prepareSearch(searchRequest, searchQuery);
 
         return client.search(searchRequest);
     }

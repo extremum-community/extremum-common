@@ -20,10 +20,10 @@ import java.util.Optional;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-public class Searcher {
+public class SearchPreparation {
     private final ElasticsearchOperations elasticsearchOperations;
 
-    public Searcher(ElasticsearchOperations elasticsearchOperations) {
+    public SearchPreparation(ElasticsearchOperations elasticsearchOperations) {
         this.elasticsearchOperations = elasticsearchOperations;
     }
 

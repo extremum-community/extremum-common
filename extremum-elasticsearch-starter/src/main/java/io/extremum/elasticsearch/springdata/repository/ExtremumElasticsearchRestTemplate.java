@@ -58,7 +58,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final SaveProcess saveProcess;
-    private final Searcher searcher;
+    private final SearchPreparation searchPreparation;
 
     public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
             ResultsMapper resultsMapper,
@@ -66,7 +66,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         super(client, resultsMapper);
 
         saveProcess = new SaveProcess(descriptorFacilities);
-        searcher = new Searcher(this);
+        searchPreparation = new SearchPreparation(this);
     }
 
     private static String[] toArray(List<String> values) {
@@ -304,7 +304,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return doCount(prepareCount(searchQuery, clazz), elasticsearchQuery);
         } else {
             // filter could not be set into CountRequestBuilder, convert request into search request
-            return doCount(searcher.prepareSearch(searchQuery, clazz), elasticsearchQuery, elasticsearchFilter);
+            return doCount(searchPreparation.prepareSearch(searchQuery, clazz), elasticsearchQuery, elasticsearchFilter);
         }
     }
 
@@ -369,13 +369,13 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return doCount(prepareCount(criteriaQuery, clazz), elasticsearchQuery);
         } else {
             // filter could not be set into CountRequestBuilder, convert request into search request
-            return doCount(searcher.prepareSearch(criteriaQuery, clazz), elasticsearchQuery, elasticsearchFilter);
+            return doCount(searchPreparation.prepareSearch(criteriaQuery, clazz), elasticsearchQuery, elasticsearchFilter);
         }
     }
 
     @Override
     public <T> AggregatedPage<T> queryForPage(SearchQuery query, Class<T> clazz, SearchResultMapper mapper) {
-        SearchResponse response = doSearch(searcher.prepareSearch(query, clazz), query);
+        SearchResponse response = doSearch(searchPreparation.prepareSearch(query, clazz), query);
         return mapper.mapResults(response, clazz, query.getPageable());
     }
 
@@ -385,7 +385,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
                 criteriaQuery.getCriteria());
         QueryBuilder elasticsearchFilter = new CriteriaFilterProcessor()
                 .createFilterFromCriteria(criteriaQuery.getCriteria());
-        SearchRequest request = searcher.prepareSearch(criteriaQuery, clazz);
+        SearchRequest request = searchPreparation.prepareSearch(criteriaQuery, clazz);
 
         if (elasticsearchQuery != null) {
             request.source().query(elasticsearchQuery);
@@ -414,7 +414,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     }
 
     private SearchResponse doSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
-        searcher.prepareSearch(searchRequest, searchQuery);
+        searchPreparation.prepareSearch(searchRequest, searchQuery);
 
         try {
             return getClient().search(searchRequest, RequestOptions.DEFAULT);
