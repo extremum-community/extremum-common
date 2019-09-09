@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
-import io.extremum.common.model.Model;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
@@ -26,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -137,7 +137,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model.setName(UUID.randomUUID().toString());
 
-        dao.saveAll(Collections.singletonList(model)).blockLast();
+        dao.saveAll(singletonList(model)).blockLast();
 
         assertThatSystemFieldsAreFilledAfterSave(model);
     }
@@ -149,7 +149,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
 
         assertThat(model.getId(), is(nullValue()));
 
-        dao.saveAll(Collections.singletonList(model)).blockLast();
+        dao.saveAll(singletonList(model)).blockLast();
 
         assertThat(model.getId(), is(internalId));
     }
@@ -264,7 +264,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         dao.save(model).block();
 
-        List<TestElasticsearchModel> list = dao.findAllById(Collections.singletonList(model.getId()))
+        List<TestElasticsearchModel> list = dao.findAllById(singletonList(model.getId()))
                 .toStream().collect(Collectors.toList());
         assertThat(list, hasSize(1));
         TestElasticsearchModel resultModel = list.get(0);
@@ -304,7 +304,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
     void givenADeletedEntityExists_whenInvokingFindAllById_thenNothingShouldBeReturned() {
         TestElasticsearchModel model = saveAndDeleteModel();
 
-        Iterable<TestElasticsearchModel> all = dao.findAllById(Collections.singletonList(model.getId()))
+        Iterable<TestElasticsearchModel> all = dao.findAllById(singletonList(model.getId()))
                 .toIterable();
 
         assertThat(all.iterator().hasNext(), is(false));
@@ -412,6 +412,32 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         assertThat(dao.findById(model.getId()).block(), is(notNullValue()));
 
         dao.deleteById(Mono.just(model.getId())).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(nullValue()));
+    }
+
+    @Test
+    void givenADocumentExists_whenItIsSoftDeletedWithDeleteAll_thenItShouldNotBeFoundAnymore() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName("Test");
+        model = dao.save(model).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(notNullValue()));
+
+        dao.deleteAll(singletonList(model)).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(nullValue()));
+    }
+
+    @Test
+    void givenADocumentExists_whenItIsSoftDeletedWithDeleteAllPublisher_thenItShouldNotBeFoundAnymore() {
+        TestElasticsearchModel model = new TestElasticsearchModel();
+        model.setName("Test");
+        model = dao.save(model).block();
+
+        assertThat(dao.findById(model.getId()).block(), is(notNullValue()));
+
+        dao.deleteAll(Flux.just(model)).block();
 
         assertThat(dao.findById(model.getId()).block(), is(nullValue()));
     }
