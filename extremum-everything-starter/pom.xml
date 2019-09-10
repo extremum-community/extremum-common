@@ -48,7 +48,7 @@
 
         <dependency>
             <groupId>io.extremum</groupId>
-            <artifactId>extremum-test-harness</artifactId>
+            <artifactId>extremum-core-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
