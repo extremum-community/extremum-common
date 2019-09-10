@@ -1,27 +1,20 @@
-package io.extremum.watch;
+package io.extremum.test.core;
 
-import io.extremum.common.mapper.MapperDependencies;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.response.Response;
 import io.extremum.common.response.ResponseStatusEnum;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.hamcrest.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.mockito.Mockito.mock;
-
 /**
  * @author rpuch
  */
-public class Tests {
+public class ResponseMatchers {
     public static Matcher<? super String> response(Matcher<? super Response> responseMatcher) {
         return new ResponseMatcher(responseMatcher);
     }
@@ -32,14 +25,14 @@ public class Tests {
 
     public static Matcher<? super String> successfulResponse() {
         return responseThat(
-                allOf(
-                        hasProperty("status", is(ResponseStatusEnum.OK)),
-                        hasProperty("code", is(200))
+                CoreMatchers.allOf(
+                        Matchers.hasProperty("status", CoreMatchers.is(ResponseStatusEnum.OK)),
+                        Matchers.hasProperty("code", CoreMatchers.is(200))
                 )
         );
     }
 
-    private static Response parseResponse(String item, SystemJsonObjectMapper mapper) {
+    private static Response parseResponse(String item, ObjectMapper mapper) {
         try {
             return mapper.readValue(new StringReader(item), Response.class);
         } catch (IOException e) {
@@ -50,7 +43,7 @@ public class Tests {
     private static class ResponseMatcher extends TypeSafeDiagnosingMatcher<String> {
         private final Matcher<? super Response> responseMatcher;
 
-        private SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mock(MapperDependencies.class));
+        private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
         ResponseMatcher(Matcher<? super Response> responseMatcher) {
             this.responseMatcher = responseMatcher;

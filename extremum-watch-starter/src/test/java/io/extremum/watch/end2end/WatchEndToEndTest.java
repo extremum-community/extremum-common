@@ -11,7 +11,7 @@ import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
 import io.extremum.test.poll.Poller;
-import io.extremum.watch.Tests;
+import io.extremum.test.core.ResponseMatchers;
 import io.extremum.watch.config.TestWithServices;
 import io.extremum.watch.config.WatchTestConfiguration;
 import io.extremum.watch.end2end.fixture.WatchedModel;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.extremum.watch.Tests.responseThat;
+import static io.extremum.test.core.ResponseMatchers.responseThat;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -112,7 +112,7 @@ class WatchEndToEndTest extends TestWithServices {
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(Tests.successfulResponse()))
+                .andExpect(content().string(ResponseMatchers.successfulResponse()))
                 .andReturn();
     }
 
@@ -131,7 +131,7 @@ class WatchEndToEndTest extends TestWithServices {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(jsonPatch)))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(Tests.successfulResponse()))
+                .andExpect(content().string(ResponseMatchers.successfulResponse()))
                 .andReturn();
     }
 
@@ -145,7 +145,7 @@ class WatchEndToEndTest extends TestWithServices {
             MvcResult mvcResult = mockMvc.perform(get("/watch")
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().is2xxSuccessful())
-                    .andExpect(content().string(Tests.successfulResponse()))
+                    .andExpect(content().string(ResponseMatchers.successfulResponse()))
                     .andReturn();
             String contentAsString = mvcResult.getResponse().getContentAsString();
             return parseEvents(contentAsString);

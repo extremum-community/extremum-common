@@ -1,4 +1,4 @@
-package io.extremum.everything;
+package io.extremum.test.core;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.mapper.MapperDependencies;

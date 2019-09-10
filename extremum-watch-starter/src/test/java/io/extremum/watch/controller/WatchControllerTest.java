@@ -17,7 +17,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
-import io.extremum.watch.Tests;
+import io.extremum.test.core.ResponseMatchers;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +81,7 @@ class WatchControllerTest {
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(Tests.successfulResponse()));
+                .andExpect(content().string(ResponseMatchers.successfulResponse()));
 
         verify(watchSubscriptionService).subscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> savedDescriptors = descriptorsCaptor.getValue();
@@ -102,7 +102,7 @@ class WatchControllerTest {
         MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(Tests.successfulResponse()))
+                .andExpect(content().string(ResponseMatchers.successfulResponse()))
                 .andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         List<Map<String, Object>> events = parseEvents(contentAsString);
@@ -125,7 +125,7 @@ class WatchControllerTest {
                 .param("limit", "10")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(Tests.successfulResponse()))
+                .andExpect(content().string(ResponseMatchers.successfulResponse()))
                 .andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         List<Map<String, Object>> events = parseEvents(contentAsString);
@@ -177,7 +177,7 @@ class WatchControllerTest {
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(Tests.successfulResponse()));
+                .andExpect(content().string(ResponseMatchers.successfulResponse()));
 
         verify(watchSubscriptionService).unsubscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> removedDescriptors = descriptorsCaptor.getValue();
