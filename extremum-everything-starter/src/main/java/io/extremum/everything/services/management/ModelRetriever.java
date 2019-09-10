@@ -60,7 +60,8 @@ public class ModelRetriever {
 
     public Mono<Model> retrieveModelReactively(Descriptor id) {
         ReactiveGetter getter = findReactiveGetter(id);
-        return getter.reactiveGet(id.getInternalId())
+        return id.getInternalIdReactively()
+                .flatMap(getter::reactiveGet)
                 .doOnNext(model -> logModel(id, getter, model));
     }
 
