@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
+import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -83,6 +84,46 @@ public class Descriptor implements Serializable {
         return this.internalId;
     }
 
+    @JsonIgnore
+    @UsesStaticDependencies
+    public Mono<String> getExternalIdReactively() {
+        if (externalId != null) {
+            return Mono.just(externalId);
+        }
+        if (internalId == null) {
+            throw new IllegalStateException("Both internalId and externalId are null");
+        }
+        return loadByInternalIdReactively()
+                .then(Mono.defer(() -> Mono.just(externalId)));
+    }
+
+    private Mono<Descriptor> loadByInternalIdReactively() {
+        return StaticDescriptorLoaderAccessor.getDescriptorLoader()
+                .loadByInternalIdReactively(internalId)
+                .doOnNext(this::copyFieldsFromAnotherDescriptor)
+                .switchIfEmpty(Mono.error(newDescriptorNotFoundByInternalIdException()));
+    }
+
+    @JsonIgnore
+    @UsesStaticDependencies
+    public Mono<String> getInternalIdReactively() {
+        if (internalId != null) {
+            return Mono.just(internalId);
+        }
+        if (externalId == null) {
+            throw new IllegalStateException("Both internalId and externalId are null");
+        }
+        return loadByExternalIdReactively()
+                .then(Mono.defer(() -> Mono.just(internalId)));
+    }
+
+    private Mono<Descriptor> loadByExternalIdReactively() {
+        return StaticDescriptorLoaderAccessor.getDescriptorLoader()
+                .loadByExternalIdReactively(externalId)
+                .doOnNext(this::copyFieldsFromAnotherDescriptor)
+                .switchIfEmpty(Mono.error(newDescriptorNotFoundByExternalIdException()));
+    }
+
     public StorageType getStorageType() {
         if (this.storageType == null) {
             fillByIds();
@@ -94,6 +135,24 @@ public class Descriptor implements Serializable {
             }
         }
         return this.storageType;
+    }
+
+    @JsonIgnore
+    @UsesStaticDependencies
+    public Mono<StorageType> getStorageTypeReactively() {
+        if (this.storageType != null) {
+            return Mono.just(storageType);
+        }
+
+        if (this.externalId != null) {
+            return loadByExternalIdReactively()
+                    .then(Mono.defer(() -> Mono.just(storageType)));
+        } else if (this.internalId != null) {
+            return loadByInternalIdReactively()
+                    .then(Mono.defer(() -> Mono.just(storageType)));
+        } else {
+            throw new IllegalStateException("Both externalId and internalId are null");
+        }
     }
 
     public String getModelType() {
@@ -117,10 +176,13 @@ public class Descriptor implements Serializable {
         StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByInternalId(internalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.externalId != null)
-                .orElseThrow(() -> new DescriptorNotFoundException(
-                                String.format("Internal id %s without corresponding descriptor", internalId)
-                        )
-                );
+                .orElseThrow(this::newDescriptorNotFoundByInternalIdException);
+    }
+
+    private DescriptorNotFoundException newDescriptorNotFoundByInternalIdException() {
+        return new DescriptorNotFoundException(
+                String.format("Internal id %s without corresponding descriptor", internalId)
+        );
     }
 
     @UsesStaticDependencies
@@ -129,17 +191,21 @@ public class Descriptor implements Serializable {
         StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByExternalId(this.externalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.internalId != null)
-                .orElseThrow(() -> new DescriptorNotFoundException(
-                        "Internal ID was not found for external ID " + this.externalId)
-                );
+                .orElseThrow(this::newDescriptorNotFoundByExternalIdException);
+    }
+
+    private DescriptorNotFoundException newDescriptorNotFoundByExternalIdException() {
+        return new DescriptorNotFoundException("Internal ID was not found for external ID " + this.externalId);
     }
 
 
     private Descriptor copyFieldsFromAnotherDescriptor(Descriptor d) {
         this.externalId = d.externalId;
+        this.type = d.type;
         this.internalId = d.internalId;
         this.modelType = d.modelType;
         this.storageType = d.storageType;
+        this.collection = d.collection;
         this.created = d.created;
         this.modified = d.modified;
         this.version = d.version;

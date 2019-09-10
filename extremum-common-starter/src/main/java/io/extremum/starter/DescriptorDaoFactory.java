@@ -11,6 +11,7 @@ import io.extremum.starter.properties.RedisProperties;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.RedissonReactiveClient;
 import org.redisson.client.codec.Codec;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 public class DescriptorDaoFactory {
     public static DescriptorDao create(
@@ -29,10 +30,12 @@ public class DescriptorDaoFactory {
 
     public static ReactiveDescriptorDao createReactive(
             RedisProperties redisProperties, DescriptorsProperties descriptorsProperties,
-            RedissonReactiveClient redissonClient, DescriptorRepository descriptorRepository) {
+            RedissonReactiveClient redissonClient, DescriptorRepository descriptorRepository,
+            ReactiveMongoOperations reactiveMongoOperations) {
         Codec codec = RedisCodecFactory.codecFor(Descriptor.class);
 
         return new BaseReactiveDescriptorDaoImpl(redissonClient, descriptorRepository,
+                reactiveMongoOperations,
                 descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(),
                 codec,

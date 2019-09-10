@@ -10,26 +10,20 @@ import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.mongo.config.DescriptorsMongoConfiguration;
-import io.extremum.mongo.config.MainMongoConfiguration;
-import io.extremum.mongo.config.MainReactiveMongoConfiguration;
-import io.extremum.mongo.config.MongoRepositoriesConfiguration;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
-import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
+import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.*;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.model.Model;
-import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
-import io.extremum.common.reactive.IsolatedSchedulerReactifier;
-import io.extremum.common.reactive.Reactifier;
+import io.extremum.common.reactive.*;
 import io.extremum.common.service.CommonService;
-import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
+import io.extremum.mongo.config.*;
+import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
@@ -48,6 +42,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -60,7 +55,8 @@ import java.util.List;
 
 @Configuration
 @Import({MainMongoConfiguration.class, MainReactiveMongoConfiguration.class,
-        DescriptorsMongoConfiguration.class, MongoRepositoriesConfiguration.class})
+        DescriptorsMongoConfiguration.class, DescriptorsReactiveMongoConfiguration.class,
+        MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
 @ComponentScan("io.extremum.common.dto.converters")
 @EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class, ModelProperties.class})
@@ -122,10 +118,11 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ReactiveDescriptorDao reactiveDescriptorDao(RedissonReactiveClient redissonReactiveClient,
-                                                       DescriptorRepository descriptorRepository) {
+    public ReactiveDescriptorDao reactiveDescriptorDao(
+            RedissonReactiveClient redissonReactiveClient, DescriptorRepository descriptorRepository,
+            @Qualifier("descriptorsReactiveMongoTemplate") ReactiveMongoOperations reactiveMongoOperations) {
         return DescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
-                redissonReactiveClient, descriptorRepository);
+                redissonReactiveClient, descriptorRepository, reactiveMongoOperations);
     }
 
     @Bean
@@ -136,8 +133,9 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorLoader descriptorLoader(DescriptorService descriptorService) {
-        return new DBDescriptorLoader(descriptorService);
+    public DescriptorLoader descriptorLoader(DescriptorService descriptorService,
+                                             ReactiveDescriptorService reactiveDescriptorService) {
+        return new DBDescriptorLoader(descriptorService, reactiveDescriptorService);
     }
 
     @Bean
@@ -204,15 +202,15 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
-                                                               DescriptorSaver descriptorSaver) {
-        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
+    public ReactiveDescriptorSaver reactiveDescriptorSaver(DescriptorService descriptorService,
+                                                           ReactiveDescriptorService reactiveDescriptorService) {
+        return new ReactiveDescriptorSaver(descriptorService, reactiveDescriptorService);
     }
 
     @Bean
-    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener(
-            MongoDescriptorFacilities mongoDescriptorFacilities) {
-        return new MongoCommonModelLifecycleListener(mongoDescriptorFacilities);
+    public ReactiveEventPublisher reactiveEventPublisher(
+            List<ReactiveApplicationListener<? extends ApplicationEvent>> listeners) {
+        return new DefaultReactiveEventPublisher(listeners);
     }
 
     @Bean

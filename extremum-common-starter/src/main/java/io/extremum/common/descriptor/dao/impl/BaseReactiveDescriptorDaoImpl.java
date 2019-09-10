@@ -4,12 +4,14 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonReactiveClient;
 import org.redisson.client.codec.Codec;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 import java.util.concurrent.TimeUnit;
 
 public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
     public BaseReactiveDescriptorDaoImpl(RedissonReactiveClient redissonClient,
                                          DescriptorRepository descriptorRepository,
+                                         ReactiveMongoOperations reactiveMongoOperations,
                                          String descriptorsMapName, String internalIdsMapName,
                                          Codec codec,
                                          int cacheSize, long idleTime) {
@@ -37,7 +39,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)
-                )
-        );
+                ),
+                reactiveMongoOperations);
     }
 }

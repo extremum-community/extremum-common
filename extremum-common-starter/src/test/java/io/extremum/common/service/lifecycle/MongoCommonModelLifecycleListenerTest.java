@@ -2,16 +2,15 @@ package io.extremum.common.service.lifecycle;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
-import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,16 +18,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -72,14 +65,14 @@ class MongoCommonModelLifecycleListenerTest {
     }
 
     private void assertThatDescriptorWasGeneratedWithNewInternalId(TestMongoModel model) {
-        MatcherAssert.assertThat(model.getUuid(), is(notNullValue()));
-        MatcherAssert.assertThat(model.getUuid().getExternalId(), is("new-external-id"));
-        MatcherAssert.assertThat(model.getUuid().getInternalId(), is(not(objectId.toString())));
-        MatcherAssert.assertThat(model.getId(), is(notNullValue()));
+        assertThat(model.getUuid(), is(notNullValue()));
+        assertThat(model.getUuid().getExternalId(), is("new-external-id"));
+        assertThat(model.getUuid().getInternalId(), is(not(objectId.toString())));
+        assertThat(model.getId(), is(notNullValue()));
     }
 
     private void assertThatDescriptorInternalIdMatchesEntityId(TestMongoModel model) {
-        MatcherAssert.assertThat(model.getId().toString(), CoreMatchers.is(equalTo(model.getUuid().getInternalId())));
+        assertThat(model.getId().toString(), CoreMatchers.is(equalTo(model.getUuid().getInternalId())));
     }
 
     private void assertThatDescriptorWasSaved(TestMongoModel model) {
@@ -99,11 +92,11 @@ class MongoCommonModelLifecycleListenerTest {
     }
 
     private void assertThatUUIDWasNotChanged(TestMongoModel model) {
-        MatcherAssert.assertThat(model.getUuid(), is(sameInstance(descriptor)));
+        assertThat(model.getUuid(), is(sameInstance(descriptor)));
     }
 
     private void assertThatEntityIdWasTakenFromUUID(TestMongoModel model) {
-        MatcherAssert.assertThat(model.getId(), is(objectId));
+        assertThat(model.getId(), is(objectId));
     }
 
     private void assertThatNoDescriptorWasSaved() {
@@ -124,13 +117,13 @@ class MongoCommonModelLifecycleListenerTest {
     }
 
     private void assertThatDescriptorWasGeneratedWithGivenInternalId(TestMongoModel model) {
-        MatcherAssert.assertThat(model.getUuid(), is(notNullValue()));
-        MatcherAssert.assertThat(model.getUuid().getExternalId(), is("new-external-id"));
-        MatcherAssert.assertThat(model.getUuid().getInternalId(), is(objectId.toString()));
+        assertThat(model.getUuid(), is(notNullValue()));
+        assertThat(model.getUuid().getExternalId(), is("new-external-id"));
+        assertThat(model.getUuid().getInternalId(), is(objectId.toString()));
     }
 
     private void assertThatEntityIdDidNotChange(TestMongoModel model) {
-        MatcherAssert.assertThat(model.getId(), is(objectId));
+        assertThat(model.getId(), is(objectId));
     }
 
     @Test

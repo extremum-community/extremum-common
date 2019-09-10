@@ -1,7 +1,7 @@
 package io.extremum.common.descriptor.factory;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

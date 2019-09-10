@@ -30,27 +30,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
-class MongoReactiveCommonDaoTest extends TestWithServices {
+class ReactiveMongoCommonDaoTest extends TestWithServices {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private TestReactiveMongoModelDao dao;
     @Autowired
     private DescriptorService descriptorService;
-
-    @Test
-    void testCreateModel() {
-        TestMongoModel model = new TestMongoModel();
-        assertNull(model.getId());
-        assertNull(model.getCreated());
-        assertNull(model.getModified());
-
-        TestMongoModel createdModel = dao.save(model).block();
-        assertEquals(model, createdModel);
-        assertNotNull(model.getId());
-        assertNotNull(model.getCreated());
-        assertNotNull(model.getVersion());
-        assertFalse(model.getDeleted());
-    }
 
     @Test
     void testCreateModelWithWrongVersion() {
@@ -240,7 +225,7 @@ class MongoReactiveCommonDaoTest extends TestWithServices {
 
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
 
-        List<TestMongoModel> results = dao.findByName(uniqueName).collectList().block();
+        List<TestMongoModel> results = dao.findAllByName(uniqueName).collectList().block();
         assertThat(results, hasSize(1));
     }
 

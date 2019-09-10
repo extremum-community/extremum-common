@@ -19,8 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +39,7 @@ class JpaCommonDaoTest extends TestWithServices {
     private DescriptorService descriptorService;
 
     @Test
-    void testCreateModel() {
+    void whenSaving_thenAllAutoFieldsShouldBeFilled() {
         TestJpaModel model = new TestJpaModel();
         assertNull(model.getId());
         assertNull(model.getCreated());
@@ -49,10 +48,31 @@ class JpaCommonDaoTest extends TestWithServices {
         TestJpaModel createdModel = dao.save(model);
         assertEquals(model, createdModel);
         assertNotNull(model.getId());
+        assertNotNull(model.getUuid());
         assertNotNull(model.getCreated());
         assertNotNull(model.getModified());
         assertNotNull(model.getVersion());
         assertFalse(model.getDeleted());
+    }
+
+    @Test
+    void whenFinding_thenDescriptorShouldBeFilled() {
+        TestJpaModel savedModel = dao.save(new TestJpaModel());
+
+        TestJpaModel loadedModel = dao.findById(savedModel.getId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+
+        assertThat(loadedModel.getUuid(), is(notNullValue()));
+    }
+
+    @Test
+    void whenFinding_thenDescriptorInternalIdShouldMatchTheEntityId() {
+        TestJpaModel savedModel = dao.save(new TestJpaModel());
+
+        TestJpaModel loadedModel = dao.findById(savedModel.getId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+
+        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId().toString())));
     }
 
     @Test

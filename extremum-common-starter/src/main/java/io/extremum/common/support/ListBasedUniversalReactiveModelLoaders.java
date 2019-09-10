@@ -21,7 +21,9 @@ public class ListBasedUniversalReactiveModelLoaders implements UniversalReactive
     public Mono<Model> loadByDescriptor(Descriptor descriptor) {
         UniversalReactiveModelLoader loader = findLoader(descriptor);
         Class<Model> modelClass = modelClasses.getClassByModelName(descriptor.getModelType());
-        return loader.loadByInternalId(descriptor.getInternalId(), modelClass);
+
+        return descriptor.getInternalIdReactively()
+                .flatMap(internalId -> loader.loadByInternalId(descriptor.getInternalId(), modelClass));
     }
 
     private UniversalReactiveModelLoader findLoader(Descriptor descriptor) {

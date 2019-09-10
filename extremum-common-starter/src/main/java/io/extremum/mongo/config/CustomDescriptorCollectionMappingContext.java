@@ -12,6 +12,7 @@ import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
 import org.springframework.data.util.TypeInformation;
+import reactor.core.publisher.Mono;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -157,6 +158,13 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
 
         @Transient
         private boolean single;
+
+        @Transient
+        private Mono<String> externalIdReactively;
+        @Transient
+        private Mono<String> internalIdReactively;
+        @Transient
+        private Mono<Descriptor.StorageType> storageTypeReactively;
     }
 
     private static class CollectionDescriptorMirror {

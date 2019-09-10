@@ -85,6 +85,26 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
+    void whenFinding_thenDescriptorShouldBeFilled() {
+        TestElasticsearchModel savedModel = dao.save(new TestElasticsearchModel());
+
+        TestElasticsearchModel loadedModel = dao.findById(savedModel.getId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+
+        assertThat(loadedModel.getUuid(), is(notNullValue()));
+    }
+
+    @Test
+    void whenFinding_thenDescriptorInternalIdShouldMatchTheEntityId() {
+        TestElasticsearchModel savedModel = dao.save(new TestElasticsearchModel());
+
+        TestElasticsearchModel loadedModel = dao.findById(savedModel.getId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+
+        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId().toString())));
+    }
+
+    @Test
     void givenAModelHasAnExternallySuppliedDescriptor_whenSavingIt_thenIdShouldBeFilledFromTheDescriptor() {
         TestElasticsearchModel model = createModelWithExternalDescriptor();
         String internalId = model.getUuid().getInternalId();
