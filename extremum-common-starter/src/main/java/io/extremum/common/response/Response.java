@@ -65,7 +65,11 @@ public class Response {
     }
 
     public static Response ok(Object result) {
-        return ok(result, emptyList());
+        return builder()
+                .withOkStatus()
+                .withResult(result)
+                .withNowTimestamp()
+                .build();
     }
 
     public static Response ok(Object result, Alert alert) {
