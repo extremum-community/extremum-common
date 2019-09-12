@@ -1,8 +1,10 @@
 package io.extremum.common.collection.conversion;
 
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.visit.CollectionVisitDriver;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.utils.attribute.Attribute;
 import io.extremum.common.utils.attribute.VisitDirection;
@@ -14,6 +16,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +26,15 @@ import java.util.List;
  * @author rpuch
  */
 @Service
+@RequiredArgsConstructor
 public class CollectionMakeupImpl implements CollectionMakeup {
     private static final String COLLECTION_URI_FORMAT = "/%s";
 
     private final DescriptorSaver descriptorSaver;
     private final CollectionDescriptorService collectionDescriptorService;
+    private final ReactiveDescriptorSaver reactiveDescriptorSaver;
+    private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
     private final ApplicationUrls applicationUrls;
-
-    public CollectionMakeupImpl(DescriptorSaver descriptorSaver,
-                                CollectionDescriptorService collectionDescriptorService,
-                                ApplicationUrls applicationUrls) {
-        this.descriptorSaver = descriptorSaver;
-        this.collectionDescriptorService = collectionDescriptorService;
-        this.applicationUrls = applicationUrls;
-    }
 
     @Override
     public void applyCollectionMakeup(ResponseDto rootDto) {
@@ -44,6 +43,16 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         for (ReferenceWithContext context : collectedReferences) {
             applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
         }
+    }
+
+    @Override
+    public Mono<Void> applyCollectionMakeupReactively(ResponseDto rootDto) {
+        List<ReferenceWithContext> collectedReferences = collectReferencesToApplyMakeup(rootDto);
+
+        return Flux.fromIterable(collectedReferences)
+                .flatMap(context -> applyMakeupToCollectionReactively(
+                        context.getReference(), context.getAttribute(), context.getDto()))
+                .then();
     }
 
     private List<ReferenceWithContext> collectReferencesToApplyMakeup(ResponseDto rootDto) {
@@ -82,11 +91,15 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
-        CollectionDescriptor newCollectionDescriptor = CollectionDescriptor.forOwned(
-                dto.getId(), getHostAttributeName(attribute));
+        CollectionDescriptor newCollectionDescriptor = collectionDescriptorFor(attribute, dto);
 
         return collectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
                 .orElseGet(() -> descriptorSaver.createAndSave(newCollectionDescriptor));
+    }
+
+    private CollectionDescriptor collectionDescriptorFor(Attribute attribute, ResponseDto dto) {
+        return CollectionDescriptor.forOwned(
+                dto.getId(), getHostAttributeName(attribute));
     }
 
     private String getHostAttributeName(Attribute attribute) {
@@ -95,6 +108,21 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return annotation.hostAttributeName();
         }
         return attribute.name();
+    }
+
+    private Mono<Void> applyMakeupToCollectionReactively(CollectionReference reference, Attribute attribute,
+                                                         ResponseDto dto) {
+        return getExistingOrCreateNewCollectionDescriptorReactively(attribute, dto)
+                .doOnNext(collectionDescriptor -> applyMakeupWithCollectionDescriptor(reference, collectionDescriptor))
+                .then();
+    }
+
+    private Mono<Descriptor> getExistingOrCreateNewCollectionDescriptorReactively(Attribute attribute,
+                                                                                  ResponseDto dto) {
+        CollectionDescriptor newCollectionDescriptor = collectionDescriptorFor(attribute, dto);
+
+        return reactiveCollectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
+                .switchIfEmpty(Mono.defer(() -> reactiveDescriptorSaver.createAndSave(newCollectionDescriptor)));
     }
 
     @RequiredArgsConstructor

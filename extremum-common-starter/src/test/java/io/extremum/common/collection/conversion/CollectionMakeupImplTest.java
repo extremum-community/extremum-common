@@ -1,8 +1,11 @@
 package io.extremum.common.collection.conversion;
 
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
+import io.extremum.common.descriptor.factory.impl.InMemoryReactiveDescriptorService;
 import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.TestApplicationUrls;
 import io.extremum.sharedmodels.basic.IdOrObject;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +50,14 @@ class CollectionMakeupImplTest {
     @Spy
     private CollectionDescriptorService collectionDescriptorService = new InMemoryCollectionDescriptorService(
             descriptorService);
+    @Spy
+    private InMemoryReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
+    @Spy
+    private ReactiveDescriptorSaver reactiveDescriptorSaver = new ReactiveDescriptorSaver(
+            descriptorService, reactiveDescriptorService);
+    @Spy
+    private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
+            new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService);
     @Spy
     private ApplicationUrls applicationUrls = new TestApplicationUrls();
 
@@ -212,6 +224,43 @@ class CollectionMakeupImplTest {
         OwnedCoordinates coordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
         assertThat(coordinates.getHostId().getExternalId(), is("inner-id"));
         assertThat(coordinates.getHostAttributeName(), is("the-buildings"));
+    }
+
+    @Test
+    void givenNoCollectionDescriptorExists_whenApplyingCollectionMakeupReactively_thenCollectionDescriptorShouldBeFilledAndSaved() {
+        collectionMakeup.applyCollectionMakeupReactively(streetDto).block();
+
+        String collectionId = streetDto.buildings.getId();
+        CollectionDescriptor descriptor = retrieveNonNullCollectionDescriptorSavedSavedReactively(collectionId);
+
+        assertThatStreetBuildingsCollectionGotMakeupApplied(descriptor, "the-buildings");
+    }
+
+    @NotNull
+    private CollectionDescriptor retrieveNonNullCollectionDescriptorSavedSavedReactively(String collectionId) {
+        assertThat(collectionId, is(notNullValue()));
+
+        Descriptor descriptor = reactiveDescriptorService.loadByExternalId(collectionId).block();
+        assertThat(descriptor, is(notNullValue()));
+        assertThat(descriptor.getExternalId(), is(notNullValue()));
+        assertThat(descriptor.getType(), is(Descriptor.Type.COLLECTION));
+
+        CollectionDescriptor collectionDescriptor = descriptor.getCollection();
+        assertThat(collectionDescriptor, is(notNullValue()));
+        return collectionDescriptor;
+    }
+
+    @Test
+    void givenACollectionDescriptorExists_whenApplyingCollectionMakeupReactively_thenCollectionDescriptorShouldNotBeSaved() {
+        when(reactiveCollectionDescriptorService.retrieveByCoordinates(anyString()))
+                .thenReturn(Mono.just(descriptorInDB));
+
+        collectionMakeup.applyCollectionMakeupReactively(streetDto).block();
+
+        assertThat(streetDto.buildings.getId(), is(descriptorInDB.getExternalId()));
+
+        //noinspection UnassignedFluxMonoInstance
+        verify(reactiveDescriptorService, never()).store(any());
     }
 
     private static class BuildingResponseDto extends CommonResponseDto {

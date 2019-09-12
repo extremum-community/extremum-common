@@ -1,6 +1,7 @@
 package io.extremum.common.descriptor.factory;
 
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 class DescriptorSavers {
@@ -10,7 +11,7 @@ class DescriptorSavers {
         this.descriptorService = descriptorService;
     }
 
-    Descriptor createDescriptor(String internalId, String modelType, Descriptor.StorageType storageType) {
+    Descriptor createSingleDescriptor(String internalId, String modelType, Descriptor.StorageType storageType) {
         return Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .type(Descriptor.Type.SINGLE)
@@ -18,5 +19,9 @@ class DescriptorSavers {
                 .modelType(modelType)
                 .storageType(storageType)
                 .build();
+    }
+
+    Descriptor createCollectionDescriptor(CollectionDescriptor collectionDescriptor) {
+        return Descriptor.forCollection(descriptorService.createExternalId(), collectionDescriptor);
     }
 }

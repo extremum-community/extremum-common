@@ -13,6 +13,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                          DescriptorRepository descriptorRepository,
                                          ReactiveMongoOperations reactiveMongoOperations,
                                          String descriptorsMapName, String internalIdsMapName,
+                                         String collectionCoordinatesMapName,
                                          Codec codec,
                                          int cacheSize, long idleTime) {
         super(
@@ -40,6 +41,18 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                 .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)
                 ),
+
+                // TODO: here, we use getMap() instead of getMapCache() because the latter causes weird runtime exceptions
+                redissonClient.getMap(
+                        collectionCoordinatesMapName,
+                        LocalCachedMapOptions
+                                .<String, String>defaults()
+                                .loader(new DescriptorCoordinatesMapLoader(descriptorRepository))
+                                .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
+                                .cacheSize(cacheSize)
+                                .maxIdle(idleTime, TimeUnit.DAYS)
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
+
                 reactiveMongoOperations);
     }
 }

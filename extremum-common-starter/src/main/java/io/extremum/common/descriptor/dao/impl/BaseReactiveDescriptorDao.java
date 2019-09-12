@@ -12,13 +12,16 @@ import reactor.core.publisher.Mono;
 public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao {
     private final RMapReactive<String, Descriptor> descriptors;
     private final RMapReactive<String, String> internalIdIndex;
+    private final RMapReactive<String, String> collectionCoordinatesToExternalIds;
     private final ReactiveMongoOperations reactiveMongoOperations;
 
     BaseReactiveDescriptorDao(RMapReactive<String, Descriptor> descriptors,
                               RMapReactive<String, String> internalIdIndex,
+                              RMapReactive<String, String> collectionCoordinatesToExternalIds,
                               ReactiveMongoOperations reactiveMongoOperations) {
         this.descriptors = descriptors;
         this.internalIdIndex = internalIdIndex;
+        this.collectionCoordinatesToExternalIds = collectionCoordinatesToExternalIds;
         this.reactiveMongoOperations = reactiveMongoOperations;
     }
 
@@ -29,7 +32,14 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
 
     @Override
     public Mono<Descriptor> retrieveByInternalId(String internalId) {
-        return internalIdIndex.get(internalId).flatMap(descriptors::get);
+        return internalIdIndex.get(internalId)
+                .flatMap(descriptors::get);
+    }
+
+    @Override
+    public Mono<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates) {
+        return collectionCoordinatesToExternalIds.get(collectionCoordinates)
+                .flatMap(descriptors::get);
     }
 
     @Override
@@ -44,6 +54,11 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
         if (descriptor.isSingle()) {
             return afterPutToDescriptors.then(
                     internalIdIndex.put(descriptor.getInternalId(), descriptor.getExternalId())
+            ).then();
+        } else if (descriptor.isCollection()) {
+            return afterPutToDescriptors.then(
+                    collectionCoordinatesToExternalIds.put(descriptor.getCollection().toCoordinatesString(),
+                            descriptor.getExternalId())
             ).then();
         }
 

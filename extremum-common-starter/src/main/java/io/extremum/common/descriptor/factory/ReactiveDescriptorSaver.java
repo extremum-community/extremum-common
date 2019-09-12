@@ -2,6 +2,7 @@ package io.extremum.common.descriptor.factory;
 
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
+import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 
@@ -16,10 +17,15 @@ public class ReactiveDescriptorSaver {
         savers = new DescriptorSavers(descriptorService);
     }
 
-    public Mono<Descriptor> createAndSaveReactively(String internalId, String modelType,
-                                                    Descriptor.StorageType storageType) {
-        Descriptor descriptor = savers.createDescriptor(internalId, modelType, storageType);
+    public Mono<Descriptor> createAndSave(String internalId, String modelType,
+                                          Descriptor.StorageType storageType) {
+        Descriptor descriptor = savers.createSingleDescriptor(internalId, modelType, storageType);
 
+        return reactiveDescriptorService.store(descriptor);
+    }
+
+    public Mono<Descriptor> createAndSave(CollectionDescriptor collectionDescriptor) {
+        Descriptor descriptor = savers.createCollectionDescriptor(collectionDescriptor);
         return reactiveDescriptorService.store(descriptor);
     }
 }

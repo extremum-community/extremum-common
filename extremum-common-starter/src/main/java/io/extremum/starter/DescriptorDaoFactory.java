@@ -38,6 +38,7 @@ public class DescriptorDaoFactory {
                 reactiveMongoOperations,
                 descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(),
+                descriptorsProperties.getCollectionCoordinatesMapName(),
                 codec,
                 redisProperties.getCacheSize(),
                 redisProperties.getIdleTime());
