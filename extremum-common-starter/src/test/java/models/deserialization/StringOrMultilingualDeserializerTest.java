@@ -27,7 +27,7 @@ public class StringOrMultilingualDeserializerTest {
         assertNotNull(ml);
         assertEquals(StringOrMultilingual.Type.TEXT, ml.getType());
         assertEquals("В лесу родилась ёлочка", ml.getText());
-        assertNull(ml.getMultilingual());
+        assertNull(ml.getMultilingualContent());
     }
 
     @Test
@@ -38,13 +38,13 @@ public class StringOrMultilingualDeserializerTest {
         assertNotNull(ml);
         assertEquals(StringOrMultilingual.Type.MAP, ml.getType());
         assertNull(ml.getText());
-        assertFalse(ml.getMultilingual().getMap().isEmpty());
-        assertEquals(2, ml.getMultilingual().getMap().size());
+        assertFalse(ml.getMultilingualContent().getMap().isEmpty());
+        assertEquals(2, ml.getMultilingualContent().getMap().size());
 
-        String ru_RU_text = ml.getMultilingual().getMap().get(MultilingualLanguage.ru_RU);
+        String ru_RU_text = ml.getMultilingualContent().getMap().get(MultilingualLanguage.ru_RU);
         assertEquals("В лесу родилась ёлочка", ru_RU_text);
 
-        String en_US_text = ml.getMultilingual().getMap().get(MultilingualLanguage.en_US);
+        String en_US_text = ml.getMultilingualContent().getMap().get(MultilingualLanguage.en_US);
         assertEquals("The forest raised a christmas tree", en_US_text);
     }
 }
