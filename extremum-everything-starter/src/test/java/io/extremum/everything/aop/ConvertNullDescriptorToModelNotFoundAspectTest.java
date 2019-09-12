@@ -1,12 +1,10 @@
 package io.extremum.everything.aop;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.exceptions.ModelNotFoundException;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.test.aop.AspectWrapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.aop.framework.DefaultAopProxyFactory;
 import org.springframework.stereotype.Controller;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -22,13 +20,7 @@ class ConvertNullDescriptorToModelNotFoundAspectTest {
 
     @BeforeEach
     void setUp() {
-        AspectJProxyFactory aspectJProxyFactory = new AspectJProxyFactory(new TestController());
-        aspectJProxyFactory.addAspect(aspect);
-
-        DefaultAopProxyFactory proxyFactory = new DefaultAopProxyFactory();
-        AopProxy aopProxy = proxyFactory.createAopProxy(aspectJProxyFactory);
-
-        controllerProxy = (TestController) aopProxy.getProxy();
+        controllerProxy = AspectWrapping.wrapInAspect(new TestController(), aspect);
     }
 
     @Test

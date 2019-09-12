@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.CollectionMakeupImpl;
+import io.extremum.common.collection.conversion.ReactiveResponseCollectionsMakeupAspect;
 import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
@@ -291,6 +292,13 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public ResponseCollectionsMakeupAdvice responseCollectionsMakeupAdvice(CollectionMakeup collectionMakeup) {
         return new ResponseCollectionsMakeupAdvice(collectionMakeup);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveResponseCollectionsMakeupAspect reactiveResponseCollectionsMakeupAspect(
+            CollectionMakeup collectionMakeup) {
+        return new ReactiveResponseCollectionsMakeupAspect(collectionMakeup);
     }
 
     @Bean
