@@ -27,6 +27,14 @@ public class IdOrObject<ID extends Serializable, T> {
         this(Type.unknown, null, null);
     }
 
+    public static <ID extends Serializable, T> IdOrObject<ID, T> forId(ID id) {
+        return new IdOrObject<>(id);
+    }
+
+    public static <ID extends Serializable, T> IdOrObject<ID, T> forObject(T object) {
+        return new IdOrObject<>(object);
+    }
+
     /**
      * Who of fields of the {@link IdOrObject} is initialized
      */
