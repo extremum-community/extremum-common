@@ -10,8 +10,13 @@ import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.sharedmodels.fundamental.CollectionReference;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author rpuch
@@ -24,9 +29,6 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ApplicationUrls applicationUrls;
 
-    private final CollectionVisitDriver collectionVisitDriver = new CollectionVisitDriver(
-            VisitDirection.ROOT_TO_LEAVES, this::applyToCollection);
-
     public CollectionMakeupImpl(DescriptorSaver descriptorSaver,
                                 CollectionDescriptorService collectionDescriptorService,
                                 ApplicationUrls applicationUrls) {
@@ -36,11 +38,25 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     }
 
     @Override
-    public void applyCollectionMakeup(ResponseDto dto) {
-        collectionVisitDriver.visitCollections(dto);
+    public void applyCollectionMakeup(ResponseDto rootDto) {
+        List<ReferenceWithContext> collectedReferences = collectReferencesToApplyMakeup(rootDto);
+
+        for (ReferenceWithContext context : collectedReferences) {
+            applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
+        }
     }
 
-    private void applyToCollection(CollectionReference reference, Attribute attribute, ResponseDto dto) {
+    private List<ReferenceWithContext> collectReferencesToApplyMakeup(ResponseDto rootDto) {
+        List<ReferenceWithContext> collectedReferences = new ArrayList<>();
+        CollectionVisitDriver collectionVisitDriver = new CollectionVisitDriver(
+                VisitDirection.ROOT_TO_LEAVES,
+                (reference, attribute, dto) -> collectReferenceIfEligible(reference, attribute, dto, collectedReferences));
+        collectionVisitDriver.visitCollections(rootDto);
+        return collectedReferences;
+    }
+
+    private void collectReferenceIfEligible(CollectionReference reference, Attribute attribute, ResponseDto dto,
+                                   List<ReferenceWithContext> collectedReferences) {
         if (dto.getId() == null) {
             return;
         }
@@ -48,8 +64,17 @@ public class CollectionMakeupImpl implements CollectionMakeup {
             return;
         }
 
+        collectedReferences.add(new ReferenceWithContext(reference, dto, attribute));
+    }
+
+    private void applyMakeupToCollection(CollectionReference reference, Attribute attribute, ResponseDto dto) {
         Descriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
-        reference.setId(collectionDescriptorToUse.getExternalId());
+
+        applyMakeupWithCollectionDescriptor(reference, collectionDescriptorToUse);
+    }
+
+    private void applyMakeupWithCollectionDescriptor(CollectionReference reference, Descriptor collectionDescriptor) {
+        reference.setId(collectionDescriptor.getExternalId());
 
         String collectionUri = String.format(COLLECTION_URI_FORMAT, reference.getId());
         String externalUrl = applicationUrls.createExternalUrl(collectionUri);
@@ -72,4 +97,11 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return attribute.name();
     }
 
+    @RequiredArgsConstructor
+    @Getter
+    private static class ReferenceWithContext {
+        private final CollectionReference<?> reference;
+        private final ResponseDto dto;
+        private final Attribute attribute;
+    }
 }
