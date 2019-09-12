@@ -46,7 +46,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -67,7 +66,6 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty("custom.field-destroyer.analyzable-package-prefix")
     public EmptyFieldDestroyer emptyFieldDestroyer() {
         EmptyFieldDestroyerConfig config = new EmptyFieldDestroyerConfig();
         config.setAnalyzablePackagePrefixes(destroyerProperties.getAnalyzablePackagePrefix());
