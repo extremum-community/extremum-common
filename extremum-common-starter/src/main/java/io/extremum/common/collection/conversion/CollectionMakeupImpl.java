@@ -76,14 +76,24 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private void applyMakeupToCollection(CollectionReference reference, Attribute attribute, ResponseDto dto) {
         Descriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
 
-        applyMakeupWithCollectionDescriptor(reference, collectionDescriptorToUse);
+        applyMakeupWithCollectionDescriptor(reference, collectionDescriptorToUse, attribute);
     }
 
-    private void applyMakeupWithCollectionDescriptor(CollectionReference reference, Descriptor collectionDescriptor) {
-        reference.setId(collectionDescriptor.getExternalId());
+    private void applyMakeupWithCollectionDescriptor(CollectionReference reference, Descriptor collectionDescriptor,
+                                                     Attribute attribute) {
+        String collectionExternalId = collectionDescriptor.getExternalId();
 
-        String externalUrl = collectionUrls.collectionUrl(reference.getId());
+        if (fillCollectionId(attribute)) {
+            reference.setId(collectionExternalId);
+        }
+
+        String externalUrl = collectionUrls.collectionUrl(collectionExternalId);
         reference.setUrl(externalUrl);
+    }
+
+    private boolean fillCollectionId(Attribute attribute) {
+        FillCollectionId annotation = attribute.getAnnotation(FillCollectionId.class);
+        return annotation == null || annotation.value();
     }
 
     private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
@@ -109,7 +119,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private Mono<Void> applyMakeupToCollectionReactively(CollectionReference reference, Attribute attribute,
                                                          ResponseDto dto) {
         return getExistingOrCreateNewCollectionDescriptorReactively(attribute, dto)
-                .doOnNext(collectionDescriptor -> applyMakeupWithCollectionDescriptor(reference, collectionDescriptor))
+                .doOnNext(collectionDescriptor -> applyMakeupWithCollectionDescriptor(
+                        reference, collectionDescriptor, attribute))
                 .then();
     }
 
