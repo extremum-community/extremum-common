@@ -2,10 +2,7 @@ package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
-import io.extremum.common.collection.conversion.CollectionMakeup;
-import io.extremum.common.collection.conversion.CollectionMakeupImpl;
-import io.extremum.common.collection.conversion.ReactiveResponseCollectionsMakeupAspect;
-import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
+import io.extremum.common.collection.conversion.*;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
@@ -279,13 +276,19 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public CollectionUrls collectionUrls(ApplicationUrls applicationUrls) {
+        return new CollectionUrlsInRoot(applicationUrls);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(DescriptorSaver descriptorSaver,
                                              CollectionDescriptorService collectionDescriptorService,
                                              ReactiveDescriptorSaver reactiveDescriptorSaver,
                                              ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-                                             ApplicationUrls applicationUrls) {
+                                             CollectionUrls collectionUrls) {
         return new CollectionMakeupImpl(descriptorSaver, collectionDescriptorService,
-                reactiveDescriptorSaver, reactiveCollectionDescriptorService, applicationUrls);
+                reactiveDescriptorSaver, reactiveCollectionDescriptorService, collectionUrls);
     }
 
     @Bean

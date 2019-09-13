@@ -5,7 +5,6 @@ import io.extremum.common.collection.service.ReactiveCollectionDescriptorService
 import io.extremum.common.collection.visit.CollectionVisitDriver;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
-import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.utils.attribute.Attribute;
 import io.extremum.common.utils.attribute.VisitDirection;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
@@ -28,13 +27,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CollectionMakeupImpl implements CollectionMakeup {
-    private static final String COLLECTION_URI_FORMAT = "/%s";
-
     private final DescriptorSaver descriptorSaver;
     private final CollectionDescriptorService collectionDescriptorService;
     private final ReactiveDescriptorSaver reactiveDescriptorSaver;
     private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
-    private final ApplicationUrls applicationUrls;
+    private final CollectionUrls collectionUrls;
 
     @Override
     public void applyCollectionMakeup(ResponseDto rootDto) {
@@ -85,8 +82,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private void applyMakeupWithCollectionDescriptor(CollectionReference reference, Descriptor collectionDescriptor) {
         reference.setId(collectionDescriptor.getExternalId());
 
-        String collectionUri = String.format(COLLECTION_URI_FORMAT, reference.getId());
-        String externalUrl = applicationUrls.createExternalUrl(collectionUri);
+        String externalUrl = collectionUrls.collectionUrl(reference.getId());
         reference.setUrl(externalUrl);
     }
 

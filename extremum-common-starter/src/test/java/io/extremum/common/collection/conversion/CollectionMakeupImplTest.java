@@ -6,7 +6,6 @@ import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.descriptor.factory.impl.InMemoryReactiveDescriptorService;
-import io.extremum.common.urls.ApplicationUrls;
 import io.extremum.common.urls.TestApplicationUrls;
 import io.extremum.sharedmodels.basic.IdOrObject;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
@@ -59,7 +58,7 @@ class CollectionMakeupImplTest {
     private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
             new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService);
     @Spy
-    private ApplicationUrls applicationUrls = new TestApplicationUrls();
+    private CollectionUrls collectionUrls = new CollectionUrlsInRoot(new TestApplicationUrls());
 
     private StreetResponseDto streetDto;
     private final Descriptor descriptorInDB = Descriptor.forCollection("external-id",
