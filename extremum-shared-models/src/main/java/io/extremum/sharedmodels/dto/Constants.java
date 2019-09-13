@@ -1,4 +1,4 @@
-package io.extremum.common;
+package io.extremum.sharedmodels.dto;
 
 import java.util.Locale;
 

@@ -1,7 +1,7 @@
 package io.extremum.common.mapper;
 
 import io.extremum.common.deserializers.*;
-import io.extremum.common.response.Pagination;
+import io.extremum.sharedmodels.dto.Pagination;
 import io.extremum.common.serializers.*;
 import io.extremum.common.stucts.DurationVariativeValue;
 import io.extremum.common.stucts.IdListOrObjectList;

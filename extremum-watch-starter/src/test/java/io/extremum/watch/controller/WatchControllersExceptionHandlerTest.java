@@ -1,6 +1,6 @@
 package io.extremum.watch.controller;
 
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.watch.exception.WatchException;

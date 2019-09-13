@@ -3,7 +3,7 @@ package common.service.mongo;
 import common.dao.mongo.TestMongoModelDao;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
-import io.extremum.common.response.Alert;
+import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.common.service.AlertsCollector;
 import io.extremum.common.service.Problems;
 import io.extremum.common.utils.ModelUtils;

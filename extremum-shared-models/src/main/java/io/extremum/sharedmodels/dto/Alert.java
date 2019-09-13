@@ -1,4 +1,4 @@
-package io.extremum.common.response;
+package io.extremum.sharedmodels.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

@@ -1,9 +1,12 @@
 package io.extremum.common.response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.mapper.MockedMapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.Response;
+import io.extremum.sharedmodels.dto.ResponseStatusEnum;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -15,10 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author rpuch
@@ -125,12 +127,5 @@ class ResponseTest {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Test
-    void whenCreatingAnOkResponseWithAnObject_thenAlertsShouldBeNull() {
-        Response response = Response.ok("the-payload");
-
-        assertThat(response.getAlerts(), is(nullValue()));
     }
 }

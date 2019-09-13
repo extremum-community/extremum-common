@@ -1,8 +1,8 @@
 package io.extremum.common.exceptions;
 
 
-import io.extremum.common.response.Alert;
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.Response;
 
 import java.util.ArrayList;
 import java.util.Collection;

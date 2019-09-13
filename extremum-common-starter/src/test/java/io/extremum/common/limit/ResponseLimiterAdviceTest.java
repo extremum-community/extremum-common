@@ -1,6 +1,6 @@
 package io.extremum.common.limit;
 
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.fundamental.CommonResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -2,7 +2,7 @@ package io.extremum.jpa.service;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
-import io.extremum.common.response.Alert;
+import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.common.service.AlertsCollector;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.common.uuid.StandardUUIDGenerator;

@@ -1,7 +1,7 @@
 package io.extremum.watch.controller;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.dto.TextWatchEventResponseDto;

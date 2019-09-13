@@ -1,6 +1,6 @@
 package io.extremum.common.deserializers;
 
-import io.extremum.common.response.Pagination;
+import io.extremum.sharedmodels.dto.Pagination;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;

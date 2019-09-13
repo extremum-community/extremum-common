@@ -1,6 +1,6 @@
 package io.extremum.common.response.advice;
 
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

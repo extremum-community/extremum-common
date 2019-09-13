@@ -1,4 +1,4 @@
-package io.extremum.common.response;
+package io.extremum.sharedmodels.dto;
 
 import lombok.Builder;
 import lombok.Getter;

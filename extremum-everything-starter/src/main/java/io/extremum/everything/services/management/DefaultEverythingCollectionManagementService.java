@@ -1,8 +1,8 @@
 package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.response.Pagination;
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Pagination;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
@@ -11,7 +11,7 @@ import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
-import static io.extremum.common.response.Response.ok;
+import static io.extremum.sharedmodels.dto.Response.ok;
 
 /**
  * @author rpuch
