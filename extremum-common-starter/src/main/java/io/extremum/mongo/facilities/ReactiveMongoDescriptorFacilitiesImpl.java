@@ -17,7 +17,7 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
 
     @Override
     public Mono<Descriptor> create(ObjectId id, String modelType) {
-        return descriptorSaver.createAndSaveReactively(id.toString(), modelType, STORAGE_TYPE);
+        return descriptorSaver.createAndSave(id.toString(), modelType, STORAGE_TYPE);
     }
 
     @Override

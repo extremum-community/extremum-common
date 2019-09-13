@@ -15,7 +15,7 @@ public class DescriptorSaver {
     }
 
     public Descriptor createAndSave(String internalId, String modelType, Descriptor.StorageType storageType) {
-        Descriptor descriptor = savers.createDescriptor(internalId, modelType, storageType);
+        Descriptor descriptor = savers.createSingleDescriptor(internalId, modelType, storageType);
 
         return descriptorService.store(descriptor);
     }

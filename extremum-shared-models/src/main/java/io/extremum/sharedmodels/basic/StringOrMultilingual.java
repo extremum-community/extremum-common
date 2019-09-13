@@ -16,12 +16,12 @@ import java.util.Map;
 public class StringOrMultilingual implements Serializable {
     private Type type;
     private String text;
-    private Multilingual multilingual;
+    private Multilingual multilingualContent;
 
     private StringOrMultilingual(Type type, String text, Map<MultilingualLanguage, String> map) {
         this.type = type;
         this.text = text;
-        this.multilingual = new Multilingual(map);
+        this.multilingualContent = new Multilingual(map);
     }
 
     public StringOrMultilingual() {
@@ -35,7 +35,7 @@ public class StringOrMultilingual implements Serializable {
 
     public StringOrMultilingual(Map<MultilingualLanguage, String> map) {
         type = Type.MAP;
-        this.multilingual = new Multilingual(map);
+        this.multilingualContent = new Multilingual(map);
     }
 
     public boolean isTextOnly() {

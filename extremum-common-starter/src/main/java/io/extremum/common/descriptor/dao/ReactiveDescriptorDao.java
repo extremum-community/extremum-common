@@ -8,6 +8,8 @@ public interface ReactiveDescriptorDao {
 
     Mono<Descriptor> retrieveByInternalId(String internalId);
 
+    Mono<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates);
+
     Mono<Descriptor> store(Descriptor descriptor);
 
 }

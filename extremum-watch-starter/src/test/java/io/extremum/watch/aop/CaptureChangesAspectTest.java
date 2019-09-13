@@ -1,18 +1,19 @@
 package io.extremum.watch.aop;
 
-import io.extremum.mongo.dao.MongoCommonDao;
-import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.service.CommonService;
-import io.extremum.common.service.ThrowOnAlert;
-import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
-import io.extremum.everything.services.management.PatchFlow;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.watch.processor.CommonServiceWatchProcessor;
-import io.extremum.watch.processor.Invocation;
-import io.extremum.watch.processor.PatchFlowWatchProcessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.google.common.util.concurrent.MoreExecutors;
+import io.extremum.common.service.CommonService;
+import io.extremum.common.service.ThrowOnAlert;
+import io.extremum.everything.services.management.PatchFlow;
+import io.extremum.mongo.dao.MongoCommonDao;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.test.aop.AspectWrapping;
+import io.extremum.watch.processor.CommonServiceWatchProcessor;
+import io.extremum.watch.processor.Invocation;
+import io.extremum.watch.processor.PatchFlowWatchProcessor;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -21,23 +22,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.aop.framework.DefaultAopProxyFactory;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -76,15 +70,7 @@ class CaptureChangesAspectTest {
     }
 
     private <T> T wrapWithAspect(T proxiedObject) {
-        AspectJProxyFactory aspectJProxyFactory = new AspectJProxyFactory(proxiedObject);
-        aspectJProxyFactory.addAspect(aspect);
-
-        DefaultAopProxyFactory proxyFactory = new DefaultAopProxyFactory();
-        AopProxy aopProxy = proxyFactory.createAopProxy(aspectJProxyFactory);
-
-        @SuppressWarnings("unchecked")
-        T castProxy = (T) aopProxy.getProxy();
-        return castProxy;
+        return AspectWrapping.wrapInAspect(proxiedObject, aspect);
     }
 
     @Test

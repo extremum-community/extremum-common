@@ -21,4 +21,14 @@ public class ReactiveCollectionDescriptorServiceImpl implements ReactiveCollecti
                 })
                 .map(Descriptor::getCollection);
     }
+
+    @Override
+    public Mono<Descriptor> retrieveByCoordinates(String coordinatesString) {
+        return reactiveDescriptorDao.retrieveByCollectionCoordinates(coordinatesString)
+                .map(descriptor -> {
+                    collectionDescriptorVerifier.makeSureDescriptorContainsCollection(
+                            descriptor.getExternalId(), descriptor);
+                    return descriptor;
+                });
+    }
 }

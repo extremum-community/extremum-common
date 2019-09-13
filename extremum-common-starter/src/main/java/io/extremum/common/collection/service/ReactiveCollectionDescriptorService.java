@@ -1,6 +1,7 @@
 package io.extremum.common.collection.service;
 
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 
 /**
@@ -8,4 +9,6 @@ import reactor.core.publisher.Mono;
  */
 public interface ReactiveCollectionDescriptorService {
     Mono<CollectionDescriptor> retrieveByExternalId(String externalId);
+
+    Mono<Descriptor> retrieveByCoordinates(String coordinatesString);
 }

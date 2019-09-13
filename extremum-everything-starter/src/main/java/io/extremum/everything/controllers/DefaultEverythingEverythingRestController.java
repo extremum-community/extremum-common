@@ -20,7 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 @ConvertNullDescriptorToModelNotFound
 @EverythingExceptionHandlerTarget
 @RequiredArgsConstructor

@@ -38,7 +38,7 @@ class ReactiveDescriptorSaverTest {
         when(descriptorService.createExternalId()).thenReturn("external-id");
         when(reactiveDescriptorService.store(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
 
-        descriptorSaver.createAndSaveReactively("internal-id", "Test", Descriptor.StorageType.MONGO).block();
+        descriptorSaver.createAndSave("internal-id", "Test", Descriptor.StorageType.MONGO).block();
 
         //noinspection UnassignedFluxMonoInstance
         verify(reactiveDescriptorService).store(descriptorCaptor.capture());

@@ -2,12 +2,11 @@ package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
-import io.extremum.common.collection.conversion.CollectionMakeup;
-import io.extremum.common.collection.conversion.CollectionMakeupImpl;
-import io.extremum.common.collection.conversion.ResponseCollectionsMakeupAdvice;
+import io.extremum.common.collection.conversion.*;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -46,7 +45,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -67,7 +65,6 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty("custom.field-destroyer.analyzable-package-prefix")
     public EmptyFieldDestroyer emptyFieldDestroyer() {
         EmptyFieldDestroyerConfig config = new EmptyFieldDestroyerConfig();
         config.setAnalyzablePackagePrefixes(destroyerProperties.getAnalyzablePackagePrefix());
@@ -279,16 +276,32 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public CollectionUrls collectionUrls(ApplicationUrls applicationUrls) {
+        return new CollectionUrlsInRoot(applicationUrls);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(DescriptorSaver descriptorSaver,
                                              CollectionDescriptorService collectionDescriptorService,
-                                             ApplicationUrls applicationUrls) {
-        return new CollectionMakeupImpl(descriptorSaver, collectionDescriptorService, applicationUrls);
+                                             ReactiveDescriptorSaver reactiveDescriptorSaver,
+                                             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
+                                             CollectionUrls collectionUrls) {
+        return new CollectionMakeupImpl(descriptorSaver, collectionDescriptorService,
+                reactiveDescriptorSaver, reactiveCollectionDescriptorService, collectionUrls);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public ResponseCollectionsMakeupAdvice responseCollectionsMakeupAdvice(CollectionMakeup collectionMakeup) {
         return new ResponseCollectionsMakeupAdvice(collectionMakeup);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveResponseCollectionsMakeupAspect reactiveResponseCollectionsMakeupAspect(
+            CollectionMakeup collectionMakeup) {
+        return new ReactiveResponseCollectionsMakeupAspect(collectionMakeup);
     }
 
     @Bean

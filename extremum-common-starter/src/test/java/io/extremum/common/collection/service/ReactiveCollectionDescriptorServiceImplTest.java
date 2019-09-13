@@ -24,12 +24,12 @@ class ReactiveCollectionDescriptorServiceImplTest {
     @Mock
     private ReactiveDescriptorDao reactiveDescriptorDao;
 
-    private final Descriptor collectionDescriptor = Descriptor.forCollection("external-id",
+    private final Descriptor collectionDescriptor = Descriptor.forCollection("externalId",
             CollectionDescriptor.forOwned(new Descriptor("host-id"), "items")
     );
 
     @Test
-    void whenRetrievingACollection_thenItShouldBeRetrievedFromDao() {
+    void whenRetrievingACollectionByExternalId_thenItShouldBeRetrievedFromDao() {
         when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
                 .thenReturn(Mono.just(collectionDescriptor));
 
@@ -39,7 +39,7 @@ class ReactiveCollectionDescriptorServiceImplTest {
     }
 
     @Test
-    void givenDescriptorTypeIsNotCollection_whenRetrievingACollection_thenItShouldBeRetrievedFromDao() {
+    void givenDescriptorTypeIsNotCollection_whenRetrievingACollectionByExternalId_thenItShouldBeRetrievedFromDao() {
         collectionDescriptor.setType(Descriptor.Type.SINGLE);
         when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
                 .thenReturn(Mono.just(collectionDescriptor));
@@ -64,6 +64,30 @@ class ReactiveCollectionDescriptorServiceImplTest {
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(),
                     is("Descriptor 'externalId' has type COLLECTION, but there is no collection in it"));
+        }
+    }
+
+    @Test
+    void whenRetrievingACollectionByCoordinatesString_thenItShouldBeRetrievedFromDao() {
+        when(reactiveDescriptorDao.retrieveByCollectionCoordinates("coords"))
+                .thenReturn(Mono.just(collectionDescriptor));
+
+        Mono<Descriptor> mono = service.retrieveByCoordinates("coords");
+
+        assertThat(mono.block(), is(sameInstance(collectionDescriptor)));
+    }
+
+    @Test
+    void givenDescriptorTypeIsNotCollection_whenRetrievingACollectionByCoordinatesString_thenItShouldBeRetrievedFromDao() {
+        collectionDescriptor.setType(Descriptor.Type.SINGLE);
+        when(reactiveDescriptorDao.retrieveByCollectionCoordinates("coords"))
+                .thenReturn(Mono.just(collectionDescriptor));
+
+        try {
+            service.retrieveByCoordinates("coords").block();
+            fail("An exception should be thrown");
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(), is("Descriptor 'externalId' must have type COLLECTION, but it is 'SINGLE'"));
         }
     }
 }
