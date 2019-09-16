@@ -40,7 +40,7 @@ public class ExtremumReactiveElasticsearchTemplate extends ReactiveElasticsearch
     }
 
     @Override
-    public <T> Mono<T> save(T entity, String index, String type) {
+    public <T> Mono<T> save(T entity, @Nullable String index, @Nullable String type) {
         Assert.notNull(entity, "Entity must not be null!");
 
         return saveProcess.prepareForSave(entity)
