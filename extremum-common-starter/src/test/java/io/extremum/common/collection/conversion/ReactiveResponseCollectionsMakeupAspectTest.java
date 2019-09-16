@@ -1,6 +1,6 @@
 package io.extremum.common.collection.conversion;
 
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.test.aop.AspectWrapping;
 import org.junit.jupiter.api.BeforeEach;

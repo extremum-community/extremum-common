@@ -1,6 +1,6 @@
-package io.extremum.watch;
+package io.extremum.test.core;
 
-import io.extremum.common.mapper.MapperDependencies;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseStatusEnum;
@@ -16,12 +16,11 @@ import java.io.StringWriter;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author rpuch
  */
-public class Tests {
+public class ResponseMatchers {
     public static Matcher<? super String> response(Matcher<? super Response> responseMatcher) {
         return new ResponseMatcher(responseMatcher);
     }
@@ -39,7 +38,7 @@ public class Tests {
         );
     }
 
-    private static Response parseResponse(String item, SystemJsonObjectMapper mapper) {
+    private static Response parseResponse(String item, ObjectMapper mapper) {
         try {
             return mapper.readValue(new StringReader(item), Response.class);
         } catch (IOException e) {
@@ -50,7 +49,7 @@ public class Tests {
     private static class ResponseMatcher extends TypeSafeDiagnosingMatcher<String> {
         private final Matcher<? super Response> responseMatcher;
 
-        private SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mock(MapperDependencies.class));
+        private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
 
         ResponseMatcher(Matcher<? super Response> responseMatcher) {
             this.responseMatcher = responseMatcher;
