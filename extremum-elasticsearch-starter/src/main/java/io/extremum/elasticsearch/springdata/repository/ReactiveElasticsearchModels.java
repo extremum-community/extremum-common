@@ -1,24 +1,24 @@
 package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 /**
  * @author rpuch
  */
-public class ElasticsearchModels {
-    public static Optional<ElasticsearchCommonModel> asElasticsearchModel(@Nullable Object object) {
+public class ReactiveElasticsearchModels {
+    public static Mono<ElasticsearchCommonModel> asElasticsearchModel(@Nullable Object object) {
         if (object == null) {
-            return Optional.empty();
+            return Mono.empty();
         }
 
         if (!(object instanceof ElasticsearchCommonModel)) {
-            return Optional.empty();
+            return Mono.empty();
         }
 
         ElasticsearchCommonModel model = (ElasticsearchCommonModel) object;
-        return Optional.of(model);
+        return Mono.just(model);
     }
 }

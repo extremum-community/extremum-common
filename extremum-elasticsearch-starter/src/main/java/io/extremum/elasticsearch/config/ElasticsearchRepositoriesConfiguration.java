@@ -3,8 +3,11 @@ package io.extremum.elasticsearch.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilitiesImpl;
+import io.extremum.elasticsearch.facilities.ReactiveElasticsearchDescriptorFacilities;
+import io.extremum.elasticsearch.facilities.ReactiveElasticsearchDescriptorFacilitiesImpl;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoader;
 import io.extremum.elasticsearch.springdata.reactiverepository.*;
@@ -47,6 +50,13 @@ public class ElasticsearchRepositoriesConfiguration {
     public ElasticsearchDescriptorFacilities elasticsearchDescriptorFacilities(DescriptorFactory descriptorFactory,
                                                                                DescriptorSaver descriptorSaver) {
         return new ElasticsearchDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveElasticsearchDescriptorFacilities reactiveElasticsearchDescriptorFacilities(
+            ReactiveDescriptorSaver descriptorSaver) {
+        return new ReactiveElasticsearchDescriptorFacilitiesImpl(descriptorSaver);
     }
 
     @Bean
@@ -97,7 +107,7 @@ public class ElasticsearchRepositoriesConfiguration {
     @ConditionalOnMissingBean
     public ReactiveElasticsearchOperations reactiveElasticsearchTemplate(
             ReactiveElasticsearchClient reactiveElasticsearchClient, ObjectMapper objectMapper,
-            ElasticsearchDescriptorFacilities descriptorFacilities) {
+            ReactiveElasticsearchDescriptorFacilities descriptorFacilities) {
         SimpleElasticsearchMappingContext mappingContext = new SimpleElasticsearchMappingContext();
         return new ExtremumReactiveElasticsearchTemplate(reactiveElasticsearchClient,
                 new MappingElasticsearchConverter(mappingContext),

@@ -1,6 +1,6 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
-import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
+import io.extremum.elasticsearch.facilities.ReactiveElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.springdata.repository.SequenceNumberOperations;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -30,7 +30,7 @@ public class ExtremumReactiveElasticsearchTemplate extends ReactiveElasticsearch
     public ExtremumReactiveElasticsearchTemplate(ReactiveElasticsearchClient client,
                                                  ElasticsearchConverter converter,
                                                  ResultsMapper resultMapper,
-                                                 ElasticsearchDescriptorFacilities descriptorFacilities) {
+                                                 ReactiveElasticsearchDescriptorFacilities descriptorFacilities) {
         super(client, converter, resultMapper);
 
         this.converter = converter;

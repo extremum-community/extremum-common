@@ -1,9 +1,9 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
 import io.extremum.common.utils.ModelUtils;
-import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
+import io.extremum.elasticsearch.facilities.ReactiveElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
-import io.extremum.elasticsearch.springdata.repository.ElasticsearchModels;
+import io.extremum.elasticsearch.springdata.repository.ReactiveElasticsearchModels;
 import io.extremum.elasticsearch.springdata.repository.SequenceNumberOperations;
 import io.extremum.elasticsearch.springdata.repository.VersionOperations;
 import org.elasticsearch.action.index.IndexResponse;
@@ -15,34 +15,36 @@ import java.util.UUID;
 /**
  * @author rpuch
  */
-// TODO: reactify
 class ReactiveSaveProcess {
-    private final ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory;
+    private final ReactiveElasticsearchDescriptorFacilities elasticsearchDescriptorFactory;
 
     private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
     private final VersionOperations versionOperations = new VersionOperations();
 
-    ReactiveSaveProcess(ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
+    ReactiveSaveProcess(ReactiveElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
         this.elasticsearchDescriptorFactory = elasticsearchDescriptorFactory;
     }
 
     Mono<Void> prepareForSave(Object object) {
-        ElasticsearchModels.asElasticsearchModel(object).ifPresent(model -> {
-            fillIdFromDescriptor(model);
-            fillIdIfStillMissing(model);
-            createDescriptorIfNeeded(object);
-            fillCreatedUpdated(model);
-            fillDeleted(model);
-        });
-
-        return Mono.empty();
+        return ReactiveElasticsearchModels.asElasticsearchModel(object)
+                .flatMap(model -> {
+                    return fillIdFromDescriptor(model)
+                            .doOnSuccess(ignored -> fillIdIfStillMissing(model))
+                            .then(createDescriptorIfNeeded(object))
+                            .doOnSuccess(ignored -> fillCreatedUpdated(model))
+                            .doOnSuccess(ignored -> fillDeleted(model));
+                });
     }
 
-    private void fillIdFromDescriptor(ElasticsearchCommonModel model) {
+    private Mono<Void> fillIdFromDescriptor(ElasticsearchCommonModel model) {
         if (model.getId() == null && model.getUuid() != null) {
-            UUID resolvedId = elasticsearchDescriptorFactory.resolve(model.getUuid());
-            model.setId(resolvedId.toString());
+            return elasticsearchDescriptorFactory.resolve(model.getUuid())
+                    .map(Object::toString)
+                    .doOnNext(model::setId)
+                    .then();
         }
+
+        return Mono.empty();
     }
 
     private void fillIdIfStillMissing(ElasticsearchCommonModel model) {
@@ -74,17 +76,21 @@ class ReactiveSaveProcess {
         sequenceNumberOperations.setSequenceNumberAndPrimaryTermAfterIndexing(object, response);
         versionOperations.setVersionAfterIndexing(object, response);
 
-        createDescriptorIfNeeded(object);
-
-        return Mono.empty();
+        return createDescriptorIfNeeded(object);
     }
 
-    private void createDescriptorIfNeeded(Object object) {
-        ElasticsearchModels.asElasticsearchModel(object).ifPresent(model -> {
-            if (model.getUuid() == null) {
-                String name = ModelUtils.getModelName(model);
-                model.setUuid(elasticsearchDescriptorFactory.create(UUID.fromString(model.getId()), name));
-            }
-        });
+    private Mono<Void> createDescriptorIfNeeded(Object object) {
+        return ReactiveElasticsearchModels.asElasticsearchModel(object)
+                .flatMap(this::createAndFillDescriptorOnModelIfItIsNull);
+    }
+
+    private Mono<? extends Void> createAndFillDescriptorOnModelIfItIsNull(ElasticsearchCommonModel model) {
+        if (model.getUuid() == null) {
+            String name = ModelUtils.getModelName(model);
+            return elasticsearchDescriptorFactory.create(UUID.fromString(model.getId()), name)
+                    .doOnNext(model::setUuid)
+                    .then();
+        }
+        return Mono.empty();
     }
 }
