@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * The attribute must be defined in a subclass of {@link ResponseDto}.
  * Infrastructure will generate the ID and URL automatically.
  *
- * This annotation is used to define 'owned' collecitons.
+ * This annotation is used to define 'owned' collections.
  * As collection coordinates, they have &lt;host entity descriptor, host attribute name&gt;
  * pair. Host entity descriptor is just a {@link Descriptor} of the {@link ResponseDto}
  * to which the annotated collection instance belongs.
