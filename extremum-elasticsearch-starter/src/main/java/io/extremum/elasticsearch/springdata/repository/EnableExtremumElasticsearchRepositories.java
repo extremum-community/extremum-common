@@ -1,12 +1,12 @@
-package io.extremum.mongo.springdata.repository;
+package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.common.annotation.InfrastructureElement;
-import org.springframework.beans.factory.FactoryBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.data.mongodb.repository.support.MongoRepositoryFactoryBean;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.data.elasticsearch.repository.support.ElasticsearchRepositoryFactoryBean;
 import org.springframework.data.repository.config.DefaultRepositoryBaseClass;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
@@ -14,12 +14,14 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import java.lang.annotation.*;
 
 /**
- * Our custom analogue of @{@link EnableMongoRepositories}.
+ * Our custom analogue of @{@link EnableElasticsearchRepositories}.
  * Our annotation is needed to have our common registrar; this is needed
  * because we need to load packages-to-scan from the configuration, and
  * this cannot be achieved with standard Spring Boot means.
  *
  * NB: value() is overwriten at runtime!
+ * XXX: repositoryFactoryBeanClass attribute MUST always be specified!
+ * Otherwise, this will not work.
  *
  * @author rpuch
  */
@@ -27,18 +29,19 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import(ExtremumMongoRepositoriesRegistrar.class)
+@Import(ExtremumElasticsearchRepositoriesRegistrar.class)
 @InfrastructureElement
-public @interface EnableExtremumMongoRepositories {
+public @interface EnableExtremumElasticsearchRepositories {
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
-	 * {@code @EnableMongoRepositories("org.my.pkg")} instead of {@code @EnableMongoRepositories(basePackages="org.my.pkg")}.
+	 * {@code @EnableElasticsearchRepositories("org.my.pkg")} instead of
+	 * {@code @EnableElasticsearchRepositories(basePackages="org.my.pkg")}.
 	 */
 	String[] value() default {};
 
 	/**
 	 * Base packages to scan for annotated components. {@link #value()} is an alias for (and mutually exclusive with) this
-	 * attribute. Use {@link #basePackageClasses()} for a type-safe alternative to String-based package names.
+	 * attribute. Use {@link #basePackageClasses()} for a type-safe alternative to text-based package names.
 	 */
 	String[] basePackages() default {};
 
@@ -71,14 +74,15 @@ public @interface EnableExtremumMongoRepositories {
 
 	/**
 	 * Configures the location of where to find the Spring Data named queries properties file. Will default to
-	 * {@code META-INFO/mongo-named-queries.properties}.
+	 * {@code META-INFO/elasticsearch-named-queries.properties}.
 	 *
 	 * @return
 	 */
 	String namedQueriesLocation() default "";
 
 	/**
-	 * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query methods. Defaults to
+	 * Returns the key of the {@link org.springframework.data.repository.query.QueryLookupStrategy} to be used for lookup
+	 * queries for query methods. Defaults to
 	 * {@link Key#CREATE_IF_NOT_FOUND}.
 	 *
 	 * @return
@@ -86,34 +90,32 @@ public @interface EnableExtremumMongoRepositories {
 	Key queryLookupStrategy() default Key.CREATE_IF_NOT_FOUND;
 
 	/**
-	 * Returns the {@link FactoryBean} class to be used for each repository instance. Defaults to
-	 * {@link MongoRepositoryFactoryBean}.
+	 * Returns the {@link org.springframework.beans.factory.FactoryBean} class to be used for each repository instance.
+	 *
+	 * XXX: this has been changed to Object.class to avoid annotation parsing error in
+	 * case the application does not have spring-data-jpa in classpath. Hence, the default
+	 * is USELESS: repositoryFactoryBeanClass MUST be ALWAYS specified!!!
 	 *
 	 * @return
 	 */
-	Class<?> repositoryFactoryBeanClass() default MongoRepositoryFactoryBean.class;
+	Class<?> repositoryFactoryBeanClass() default Object.class;
 
 	/**
 	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
 	 *
 	 * @return
-	 * @since 1.8
 	 */
 	Class<?> repositoryBaseClass() default DefaultRepositoryBaseClass.class;
 
-	/**
-	 * Configures the name of the {@link MongoTemplate} bean to be used with the repositories detected.
-	 *
-	 * @return
-	 */
-	String mongoTemplateRef() default "mongoTemplate";
+	// Elasticsearch specific configuration
 
 	/**
-	 * Whether to automatically create indexes for query methods defined in the repository interface.
+	 * Configures the name of the {@link ElasticsearchTemplate} bean definition to be used to create repositories
+	 * discovered through this annotation. Defaults to {@code elasticsearchTemplate}.
 	 *
 	 * @return
 	 */
-	boolean createIndexesForQueryMethods() default false;
+	String elasticsearchTemplateRef() default "elasticsearchTemplate";
 
 	/**
 	 * Configures whether nested repository-interfaces (e.g. defined as inner classes) should be discovered by the

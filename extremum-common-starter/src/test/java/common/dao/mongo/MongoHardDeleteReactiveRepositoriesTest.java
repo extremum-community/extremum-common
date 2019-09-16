@@ -13,7 +13,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -40,13 +41,6 @@ class MongoHardDeleteReactiveRepositoriesTest extends TestWithServices {
     }
 
     @Test
-    void testThatFindByIdWorksForAnEntityWithoutDeletedColumn() {
-        HardDeleteMongoModel entity = dao.save(new HardDeleteMongoModel()).block();
-        HardDeleteMongoModel retrieved = dao.findById(entity.getId()).block();
-        assertThat(retrieved, is(notNullValue()));
-    }
-
-    @Test
     void testThatSpringDataMagicQueryMethodWorksAndIgnoresDeletedAttribute() {
         String uniqueName = UUID.randomUUID().toString();
 
@@ -66,5 +60,14 @@ class MongoHardDeleteReactiveRepositoriesTest extends TestWithServices {
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
+    }
+
+    @Test
+    void testThatSpringDataMagicCounterMethodWorksAndIgnoresDeletedAttribute() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
+
+        assertThat(dao.countByName(uniqueName).block(), is(2L));
     }
 }
