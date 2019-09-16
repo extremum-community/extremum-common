@@ -21,33 +21,33 @@ public class Descriptor implements Serializable {
     public static final String COLLECTION = "descriptor-identifiers";
 
     @JsonProperty("externalId")
-    private String externalId;
+    private volatile String externalId;
 
     @JsonProperty("type")
-    private Type type = Type.SINGLE;
+    private volatile Type type = Type.SINGLE;
 
     @JsonProperty("internalId")
-    private String internalId;
+    private volatile String internalId;
     @JsonProperty("modelType")
-    private String modelType;
+    private volatile String modelType;
     @JsonProperty("storageType")
-    private StorageType storageType;
+    private volatile StorageType storageType;
 
     @JsonProperty("collection")
-    private CollectionDescriptor collection;
+    private volatile CollectionDescriptor collection;
 
     @JsonProperty("created")
-    private ZonedDateTime created;
+    private volatile ZonedDateTime created;
     @JsonProperty("modified")
-    private ZonedDateTime modified;
+    private volatile ZonedDateTime modified;
     @JsonProperty("version")
-    private Long version;
+    private volatile Long version;
 
     @JsonProperty("deleted")
-    private boolean deleted;
+    private volatile boolean deleted;
 
     @JsonProperty("display")
-    private Display display;
+    private volatile Display display;
 
     public Descriptor() {
     }
