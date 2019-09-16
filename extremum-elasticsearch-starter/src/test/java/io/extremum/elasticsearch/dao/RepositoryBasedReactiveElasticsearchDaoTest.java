@@ -564,7 +564,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
 
         long countAfter = dao.count().block();
 
-        assertThat(countAfter - countBefore, is(1L));
+        assertThat(countAfter, is(equalTo(countBefore + 1)));
     }
 
     @Test
