@@ -6,7 +6,6 @@ import io.extremum.elasticsearch.SoftDeletion;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleReactiveElasticsearchRepository;
 import org.springframework.util.Assert;
@@ -83,7 +82,7 @@ public class SoftDeleteReactiveElasticsearchRepository<T extends ElasticsearchCo
 
     @Override
     public Mono<Long> count() {
-        return elasticsearchOperations.count(new CriteriaQuery(softDeletion.notDeleted()), metadata.getJavaType());
+        throw new UnsupportedOperationException("We do not support count yet as it may return all the entities");
     }
 
     @Override

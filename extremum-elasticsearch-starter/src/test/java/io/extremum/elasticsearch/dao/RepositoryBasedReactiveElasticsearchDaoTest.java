@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +42,9 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
     private ElasticsearchProperties elasticsearchProperties;
     @Autowired
     private DescriptorService descriptorService;
+
+    @Autowired
+    private ElasticsearchOperations elasticsearchOperations;
 
     private TestElasticsearchClient client;
 
@@ -556,15 +560,8 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
-    void countShouldRespectSoftDeletion() {
-        long countBefore = dao.count().block();
-
-        String uniqueName = UUID.randomUUID().toString();
-        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName)).blockLast();
-
-        long countAfter = dao.count().block();
-
-        assertThat(countAfter, is(equalTo(countBefore + 1)));
+    void countShouldThrowAnExceptionToAvoidFetchingAllTheEntities() {
+        assertThrows(UnsupportedOperationException.class, () -> dao.count().block());
     }
 
     @Test
