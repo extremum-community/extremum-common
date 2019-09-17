@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -137,6 +138,15 @@ class ReactiveResponseCollectionsMakeupAspectTest {
     }
 
     @Test
+    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenCollecitonMakeupShouldBeApplied() {
+        ServerSentEvent<ResponseDto> result = controllerProxy.returnsFlusOfServerSentEventsWithResponseDto()
+                .blockLast();
+
+        assertThat(result.data(), is(sameInstance(responseDto)));
+        verifyThatMakeupWasApplied();
+    }
+
+    @Test
     void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
         Response result = controllerProxy.returnsNonPublisher();
 
@@ -204,6 +214,14 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
         Flux<Response> returnsNullFlux() {
             return null;
+        }
+
+        Flux<ServerSentEvent<ResponseDto>> returnsFlusOfServerSentEventsWithResponseDto() {
+            return Flux.just(
+                    ServerSentEvent.<ResponseDto>builder()
+                            .data(responseDto)
+                            .build()
+            );
         }
 
         Response returnsNonPublisher() {

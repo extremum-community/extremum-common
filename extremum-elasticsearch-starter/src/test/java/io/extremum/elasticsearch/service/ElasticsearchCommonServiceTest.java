@@ -13,7 +13,6 @@ import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +25,8 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,7 +108,7 @@ class ElasticsearchCommonServiceTest {
     @Test
     void testCreate() {
         TestElasticsearchModel createdModel = getTestModel();
-        when(dao.save(ArgumentMatchers.any(TestElasticsearchModel.class))).thenReturn(createdModel);
+        when(dao.save(any(TestElasticsearchModel.class))).thenReturn(createdModel);
 
         TestElasticsearchModel resultModel = service.create(new TestElasticsearchModel());
         assertEquals(createdModel, resultModel);
@@ -122,7 +123,7 @@ class ElasticsearchCommonServiceTest {
     void testCreateWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestElasticsearchModel createdModel = getTestModel();
-        when(dao.save(ArgumentMatchers.any(TestElasticsearchModel.class))).thenReturn(createdModel);
+        when(dao.save(any(TestElasticsearchModel.class))).thenReturn(createdModel);
 
         TestElasticsearchModel resultModel = service.create(new TestElasticsearchModel(), new AlertsCollector(alertList));
         assertTrue(alertList.isEmpty());
@@ -139,7 +140,7 @@ class ElasticsearchCommonServiceTest {
     @Test
     void testCreateList() {
         TestElasticsearchModel createdModel = getTestModel();
-        when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
+        when(dao.saveAll(anyList())).thenReturn(Collections.singletonList(createdModel));
 
         List<TestElasticsearchModel> resultModels = service.create(Collections.singletonList(new TestElasticsearchModel()));
         assertNotNull(resultModels);
@@ -156,7 +157,7 @@ class ElasticsearchCommonServiceTest {
     void testCreateListWithAlerts() {
         List<Alert> alertList = new ArrayList<>();
         TestElasticsearchModel createdModel = getTestModel();
-        when(dao.saveAll(ArgumentMatchers.anyList())).thenReturn(Collections.singletonList(createdModel));
+        when(dao.saveAll(anyList())).thenReturn(Collections.singletonList(createdModel));
 
         List<TestElasticsearchModel> resultModels = service.create(Collections.singletonList(new TestElasticsearchModel()), new AlertsCollector(alertList));
 
@@ -176,7 +177,7 @@ class ElasticsearchCommonServiceTest {
     @Test
     void testSaveNewModel() {
         TestElasticsearchModel createdModel = getTestModel();
-        when(dao.save(ArgumentMatchers.any(TestElasticsearchModel.class))).thenReturn(createdModel);
+        when(dao.save(any(TestElasticsearchModel.class))).thenReturn(createdModel);
 
         TestElasticsearchModel resultModel = service.save(new TestElasticsearchModel());
         assertEquals(createdModel, resultModel);

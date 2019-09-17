@@ -9,16 +9,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = MongoCommonDaoConfiguration.class)
@@ -44,13 +40,6 @@ class MongoHardDeleteRepositoriesTest extends TestWithServices {
     }
 
     @Test
-    void testThatFindByIdWorksForAnEntityWithoutDeletedColumn() {
-        HardDeleteMongoModel entity = dao.save(new HardDeleteMongoModel());
-        Optional<HardDeleteMongoModel> opt = dao.findById(entity.getId());
-        assertThat(opt.isPresent(), is(true));
-    }
-
-    @Test
     void testThatSpringDataMagicQueryMethodWorksAndIgnoresDeletedAttribute() {
         String uniqueName = UUID.randomUUID().toString();
 
@@ -70,5 +59,14 @@ class MongoHardDeleteRepositoriesTest extends TestWithServices {
         deleted.setDeleted(true);
 
         return Arrays.asList(notDeleted, deleted);
+    }
+
+    @Test
+    void testThatSpringDataMagicCounterMethodWorksAndIgnoresDeletedAttribute() {
+        String uniqueName = UUID.randomUUID().toString();
+
+        dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
+
+        assertThat(dao.countByName(uniqueName), is(2L));
     }
 }

@@ -7,6 +7,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,20 +34,28 @@ public class ReactiveResponseCollectionsMakeupAspect {
     }
 
     private Object applyMakeupToMonoPayload(Mono<?> mono) {
-        return mono.flatMap(this::possiblyApplyMakeupToResponseDtoInsideResponse);
+        return mono.flatMap(this::possiblyApplyMakeupToResponseDtoInsideResponseOrSSE);
     }
 
     private Object applyMakeupToFluxPayload(Flux<?> flux) {
-        return flux.flatMap(this::possiblyApplyMakeupToResponseDtoInsideResponse);
+        return flux.flatMap(this::possiblyApplyMakeupToResponseDtoInsideResponseOrSSE);
     }
 
-    private Mono<?> possiblyApplyMakeupToResponseDtoInsideResponse(Object object) {
+    private Mono<?> possiblyApplyMakeupToResponseDtoInsideResponseOrSSE(Object object) {
         if (object instanceof Response) {
             Response response = (Response) object;
             if (response.getResult() instanceof ResponseDto) {
                 ResponseDto responseDto = (ResponseDto) response.getResult();
                 return makeup.applyCollectionMakeupReactively(responseDto)
-                        .thenReturn(response);
+                        .thenReturn(object);
+            }
+        }
+        if (object instanceof ServerSentEvent) {
+            ServerSentEvent<?> sse = (ServerSentEvent<?>) object;
+            if (sse.data() instanceof ResponseDto) {
+                ResponseDto responseDto = (ResponseDto) sse.data();
+                return makeup.applyCollectionMakeupReactively(responseDto)
+                        .thenReturn(object);
             }
         }
 
