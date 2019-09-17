@@ -84,6 +84,7 @@ public class CommonConfiguration {
     }
 
     @Bean
+    @Primary
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
     public RedissonClient redissonClient(Config redissonConfig) {
