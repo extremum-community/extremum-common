@@ -1,20 +1,17 @@
-package io.extremum.common.response;
+package io.extremum.sharedmodels.dto;
 
-import io.extremum.common.Constants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
+import io.extremum.sharedmodels.constants.HttpStatus;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
@@ -51,7 +48,7 @@ public class Response {
         this.timestamp = timestamp;
         this.requestId = requestId;
         this.locale = locale;
-        this.alerts = alerts == null ? null : ImmutableList.copyOf(alerts);
+        this.alerts = alerts == null ? null : new LinkedList<>(Collections.unmodifiableList(alerts));
         this.result = result;
         this.pagination = pagination;
     }

@@ -1,8 +1,8 @@
 package io.extremum.common.mapper;
 
-import io.extremum.common.response.Alert;
-import io.extremum.common.response.AlertLevelEnum;
-import io.extremum.common.response.Pagination;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.AlertLevelEnum;
+import io.extremum.sharedmodels.dto.Pagination;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
 import io.extremum.sharedmodels.descriptor.Descriptor;

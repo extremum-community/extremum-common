@@ -5,8 +5,8 @@ import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.response.Alert;
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.exceptions.RequestDtoValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.validation.ConstraintViolation;
 import java.util.Set;
 
-import static io.extremum.common.response.Alert.errorAlert;
-import static io.extremum.common.response.Response.fail;
+import static io.extremum.sharedmodels.dto.Alert.errorAlert;
+import static io.extremum.sharedmodels.dto.Response.fail;
 
 
 @RestControllerAdvice(annotations = EverythingExceptionHandlerTarget.class)

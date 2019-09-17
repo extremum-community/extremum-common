@@ -1,7 +1,7 @@
 package io.extremum.watch.controller;
 
-import io.extremum.common.response.Alert;
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.watch.exception.WatchException;
 import lombok.extern.slf4j.Slf4j;

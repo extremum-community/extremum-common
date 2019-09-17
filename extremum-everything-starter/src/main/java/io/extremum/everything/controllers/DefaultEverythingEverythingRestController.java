@@ -3,7 +3,7 @@ package io.extremum.everything.controllers;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.common.logging.InternalErrorLogger;
-import io.extremum.common.response.Response;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;

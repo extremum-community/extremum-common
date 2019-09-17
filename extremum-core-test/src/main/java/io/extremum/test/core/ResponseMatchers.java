@@ -2,14 +2,20 @@ package io.extremum.test.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.response.Response;
-import io.extremum.common.response.ResponseStatusEnum;
-import org.hamcrest.*;
+import io.extremum.sharedmodels.dto.Response;
+import io.extremum.sharedmodels.dto.ResponseStatusEnum;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasProperty;
 
 /**
  * @author rpuch
@@ -25,9 +31,9 @@ public class ResponseMatchers {
 
     public static Matcher<? super String> successfulResponse() {
         return responseThat(
-                CoreMatchers.allOf(
-                        Matchers.hasProperty("status", CoreMatchers.is(ResponseStatusEnum.OK)),
-                        Matchers.hasProperty("code", CoreMatchers.is(200))
+                allOf(
+                        hasProperty("status", is(ResponseStatusEnum.OK)),
+                        hasProperty("code", is(200))
                 )
         );
     }

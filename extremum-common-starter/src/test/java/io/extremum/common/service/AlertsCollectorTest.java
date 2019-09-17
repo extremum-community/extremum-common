@@ -1,7 +1,7 @@
 package io.extremum.common.service;
 
 import io.extremum.common.exceptions.CommonException;
-import io.extremum.common.response.Alert;
+import io.extremum.sharedmodels.dto.Alert;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

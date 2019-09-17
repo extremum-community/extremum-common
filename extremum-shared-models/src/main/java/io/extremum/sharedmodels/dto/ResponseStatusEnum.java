@@ -1,4 +1,4 @@
-package io.extremum.common.response;
+package io.extremum.sharedmodels.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
