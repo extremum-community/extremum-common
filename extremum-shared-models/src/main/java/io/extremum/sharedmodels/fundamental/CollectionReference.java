@@ -19,6 +19,10 @@ public class CollectionReference<T> {
     private final Long count;
     private List<T> top;
 
+    public static <T> CollectionReference<T> forUnknownTotalSize(List<T> top) {
+        return new CollectionReference<>(top, null);
+    }
+
     public CollectionReference() {
         this(Collections.emptyList());
     }
@@ -28,6 +32,10 @@ public class CollectionReference<T> {
     }
 
     public CollectionReference(List<T> top, long total) {
+        this(top, (Long) total);
+    }
+
+    private CollectionReference(List<T> top, Long total) {
         Objects.requireNonNull(top, "top cannot be null");
 
         this.count = total;
