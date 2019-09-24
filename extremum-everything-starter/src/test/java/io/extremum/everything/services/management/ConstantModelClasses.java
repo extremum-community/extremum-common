@@ -1,6 +1,6 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.support.ModelClasses;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 

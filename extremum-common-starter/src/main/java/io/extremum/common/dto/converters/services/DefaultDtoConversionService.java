@@ -2,7 +2,7 @@ package io.extremum.common.dto.converters.services;
 
 import io.extremum.common.dto.converters.*;
 import io.extremum.common.exceptions.ConverterNotFoundException;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;

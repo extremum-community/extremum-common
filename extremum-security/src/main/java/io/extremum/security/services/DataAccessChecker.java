@@ -1,6 +1,6 @@
 package io.extremum.security.services;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.modelservices.ModelService;
 import io.extremum.security.CheckerContext;
 

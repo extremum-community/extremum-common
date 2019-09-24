@@ -1,6 +1,6 @@
 package io.extremum.mongo.reactive;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.support.UniversalReactiveModelLoader;
 import io.extremum.common.utils.ModelUtils;

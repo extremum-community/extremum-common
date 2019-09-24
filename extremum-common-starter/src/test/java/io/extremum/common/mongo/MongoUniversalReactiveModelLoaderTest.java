@@ -2,7 +2,7 @@ package io.extremum.common.mongo;
 
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import common.dao.mongo.TestMongoModelDao;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import models.TestMongoModel;

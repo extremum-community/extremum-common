@@ -3,7 +3,7 @@ package io.extremum.everything.services.management;
 import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.model.BasicModel;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.tx.CollectionTransactivity;
 import io.extremum.everything.collection.CollectionFragment;

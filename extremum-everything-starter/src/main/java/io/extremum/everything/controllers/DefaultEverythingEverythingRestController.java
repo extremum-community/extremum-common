@@ -3,13 +3,13 @@ package io.extremum.everything.controllers;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.common.logging.InternalErrorLogger;
-import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.everything.services.management.EverythingEverythingManagementService;
 import io.extremum.everything.services.management.EverythingGetDemultiplexer;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@RestController
-@RequestMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-@ConvertNullDescriptorToModelNotFound
-@EverythingExceptionHandlerTarget
-@RequiredArgsConstructor
 @Slf4j
+@RestController
+@RequiredArgsConstructor
+@EverythingExceptionHandlerTarget
+@ConvertNullDescriptorToModelNotFound
+@RequestMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
@@ -33,13 +33,14 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
     private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
 
     @GetMapping
+    //    FIXME does projection need any annotation?
     public Response get(@PathVariable Descriptor id, Projection projection,
                         @RequestParam(defaultValue = "false") boolean expand) {
         return multiplexer.get(id, projection, expand);
     }
 
     @PatchMapping
-    public Response patch(@RequestBody JsonPatch patch, @PathVariable Descriptor id,
+    public Response patch(@PathVariable Descriptor id, @RequestBody JsonPatch patch,
                           @RequestParam(defaultValue = "false") boolean expand) {
         Object result = evrEvrManagementService.patch(id, patch, expand);
         return Response.ok(result);

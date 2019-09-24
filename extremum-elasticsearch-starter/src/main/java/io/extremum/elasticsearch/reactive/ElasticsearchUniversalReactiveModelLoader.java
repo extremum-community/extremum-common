@@ -1,6 +1,6 @@
 package io.extremum.elasticsearch.reactive;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.support.UniversalReactiveModelLoader;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;

@@ -1,7 +1,7 @@
 package io.extremum.watch.models;
 
 import io.extremum.common.model.BasicModel;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.utils.ModelUtils;
 import lombok.AllArgsConstructor;

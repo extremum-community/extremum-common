@@ -24,32 +24,12 @@ public class Projection {
 
     @ConstructorProperties({"offset", "limit", "since", "until"})
     public Projection(Integer offset, Integer limit,
-            @DateTimeFormat(pattern = DateUtils.FORMAT) ZonedDateTime since,
-            @DateTimeFormat(pattern = DateUtils.FORMAT) ZonedDateTime until) {
+                      @DateTimeFormat(pattern = DateUtils.FORMAT) ZonedDateTime since,
+                      @DateTimeFormat(pattern = DateUtils.FORMAT) ZonedDateTime until) {
         this.offset = offset;
         this.limit = limit;
         this.since = since;
         this.until = until;
-    }
-
-    public OptionalInt getOffset() {
-        return ofNullable(offset);
-    }
-
-    private OptionalInt ofNullable(Integer value) {
-        return value == null ? OptionalInt.empty() : OptionalInt.of(value);
-    }
-
-    public OptionalInt getLimit() {
-        return ofNullable(limit);
-    }
-
-    public Optional<ZonedDateTime> getSince() {
-        return Optional.ofNullable(since);
-    }
-
-    public Optional<ZonedDateTime> getUntil() {
-        return Optional.ofNullable(until);
     }
 
     public static Projection empty() {
@@ -64,9 +44,33 @@ public class Projection {
         return new Projection(offset, limit, null, null);
     }
 
+    // Getters
+
+    private OptionalInt ofNullable(Integer value) {
+        return value == null ? OptionalInt.empty() : OptionalInt.of(value);
+    }
+
+    public OptionalInt getOffset() {
+        return ofNullable(offset);
+    }
+
+    public OptionalInt getLimit() {
+        return ofNullable(limit);
+    }
+
+    public Optional<ZonedDateTime> getSince() {
+        return Optional.ofNullable(since);
+    }
+
+    public Optional<ZonedDateTime> getUntil() {
+        return Optional.ofNullable(until);
+    }
+
     public boolean definesFilteringOnCreationDate() {
         return since != null || until != null;
     }
+
+    // Public methods
 
     public boolean accepts(PersistableCommonModel<?> model) {
         if (since != null && model.getCreated() != null) {

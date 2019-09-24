@@ -5,7 +5,7 @@ import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.exceptions.ProgrammingErrorException;
 import io.extremum.common.model.BasicModel;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.watch.annotation.CapturedModel;

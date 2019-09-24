@@ -3,7 +3,7 @@ package io.extremum.everything.services.management;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.services.GetterService;
 import io.extremum.security.AllowEverythingForDataAccess;

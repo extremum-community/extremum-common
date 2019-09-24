@@ -1,6 +1,6 @@
 package io.extremum.watch.models;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.watch.dto.TextWatchEventNotificationDto;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,7 @@
 package io.extremum.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.extremum.sharedmodels.basic.Model;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;

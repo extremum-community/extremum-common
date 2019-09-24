@@ -1,7 +1,7 @@
 package io.extremum.everything.services.collection;
 
 import io.extremum.common.model.BasicModel;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;

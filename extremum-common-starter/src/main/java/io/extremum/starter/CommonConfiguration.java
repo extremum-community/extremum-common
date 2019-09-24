@@ -16,7 +16,7 @@ import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.reactive.*;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.*;

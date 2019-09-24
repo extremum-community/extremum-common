@@ -1,7 +1,7 @@
 package io.extremum.elasticsearch.model;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import lombok.Getter;
 import lombok.Setter;
