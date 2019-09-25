@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.Collections;
 import java.util.Map;
@@ -30,11 +31,7 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
@@ -65,7 +62,7 @@ class DescriptorDaoTest extends TestWithServices {
 
     @Test
     void testRetrieveByExternalId() {
-        Descriptor descriptor = createADescriptor();
+        Descriptor descriptor = saveADescriptor();
 
         String externalId = descriptor.getExternalId();
         assertNotNull(externalId);
@@ -75,7 +72,7 @@ class DescriptorDaoTest extends TestWithServices {
         assertEquals(descriptor, retrievedDescriptor.get());
     }
 
-    private Descriptor createADescriptor() {
+    private Descriptor saveADescriptor() {
         ObjectId objectId = new ObjectId();
         return mongoDescriptorFacilities.create(objectId, "test_model");
     }
@@ -268,7 +265,7 @@ class DescriptorDaoTest extends TestWithServices {
 
     @Test
     void givenADescriptorExists_whenItIsSearchedFor_thenItShouldBeFound() {
-        Descriptor descriptor = createADescriptor();
+        Descriptor descriptor = saveADescriptor();
 
         Optional<Descriptor> optDescriptor = descriptorRepository.findByExternalId(descriptor.getExternalId());
         assertThat(optDescriptor.isPresent(), is(true));
@@ -276,12 +273,24 @@ class DescriptorDaoTest extends TestWithServices {
 
     @Test
     void givenADescriptorIsSoftDeleted_whenItIsSearchedFor_thenItShouldNotBeFound() {
-        Descriptor descriptor = createADescriptor();
+        Descriptor descriptor = saveADescriptor();
 
         descriptor.setDeleted(true);
         descriptorRepository.save(descriptor);
 
         Optional<Descriptor> optDescriptor = descriptorRepository.findByExternalId(descriptor.getExternalId());
         assertThat(optDescriptor.isPresent(), is(false));
+    }
+
+    @Test
+    void givenADescriptorWithAnInternalIdAlreadyExists_whenSavingAnotherDescriptorWithTheSameInternalId_thenAnExceptionShouldBeThrown() {
+        Descriptor descriptor = saveADescriptor();
+
+        try {
+            mongoDescriptorFacilities.create(new ObjectId(descriptor.getInternalId()), "test_model");
+            fail("An exception should be thrown");
+        } catch (DuplicateKeyException  e) {
+            assertThat(e.getMessage(), containsString("duplicate key error"));
+        }
     }
 }

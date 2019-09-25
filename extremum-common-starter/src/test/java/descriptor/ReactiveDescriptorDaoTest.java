@@ -14,11 +14,13 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Mono;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
@@ -43,6 +45,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
                 .storageType(Descriptor.StorageType.MONGO)
                 .build());
         Descriptor savedDescriptor = mono.block();
+        assertThat(savedDescriptor, is(notNullValue()));
 
         Descriptor loadedDescriptor = descriptorRepository.findByExternalId(savedDescriptor.getExternalId())
                 .orElse(null);
@@ -122,5 +125,18 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
     @NotNull
     private String createExternalId() {
         return descriptorService.createExternalId();
+    }
+
+    @Test
+    void givenADescriptorWithAnInternalIdAlreadyExists_whenSavingAnotherDescriptorWithTheSameInternalId_thenAnExceptionShouldBeThrown() {
+        ObjectId objectId = new ObjectId();
+        mongoDescriptorFacilities.create(objectId, "test_model");
+
+        try {
+            mongoDescriptorFacilities.create(objectId, "test_model");
+            fail("An exception should be thrown");
+        } catch (DuplicateKeyException e) {
+            assertThat(e.getMessage(), containsString("duplicate key error"));
+        }
     }
 }
