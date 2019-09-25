@@ -150,5 +150,8 @@ class SystemJsonObjectMapperTest {
         assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
                 "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":1000}"
         ));
+        assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
+                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}"
+        ));
     }
 }
