@@ -1,20 +1,25 @@
 package io.extremum.common.mapper;
 
-import io.extremum.sharedmodels.dto.Alert;
-import io.extremum.sharedmodels.dto.AlertLevelEnum;
-import io.extremum.sharedmodels.dto.Pagination;
+import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.AlertLevelEnum;
+import io.extremum.sharedmodels.dto.Pagination;
+import io.extremum.sharedmodels.spacetime.TimeFrame;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author rpuch
@@ -47,12 +52,12 @@ class SystemJsonObjectMapperTest {
     @Test
     void givenMapperIsConfiguredWithoutDescriptorsTransfiguration_whenDeserializaingDescriptorWithDisplayAndIcon_thenItShouldBeOk()
             throws Exception {
-        String json = "{\"created\":\"2019-05-24T15:54:59.958+0400\",\"deleted\":false,\"display\":" +
+        String json = "{\"created\":\"2019-05-24T15:54:59.958000+0400\",\"deleted\":false,\"display\":" +
                 "{\"caption\":\"aaa\",\"icon\":{\"depth\":2,\"duration\":20,\"height\":200,\"type\":\"image\",\"url\"" +
                 ":\"/url/to/resource\",\"width\":100},\"splash\":{\"depth\":2,\"duration\":20,\"height\":200,\"type\":" +
                 "\"image\",\"url\":\"/url/to/resource\",\"width\":100}},\"externalId\":" +
                 "\"1e71af1b-16f8-4567-9660-9e4549a0203f\",\"internalId\":\"5ce7db93dde97936c6c4c302\",\"modelType\":" +
-                "\"test_model\",\"modified\":\"2019-05-24T15:54:59.958+0400\",\"storageType\":\"mongo\",\"version\":0}";
+                "\"test_model\",\"modified\":\"2019-05-24T15:54:59.958000+0400\",\"storageType\":\"mongo\",\"version\":0}";
 
         Descriptor descriptor = new BasicJsonObjectMapper()
                 .readerFor(Descriptor.class).readValue(json);
@@ -86,7 +91,7 @@ class SystemJsonObjectMapperTest {
     @Test
     void givenASerializedPagination_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
             throws Exception {
-        ZonedDateTime since = ZonedDateTime.now();
+        ZonedDateTime since = ZonedDateTime.now().plusNanos(1000); // plust 1 microsecond to test on Java8
         ZonedDateTime until = since.plusYears(1);
         Pagination pagination = Pagination.builder()
                 .count(10)
@@ -122,5 +127,31 @@ class SystemJsonObjectMapperTest {
         Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
 
         assertThat(deserializedPagination.getTotal(), is(nullValue()));
+    }
+
+    @Test
+    void timeFrameSerializationDeserialization() throws IOException {
+        TimeFrame tf = new TimeFrame();
+        tf.setStart(ZonedDateTime.of(2020, 1, 2, 3, 4, 5, 6000, ZoneOffset.of("+0000")));
+        tf.setEnd(ZonedDateTime.of(2020, 1, 2, 3, 4, 6, 6000, ZoneOffset.of("+0000")));
+        tf.setDuration(new IntegerOrString("1s"));
+        assertEquals(
+                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}",
+                mapper.writerFor(TimeFrame.class).writeValueAsString(tf)
+        );
+        assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
+                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}"
+        ));
+        tf.setDuration(new IntegerOrString(1000));
+        assertEquals(
+                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":1000}",
+                mapper.writerFor(TimeFrame.class).writeValueAsString(tf)
+        );
+        assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
+                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":1000}"
+        ));
+        assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
+                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}"
+        ));
     }
 }

@@ -23,7 +23,7 @@ public final class DateUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
-    public static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ";
     public static final String FORMAT_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}T[\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3}-[\\d]{4}";
 
     public static final DateTimeFormatter ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz");
