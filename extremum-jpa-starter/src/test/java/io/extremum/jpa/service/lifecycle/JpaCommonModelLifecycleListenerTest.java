@@ -8,6 +8,7 @@ import io.extremum.jpa.facilities.PostgresDescriptorFacilitiesImpl;
 import io.extremum.jpa.facilities.StaticPostgresDescriptorFacilitiesAccessor;
 import io.extremum.jpa.model.TestJpaModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.test.core.descriptor.InMemoryDescriptorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
