@@ -77,30 +77,6 @@ class ReactiveCollectionDescriptorServiceImplTest {
     }
 
     @Test
-    void whenRetrievingACollectionByCoordinatesString_thenItShouldBeRetrievedFromDao() {
-        when(reactiveDescriptorDao.retrieveByCollectionCoordinates("coords"))
-                .thenReturn(Mono.just(collDescriptorInDb));
-
-        Mono<Descriptor> mono = service.retrieveByCoordinates("coords");
-
-        assertThat(mono.block(), is(sameInstance(collDescriptorInDb)));
-    }
-
-    @Test
-    void givenDescriptorTypeIsNotCollection_whenRetrievingACollectionByCoordinatesString_thenItShouldBeRetrievedFromDao() {
-        collDescriptorInDb.setType(Descriptor.Type.SINGLE);
-        when(reactiveDescriptorDao.retrieveByCollectionCoordinates("coords"))
-                .thenReturn(Mono.just(collDescriptorInDb));
-
-        try {
-            service.retrieveByCoordinates("coords").block();
-            fail("An exception should be thrown");
-        } catch (IllegalStateException e) {
-            assertThat(e.getMessage(), is("Descriptor 'externalId' must have type COLLECTION, but it is 'SINGLE'"));
-        }
-    }
-
-    @Test
     void givenNoCollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
         when(reactiveDescriptorDao.store(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
 

@@ -31,20 +31,19 @@ public class ReactiveCollectionDescriptorServiceImpl implements ReactiveCollecti
     }
 
     @Override
-    public Mono<Descriptor> retrieveByCoordinates(String coordinatesString) {
+    public Mono<Descriptor> retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
+        Descriptor descriptor = descriptorSavers.createCollectionDescriptor(collectionDescriptor);
+        return reactiveDescriptorDao.store(descriptor)
+                .onErrorResume(DuplicateKeyException.class,
+                        e -> retrieveByCoordinates(collectionDescriptor.toCoordinatesString()));
+    }
+
+    private Mono<Descriptor> retrieveByCoordinates(String coordinatesString) {
         return reactiveDescriptorDao.retrieveByCollectionCoordinates(coordinatesString)
                 .map(descriptor -> {
                     collectionDescriptorVerifier.makeSureDescriptorContainsCollection(
                             descriptor.getExternalId(), descriptor);
                     return descriptor;
                 });
-    }
-
-    @Override
-    public Mono<Descriptor> retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
-        Descriptor descriptor = descriptorSavers.createCollectionDescriptor(collectionDescriptor);
-        return reactiveDescriptorDao.store(descriptor)
-                .onErrorResume(DuplicateKeyException.class,
-                        e -> retrieveByCoordinates(collectionDescriptor.toCoordinatesString()));
     }
 }
