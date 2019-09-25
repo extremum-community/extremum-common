@@ -2,6 +2,7 @@ package descriptor;
 
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
@@ -51,6 +52,8 @@ class DescriptorDaoTest extends TestWithServices {
     private DescriptorsProperties descriptorsProperties;
     @Autowired
     private MongoDescriptorFacilities mongoDescriptorFacilities;
+    @Autowired
+    private DescriptorSaver descriptorSaver;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -288,6 +291,20 @@ class DescriptorDaoTest extends TestWithServices {
 
         try {
             mongoDescriptorFacilities.create(new ObjectId(descriptor.getInternalId()), "test_model");
+            fail("An exception should be thrown");
+        } catch (DuplicateKeyException  e) {
+            assertThat(e.getMessage(), containsString("duplicate key error"));
+        }
+    }
+
+    @Test
+    void givenACollectionDescriptorAlreadyExists_whenSavingAnotherCollectionDescriptorWithTheSameCoordinates_thenAnExceptionShouldBeThrown() {
+        Descriptor host = saveADescriptor();
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(host, "items");
+        descriptorSaver.createAndSave(collectionDescriptor);
+
+        try {
+            descriptorSaver.createAndSave(collectionDescriptor);
             fail("An exception should be thrown");
         } catch (DuplicateKeyException  e) {
             assertThat(e.getMessage(), containsString("duplicate key error"));

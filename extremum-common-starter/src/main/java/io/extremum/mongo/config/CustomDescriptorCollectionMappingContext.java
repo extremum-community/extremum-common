@@ -138,7 +138,7 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
 
         private Descriptor.Type type;
 
-        @Indexed(unique = true)
+        @Indexed(unique = true, sparse = true)
         private String internalId;
         private String modelType;
         private Descriptor.StorageType storageType;
@@ -170,7 +170,7 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
     private static class CollectionDescriptorMirror {
         private CollectionDescriptor.Type type;
         private CollectionCoordinates coordinates;
-        @Indexed
+        @Indexed(unique = true, sparse = true)
         private String coordinatesString;
     }
 }
