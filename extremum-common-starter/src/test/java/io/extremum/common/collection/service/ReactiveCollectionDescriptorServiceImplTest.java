@@ -1,19 +1,24 @@
 package io.extremum.common.collection.service;
 
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
+import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
+import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Mono;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,26 +28,30 @@ class ReactiveCollectionDescriptorServiceImplTest {
 
     @Mock
     private ReactiveDescriptorDao reactiveDescriptorDao;
+    @Spy
+    private DescriptorService descriptorService = new InMemoryDescriptorService();
 
-    private final Descriptor collectionDescriptor = Descriptor.forCollection("externalId",
-            CollectionDescriptor.forOwned(new Descriptor("host-id"), "items")
-    );
+    @Captor
+    private ArgumentCaptor<Descriptor> descriptorCaptor;
+
+    private final CollectionDescriptor owned = CollectionDescriptor.forOwned(new Descriptor("host-id"), "items");
+    private final Descriptor collDescriptorInDb = Descriptor.forCollection("externalId", owned);
 
     @Test
     void whenRetrievingACollectionByExternalId_thenItShouldBeRetrievedFromDao() {
         when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
-                .thenReturn(Mono.just(collectionDescriptor));
+                .thenReturn(Mono.just(collDescriptorInDb));
 
         Mono<CollectionDescriptor> mono = service.retrieveByExternalId("externalId");
 
-        assertThat(mono.block(), is(sameInstance(collectionDescriptor.getCollection())));
+        assertThat(mono.block(), is(sameInstance(collDescriptorInDb.getCollection())));
     }
 
     @Test
     void givenDescriptorTypeIsNotCollection_whenRetrievingACollectionByExternalId_thenItShouldBeRetrievedFromDao() {
-        collectionDescriptor.setType(Descriptor.Type.SINGLE);
+        collDescriptorInDb.setType(Descriptor.Type.SINGLE);
         when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
-                .thenReturn(Mono.just(collectionDescriptor));
+                .thenReturn(Mono.just(collDescriptorInDb));
 
         try {
             service.retrieveByExternalId("externalId").block();
@@ -54,9 +63,9 @@ class ReactiveCollectionDescriptorServiceImplTest {
 
     @Test
     void givenDescriptorHasNoCollection_whenRetrievingACollection_thenItShouldBeRetrievedFromDao() {
-        collectionDescriptor.setCollection(null);
+        collDescriptorInDb.setCollection(null);
         when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
-                .thenReturn(Mono.just(collectionDescriptor));
+                .thenReturn(Mono.just(collDescriptorInDb));
 
         try {
             service.retrieveByExternalId("externalId").block();
@@ -70,18 +79,18 @@ class ReactiveCollectionDescriptorServiceImplTest {
     @Test
     void whenRetrievingACollectionByCoordinatesString_thenItShouldBeRetrievedFromDao() {
         when(reactiveDescriptorDao.retrieveByCollectionCoordinates("coords"))
-                .thenReturn(Mono.just(collectionDescriptor));
+                .thenReturn(Mono.just(collDescriptorInDb));
 
         Mono<Descriptor> mono = service.retrieveByCoordinates("coords");
 
-        assertThat(mono.block(), is(sameInstance(collectionDescriptor)));
+        assertThat(mono.block(), is(sameInstance(collDescriptorInDb)));
     }
 
     @Test
     void givenDescriptorTypeIsNotCollection_whenRetrievingACollectionByCoordinatesString_thenItShouldBeRetrievedFromDao() {
-        collectionDescriptor.setType(Descriptor.Type.SINGLE);
+        collDescriptorInDb.setType(Descriptor.Type.SINGLE);
         when(reactiveDescriptorDao.retrieveByCollectionCoordinates("coords"))
-                .thenReturn(Mono.just(collectionDescriptor));
+                .thenReturn(Mono.just(collDescriptorInDb));
 
         try {
             service.retrieveByCoordinates("coords").block();
@@ -89,5 +98,32 @@ class ReactiveCollectionDescriptorServiceImplTest {
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is("Descriptor 'externalId' must have type COLLECTION, but it is 'SINGLE'"));
         }
+    }
+
+    @Test
+    void givenNoCollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
+        when(reactiveDescriptorDao.store(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
+
+        Descriptor retrievedOrCreated = service.retrieveByCoordinatesOrCreate(owned).block();
+
+        //noinspection UnassignedFluxMonoInstance
+        verify(reactiveDescriptorDao).store(descriptorCaptor.capture());
+        Descriptor savedDescriptor = descriptorCaptor.getValue();
+        assertThat(retrievedOrCreated, is(sameInstance(savedDescriptor)));
+
+        assertThat(savedDescriptor.getType(), is(Descriptor.Type.COLLECTION));
+        assertThat(savedDescriptor.getCollection(), is(sameInstance(owned)));
+    }
+
+    @Test
+    void givenACollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
+        when(reactiveDescriptorDao.store(any()))
+                .thenReturn(Mono.error(new DuplicateKeyException("such coordinatesString already exists")));
+        when(reactiveDescriptorDao.retrieveByCollectionCoordinates(anyString()))
+                .thenReturn(Mono.just(collDescriptorInDb));
+
+        Descriptor retrievedOrCreated = service.retrieveByCoordinatesOrCreate(owned).block();
+
+        assertThat(retrievedOrCreated, is(sameInstance(collDescriptorInDb)));
     }
 }

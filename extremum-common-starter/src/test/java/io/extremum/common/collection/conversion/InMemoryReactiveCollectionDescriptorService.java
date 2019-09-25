@@ -30,4 +30,9 @@ public class InMemoryReactiveCollectionDescriptorService implements ReactiveColl
                 .orElse(null);
         return Mono.justOrEmpty(descriptorOrNull);
     }
+
+    @Override
+    public Mono<Descriptor> retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
+        throw new UnsupportedOperationException();
+    }
 }
