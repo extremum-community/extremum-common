@@ -29,4 +29,9 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
                 .filter(descriptor -> descriptor.getCollection().toCoordinatesString().equals(coordinatesString))
                 .findAny();
     }
+
+    @Override
+    public Descriptor retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
+        throw new UnsupportedOperationException();
+    }
 }
