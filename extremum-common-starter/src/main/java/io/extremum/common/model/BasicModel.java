@@ -1,5 +1,6 @@
 package io.extremum.common.model;
 
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.io.Serializable;

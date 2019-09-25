@@ -1,6 +1,6 @@
 package io.extremum.security;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.sharedmodels.descriptor.Descriptor;

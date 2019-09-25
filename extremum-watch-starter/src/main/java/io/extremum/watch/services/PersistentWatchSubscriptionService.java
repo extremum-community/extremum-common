@@ -1,6 +1,6 @@
 package io.extremum.watch.services;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.support.UniversalModelFinder;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.RoleSecurity;

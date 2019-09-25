@@ -4,7 +4,7 @@ import io.extremum.common.support.ModelClasses;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

@@ -79,7 +79,7 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingGetDemultiplexer everythingMultiplexer(
+    public EverythingGetDemultiplexer everythingDemultiplexer(
             EverythingEverythingManagementService everythingManagementService,
             EverythingCollectionManagementService everythingCollectionManagementService) {
         return new EverythingGetDemultiplexerOnDescriptor(everythingManagementService,

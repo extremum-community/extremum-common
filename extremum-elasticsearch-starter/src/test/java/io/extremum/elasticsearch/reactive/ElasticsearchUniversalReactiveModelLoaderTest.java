@@ -1,6 +1,6 @@
 package io.extremum.elasticsearch.reactive;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.dao.RepositoryBasedElasticsearchDaoConfiguration;
 import io.extremum.elasticsearch.dao.TestElasticsearchModelDao;

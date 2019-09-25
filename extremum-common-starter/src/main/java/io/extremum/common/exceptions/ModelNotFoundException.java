@@ -1,6 +1,6 @@
 package io.extremum.common.exceptions;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import org.springframework.http.HttpStatus;
 
 public class ModelNotFoundException extends CommonException {

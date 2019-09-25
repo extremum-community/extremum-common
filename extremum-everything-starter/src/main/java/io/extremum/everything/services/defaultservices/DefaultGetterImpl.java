@@ -1,6 +1,6 @@
 package io.extremum.everything.services.defaultservices;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.CommonServices;
 import io.extremum.everything.support.ModelDescriptors;

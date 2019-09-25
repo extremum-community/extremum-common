@@ -8,7 +8,7 @@ import io.extremum.common.dto.converters.services.DefaultDtoConversionService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.dto.converters.services.DtoConvertersCollection;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.annotation.ModelName;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;

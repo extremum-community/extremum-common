@@ -1,6 +1,6 @@
 package io.extremum.common.utils;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.annotation.HardDelete;
 import io.extremum.common.model.annotation.ModelName;
 

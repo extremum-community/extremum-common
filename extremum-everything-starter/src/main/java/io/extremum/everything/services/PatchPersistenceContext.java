@@ -1,6 +1,6 @@
 package io.extremum.everything.services;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import lombok.Getter;
 import lombok.Setter;
 

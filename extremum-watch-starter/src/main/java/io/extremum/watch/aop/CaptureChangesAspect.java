@@ -1,6 +1,6 @@
 package io.extremum.watch.aop;
 
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.watch.processor.CommonServiceWatchProcessor;
 import io.extremum.watch.processor.MethodJoinPointInvocation;
 import io.extremum.watch.processor.PatchFlowWatchProcessor;

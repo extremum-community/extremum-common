@@ -1,7 +1,7 @@
 package io.extremum.everything.services.fetch;
 
 import io.extremum.common.model.BasicModel;
-import io.extremum.common.model.Model;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.model.annotation.ModelName;

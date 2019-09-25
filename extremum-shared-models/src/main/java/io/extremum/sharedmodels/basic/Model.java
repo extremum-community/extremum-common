@@ -1,4 +1,4 @@
-package io.extremum.common.model;
+package io.extremum.sharedmodels.basic;
 
 import java.io.Serializable;
 
