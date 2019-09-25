@@ -5,8 +5,6 @@ import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.conversion.*;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -282,13 +280,11 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CollectionMakeup collectionMakeup(DescriptorSaver descriptorSaver,
-                                             CollectionDescriptorService collectionDescriptorService,
-                                             ReactiveDescriptorSaver reactiveDescriptorSaver,
+    public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
                                              ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
                                              CollectionUrls collectionUrls) {
-        return new CollectionMakeupImpl(descriptorSaver, collectionDescriptorService,
-                reactiveDescriptorSaver, reactiveCollectionDescriptorService, collectionUrls);
+        return new CollectionMakeupImpl(collectionDescriptorService,
+                reactiveCollectionDescriptorService, collectionUrls);
     }
 
     @Bean
