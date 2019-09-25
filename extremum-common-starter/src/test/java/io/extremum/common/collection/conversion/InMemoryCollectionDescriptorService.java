@@ -1,6 +1,7 @@
 package io.extremum.common.collection.conversion;
 
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -32,6 +33,11 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
 
     @Override
     public Descriptor retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
-        throw new UnsupportedOperationException();
+        return retrieveByCoordinates(collectionDescriptor.toCoordinatesString())
+                .orElseGet(() -> {
+                    Descriptor descriptor = new DescriptorSavers(descriptorService).createCollectionDescriptor(
+                            collectionDescriptor);
+                    return descriptorService.store(descriptor);
+                });
     }
 }

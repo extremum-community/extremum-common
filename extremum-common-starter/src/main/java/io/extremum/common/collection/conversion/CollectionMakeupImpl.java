@@ -99,8 +99,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
         CollectionDescriptor newCollectionDescriptor = collectionDescriptorFor(attribute, dto);
 
-        return collectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
-                .orElseGet(() -> descriptorSaver.createAndSave(newCollectionDescriptor));
+        return collectionDescriptorService.retrieveByCoordinatesOrCreate(newCollectionDescriptor);
     }
 
     private CollectionDescriptor collectionDescriptorFor(Attribute attribute, ResponseDto dto) {
