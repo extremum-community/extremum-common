@@ -37,11 +37,6 @@ public class CollectionDescriptorServiceImpl implements CollectionDescriptorServ
     }
 
     @Override
-    public Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
-        return descriptorDao.retrieveByCollectionCoordinates(coordinatesString);
-    }
-
-    @Override
     public Descriptor retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
         Descriptor descriptor = descriptorSavers.createCollectionDescriptor(collectionDescriptor);
 

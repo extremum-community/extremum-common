@@ -25,7 +25,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -122,7 +121,7 @@ class CollectionMakeupImplTest {
 
     @Test
     void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
-        when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.of(descriptorInDB));
+        doReturn(descriptorInDB).when(collectionDescriptorService).retrieveByCoordinatesOrCreate(any());
 
         collectionMakeup.applyCollectionMakeup(streetDto);
 

@@ -11,7 +11,5 @@ import java.util.Optional;
 public interface CollectionDescriptorService {
     Optional<CollectionDescriptor> retrieveByExternalId(String externalId);
 
-    Optional<Descriptor> retrieveByCoordinates(String coordinatesString);
-
     Descriptor retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor);
 }

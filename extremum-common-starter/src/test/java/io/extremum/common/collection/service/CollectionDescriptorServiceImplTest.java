@@ -80,16 +80,6 @@ class CollectionDescriptorServiceImplTest {
     }
 
     @Test
-    void whenRetrievingByCoordinates_thenRetrieveFromDaoShouldBeCalled() {
-        when(descriptorDao.retrieveByCollectionCoordinates("coords"))
-                .thenReturn(Optional.of(collDescriptorInDb));
-
-        Optional<Descriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
-
-        assertThat(result.orElse(null), is(collDescriptorInDb));
-    }
-
-    @Test
     void givenNoCollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
         when(descriptorDao.store(any())).then(invocation -> invocation.getArgument(0));
 

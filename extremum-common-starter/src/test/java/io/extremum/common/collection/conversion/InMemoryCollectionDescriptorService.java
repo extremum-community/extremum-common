@@ -24,14 +24,6 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
     }
 
     @Override
-    public Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
-        return descriptorService.descriptors()
-                .filter(descriptor -> descriptor.effectiveType() == Descriptor.Type.COLLECTION)
-                .filter(descriptor -> descriptor.getCollection().toCoordinatesString().equals(coordinatesString))
-                .findAny();
-    }
-
-    @Override
     public Descriptor retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
         return retrieveByCoordinates(collectionDescriptor.toCoordinatesString())
                 .orElseGet(() -> {
@@ -39,5 +31,12 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
                             collectionDescriptor);
                     return descriptorService.store(descriptor);
                 });
+    }
+
+    private Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
+        return descriptorService.descriptors()
+                .filter(descriptor -> descriptor.effectiveType() == Descriptor.Type.COLLECTION)
+                .filter(descriptor -> descriptor.getCollection().toCoordinatesString().equals(coordinatesString))
+                .findAny();
     }
 }
