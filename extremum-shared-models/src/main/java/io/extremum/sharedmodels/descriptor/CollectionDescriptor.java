@@ -24,6 +24,11 @@ public final class CollectionDescriptor implements Serializable {
                 new CollectionCoordinates(new OwnedCoordinates(hostId, hostAttributeName)));
     }
 
+    public static CollectionDescriptor forFree(String name) {
+        return new CollectionDescriptor(Type.FREE,
+                new CollectionCoordinates(new FreeCoordinates(name)));
+    }
+
     @Override
     public String toString() {
         return coordinatesString;
@@ -62,6 +67,15 @@ public final class CollectionDescriptor implements Serializable {
             @Override
             String toCoordinatesString(CollectionCoordinates coordinates) {
                 return coordinates.getOwnedCoordinates().toCoordinatesString();
+            }
+        },
+        /**
+         * Collection is identified by name (and optional parameter string).
+         */
+        FREE {
+            @Override
+            String toCoordinatesString(CollectionCoordinates coordinates) {
+                return coordinates.getFreeCoordinates().toCoordinatesString();
             }
         };
 

@@ -7,10 +7,18 @@ import java.io.Serializable;
 /**
  * @author rpuch
  */
-@AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class CollectionCoordinates implements Serializable {
     private OwnedCoordinates ownedCoordinates;
+    private FreeCoordinates freeCoordinates;
+
+    public CollectionCoordinates(OwnedCoordinates ownedCoordinates) {
+        this.ownedCoordinates = ownedCoordinates;
+    }
+
+    public CollectionCoordinates(FreeCoordinates freeCoordinates) {
+        this.freeCoordinates = freeCoordinates;
+    }
 }
