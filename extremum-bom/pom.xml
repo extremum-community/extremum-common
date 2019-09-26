@@ -170,6 +170,12 @@
                 <artifactId>elasticsearch</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.23</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
