@@ -13,8 +13,8 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
-import io.extremum.everything.services.CollectionFetcher;
-import io.extremum.everything.services.CollectionStreamer;
+import io.extremum.everything.services.OwnedCollectionFetcher;
+import io.extremum.everything.services.OwnedCollectionStreamer;
 import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.ReactiveGetterService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
@@ -284,7 +284,7 @@ class DefaultEverythingCollectionServiceTest {
         }
     }
 
-    private static class ExplicitHouseFetcher implements CollectionFetcher<Street, House> {
+    private static class ExplicitHouseFetcher implements OwnedCollectionFetcher<Street, House> {
 
         @Override
         public String getHostAttributeName() {
@@ -302,7 +302,7 @@ class DefaultEverythingCollectionServiceTest {
         }
     }
 
-    private static class ExplicitHouseStreamer implements CollectionStreamer<Street, House> {
+    private static class ExplicitHouseStreamer implements OwnedCollectionStreamer<Street, House> {
 
         @Override
         public String getHostAttributeName() {

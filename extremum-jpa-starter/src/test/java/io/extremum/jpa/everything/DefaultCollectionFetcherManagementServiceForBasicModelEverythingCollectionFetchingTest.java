@@ -9,7 +9,7 @@ import io.extremum.common.tx.TransactorsCollectionTransactivity;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
-import io.extremum.everything.services.CollectionFetcher;
+import io.extremum.everything.services.OwnedCollectionFetcher;
 import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.management.DefaultEverythingCollectionService;
 import io.extremum.everything.services.management.ModelRetriever;
@@ -132,8 +132,8 @@ class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollection
         }
     }
 
-    private static class ExplicitJpaBasicElementFetcher implements CollectionFetcher<JpaBasicContainer,
-                JpaBasicElement> {
+    private static class ExplicitJpaBasicElementFetcher implements OwnedCollectionFetcher<JpaBasicContainer,
+                    JpaBasicElement> {
 
         @Override
         public String getHostAttributeName() {

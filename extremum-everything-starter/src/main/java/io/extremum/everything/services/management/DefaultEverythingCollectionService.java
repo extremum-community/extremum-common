@@ -10,8 +10,8 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
-import io.extremum.everything.services.CollectionFetcher;
-import io.extremum.everything.services.CollectionStreamer;
+import io.extremum.everything.services.OwnedCollectionFetcher;
+import io.extremum.everything.services.OwnedCollectionStreamer;
 import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import io.extremum.everything.services.collection.StreamByOwnedCoordinates;
@@ -31,8 +31,8 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class DefaultEverythingCollectionService implements EverythingCollectionService {
     private final ModelRetriever modelRetriever;
-    private final List<CollectionFetcher> collectionFetchers;
-    private final List<CollectionStreamer> collectionStreamers;
+    private final List<OwnedCollectionFetcher> ownedCollectionFetchers;
+    private final List<OwnedCollectionStreamer> ownedCollectionStreamers;
     private final DtoConversionService dtoConversionService;
     private final UniversalDao universalDao;
     private final Reactifier reactifier;
@@ -77,7 +77,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
             OwnedCoordinates owned = coordinates.getOwnedCoordinates();
             BasicModel host = retrieveHost(owned);
 
-            Optional<CollectionFetcher> optFetcher = findFetcher(owned);
+            Optional<OwnedCollectionFetcher> optFetcher = findFetcher(owned);
 
             @SuppressWarnings("unchecked")
             CollectionFragment<Model> castResult = optFetcher
@@ -110,8 +110,8 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
             return (BasicModel) host;
         }
 
-        private Optional<CollectionFetcher> findFetcher(OwnedCoordinates owned) {
-            return collectionFetchers.stream()
+        private Optional<OwnedCollectionFetcher> findFetcher(OwnedCoordinates owned) {
+            return ownedCollectionFetchers.stream()
                             .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
                             .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
                             .findFirst();
@@ -149,10 +149,10 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
         private Flux<Model> streamReactively(Projection projection, OwnedCoordinates owned) {
             Mono<BasicModel> hostMono = retrieveHostReactively(owned);
 
-            Optional<CollectionStreamer> optStreamer = findStreamer(owned);
+            Optional<OwnedCollectionStreamer> optStreamer = findStreamer(owned);
 
             if (optStreamer.isPresent()) {
-                CollectionStreamer streamer = optStreamer.get();
+                OwnedCollectionStreamer streamer = optStreamer.get();
                 @SuppressWarnings("unchecked")
                 Flux<Model> castModels = hostMono.flatMapMany(host -> streamer.streamCollection(host, projection));
                 return castModels;
@@ -167,8 +167,8 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
                     .map(host -> castToBasicModel(coordinates, host));
         }
 
-        private Optional<CollectionStreamer> findStreamer(OwnedCoordinates owned) {
-            return collectionStreamers.stream()
+        private Optional<OwnedCollectionStreamer> findStreamer(OwnedCoordinates owned) {
+            return ownedCollectionStreamers.stream()
                     .filter(streamer -> streamer.getSupportedModel().equals(owned.getHostId().getModelType()))
                     .filter(streamer -> streamer.getHostAttributeName().equals(owned.getHostAttributeName()))
                     .findFirst();

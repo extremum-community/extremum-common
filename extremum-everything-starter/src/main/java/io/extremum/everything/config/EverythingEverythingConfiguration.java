@@ -257,13 +257,13 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public EverythingCollectionService everythingCollectionService(
             ModelRetriever modelRetriever,
-            List<CollectionFetcher> collectionFetchers,
-            List<CollectionStreamer> collectionStreamers,
+            List<OwnedCollectionFetcher> ownedCollectionFetchers,
+            List<OwnedCollectionStreamer> ownedCollectionStreamers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao, Reactifier reactifier,
             CollectionTransactivity transactivity) {
-        return new DefaultEverythingCollectionService(modelRetriever, collectionFetchers,
-                collectionStreamers, dtoConversionService, universalDao, reactifier, transactivity);
+        return new DefaultEverythingCollectionService(modelRetriever, ownedCollectionFetchers,
+                ownedCollectionStreamers, dtoConversionService, universalDao, reactifier, transactivity);
     }
 
     @Bean
