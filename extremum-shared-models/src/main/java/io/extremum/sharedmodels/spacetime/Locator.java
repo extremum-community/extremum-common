@@ -99,6 +99,10 @@ public class Locator {
 
         @JsonAlias({"seat", "stand", "berth", "bench", "shelf", "box", "cell"})
         @JsonProperty("place")
-        PLACE
+        PLACE,
+
+        // airport iata code
+        @JsonProperty("air")
+        AIR
     }
 }
