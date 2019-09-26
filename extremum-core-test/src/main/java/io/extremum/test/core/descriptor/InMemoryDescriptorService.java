@@ -1,4 +1,4 @@
-package io.extremum.jpa.service.lifecycle;
+package io.extremum.test.core.descriptor;
 
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.utils.ReflectionUtils;
@@ -9,12 +9,16 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author rpuch
  */
 public class InMemoryDescriptorService implements DescriptorService {
     private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
+
+    private final ConcurrentMap<String, Descriptor> externalIdToDescriptorMap = new ConcurrentHashMap<>();
 
     @Override
     public String createExternalId() {
@@ -29,12 +33,14 @@ public class InMemoryDescriptorService implements DescriptorService {
             ReflectionUtils.setFieldValue(descriptor, "externalId", externalId);
         }
 
+        externalIdToDescriptorMap.put(externalId, descriptor);
+
         return descriptor;
     }
 
     @Override
     public Optional<Descriptor> loadByExternalId(String externalId) {
-        throw new UnsupportedOperationException();
+        return Optional.ofNullable(externalIdToDescriptorMap.get(externalId));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package io.extremum.common.collection.conversion;
 
 import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -23,7 +24,16 @@ public class InMemoryCollectionDescriptorService implements CollectionDescriptor
     }
 
     @Override
-    public Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
+    public Descriptor retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor) {
+        return retrieveByCoordinates(collectionDescriptor.toCoordinatesString())
+                .orElseGet(() -> {
+                    Descriptor descriptor = new DescriptorSavers(descriptorService).createCollectionDescriptor(
+                            collectionDescriptor);
+                    return descriptorService.store(descriptor);
+                });
+    }
+
+    private Optional<Descriptor> retrieveByCoordinates(String coordinatesString) {
         return descriptorService.descriptors()
                 .filter(descriptor -> descriptor.effectiveType() == Descriptor.Type.COLLECTION)
                 .filter(descriptor -> descriptor.getCollection().toCoordinatesString().equals(coordinatesString))

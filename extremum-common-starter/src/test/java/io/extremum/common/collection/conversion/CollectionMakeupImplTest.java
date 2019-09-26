@@ -25,13 +25,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -56,7 +54,7 @@ class CollectionMakeupImplTest {
             descriptorService, reactiveDescriptorService);
     @Spy
     private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
-            new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService);
+            new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService, descriptorService);
     @Spy
     private CollectionUrls collectionUrls = new CollectionUrlsInRoot(new TestApplicationUrls());
 
@@ -122,7 +120,7 @@ class CollectionMakeupImplTest {
 
     @Test
     void givenACollectionDescriptorExists_whenApplyingCollectionMakeup_thenCollectionDescriptorShouldNotBeSaved() {
-        when(collectionDescriptorService.retrieveByCoordinates(anyString())).thenReturn(Optional.of(descriptorInDB));
+        doReturn(descriptorInDB).when(collectionDescriptorService).retrieveByCoordinatesOrCreate(any());
 
         collectionMakeup.applyCollectionMakeup(streetDto);
 
@@ -251,8 +249,9 @@ class CollectionMakeupImplTest {
 
     @Test
     void givenACollectionDescriptorExists_whenApplyingCollectionMakeupReactively_thenCollectionDescriptorShouldNotBeSaved() {
-        when(reactiveCollectionDescriptorService.retrieveByCoordinates(anyString()))
-                .thenReturn(Mono.just(descriptorInDB));
+        //noinspection UnassignedFluxMonoInstance
+        doReturn(Mono.just(descriptorInDB))
+                .when(reactiveCollectionDescriptorService).retrieveByCoordinatesOrCreate(any());
 
         collectionMakeup.applyCollectionMakeupReactively(streetDto).block();
 

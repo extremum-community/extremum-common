@@ -7,15 +7,19 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -30,9 +34,12 @@ class CollectionDescriptorServiceImplTest {
     @Mock
     private DescriptorDao descriptorDao;
 
-    private final Descriptor collDescriptorInDb = Descriptor.forCollection("external-id",
-            CollectionDescriptor.forOwned(new Descriptor("host-id"), "attribute")
-    );
+    @Captor
+    private ArgumentCaptor<Descriptor> descriptorCaptor;
+
+    private final CollectionDescriptor owned = CollectionDescriptor.forOwned(
+            new Descriptor("host-id"), "attribute");
+    private final Descriptor collDescriptorInDb = Descriptor.forCollection("external-id", owned);
 
     @Test
     void givenDescriptorContainsCollection_whenRetrievingByExternalId_thenShouldBeRetrievedFromDescriptorService() {
@@ -73,12 +80,28 @@ class CollectionDescriptorServiceImplTest {
     }
 
     @Test
-    void whenRetrievingByCoordinates_thenRetrieveFromDaoShouldBeCalled() {
-        when(descriptorDao.retrieveByCollectionCoordinates("coords"))
+    void givenNoCollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
+        when(descriptorDao.store(any())).then(invocation -> invocation.getArgument(0));
+
+        Descriptor retrievedOrCreated = collectionDescriptorService.retrieveByCoordinatesOrCreate(owned);
+
+        verify(descriptorDao).store(descriptorCaptor.capture());
+        Descriptor savedDescriptor = descriptorCaptor.getValue();
+        assertThat(retrievedOrCreated, is(sameInstance(savedDescriptor)));
+
+        assertThat(savedDescriptor.getType(), is(Descriptor.Type.COLLECTION));
+        assertThat(savedDescriptor.getCollection(), is(sameInstance(owned)));
+    }
+
+    @Test
+    void givenACollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
+        when(descriptorDao.store(any()))
+                .thenThrow(new DuplicateKeyException("such coordinatesString already exists"));
+        when(descriptorDao.retrieveByCollectionCoordinates(anyString()))
                 .thenReturn(Optional.of(collDescriptorInDb));
 
-        Optional<Descriptor> result = collectionDescriptorService.retrieveByCoordinates("coords");
+        Descriptor retrievedOrCreated = collectionDescriptorService.retrieveByCoordinatesOrCreate(owned);
 
-        assertThat(result.orElse(null), is(collDescriptorInDb));
+        assertThat(retrievedOrCreated, is(sameInstance(collDescriptorInDb)));
     }
 }

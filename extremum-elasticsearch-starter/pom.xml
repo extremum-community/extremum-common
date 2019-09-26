@@ -58,7 +58,7 @@
 
         <dependency>
             <groupId>io.extremum</groupId>
-            <artifactId>extremum-test-harness</artifactId>
+            <artifactId>extremum-core-test</artifactId>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -71,6 +71,12 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
