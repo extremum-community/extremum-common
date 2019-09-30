@@ -3,8 +3,7 @@ package io.extremum.everything.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.conversion.*;
-import io.extremum.common.collection.service.CollectionDescriptorService;
-import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.collection.service.*;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -328,12 +327,26 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
+    @ConditionalOnMissingBean
     public EverythingCollectionManagementService everythingCollectionManagementService(
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService
     ) {
         return new DefaultEverythingCollectionManagementService(
                 reactiveCollectionDescriptorService, everythingCollectionService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CollectionDescriptorRegistry collectionDescriptorRegistry(
+            CollectionDescriptorService collectionDescriptorService) {
+        return new CollectionDescriptorRegistryImpl(collectionDescriptorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveCollectionDescriptorRegistry reactiveCollectionDescriptorRegistry(
+            ReactiveCollectionDescriptorService reactiveCollectionDescriptorService) {
+        return new ReactiveCollectionDescriptorRegistryImpl(reactiveCollectionDescriptorService);
     }
 }
