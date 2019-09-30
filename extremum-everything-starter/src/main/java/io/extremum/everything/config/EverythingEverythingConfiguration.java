@@ -39,6 +39,7 @@ import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.starter.CommonConfiguration;
 import io.extremum.starter.properties.LimitsProperties;
 import lombok.RequiredArgsConstructor;
@@ -261,11 +262,14 @@ public class EverythingEverythingConfiguration {
             ModelRetriever modelRetriever,
             List<OwnedCollectionFetcher> ownedCollectionFetchers,
             List<OwnedCollectionStreamer> ownedCollectionStreamers,
+            List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao, Reactifier reactifier,
             CollectionTransactivity transactivity) {
-        return new DefaultEverythingCollectionService(modelRetriever, ownedCollectionFetchers,
-                ownedCollectionStreamers, dtoConversionService, universalDao, reactifier, transactivity);
+        return new DefaultEverythingCollectionService(modelRetriever,
+                ownedCollectionFetchers, ownedCollectionStreamers,
+                freeCollectionStreamers,
+                dtoConversionService, universalDao, reactifier, transactivity);
     }
 
     @Bean
