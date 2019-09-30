@@ -4,10 +4,10 @@ import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
-class DescriptorSavers {
+public class DescriptorSavers {
     private final DescriptorService descriptorService;
 
-    DescriptorSavers(DescriptorService descriptorService) {
+    public DescriptorSavers(DescriptorService descriptorService) {
         this.descriptorService = descriptorService;
     }
 
@@ -21,7 +21,7 @@ class DescriptorSavers {
                 .build();
     }
 
-    Descriptor createCollectionDescriptor(CollectionDescriptor collectionDescriptor) {
+    public Descriptor createCollectionDescriptor(CollectionDescriptor collectionDescriptor) {
         return Descriptor.forCollection(descriptorService.createExternalId(), collectionDescriptor);
     }
 }

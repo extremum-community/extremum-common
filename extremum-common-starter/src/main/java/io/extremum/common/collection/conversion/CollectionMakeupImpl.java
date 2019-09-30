@@ -3,8 +3,6 @@ package io.extremum.common.collection.conversion;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.visit.CollectionVisitDriver;
-import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.utils.attribute.Attribute;
 import io.extremum.common.utils.attribute.VisitDirection;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
@@ -27,9 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CollectionMakeupImpl implements CollectionMakeup {
-    private final DescriptorSaver descriptorSaver;
     private final CollectionDescriptorService collectionDescriptorService;
-    private final ReactiveDescriptorSaver reactiveDescriptorSaver;
     private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
     private final CollectionUrls collectionUrls;
 
@@ -56,7 +52,8 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         List<ReferenceWithContext> collectedReferences = new ArrayList<>();
         CollectionVisitDriver collectionVisitDriver = new CollectionVisitDriver(
                 VisitDirection.ROOT_TO_LEAVES,
-                (reference, attribute, dto) -> collectReferenceIfEligible(reference, attribute, dto, collectedReferences));
+                (reference, attribute, dto) -> collectReferenceIfEligible(reference, attribute,
+                        dto, collectedReferences));
         collectionVisitDriver.visitCollections(rootDto);
         return collectedReferences;
     }
@@ -99,8 +96,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private Descriptor getExistingOrCreateNewCollectionDescriptor(Attribute attribute, ResponseDto dto) {
         CollectionDescriptor newCollectionDescriptor = collectionDescriptorFor(attribute, dto);
 
-        return collectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
-                .orElseGet(() -> descriptorSaver.createAndSave(newCollectionDescriptor));
+        return collectionDescriptorService.retrieveByCoordinatesOrCreate(newCollectionDescriptor);
     }
 
     private CollectionDescriptor collectionDescriptorFor(Attribute attribute, ResponseDto dto) {
@@ -128,8 +124,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                                                                                   ResponseDto dto) {
         CollectionDescriptor newCollectionDescriptor = collectionDescriptorFor(attribute, dto);
 
-        return reactiveCollectionDescriptorService.retrieveByCoordinates(newCollectionDescriptor.toCoordinatesString())
-                .switchIfEmpty(Mono.defer(() -> reactiveDescriptorSaver.createAndSave(newCollectionDescriptor)));
+        return reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(newCollectionDescriptor);
     }
 
     @RequiredArgsConstructor
