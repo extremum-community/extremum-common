@@ -1,4 +1,4 @@
-package io.extremum.everything.services.management;
+package io.extremum.everything.services.collection;
 
 import io.extremum.common.model.BasicModel;
 import io.extremum.common.reactive.Reactifier;
@@ -12,6 +12,7 @@ import io.extremum.everything.services.OwnedCollectionStreamer;
 import io.extremum.everything.services.collection.CoordinatesHandler;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
 import io.extremum.everything.services.collection.StreamByOwnedCoordinates;
+import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.CollectionCoordinates;
 import io.extremum.sharedmodels.descriptor.OwnedCoordinates;

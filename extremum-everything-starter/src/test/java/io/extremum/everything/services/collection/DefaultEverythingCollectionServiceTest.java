@@ -1,9 +1,8 @@
-package io.extremum.everything.services.management;
+package io.extremum.everything.services.collection;
 
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.annotation.ModelName;
 import io.extremum.common.reactive.NaiveReactifier;
 import io.extremum.common.reactive.Reactifier;
@@ -13,10 +12,12 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
+import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.OwnedCollectionFetcher;
 import io.extremum.everything.services.OwnedCollectionStreamer;
-import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.ReactiveGetterService;
+import io.extremum.everything.services.management.ModelRetriever;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;

@@ -1,4 +1,4 @@
-package io.extremum.everything.services.management;
+package io.extremum.everything.services.collection;
 
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;

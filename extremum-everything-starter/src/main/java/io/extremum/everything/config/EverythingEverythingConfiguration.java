@@ -31,6 +31,8 @@ import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import io.extremum.everything.services.*;
+import io.extremum.everything.services.collection.DefaultEverythingCollectionService;
+import io.extremum.everything.services.collection.EverythingCollectionService;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
 import io.extremum.everything.support.DefaultModelDescriptors;

@@ -1,4 +1,4 @@
-package io.extremum.everything.services.management;
+package io.extremum.everything.services.collection;
 
 import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -9,7 +9,7 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.services.OwnedCollectionFetcher;
 import io.extremum.everything.services.OwnedCollectionStreamer;
-import io.extremum.everything.services.collection.CoordinatesHandler;
+import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -24,10 +24,10 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     private final OwnedCoordinatesHandler ownedCoordinatesHandler;
 
     public DefaultEverythingCollectionService(ModelRetriever modelRetriever,
-            List<OwnedCollectionFetcher> ownedCollectionFetchers,
-            List<OwnedCollectionStreamer> ownedCollectionStreamers,
-            DtoConversionService dtoConversionService, UniversalDao universalDao,
-            Reactifier reactifier, CollectionTransactivity transactivity) {
+                                              List<OwnedCollectionFetcher> ownedCollectionFetchers,
+                                              List<OwnedCollectionStreamer> ownedCollectionStreamers,
+                                              DtoConversionService dtoConversionService, UniversalDao universalDao,
+                                              Reactifier reactifier, CollectionTransactivity transactivity) {
         this.dtoConversionService = dtoConversionService;
 
         this.ownedCoordinatesHandler = new OwnedCoordinatesHandler(modelRetriever, universalDao,

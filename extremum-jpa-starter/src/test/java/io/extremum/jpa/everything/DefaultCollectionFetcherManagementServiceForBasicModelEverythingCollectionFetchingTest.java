@@ -11,7 +11,7 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.services.OwnedCollectionFetcher;
 import io.extremum.everything.services.GetterService;
-import io.extremum.everything.services.management.DefaultEverythingCollectionService;
+import io.extremum.everything.services.collection.DefaultEverythingCollectionService;
 import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.jpa.model.PostgresBasicModel;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
