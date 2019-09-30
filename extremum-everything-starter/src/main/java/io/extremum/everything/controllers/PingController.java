@@ -6,10 +6,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api("Ping")
 @RestController
+@RequestMapping(path = "/v1")
 public class PingController {
     @ApiOperation(value = "Check a health status of a service")
     @ApiResponses({

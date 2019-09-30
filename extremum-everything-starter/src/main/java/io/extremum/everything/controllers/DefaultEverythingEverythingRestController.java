@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
 @ConvertNullDescriptorToModelNotFound
-@RequestMapping(path = "/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/v1/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
