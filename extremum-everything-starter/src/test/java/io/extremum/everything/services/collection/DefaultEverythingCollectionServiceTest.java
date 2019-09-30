@@ -82,10 +82,12 @@ class DefaultEverythingCollectionServiceTest {
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(ImmutableList.of(streetGetterService),
                         ImmutableList.of(streetReactiveGetterService), null, null),
-                singletonList(new ExplicitHouseFetcher()),
-                singletonList(new ExplicitHouseStreamer()),
-                singletonList(streetFreeFetcher),
-                singletonList(streetFreeStreamer),
+                new ListBasedCollectionProviders(
+                        singletonList(new ExplicitHouseFetcher()),
+                        singletonList(new ExplicitHouseStreamer()),
+                        singletonList(streetFreeFetcher),
+                        singletonList(streetFreeStreamer)
+                ),
                 dtoConversionService,
                 universalDao, reactifier, transactivity
         );

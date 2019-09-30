@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -26,8 +25,7 @@ import static java.lang.String.format;
 class OwnedCoordinatesHandler implements CoordinatesHandler {
     private final ModelRetriever modelRetriever;
     private final UniversalDao universalDao;
-    private final List<OwnedCollectionFetcher> ownedCollectionFetchers;
-    private final List<OwnedCollectionStreamer> ownedCollectionStreamers;
+    private final CollectionProviders collectionProviders;
     private final Reactifier reactifier;
     private final CollectionTransactivity transactivity;
 
@@ -36,7 +34,7 @@ class OwnedCoordinatesHandler implements CoordinatesHandler {
         OwnedCoordinates owned = coordinates.getOwnedCoordinates();
         BasicModel host = retrieveHost(owned);
 
-        Optional<OwnedCollectionFetcher> optFetcher = findFetcher(owned);
+        Optional<OwnedCollectionFetcher> optFetcher = collectionProviders.findOwnedFetcher(owned);
 
         @SuppressWarnings("unchecked")
         CollectionFragment<Model> castResult = optFetcher
@@ -67,13 +65,6 @@ class OwnedCoordinatesHandler implements CoordinatesHandler {
         }
 
         return (BasicModel) host;
-    }
-
-    private Optional<OwnedCollectionFetcher> findFetcher(OwnedCoordinates owned) {
-        return ownedCollectionFetchers.stream()
-                        .filter(fetcher -> fetcher.getSupportedModel().equals(owned.getHostId().getModelType()))
-                        .filter(fetcher -> fetcher.getHostAttributeName().equals(owned.getHostAttributeName()))
-                        .findFirst();
     }
 
     private CollectionFragment<Model> fetchUsingDefaultConvention(OwnedCoordinates owned,
@@ -108,7 +99,7 @@ class OwnedCoordinatesHandler implements CoordinatesHandler {
     private Flux<Model> streamReactively(Projection projection, OwnedCoordinates owned) {
         Mono<BasicModel> hostMono = retrieveHostReactively(owned);
 
-        Optional<OwnedCollectionStreamer> optStreamer = findStreamer(owned);
+        Optional<OwnedCollectionStreamer> optStreamer = collectionProviders.findOwnedStreamer(owned);
 
         if (optStreamer.isPresent()) {
             OwnedCollectionStreamer streamer = optStreamer.get();
@@ -124,13 +115,6 @@ class OwnedCoordinatesHandler implements CoordinatesHandler {
         return modelRetriever.retrieveModelReactively(coordinates.getHostId())
                 .switchIfEmpty(Mono.error(() -> createHostNotFoundException(coordinates)))
                 .map(host -> castToBasicModel(coordinates, host));
-    }
-
-    private Optional<OwnedCollectionStreamer> findStreamer(OwnedCoordinates owned) {
-        return ownedCollectionStreamers.stream()
-                .filter(streamer -> streamer.getSupportedModel().equals(owned.getHostId().getModelType()))
-                .filter(streamer -> streamer.getHostAttributeName().equals(owned.getHostAttributeName()))
-                .findFirst();
     }
 
     private Flux<Model> fetchUsingDefaultConventionReactively(OwnedCoordinates owned,

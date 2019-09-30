@@ -31,8 +31,10 @@ import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import io.extremum.everything.services.*;
+import io.extremum.everything.services.collection.CollectionProviders;
 import io.extremum.everything.services.collection.DefaultEverythingCollectionService;
 import io.extremum.everything.services.collection.EverythingCollectionService;
+import io.extremum.everything.services.collection.ListBasedCollectionProviders;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
 import io.extremum.everything.support.DefaultModelDescriptors;
@@ -258,18 +260,24 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingCollectionService everythingCollectionService(
-            ModelRetriever modelRetriever,
+    public CollectionProviders collectionProviders(
             List<OwnedCollectionFetcher> ownedCollectionFetchers,
             List<OwnedCollectionStreamer> ownedCollectionStreamers,
             List<FreeCollectionFetcher<? extends Model>> freeCollectionFetchers,
-            List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers,
+            List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers) {
+        return new ListBasedCollectionProviders(ownedCollectionFetchers, ownedCollectionStreamers,
+                freeCollectionFetchers, freeCollectionStreamers);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EverythingCollectionService everythingCollectionService(
+            ModelRetriever modelRetriever,
+            CollectionProviders collectionProviders,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao, Reactifier reactifier,
             CollectionTransactivity transactivity) {
-        return new DefaultEverythingCollectionService(modelRetriever,
-                ownedCollectionFetchers, ownedCollectionStreamers,
-                freeCollectionFetchers, freeCollectionStreamers,
+        return new DefaultEverythingCollectionService(modelRetriever, collectionProviders,
                 dtoConversionService, universalDao, reactifier, transactivity);
     }
 

@@ -7,18 +7,12 @@ import io.extremum.common.tx.CollectionTransactivity;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
-import io.extremum.everything.services.FreeCollectionFetcher;
-import io.extremum.everything.services.FreeCollectionStreamer;
-import io.extremum.everything.services.OwnedCollectionFetcher;
-import io.extremum.everything.services.OwnedCollectionStreamer;
 import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 public class DefaultEverythingCollectionService implements EverythingCollectionService {
     private final DtoConversionService dtoConversionService;
@@ -27,17 +21,14 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     private final FreeCoordinatesHandler freeCoordinatesHandler;
 
     public DefaultEverythingCollectionService(ModelRetriever modelRetriever,
-                                              List<OwnedCollectionFetcher> ownedCollectionFetchers,
-                                              List<OwnedCollectionStreamer> ownedCollectionStreamers,
-                                              List<FreeCollectionFetcher<? extends Model>> freeCollectionFetchers,
-                                              List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers,
+                                              CollectionProviders collectionProviders,
                                               DtoConversionService dtoConversionService, UniversalDao universalDao,
                                               Reactifier reactifier, CollectionTransactivity transactivity) {
         this.dtoConversionService = dtoConversionService;
 
         ownedCoordinatesHandler = new OwnedCoordinatesHandler(modelRetriever, universalDao,
-                ownedCollectionFetchers, ownedCollectionStreamers, reactifier, transactivity);
-        freeCoordinatesHandler = new FreeCoordinatesHandler(freeCollectionFetchers, freeCollectionStreamers);
+                collectionProviders, reactifier, transactivity);
+        freeCoordinatesHandler = new FreeCoordinatesHandler(collectionProviders);
     }
 
     @Override
