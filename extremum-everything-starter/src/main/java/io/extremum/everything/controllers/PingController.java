@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api("Ping")
 @RestController
 public class PingController {
-    @ApiOperation(value = "Ping")
+    @ApiOperation(value = "Check a health status of a service")
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK")
     })
