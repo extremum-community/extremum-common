@@ -7,6 +7,7 @@ import io.extremum.common.tx.CollectionTransactivity;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
+import io.extremum.everything.services.FreeCollectionFetcher;
 import io.extremum.everything.services.FreeCollectionStreamer;
 import io.extremum.everything.services.OwnedCollectionFetcher;
 import io.extremum.everything.services.OwnedCollectionStreamer;
@@ -33,6 +34,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     public DefaultEverythingCollectionService(ModelRetriever modelRetriever,
                                               List<OwnedCollectionFetcher> ownedCollectionFetchers,
                                               List<OwnedCollectionStreamer> ownedCollectionStreamers,
+                                              List<FreeCollectionFetcher<? extends Model>> freeCollectionFetchers,
                                               List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers,
                                               DtoConversionService dtoConversionService, UniversalDao universalDao,
                                               Reactifier reactifier, CollectionTransactivity transactivity) {
@@ -40,7 +42,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
 
         ownedCoordinatesHandler = new OwnedCoordinatesHandler(modelRetriever, universalDao,
                 ownedCollectionFetchers, ownedCollectionStreamers, reactifier, transactivity);
-        freeCoordinatesHandler = new FreeCoordinatesHandler(freeCollectionStreamers);
+        freeCoordinatesHandler = new FreeCoordinatesHandler(freeCollectionFetchers, freeCollectionStreamers);
     }
 
     @Override
@@ -81,18 +83,36 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
 
     @RequiredArgsConstructor
     private static class FreeCoordinatesHandler implements CoordinatesHandler {
+        private final List<FreeCollectionFetcher<? extends Model>> freeCollectionFetchers;
         private final List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers;
 
         @Override
         public CollectionFragment<Model> fetchCollection(CollectionCoordinates coordinates, Projection projection) {
-            throw new UnsupportedOperationException("Not implemented yet");
+            FreeCoordinates freeCoordinates = coordinates.getFreeCoordinates();
+            FreeCollectionFetcher<? extends Model> fetcher = findFreeFetcher(freeCoordinates);
+            return fetcher.fetchCollection(freeCoordinates.getParametersString(), projection)
+                    .map(Function.identity());
+        }
+
+        private FreeCollectionFetcher<? extends Model> findFreeFetcher(FreeCoordinates freeCoordinates) {
+            String freeCollectionName = freeCoordinates.getName();
+            return freeCollectionFetchers.stream()
+                    .filter(fetcher -> fetcherSupportsName(fetcher, freeCollectionName))
+                    .findAny()
+                    .orElseThrow(() -> new IllegalStateException(
+                            String.format("Did not find a free collection fetcher supporting name '%s'",
+                                    freeCollectionName)));
+        }
+
+        private boolean fetcherSupportsName(FreeCollectionFetcher<?> fetcher, String freeCollectionName) {
+            return Objects.equals(fetcher.getCollectionName(), freeCollectionName);
         }
 
         @Override
         public Flux<Model> streamCollection(CollectionCoordinates coordinates, Projection projection) {
             FreeCoordinates freeCoordinates = coordinates.getFreeCoordinates();
-            FreeCollectionStreamer<? extends Model> collectionStreamer = findFreeStreamer(freeCoordinates);
-            return collectionStreamer.streamCollection(freeCoordinates.getParametersString(), projection)
+            FreeCollectionStreamer<? extends Model> streamer = findFreeStreamer(freeCoordinates);
+            return streamer.streamCollection(freeCoordinates.getParametersString(), projection)
                     .map(Function.identity());
         }
 

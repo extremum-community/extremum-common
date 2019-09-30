@@ -32,12 +32,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -67,6 +67,8 @@ class DefaultEverythingCollectionServiceTest {
     @Spy
     private Reactifier reactifier = new NaiveReactifier();
     @Spy
+    private StreetFreeFetcher streetFreeFetcher = new StreetFreeFetcher();
+    @Spy
     private StreetFreeStreamer streetFreeStreamer = new StreetFreeStreamer();
 
     private static final ObjectId id1 = new ObjectId();
@@ -80,9 +82,10 @@ class DefaultEverythingCollectionServiceTest {
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(ImmutableList.of(streetGetterService),
                         ImmutableList.of(streetReactiveGetterService), null, null),
-                Collections.singletonList(new ExplicitHouseFetcher()),
-                Collections.singletonList(new ExplicitHouseStreamer()),
-                Collections.singletonList(streetFreeStreamer),
+                singletonList(new ExplicitHouseFetcher()),
+                singletonList(new ExplicitHouseStreamer()),
+                singletonList(streetFreeFetcher),
+                singletonList(streetFreeStreamer),
                 dtoConversionService,
                 universalDao, reactifier, transactivity
         );
@@ -241,6 +244,17 @@ class DefaultEverythingCollectionServiceTest {
     }
 
     @Test
+    void givenDescriptorIsForFreeStreetsCollection_whenFetchingTheCollection_thenStreetsFromFreeFetcherShouldBeReturned() {
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("streets");
+
+        CollectionFragment<ResponseDto> streets = service.fetchCollection(collectionDescriptor, Projection.empty(), false);
+
+        assertThat(streets.total().orElse(999), is(3L));
+        assertThat(streets.elements(), hasSize(3));
+        verify(streetFreeFetcher).fetchCollection(isNull(), any());
+    }
+
+    @Test
     void givenDescriptorIsForFreeStreetsCollection_whenStreamingTheCollection_thenStreetsFromFreeStreamerShouldBeReturned() {
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("streets");
 
@@ -301,7 +315,7 @@ class DefaultEverythingCollectionServiceTest {
 
         @Override
         public CollectionFragment<House> fetchCollection(Street street, Projection projection) {
-            return CollectionFragment.forCompleteCollection(Collections.singletonList(new House()));
+            return CollectionFragment.forCompleteCollection(singletonList(new House()));
         }
 
         @Override
@@ -337,6 +351,20 @@ class DefaultEverythingCollectionServiceTest {
         @Override
         public <T> T doInTransaction(Descriptor hostId, Supplier<T> action) {
             return action.get();
+        }
+    }
+
+    private static class StreetFreeFetcher implements FreeCollectionFetcher<Street> {
+
+        @Override
+        public String getCollectionName() {
+            return "streets";
+        }
+
+        @Override
+        public CollectionFragment<Street> fetchCollection(String parametersString, Projection projection) {
+            List<Street> streets = Arrays.asList(new Street(), new Street(), new Street());
+            return CollectionFragment.forCompleteCollection(streets);
         }
     }
 

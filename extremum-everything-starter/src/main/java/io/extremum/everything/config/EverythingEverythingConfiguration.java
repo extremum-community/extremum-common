@@ -262,13 +262,14 @@ public class EverythingEverythingConfiguration {
             ModelRetriever modelRetriever,
             List<OwnedCollectionFetcher> ownedCollectionFetchers,
             List<OwnedCollectionStreamer> ownedCollectionStreamers,
+            List<FreeCollectionFetcher<? extends Model>> freeCollectionFetchers,
             List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao, Reactifier reactifier,
             CollectionTransactivity transactivity) {
         return new DefaultEverythingCollectionService(modelRetriever,
                 ownedCollectionFetchers, ownedCollectionStreamers,
-                freeCollectionStreamers,
+                freeCollectionFetchers, freeCollectionStreamers,
                 dtoConversionService, universalDao, reactifier, transactivity);
     }
 
