@@ -32,7 +32,6 @@ class DefaultEverythingEverythingRestControllerTest {
     @MockBean
     private EverythingEverythingManagementService everythingEverythingManagementService;
 
-
     @BeforeEach
     void initClient() {
         Object controller = new DefaultEverythingEverythingRestController(
@@ -47,7 +46,8 @@ class DefaultEverythingEverythingRestControllerTest {
         when(collectionManagementService.streamCollection(eq(randomUuid), any(), anyBoolean()))
                 .thenReturn(Flux.just(new TestResponseDto("first"), new TestResponseDto("second")));
 
-        List<TestResponseDto> dtos = webClient.get().uri("/v1/" + randomUuid)
+        List<TestResponseDto> dtos = webClient.get()
+                .uri("/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -70,7 +70,7 @@ class DefaultEverythingEverythingRestControllerTest {
         when(collectionManagementService.streamCollection(eq(randomUuid), any(), anyBoolean()))
                 .thenReturn(Flux.error(new RuntimeException("Oops!")));
 
-        String responseText = webClient.get().uri("/v1/" + randomUuid)
+        String responseText = webClient.get().uri("/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()

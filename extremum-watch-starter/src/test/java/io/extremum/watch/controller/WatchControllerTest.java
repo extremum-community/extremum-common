@@ -50,9 +50,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = {WatchControllersTestConfiguration.class, WatchController.class})
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {WatchControllersTestConfiguration.class, WatchController.class})
 class WatchControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -73,7 +73,7 @@ class WatchControllerTest {
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        mockMvc.perform(put("/v1/watch")
+        mockMvc.perform(put("/watch")
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
@@ -95,7 +95,7 @@ class WatchControllerTest {
         when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
+        MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(ResponseMatchers.successfulResponse()))
@@ -115,7 +115,7 @@ class WatchControllerTest {
         when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
+        MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
                 .param("until", DateUtils.formatZonedDateTimeISO_8601(until))
                 .param("limit", "10")
@@ -169,7 +169,7 @@ class WatchControllerTest {
     void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        mockMvc.perform(delete("/v1/watch")
+        mockMvc.perform(delete("/watch")
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
