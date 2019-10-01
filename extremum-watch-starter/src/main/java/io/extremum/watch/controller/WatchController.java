@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * This controller responsible for find appropriate watch events
  */
 @RestController
-@RequestMapping("/v1/watch")
+@RequestMapping("/watch")
 @RequiredArgsConstructor
 public class WatchController {
     private final WatchEventService watchEventService;
@@ -40,8 +40,8 @@ public class WatchController {
 
     private List<TextWatchEventResponseDto> convertToResponseDtos(List<TextWatchEvent> eventsAfter) {
         return eventsAfter.stream()
-                    .map(textWatchEventConverter::convertToResponseDto)
-                    .collect(Collectors.toList());
+                .map(textWatchEventConverter::convertToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -55,8 +55,8 @@ public class WatchController {
 
     private List<Descriptor> externalIdsToDescriptors(List<String> externalIds) {
         return externalIds.stream()
-                    .map(descriptorFactory::fromExternalId)
-                    .collect(Collectors.toList());
+                .map(descriptorFactory::fromExternalId)
+                .collect(Collectors.toList());
     }
 
     private String getSubscriber() {
