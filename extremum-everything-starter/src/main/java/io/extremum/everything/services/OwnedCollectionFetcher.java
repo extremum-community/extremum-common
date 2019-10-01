@@ -13,7 +13,7 @@ import io.extremum.everything.collection.Projection;
  *
  * @author rpuch
  */
-public interface CollectionFetcher<H extends BasicModel, E extends Model>
+public interface OwnedCollectionFetcher<H extends BasicModel, E extends Model>
         extends EverythingEverythingService {
     /**
      * Returns the attribute (field/property) name of the host object to which this collection

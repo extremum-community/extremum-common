@@ -1,6 +1,7 @@
 package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.everything.services.collection.EverythingCollectionService;
 import io.extremum.sharedmodels.dto.Pagination;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.collection.CollectionFragment;

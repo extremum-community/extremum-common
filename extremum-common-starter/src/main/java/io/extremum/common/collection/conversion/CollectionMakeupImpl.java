@@ -48,6 +48,17 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                 .then();
     }
 
+    @Override
+    public Mono<Void> applyCollectionMakeupReactively(CollectionReference<?> collectionReference,
+                                                      CollectionDescriptor collectionDescriptor) {
+        return reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(collectionDescriptor)
+                .doOnNext(descriptor -> {
+                    collectionReference.setId(descriptor.getExternalId());
+                    fillCollectionUrl(collectionReference, descriptor);
+                })
+                .then();
+    }
+
     private List<ReferenceWithContext> collectReferencesToApplyMakeup(ResponseDto rootDto) {
         List<ReferenceWithContext> collectedReferences = new ArrayList<>();
         CollectionVisitDriver collectionVisitDriver = new CollectionVisitDriver(
@@ -73,22 +84,27 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private void applyMakeupToCollection(CollectionReference reference, Attribute attribute, ResponseDto dto) {
         Descriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
 
-        applyMakeupWithCollectionDescriptor(reference, collectionDescriptorToUse, attribute);
+        fillCollectionIdAndUrlIfAttributeAllowsIt(reference, collectionDescriptorToUse, attribute);
     }
 
-    private void applyMakeupWithCollectionDescriptor(CollectionReference reference, Descriptor collectionDescriptor,
-                                                     Attribute attribute) {
-        String collectionExternalId = collectionDescriptor.getExternalId();
-
-        if (fillCollectionId(attribute)) {
-            reference.setId(collectionExternalId);
+    private void fillCollectionIdAndUrlIfAttributeAllowsIt(CollectionReference reference,
+            Descriptor collectionDescriptor, Attribute attribute) {
+        if (shouldFillCollectionId(attribute)) {
+            reference.setId(collectionDescriptor.getExternalId());
         }
+
+        fillCollectionUrl(reference, collectionDescriptor);
+    }
+
+    private void fillCollectionUrl(CollectionReference reference,
+                                   Descriptor collectionDescriptor) {
+        String collectionExternalId = collectionDescriptor.getExternalId();
 
         String externalUrl = collectionUrls.collectionUrl(collectionExternalId);
         reference.setUrl(externalUrl);
     }
 
-    private boolean fillCollectionId(Attribute attribute) {
+    private boolean shouldFillCollectionId(Attribute attribute) {
         FillCollectionId annotation = attribute.getAnnotation(FillCollectionId.class);
         return annotation == null || annotation.value();
     }
@@ -115,7 +131,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
     private Mono<Void> applyMakeupToCollectionReactively(CollectionReference reference, Attribute attribute,
                                                          ResponseDto dto) {
         return getExistingOrCreateNewCollectionDescriptorReactively(attribute, dto)
-                .doOnNext(collectionDescriptor -> applyMakeupWithCollectionDescriptor(
+                .doOnNext(collectionDescriptor -> fillCollectionIdAndUrlIfAttributeAllowsIt(
                         reference, collectionDescriptor, attribute))
                 .then();
     }
