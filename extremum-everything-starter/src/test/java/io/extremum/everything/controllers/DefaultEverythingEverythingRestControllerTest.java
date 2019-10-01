@@ -13,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,7 +32,6 @@ class DefaultEverythingEverythingRestControllerTest {
     @MockBean
     private EverythingEverythingManagementService everythingEverythingManagementService;
 
-
     @BeforeEach
     void initClient() {
         Object controller = new DefaultEverythingEverythingRestController(
@@ -42,10 +42,12 @@ class DefaultEverythingEverythingRestControllerTest {
 
     @Test
     void streamsCollection() {
-        when(collectionManagementService.streamCollection(eq("dead-beef"), any(), anyBoolean()))
+        String randomUuid = UUID.randomUUID().toString();
+        when(collectionManagementService.streamCollection(eq(randomUuid), any(), anyBoolean()))
                 .thenReturn(Flux.just(new TestResponseDto("first"), new TestResponseDto("second")));
 
-        List<TestResponseDto> dtos = webClient.get().uri("/dead-beef")
+        List<TestResponseDto> dtos = webClient.get()
+                .uri("/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -64,10 +66,11 @@ class DefaultEverythingEverythingRestControllerTest {
 
     @Test
     void whenAnExceptionOccursDuringStreaming_thenItShouldBeHandled() {
-        when(collectionManagementService.streamCollection(eq("dead-beef"), any(), anyBoolean()))
+        String randomUuid = UUID.randomUUID().toString();
+        when(collectionManagementService.streamCollection(eq(randomUuid), any(), anyBoolean()))
                 .thenReturn(Flux.error(new RuntimeException("Oops!")));
 
-        String responseText = webClient.get().uri("/dead-beef")
+        String responseText = webClient.get().uri("/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
