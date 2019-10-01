@@ -17,7 +17,7 @@ public class PingController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK")
     })
-    @GetMapping(value = "/ping")
+    @GetMapping(value = "/v1/ping")
     public Response ping() {
         return Response.ok();
     }
