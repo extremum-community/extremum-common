@@ -47,7 +47,7 @@ class DefaultEverythingEverythingRestControllerTest {
                 .thenReturn(Flux.just(new TestResponseDto("first"), new TestResponseDto("second")));
 
         List<TestResponseDto> dtos = webClient.get()
-                .uri("/" + randomUuid)
+                .uri("/v1/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -70,7 +70,7 @@ class DefaultEverythingEverythingRestControllerTest {
         when(collectionManagementService.streamCollection(eq(randomUuid), any(), anyBoolean()))
                 .thenReturn(Flux.error(new RuntimeException("Oops!")));
 
-        String responseText = webClient.get().uri("/" + randomUuid)
+        String responseText = webClient.get().uri("/v1/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
