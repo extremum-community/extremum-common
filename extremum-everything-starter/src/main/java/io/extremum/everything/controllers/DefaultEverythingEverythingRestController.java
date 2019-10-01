@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
-    private final EverythingGetDemultiplexer multiplexer;
+    private final EverythingGetDemultiplexer demultiplexer;
 
     private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
 
@@ -50,7 +50,7 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
     //    FIXME does projection need any annotation?
     public Response get(@PathVariable Descriptor id, Projection projection,
                         @RequestParam(defaultValue = "false") boolean expand) {
-        return multiplexer.get(id, projection, expand);
+        return demultiplexer.get(id, projection, expand);
     }
 
     @ApiOperation(value = "Everything patch")

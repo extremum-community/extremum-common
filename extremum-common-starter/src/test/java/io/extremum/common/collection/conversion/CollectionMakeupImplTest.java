@@ -23,9 +23,9 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,9 +63,6 @@ class CollectionMakeupImplTest {
             CollectionDescriptor.forOwned(
                     new Descriptor("the-street"), "the-buildings")
     );
-    {
-        descriptorInDB.setExternalId(UUID.randomUUID().toString());
-    }
     private OuterResponseDto outerDto;
     private OuterResponseDtoWithObjectTyping outerResponseDtoWithObjectTyping;
 
@@ -259,6 +256,19 @@ class CollectionMakeupImplTest {
 
         //noinspection UnassignedFluxMonoInstance
         verify(reactiveDescriptorService, never()).store(any());
+    }
+
+    @Test
+    void whenApplyingCollectionMakeupToCollectionReference_thenIdAndUrlShouldBeFilled() {
+        CollectionReference<Object> collection = new CollectionReference<>(new ArrayList<>());
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("items");
+        when(reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(collectionDescriptor))
+                .thenReturn(Mono.just(descriptorInDB));
+
+        collectionMakeup.applyCollectionMakeupReactively(collection, collectionDescriptor).block();
+
+        assertThat(collection.getId(), is("external-id"));
+        assertThat(collection.getUrl(), is("https://example.com/external-id"));
     }
 
     private static class BuildingResponseDto extends CommonResponseDto {

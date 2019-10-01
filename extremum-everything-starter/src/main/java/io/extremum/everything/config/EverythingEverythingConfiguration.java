@@ -31,12 +31,17 @@ import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import io.extremum.everything.services.*;
+import io.extremum.everything.services.collection.CollectionProviders;
+import io.extremum.everything.services.collection.DefaultEverythingCollectionService;
+import io.extremum.everything.services.collection.EverythingCollectionService;
+import io.extremum.everything.services.collection.ListBasedCollectionProviders;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
 import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.starter.CommonConfiguration;
 import io.extremum.starter.properties.LimitsProperties;
 import lombok.RequiredArgsConstructor;
@@ -255,15 +260,25 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public CollectionProviders collectionProviders(
+            List<OwnedCollectionFetcher> ownedCollectionFetchers,
+            List<OwnedCollectionStreamer> ownedCollectionStreamers,
+            List<FreeCollectionFetcher<? extends Model>> freeCollectionFetchers,
+            List<FreeCollectionStreamer<? extends Model>> freeCollectionStreamers) {
+        return new ListBasedCollectionProviders(ownedCollectionFetchers, ownedCollectionStreamers,
+                freeCollectionFetchers, freeCollectionStreamers);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public EverythingCollectionService everythingCollectionService(
             ModelRetriever modelRetriever,
-            List<CollectionFetcher> collectionFetchers,
-            List<CollectionStreamer> collectionStreamers,
+            CollectionProviders collectionProviders,
             DtoConversionService dtoConversionService,
             UniversalDao universalDao, Reactifier reactifier,
             CollectionTransactivity transactivity) {
-        return new DefaultEverythingCollectionService(modelRetriever, collectionFetchers,
-                collectionStreamers, dtoConversionService, universalDao, reactifier, transactivity);
+        return new DefaultEverythingCollectionService(modelRetriever, collectionProviders,
+                dtoConversionService, universalDao, reactifier, transactivity);
     }
 
     @Bean
@@ -313,7 +328,7 @@ public class EverythingEverythingConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(EverythingCollectionManagementService.class)
+    @ConditionalOnMissingBean
     public EverythingCollectionManagementService everythingCollectionManagementService(
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService

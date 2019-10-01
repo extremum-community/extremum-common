@@ -1,9 +1,8 @@
-package io.extremum.everything.services.management;
+package io.extremum.everything.services.collection;
 
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.collection.conversion.OwnedCollection;
 import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.annotation.ModelName;
 import io.extremum.common.reactive.NaiveReactifier;
 import io.extremum.common.reactive.Reactifier;
@@ -13,10 +12,9 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
-import io.extremum.everything.services.CollectionFetcher;
-import io.extremum.everything.services.CollectionStreamer;
-import io.extremum.everything.services.GetterService;
-import io.extremum.everything.services.ReactiveGetterService;
+import io.extremum.everything.services.*;
+import io.extremum.everything.services.management.ModelRetriever;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -34,12 +32,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -68,20 +66,41 @@ class DefaultEverythingCollectionServiceTest {
     @SuppressWarnings("deprecation")
     @Spy
     private Reactifier reactifier = new NaiveReactifier();
+    @Spy
+    private StreetFreeFetcher streetFreeFetcher = new StreetFreeFetcher();
+    @Spy
+    private StreetFreeStreamer streetFreeStreamer = new StreetFreeStreamer();
 
     private static final ObjectId id1 = new ObjectId();
     private static final ObjectId id2 = new ObjectId();
 
     @BeforeEach
     void setUp() {
+        convertToResponseDtoWhenRequested();
+        convertToResponseDtoReactivelyWhenRequested();
+
         service = new DefaultEverythingCollectionService(
                 new ModelRetriever(ImmutableList.of(streetGetterService),
                         ImmutableList.of(streetReactiveGetterService), null, null),
-                Collections.singletonList(new ExplicitHouseFetcher()),
-                Collections.singletonList(new ExplicitHouseStreamer()),
+                new ListBasedCollectionProviders(
+                        singletonList(new ExplicitHouseFetcher()),
+                        singletonList(new ExplicitHouseStreamer()),
+                        singletonList(streetFreeFetcher),
+                        singletonList(streetFreeStreamer)
+                ),
                 dtoConversionService,
                 universalDao, reactifier, transactivity
         );
+    }
+
+    private void convertToResponseDtoWhenRequested() {
+        lenient().when(dtoConversionService.convertUnknownToResponseDto(any(), any()))
+                .thenReturn(mock(ResponseDto.class));
+    }
+
+    private void convertToResponseDtoReactivelyWhenRequested() {
+        lenient().when(dtoConversionService.convertUnknownToResponseDtoReactively(any(), any()))
+                .thenReturn(Mono.just(mock(ResponseDto.class)));
     }
 
     @Test
@@ -103,11 +122,6 @@ class DefaultEverythingCollectionServiceTest {
     private void retrieve2HousesWhenRequestedByIds() {
         when(universalDao.retrieveByIds(eq(Arrays.asList(id1, id2)), eq(House.class), any()))
                 .thenReturn(CollectionFragment.forCompleteCollection(Arrays.asList(new House(), new House())));
-    }
-
-    private void convertToResponseDtoWhenRequested() {
-        when(dtoConversionService.convertUnknownToResponseDto(any(), any()))
-                .thenReturn(mock(ResponseDto.class));
     }
 
     private Descriptor streetDescriptor() {
@@ -136,8 +150,6 @@ class DefaultEverythingCollectionServiceTest {
 
     @Test
     void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsFetched_thenItShouldBeProvidedByTheFetcher() {
-        convertToResponseDtoWhenRequested();
-
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
                 "explicitHouses");
         Projection projection = Projection.empty();
@@ -151,7 +163,6 @@ class DefaultEverythingCollectionServiceTest {
     void givenHostExistsAndNoCollectionStreamerRegistered_whenCollectionIsStreamed_thenItShouldBeReturned() {
         returnStreetReactivelyWhenRequested();
         stream2HousesWhenRequestedByIds();
-        convertToResponseDtoReactivelyWhenRequested();
 
         CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
@@ -168,11 +179,6 @@ class DefaultEverythingCollectionServiceTest {
 
     private void returnStreetReactivelyWhenRequested() {
         when(streetReactiveGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
-    }
-
-    private void convertToResponseDtoReactivelyWhenRequested() {
-        when(dtoConversionService.convertUnknownToResponseDtoReactively(any(), any()))
-                .thenReturn(Mono.just(mock(ResponseDto.class)));
     }
 
     @Test
@@ -194,8 +200,6 @@ class DefaultEverythingCollectionServiceTest {
 
     @Test
     void givenAnExplicitCollectionFetcherIsDefined_whenCollectionIsStreamed_thenItShouldBeProvidedByTheFetcher() {
-        convertToResponseDtoReactivelyWhenRequested();
-
         CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
                 "explicitHouses");
         Projection projection = Projection.empty();
@@ -210,7 +214,6 @@ class DefaultEverythingCollectionServiceTest {
         when(transactivity.isCollectionTransactional(any())).thenReturn(true);
         returnStreetWhenRequested();
         retrieve2HousesWhenRequestedByIds();
-        convertToResponseDtoReactivelyWhenRequested();
 
         Flux<ResponseDto> dtos = service.streamCollection(housesCollectionDescriptor(), Projection.empty(), false);
 
@@ -220,7 +223,6 @@ class DefaultEverythingCollectionServiceTest {
     private void returnStreetAndHousesAndConvertToDtosInBlockingMode() {
         returnStreetWhenRequested();
         retrieve2HousesWhenRequestedByIds();
-        convertToResponseDtoWhenRequested();
     }
 
     @NotNull
@@ -234,7 +236,6 @@ class DefaultEverythingCollectionServiceTest {
         when(transactivity.isCollectionTransactional(any())).thenReturn(true);
         returnStreetWhenRequested();
         retrieve2HousesWhenRequestedByIds();
-        convertToResponseDtoReactivelyWhenRequested();
 
         Flux<ResponseDto> dtos = service.streamCollection(housesCollectionDescriptor(), Projection.empty(), false);
         dtos.blockLast();
@@ -242,6 +243,29 @@ class DefaultEverythingCollectionServiceTest {
         verify(transactivity).doInTransaction(any(), any());
         //noinspection UnassignedFluxMonoInstance
         verify(reactifier).flux(any());
+    }
+
+    @Test
+    void givenDescriptorIsForFreeStreetsCollection_whenFetchingTheCollection_thenStreetsFromFreeFetcherShouldBeReturned() {
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("streets");
+
+        CollectionFragment<ResponseDto> streets = service.fetchCollection(collectionDescriptor, Projection.empty(), false);
+
+        assertThat(streets.total().orElse(999), is(3L));
+        assertThat(streets.elements(), hasSize(3));
+        verify(streetFreeFetcher).fetchCollection(isNull(), any());
+    }
+
+    @Test
+    void givenDescriptorIsForFreeStreetsCollection_whenStreamingTheCollection_thenStreetsFromFreeStreamerShouldBeReturned() {
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("streets");
+
+        List<ResponseDto> streets = service.streamCollection(collectionDescriptor, Projection.empty(), false)
+                .toStream().collect(Collectors.toList());
+
+        assertThat(streets, hasSize(3));
+        //noinspection UnassignedFluxMonoInstance
+        verify(streetFreeStreamer).streamCollection(isNull(), any());
     }
 
     @ModelName("House")
@@ -284,7 +308,7 @@ class DefaultEverythingCollectionServiceTest {
         }
     }
 
-    private static class ExplicitHouseFetcher implements CollectionFetcher<Street, House> {
+    private static class ExplicitHouseFetcher implements OwnedCollectionFetcher<Street, House> {
 
         @Override
         public String getHostAttributeName() {
@@ -293,7 +317,7 @@ class DefaultEverythingCollectionServiceTest {
 
         @Override
         public CollectionFragment<House> fetchCollection(Street street, Projection projection) {
-            return CollectionFragment.forCompleteCollection(Collections.singletonList(new House()));
+            return CollectionFragment.forCompleteCollection(singletonList(new House()));
         }
 
         @Override
@@ -302,7 +326,7 @@ class DefaultEverythingCollectionServiceTest {
         }
     }
 
-    private static class ExplicitHouseStreamer implements CollectionStreamer<Street, House> {
+    private static class ExplicitHouseStreamer implements OwnedCollectionStreamer<Street, House> {
 
         @Override
         public String getHostAttributeName() {
@@ -329,6 +353,33 @@ class DefaultEverythingCollectionServiceTest {
         @Override
         public <T> T doInTransaction(Descriptor hostId, Supplier<T> action) {
             return action.get();
+        }
+    }
+
+    private static class StreetFreeFetcher implements FreeCollectionFetcher<Street> {
+
+        @Override
+        public String getCollectionName() {
+            return "streets";
+        }
+
+        @Override
+        public CollectionFragment<Street> fetchCollection(String parametersString, Projection projection) {
+            List<Street> streets = Arrays.asList(new Street(), new Street(), new Street());
+            return CollectionFragment.forCompleteCollection(streets);
+        }
+    }
+
+    private static class StreetFreeStreamer implements FreeCollectionStreamer<Street> {
+
+        @Override
+        public String getCollectionName() {
+            return "streets";
+        }
+
+        @Override
+        public Flux<Street> streamCollection(String parametersString, Projection projection) {
+            return Flux.just(new Street(), new Street(), new Street());
         }
     }
 }
