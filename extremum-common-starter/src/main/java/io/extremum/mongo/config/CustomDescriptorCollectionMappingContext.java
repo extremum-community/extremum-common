@@ -91,7 +91,19 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
 
         @Override
         public <A extends Annotation> A findAnnotation(Class<A> annotationType) {
-            return DescriptorMirror.class.getAnnotation(annotationType);
+            return mirrorClass().getAnnotation(annotationType);
+        }
+
+        private Class<?> mirrorClass() {
+            Class<?> mirrorClass;
+            if (getType() == Descriptor.class) {
+                mirrorClass = DescriptorMirror.class;
+            } else if (getType() == CollectionDescriptor.class) {
+                mirrorClass = CollectionDescriptor.class;
+            } else {
+                throw new IllegalStateException("The following type is not supported: " + getType());
+            }
+            return mirrorClass;
         }
 
         @Override
