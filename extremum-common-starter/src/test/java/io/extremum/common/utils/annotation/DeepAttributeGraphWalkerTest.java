@@ -63,8 +63,9 @@ class DeepAttributeGraphWalkerTest {
 
         rootToLeavesWalker.walk(new Container(list), collector);
 
-        assertThat(collector.getValues(), hasSize(3));
-        assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(list, "test1", "test2"))));
+        assertThat(collector.getValues(), hasSize(5));
+        assertThat(collector.collectedSet(),
+                is(equalTo(ImmutableSet.of(list, embedded1, embedded2, "test1", "test2"))));
     }
 
     @Test
@@ -75,8 +76,9 @@ class DeepAttributeGraphWalkerTest {
 
         rootToLeavesWalker.walk(new Container(array), collector);
 
-        assertThat(collector.getValues(), hasSize(3));
-        assertThat(collector.collectedSet(), is(equalTo(ImmutableSet.of(array, "test1", "test2"))));
+        assertThat(collector.getValues(), hasSize(5));
+        assertThat(collector.collectedSet(),
+                is(equalTo(ImmutableSet.of(array, embedded1, embedded2, "test1", "test2"))));
     }
 
     @Test
@@ -152,11 +154,13 @@ class DeepAttributeGraphWalkerTest {
     }
 
     private static class DeepBean {
+        @SuppressWarnings("unused")
         private final String name = "I'm deep";
         private final ShallowBean shallowBean = new ShallowBean();
     }
 
     private static class Container {
+        @SuppressWarnings("unused")
         private Object object;
 
         private Container() {

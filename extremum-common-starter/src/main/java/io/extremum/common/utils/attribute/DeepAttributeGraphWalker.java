@@ -38,15 +38,15 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
-        walkRecursively(root, new Context(visitor), INITIAL_DEPTH);
+        walkContentsRecursively(root, new Context(visitor), INITIAL_DEPTH);
     }
 
-    private void walkRecursively(Object currentTarget, Context context, int currentDepth) {
+    private void walkContentsRecursively(Object currentTarget, Context context, int currentDepth) {
         new InstanceAttributes(currentTarget).stream()
-                .forEach(attribute -> introspectAttribute(context, currentDepth, attribute));
+                .forEach(attribute -> introspectAttribute(attribute, context, currentDepth));
     }
 
-    private void introspectAttribute(Context context, int currentDepth, Attribute attribute) {
+    private void introspectAttribute(Attribute attribute, Context context, int currentDepth) {
         Object attributeValue = attribute.value();
         if (attributeValue == null) {
             return;
@@ -57,11 +57,15 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
         }
         context.rememberAsSeen(attributeValue);
 
+        visitWithAttribute(attribute, context, currentDepth);
+    }
+
+    private void visitWithAttribute(Attribute attribute, Context context, int currentDepth) {
         if (visitDirection == VisitDirection.ROOT_TO_LEAVES) {
             context.visitAttribute(attribute);
-            goDeeperIfNeeded(attributeValue, context, currentDepth);
+            goDeeperIfNeeded(attribute.value(), context, currentDepth);
         } else if (visitDirection == VisitDirection.LEAVES_TO_ROOT) {
-            goDeeperIfNeeded(attributeValue, context, currentDepth);
+            goDeeperIfNeeded(attribute.value(), context, currentDepth);
             context.visitAttribute(attribute);
         } else {
             throw new ProgrammingErrorException("Unsupported visit direction " + visitDirection);
@@ -76,17 +80,24 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
             Object[] array = (Object[]) nextValue;
             goDeeperThroughIterable(Arrays.asList(array), context, currentDepth);
         } else if (shouldGoDeeper(nextValue, currentDepth)) {
-            walkRecursively(nextValue, context, currentDepth + 1);
+            walkContentsRecursively(nextValue, context, currentDepth + 1);
         }
     }
 
     private void goDeeperThroughIterable(Iterable<Object> iterable,
             Context context, int currentDepth) {
         iterable.forEach(element -> {
-            if (shouldGoDeeper(element, currentDepth)) {
-                walkRecursively(element, context, currentDepth + 1);
+            if (element != null) {
+                visitAndGoDeeperThroughIterableElement(element, context, currentDepth);
             }
         });
+    }
+
+    private void visitAndGoDeeperThroughIterableElement(Object element, Context context, int currentDepth) {
+        visitWithAttribute(new AdHocAttribute(element), context, currentDepth);
+        if (shouldGoDeeper(element, currentDepth)) {
+            walkContentsRecursively(element, context, currentDepth + 1);
+        }
     }
 
     private boolean shouldGoDeeper(Object nextValue, int currentDepth) {
