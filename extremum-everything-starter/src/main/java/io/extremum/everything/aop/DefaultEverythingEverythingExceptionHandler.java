@@ -1,14 +1,14 @@
 package io.extremum.everything.aop;
 
-import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
-import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
-import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.sharedmodels.dto.Alert;
-import io.extremum.sharedmodels.dto.Response;
+import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.exceptions.RequestDtoValidationException;
+import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
+import io.extremum.sharedmodels.dto.Alert;
+import io.extremum.sharedmodels.dto.RequestDto;
+import io.extremum.sharedmodels.dto.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -77,7 +77,7 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
     }
 
     @ExceptionHandler
-    public Response handleCollectionDescriptorNotFoundException(CollectionDescriptorNotFoundException e) {
+    public Response handleDescriptorNotFoundException(DescriptorNotFoundException e) {
         log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
 

@@ -1,13 +1,13 @@
 package io.extremum.everything.aop;
 
-import io.extremum.common.descriptor.exceptions.CollectionDescriptorNotFoundException;
-import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
-import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.sharedmodels.dto.Response;
+import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.exceptions.RequestDtoValidationException;
+import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
+import io.extremum.sharedmodels.dto.RequestDto;
+import io.extremum.sharedmodels.dto.Response;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -100,9 +100,9 @@ class DefaultEverythingEverythingExceptionHandlerTest {
     }
 
     @Test
-    void whenCollectionDescriptorNotFoundExceptionIsThrown_thenProper404ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+    void whenDescriptorNotFoundExceptionIsThrown_thenProper404ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
             throws Exception {
-        JSONObject root = getSuccessfullyAndParseResponse("/collection-descriptor-not-found");
+        JSONObject root = getSuccessfullyAndParseResponse("/descriptor-not-found");
 
         assertThat(root.getString("status"), is("FAIL"));
         assertThat(root.getInt("code"), is(404));
@@ -150,9 +150,9 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throw new RequestDtoValidationException(new TestRequestDto(), Collections.singleton(violation));
         }
 
-        @RequestMapping("/collection-descriptor-not-found")
-        Response collectionDescriptorNotFound() {
-            throw new CollectionDescriptorNotFoundException("Did not find anything");
+        @RequestMapping("/descriptor-not-found")
+        Response descriptorNotFound() {
+            throw new DescriptorNotFoundException("Did not find anything");
         }
 
         @RequestMapping("/extremum-access-denied-exception")
