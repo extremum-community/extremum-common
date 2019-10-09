@@ -1,6 +1,8 @@
 package io.extremum.everything.collection;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -39,7 +41,7 @@ class CollectionFragmentTest {
     }
 
     @Test
-    void whenAFragmentIsCreatedEmpty_thenShouldMapMapsToAnEmptyFragment() {
+    void whenAFragmentIsCreatedEmpty_thenShouldMapToAnEmptyFragment() {
         CollectionFragment<?> fragment = CollectionFragment.emptyWithZeroTotal()
                 .map(Function.identity());
 
@@ -48,7 +50,7 @@ class CollectionFragmentTest {
     }
 
     @Test
-    void whenAFragmentIsCreatedFromACompleteCollection_thenShouldMapMapsCorrectly() {
+    void whenAFragmentIsCreatedFromACompleteCollection_thenShouldMapCorrectly() {
         CollectionFragment<String> fragment = CollectionFragment.forCompleteCollection(Arrays.asList(1, 2, 3))
                 .map(Object::toString);
 
@@ -77,6 +79,47 @@ class CollectionFragmentTest {
     void whenAFragmentIsCreatedWithUnknownSize_thenShouldMapToFragmentWithUnknownSize() {
         CollectionFragment<?> fragment = CollectionFragment.forUnknownSize(Arrays.asList(1, 2, 3))
                 .map(Object::toString);
+
+        assertThat(fragment.elements(), is(equalTo(Arrays.asList("1", "2", "3"))));
+        assertThat(fragment.total().orElse(1000), is(1000L));
+    }
+
+    @Test
+    void whenAFragmentIsCreatedEmpty_thenShouldMapReactivelyToAnEmptyFragment() {
+        CollectionFragment<?> fragment = CollectionFragment.emptyWithZeroTotal()
+                .mapReactively(Mono::just).block();
+
+        assertThat(fragment.elements(), hasSize(0));
+        assertThat(fragment.total().orElse(1000), is(0L));
+    }
+
+    @Test
+    void whenAFragmentIsCreatedFromACompleteCollection_thenShouldMapReactivelyCorrectly() {
+        CollectionFragment<String> fragment = CollectionFragment.forCompleteCollection(Arrays.asList(1, 2, 3))
+                .mapReactively(this::toStringReactively).block();
+
+        assertThat(fragment.elements(), is(equalTo(Arrays.asList("1", "2", "3"))));
+        assertThat(fragment.total().orElse(1000), is(3L));
+    }
+
+    @NotNull
+    private Mono<String> toStringReactively(Object o) {
+        return Mono.just(o.toString());
+    }
+
+    @Test
+    void whenAFragmentIsCreatedFromAFragment_thenShouldMapReactivelyCorrectly() {
+        CollectionFragment<String> fragment = CollectionFragment.forFragment(Arrays.asList(1, 2, 3), 10)
+                .mapReactively(this::toStringReactively).block();
+
+        assertThat(fragment.elements(), is(equalTo(Arrays.asList("1", "2", "3"))));
+        assertThat(fragment.total().orElse(1000), is(10L));
+    }
+
+    @Test
+    void whenAFragmentIsCreatedWithUnknownSize_thenShouldMapReactivelyToFragmentWithUnknownSize() {
+        CollectionFragment<?> fragment = CollectionFragment.forUnknownSize(Arrays.asList(1, 2, 3))
+                .mapReactively(this::toStringReactively).block();
 
         assertThat(fragment.elements(), is(equalTo(Arrays.asList("1", "2", "3"))));
         assertThat(fragment.total().orElse(1000), is(1000L));

@@ -42,7 +42,14 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     @Override
     public Mono<CollectionFragment<ResponseDto>> fetchCollectionReactively(CollectionDescriptor id,
                                                                            Projection projection, boolean expand) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
+        return coordinatesHandler.fetchCollectionReactively(id.getCoordinates(), projection)
+                .flatMap(fragment -> convertFragmentToDtos(fragment, expand));
+    }
+
+    private Mono<CollectionFragment<ResponseDto>> convertFragmentToDtos(
+            CollectionFragment<Model> fragment, boolean expand) {
+        return fragment.mapReactively(model -> convertModelToResponseDtoReactively(model, expand));
     }
 
     @Override
