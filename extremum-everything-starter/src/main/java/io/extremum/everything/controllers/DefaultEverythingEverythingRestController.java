@@ -23,8 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Api(value = "Everything Everything accessor")
+@Api(tags = "Everything Everything")
 @Slf4j
+@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
@@ -57,8 +58,8 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "ID of an object", required = true, example = "ef767667-29f6-457e-b90a-0d14c7fab08a"),
             @ApiImplicitParam(name = "expand", value = "Return expanded object or no", example = "false"),
-            @ApiImplicitParam(name = "patch", value = "Json-patch query for patching an object by id", required = true,
-                    example = "[{ \"op\": \"replace\", \"path\": \"/baz\", \"value\": \"boo\" },\n" +
+            @ApiImplicitParam(name = "patch", value = "Json-patch query for patching an object by id", paramType = "body",
+                    required = true, example = "[{ \"op\": \"replace\", \"path\": \"/baz\", \"value\": \"boo\" },\n" +
                             "{ \"op\": \"add\", \"path\": \"/hello\", \"value\": [\"world\"] },\n" +
                             "{ \"op\": \"remove\", \"path\": \"/foo\" }]")
     })
