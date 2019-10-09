@@ -1,6 +1,7 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.common.batch.BatchController;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
@@ -16,7 +17,6 @@ import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.reactive.*;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.*;
@@ -24,6 +24,7 @@ import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.mongo.config.*;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
@@ -48,6 +49,7 @@ import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -249,5 +251,10 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public Reactifier reactifier(@Qualifier("reactifierScheduler") Scheduler reactifierScheduler) {
         return new IsolatedSchedulerReactifier(reactifierScheduler);
+    }
+
+    @Bean
+    public BatchController batchController(WebClient.Builder builder) {
+        return new BatchController(builder);
     }
 }
