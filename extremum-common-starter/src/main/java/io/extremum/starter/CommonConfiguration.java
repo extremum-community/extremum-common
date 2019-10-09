@@ -11,6 +11,7 @@ import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
+import io.extremum.common.descriptor.serde.StringToDescriptorConverter;
 import io.extremum.common.descriptor.service.*;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
@@ -249,5 +250,10 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public Reactifier reactifier(@Qualifier("reactifierScheduler") Scheduler reactifierScheduler) {
         return new IsolatedSchedulerReactifier(reactifierScheduler);
+    }
+
+    @Bean
+    public StringToDescriptorConverter stringToDescriptorConverter(DescriptorFactory descriptorFactory) {
+        return new StringToDescriptorConverter(descriptorFactory);
     }
 }

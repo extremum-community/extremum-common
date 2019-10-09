@@ -6,8 +6,8 @@ import io.extremum.common.logging.InternalErrorLogger;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
-import io.extremum.everything.services.management.EverythingEverythingManagementService;
-import io.extremum.everything.services.management.EverythingGetDemultiplexer;
+import io.extremum.everything.services.management.ReactiveEverythingManagementService;
+import io.extremum.everything.services.management.ReactiveGetDemultiplexer;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -23,19 +23,18 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Api(tags = "Everything Everything")
+@Api(value = "Everything Everything accessor")
 @Slf4j
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
 @ConvertNullDescriptorToModelNotFound
 @RequestMapping(path = "/v1/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
-    private final EverythingEverythingManagementService evrEvrManagementService;
+public class ReactiveEverythingEverythingRestController implements EverythingEverythingRestController {
+    private final ReactiveEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
-    private final EverythingGetDemultiplexer demultiplexer;
+    private final ReactiveGetDemultiplexer demultiplexer;
 
     private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
 
@@ -49,8 +48,8 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
             @ApiImplicitParam(name = "until", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
     })
     @GetMapping
-    public Response get(@PathVariable Descriptor id, Projection projection,
-                        @RequestParam(defaultValue = "false") boolean expand) {
+    public Mono<Response> get(@PathVariable Descriptor id, Projection projection,
+                              @RequestParam(defaultValue = "false") boolean expand) {
         return demultiplexer.get(id, projection, expand);
     }
 
@@ -58,16 +57,16 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "ID of an object", required = true, example = "ef767667-29f6-457e-b90a-0d14c7fab08a"),
             @ApiImplicitParam(name = "expand", value = "Return expanded object or no", example = "false"),
-            @ApiImplicitParam(name = "patch", value = "Json-patch query for patching an object by id", paramType = "body",
-                    required = true, example = "[{ \"op\": \"replace\", \"path\": \"/baz\", \"value\": \"boo\" },\n" +
+            @ApiImplicitParam(name = "patch", value = "Json-patch query for patching an object by id", required = true,
+                    example = "[{ \"op\": \"replace\", \"path\": \"/baz\", \"value\": \"boo\" },\n" +
                             "{ \"op\": \"add\", \"path\": \"/hello\", \"value\": [\"world\"] },\n" +
                             "{ \"op\": \"remove\", \"path\": \"/foo\" }]")
     })
     @PatchMapping
-    public Response patch(@PathVariable Descriptor id, @RequestBody JsonPatch patch,
-                          @RequestParam(defaultValue = "false") boolean expand) {
-        Object result = evrEvrManagementService.patch(id, patch, expand);
-        return Response.ok(result);
+    public Mono<Response> patch(@PathVariable Descriptor id, @RequestBody JsonPatch patch,
+                                @RequestParam(defaultValue = "false") boolean expand) {
+        return evrEvrManagementService.patch(id, patch, expand)
+                .map(Response::ok);
     }
 
     @ApiOperation(value = "Everything remove")
@@ -75,9 +74,9 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
             @ApiImplicitParam(name = "id", value = "ID of an object", required = true, example = "ef767667-29f6-457e-b90a-0d14c7fab08a")
     })
     @DeleteMapping
-    public Response remove(@PathVariable Descriptor id) {
-        evrEvrManagementService.remove(id);
-        return Response.ok();
+    public Mono<Response> remove(@PathVariable Descriptor id) {
+        return evrEvrManagementService.remove(id)
+                .then(Mono.fromCallable(Response::ok));
     }
 
     @ApiOperation(value = "Stream collections")

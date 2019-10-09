@@ -331,9 +331,11 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public EverythingCollectionManagementService everythingCollectionManagementService(
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-            EverythingCollectionService everythingCollectionService
+            EverythingCollectionService everythingCollectionService,
+            ReactiveDescriptorService reactiveDescriptorService
     ) {
         return new DefaultEverythingCollectionManagementService(
-                reactiveCollectionDescriptorService, everythingCollectionService);
+                reactiveCollectionDescriptorService, everythingCollectionService,
+                reactiveDescriptorService);
     }
 }

@@ -14,7 +14,7 @@ import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.utils.DateUtils;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.test.core.ResponseMatchers;
+import io.extremum.test.core.StringResponseMatchers;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.services.WatchEventService;
 import io.extremum.watch.services.WatchSubscriptionService;
@@ -77,7 +77,7 @@ class WatchControllerTest {
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(ResponseMatchers.successfulResponse()));
+                .andExpect(content().string(StringResponseMatchers.successfulResponse()));
 
         verify(watchSubscriptionService).subscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> savedDescriptors = descriptorsCaptor.getValue();
@@ -98,7 +98,7 @@ class WatchControllerTest {
         MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(ResponseMatchers.successfulResponse()))
+                .andExpect(content().string(StringResponseMatchers.successfulResponse()))
                 .andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         List<Map<String, Object>> events = parseEvents(contentAsString);
@@ -121,7 +121,7 @@ class WatchControllerTest {
                 .param("limit", "10")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(ResponseMatchers.successfulResponse()))
+                .andExpect(content().string(StringResponseMatchers.successfulResponse()))
                 .andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         List<Map<String, Object>> events = parseEvents(contentAsString);
@@ -173,7 +173,7 @@ class WatchControllerTest {
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(ResponseMatchers.successfulResponse()));
+                .andExpect(content().string(StringResponseMatchers.successfulResponse()));
 
         verify(watchSubscriptionService).unsubscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> removedDescriptors = descriptorsCaptor.getValue();

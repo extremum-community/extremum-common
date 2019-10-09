@@ -14,22 +14,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class EverythingGetDemultiplexerOnDescriptorTest {
+class ReactiveGetDemultiplexerOnDescriptorTest {
     @InjectMocks
-    private EverythingGetDemultiplexerOnDescriptor demultiplexer;
+    private ReactiveGetDemultiplexerOnDescriptor demultiplexer;
 
     @Mock
-    private EverythingEverythingManagementService everythingManagementService;
+    private ReactiveEverythingManagementService everythingManagementService;
     @Mock
     private EverythingCollectionManagementService collectionManagementService;
 
@@ -38,7 +36,6 @@ class EverythingGetDemultiplexerOnDescriptorTest {
 
     private final Descriptor singleDescriptor = Descriptor.builder()
             .externalId("external-id")
-            .internalId("internal-id")
             .type(Descriptor.Type.SINGLE)
             .build();
     private final Descriptor collectionDescriptor = Descriptor.forCollection("external-id",
@@ -63,47 +60,49 @@ class EverythingGetDemultiplexerOnDescriptorTest {
     }
 
     @Test
-    void givenDexcriptorOfTypeSingle_whenGetting_thenEverythingGetShouldBeMade() {
+    void givenDescriptorOfTypeSingle_whenGetting_thenEverythingGetShouldBeMade() {
         when(everythingManagementService.get(same(singleDescriptor), anyBoolean()))
-                .thenReturn(responseDto);
+                .thenReturn(Mono.just(responseDto));
 
-        Response response = demultiplexer.get(singleDescriptor, Projection.empty(), false);
+        Response response = demultiplexer.get(singleDescriptor, Projection.empty(), false).block();
 
+        assertThat(response, is(notNullValue()));
         assertThat(response.getResult(), is(sameInstance(responseDto)));
     }
 
     @Test
-    void givenDexcriptorOfTypeCollection_whenGetting_thenCollectionShouldBeFetched() {
+    void givenDescriptorOfTypeCollection_whenGetting_thenCollectionShouldBeFetched() {
         Response collectionOk = Response.ok();
-        when(collectionManagementService.fetchCollection(same(collectionDescriptor), any(), anyBoolean()))
-                .thenReturn(collectionOk);
+        when(collectionManagementService.fetchCollectionReactively(same(collectionDescriptor), any(), anyBoolean()))
+                .thenReturn(Mono.just(collectionOk));
 
-        Response response = demultiplexer.get(collectionDescriptor, Projection.empty(), false);
+        Response response = demultiplexer.get(collectionDescriptor, Projection.empty(), false).block();
 
         assertThat(response, is(sameInstance(collectionOk)));
     }
 
     @Test
     void givenDescriptorLoadsWithTypeSingle_whenGetting_thenEverythingGetShouldBeMade() {
-        when(descriptorLoader.loadByExternalId("external-id"))
-                .thenReturn(Optional.of(singleDescriptor));
+        when(descriptorLoader.loadByExternalIdReactively("external-id"))
+                .thenReturn(Mono.just(singleDescriptor));
         when(everythingManagementService.get(any(), anyBoolean()))
-                .thenReturn(responseDto);
+                .thenReturn(Mono.just(responseDto));
 
-        Response response = demultiplexer.get(new Descriptor("external-id"), Projection.empty(), false);
+        Response response = demultiplexer.get(new Descriptor("external-id"), Projection.empty(), false).block();
 
+        assertThat(response, is(notNullValue()));
         assertThat(response.getResult(), is(sameInstance(responseDto)));
     }
 
     @Test
     void givenDescriptorLoadsWithTypeCollection_whenGetting_thenCollectionShouldBeFetched() {
-        when(descriptorLoader.loadByExternalId("external-id"))
-                .thenReturn(Optional.of(collectionDescriptor));
+        when(descriptorLoader.loadByExternalIdReactively("external-id"))
+                .thenReturn(Mono.just(collectionDescriptor));
         Response collectionOk = Response.ok();
-        when(collectionManagementService.fetchCollection(any(), any(), anyBoolean()))
-                .thenReturn(collectionOk);
+        when(collectionManagementService.fetchCollectionReactively(any(), any(), anyBoolean()))
+                .thenReturn(Mono.just(collectionOk));
 
-        Response response = demultiplexer.get(new Descriptor("external-id"), Projection.empty(), false);
+        Response response = demultiplexer.get(new Descriptor("external-id"), Projection.empty(), false).block();
 
         assertThat(response, is(sameInstance(collectionOk)));
     }

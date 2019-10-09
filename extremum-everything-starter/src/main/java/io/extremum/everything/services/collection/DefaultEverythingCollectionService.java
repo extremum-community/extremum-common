@@ -40,6 +40,12 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     }
 
     @Override
+    public Mono<CollectionFragment<ResponseDto>> fetchCollectionReactively(CollectionDescriptor id,
+                                                                           Projection projection, boolean expand) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
     public Flux<ResponseDto> streamCollection(CollectionDescriptor id, Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         Flux<Model> models = coordinatesHandler.streamCollection(id.getCoordinates(), projection);
