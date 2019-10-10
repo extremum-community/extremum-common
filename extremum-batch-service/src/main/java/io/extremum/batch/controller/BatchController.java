@@ -1,9 +1,7 @@
 package io.extremum.batch.controller;
 
-import io.atlassian.fugue.Either;
 import io.extremum.batch.model.BatchRequestDto;
-import io.extremum.batch.model.DataWithId;
-import io.extremum.batch.utils.BatchValidation;
+import io.extremum.batch.model.ValidatedRequest;
 import io.extremum.batch.utils.ResponseWrapper;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.Response;
@@ -33,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
+
+import static io.extremum.batch.utils.BatchValidation.validateRequest;
 
 @Slf4j
 @RestController
@@ -66,14 +66,12 @@ public class BatchController {
     @PostMapping
     public Mono<List<Response>> submitBatch(@RequestBody BatchRequestDto[] batchDto, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
         return Flux.fromArray(batchDto)
-                .flatMap(BatchValidation.validateRequest(validator))
+                .flatMap(validateRequest(validator))
                 .flatMap(validated -> {
-                    if (validated.isRight()) {
-                        return sendRequest(validated.right().get(), auth)
-                                .<Either<DataWithId, DataWithId>>map(Either::right);
+                    if (validated.getEx() == null) {
+                        return sendRequest((BatchRequestDto) validated.getData(), auth);
                     } else {
-                        Mono<Either<DataWithId, DataWithId>> just = Mono.just(Either.left(validated.left().get()));
-                        return just;
+                        return Mono.just(validated);
                     }
                 })
                 .publishOn(resultScheduler)
@@ -81,7 +79,7 @@ public class BatchController {
                 .collectList();
     }
 
-    private Mono<DataWithId> sendRequest(BatchRequestDto dto, String auth) {
+    private Mono<ValidatedRequest> sendRequest(BatchRequestDto dto, String auth) {
         WebClient.RequestBodySpec request = webClient
                 .method(dto.getMethod())
                 .uri(dto.getEndpoint() + Optional.ofNullable(dto.getQuery()).orElse(""))
@@ -92,16 +90,14 @@ public class BatchController {
             request.body(BodyInserters.fromObject(dto.getBody()));
         }
         return request.exchange()
-                .map(response -> new DataWithId(dto.getId(), response));
+                .map(response -> new ValidatedRequest(dto.getId(), response));
     }
 
-    private Flux<Response> wrapResponses(Either<DataWithId, DataWithId> validated) {
-        if (validated.isRight()) {
-            DataWithId data = validated.right().get();
-
+    private Flux<Response> wrapResponses(ValidatedRequest validated) {
+        if (validated.getEx() == null) {
             // This cast is safe because we put it on the previous step
-            ClientResponse response = (ClientResponse) data.getData();
-            String id = data.getId();
+            ClientResponse response = (ClientResponse) validated.getData();
+            String id = validated.getId();
 
             if (response.statusCode().is1xxInformational()) {
                 return ResponseWrapper.onInformational(response, id);
@@ -113,9 +109,8 @@ public class BatchController {
                 return ResponseWrapper.onError(response, id);
             }
         } else {
-            DataWithId withId = validated.left().get();
-            String id = withId.getId();
-            String violations = (String) withId.getData();
+            String id = validated.getId();
+            String violations = validated.getEx().getMessage();
             return Flux.just(Response.builder()
                     .withFailStatus(HttpStatus.BAD_REQUEST.value())
                     .withRequestId(id)
