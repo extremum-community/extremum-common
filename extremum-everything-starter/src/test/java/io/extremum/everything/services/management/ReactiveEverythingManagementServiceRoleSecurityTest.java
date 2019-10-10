@@ -2,7 +2,7 @@ package io.extremum.everything.services.management;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.security.RoleSecurity;
+import io.extremum.security.ReactiveRoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ class ReactiveEverythingManagementServiceRoleSecurityTest {
     @Mock
     private ReactiveEverythingManagementService insecureService;
     @Mock
-    private RoleSecurity roleSecurity;
+    private ReactiveRoleSecurity roleSecurity;
 
     private final ResponseDto responseDto = mock(ResponseDto.class);
     private final JsonPatch jsonPatch = new JsonPatch(Collections.emptyList());
@@ -54,6 +54,10 @@ class ReactiveEverythingManagementServiceRoleSecurityTest {
                 .thenReturn(Mono.just(responseDto));
         lenient().when(insecureService.remove(any()))
                 .thenReturn(Mono.empty());
+
+        lenient().when(roleSecurity.checkGetAllowed(any())).thenReturn(Mono.empty());
+        lenient().when(roleSecurity.checkPatchAllowed(any())).thenReturn(Mono.empty());
+        lenient().when(roleSecurity.checkRemovalAllowed(any())).thenReturn(Mono.empty());
     }
 
     @Test
@@ -64,8 +68,8 @@ class ReactiveEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowGetAnEntity_whenGettingIt_thenAnExceptionShouldBeThrown() {
-        doThrow(new ExtremumAccessDeniedException("Access denied"))
-                .when(roleSecurity).checkGetAllowed(descriptor);
+        when(roleSecurity.checkGetAllowed(descriptor))
+                .thenReturn(Mono.error(new ExtremumAccessDeniedException("Access denied")));
 
         Mono<?> mono = secureService.get(descriptor, false);
 
@@ -89,8 +93,8 @@ class ReactiveEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowPatchAnEntity_whenPatchingIt_thenAnExceptionShouldBeThrown() {
-        doThrow(new ExtremumAccessDeniedException("Access denied"))
-                .when(roleSecurity).checkPatchAllowed(descriptor);
+        when(roleSecurity.checkPatchAllowed(descriptor))
+                .thenReturn(Mono.error(new ExtremumAccessDeniedException("Access denied")));
 
         Mono<?> mono = secureService.patch(descriptor, jsonPatch, DO_NOT_EXPAND);
 
@@ -104,8 +108,8 @@ class ReactiveEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowRemoveAnEntity_whenRemovingIt_thenAnExceptionShouldBeThrown() {
-        doThrow(new ExtremumAccessDeniedException("Access denied"))
-                .when(roleSecurity).checkRemovalAllowed(descriptor);
+        when(roleSecurity.checkRemovalAllowed(descriptor))
+                .thenReturn(Mono.error(new ExtremumAccessDeniedException("Access denied")));
 
         Mono<?> mono = secureService.remove(descriptor);
 

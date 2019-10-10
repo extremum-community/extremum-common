@@ -1,6 +1,7 @@
 package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.authentication.api.ReactiveSecurityProvider;
 import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.conversion.*;
 import io.extremum.common.collection.service.CollectionDescriptorService;
@@ -287,8 +288,26 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RoleSecurity everythingRoleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
+    public RoleSecurity roleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
         return new ModelAnnotationRoleSecurity(roleChecker, modelClasses);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveSecurityProvider reactiveSecurityProvider() {
+        return new NullReactiveSecurityProvider();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveRoleChecker reactiveRoleChecker(ReactiveSecurityProvider securityProvider) {
+        return new SecurityProviderReactiveRoleChecker(securityProvider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveRoleSecurity reactiveRoleSecurity(ReactiveRoleChecker roleChecker, ModelClasses modelClasses) {
+        return new ModelAnnotationReactiveRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
@@ -324,7 +343,7 @@ public class EverythingEverythingConfiguration {
             List<ReactiveRemovalService> removalServices,
             DefaultReactiveRemover defaultRemover,
             DtoConversionService dtoConversionService,
-            RoleSecurity roleSecurity,
+            ReactiveRoleSecurity roleSecurity,
             DataSecurity dataSecurity) {
         ReactiveEverythingManagementService service = new DefaultReactiveEverythingManagementService(
                 modelRetriever,
