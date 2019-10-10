@@ -1,7 +1,6 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.common.batch.BatchController;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
@@ -251,10 +250,5 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public Reactifier reactifier(@Qualifier("reactifierScheduler") Scheduler reactifierScheduler) {
         return new IsolatedSchedulerReactifier(reactifierScheduler);
-    }
-
-    @Bean
-    public BatchController batchController(WebClient.Builder builder) {
-        return new BatchController(builder);
     }
 }
