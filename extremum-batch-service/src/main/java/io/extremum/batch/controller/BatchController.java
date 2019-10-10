@@ -8,6 +8,7 @@ import io.extremum.sharedmodels.dto.Response;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +39,11 @@ import static io.extremum.batch.utils.BatchValidation.validateRequest;
 @RestController
 @RequestMapping("/v1/batch")
 public class BatchController {
+    @Value("${batch.web.client.worker-thread-size}")
+    private int workerThreadSize;
+    @Value("${batch.result-thread-size}")
+    private int resultThreadSize;
+
     private WebClient webClient;
     private Scheduler resultScheduler;
     private Validator validator;
@@ -45,15 +51,16 @@ public class BatchController {
     public BatchController(WebClient.Builder webClientBuilder) {
         ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
         // TODO refactor magic number to property variable
-        resourceFactory.setLoopResources(useNative -> new NioEventLoopGroup(10, new DefaultThreadFactory("batch-thread")));
+        resourceFactory.setLoopResources(useNative -> new NioEventLoopGroup(workerThreadSize, new DefaultThreadFactory("batch-thread")));
         resourceFactory.setConnectionProvider(ConnectionProvider.elastic("batch-client"));
         resourceFactory.setUseGlobalResources(false);
-
         this.webClient = webClientBuilder
                 .clientConnector(new ReactorClientHttpConnector(resourceFactory, Function.identity()))
                 .build();
+
         // TODO refactor magic number to property variable
-        this.resultScheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(10));
+        this.resultScheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(resultThreadSize));
+
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
     }
