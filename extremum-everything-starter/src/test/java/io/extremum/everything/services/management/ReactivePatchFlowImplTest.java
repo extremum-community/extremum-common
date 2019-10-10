@@ -1,24 +1,5 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.dto.converters.ConversionConfig;
-import io.extremum.common.dto.converters.FromRequestDtoConverter;
-import io.extremum.common.dto.converters.StubDtoConverter;
-import io.extremum.common.dto.converters.ToRequestDtoConverter;
-import io.extremum.common.dto.converters.services.DefaultDtoConversionService;
-import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.dto.converters.services.DtoConvertersCollection;
-import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.sharedmodels.basic.Model;
-import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.model.annotation.ModelName;
-import io.extremum.everything.destroyer.EmptyFieldDestroyer;
-import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
-import io.extremum.security.AllowEverythingForDataAccess;
-import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.security.DataSecurity;
-import io.extremum.everything.services.RequestDtoValidator;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.dto.RequestDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -27,6 +8,25 @@ import com.github.fge.jackson.jsonpointer.JsonPointerException;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
+import io.extremum.common.dto.converters.ConversionConfig;
+import io.extremum.common.dto.converters.FromRequestDtoConverter;
+import io.extremum.common.dto.converters.ReactiveToRequestDtoConverter;
+import io.extremum.common.dto.converters.StubDtoConverter;
+import io.extremum.common.dto.converters.services.DefaultDtoConversionService;
+import io.extremum.common.dto.converters.services.DtoConversionService;
+import io.extremum.common.dto.converters.services.DtoConvertersCollection;
+import io.extremum.common.mapper.SystemJsonObjectMapper;
+import io.extremum.common.model.annotation.ModelName;
+import io.extremum.everything.destroyer.EmptyFieldDestroyer;
+import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
+import io.extremum.everything.services.RequestDtoValidator;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.security.AllowEverythingForDataAccess;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.sharedmodels.basic.Model;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.test.core.MockedMapperDependencies;
 import lombok.Getter;
 import lombok.ToString;
@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
@@ -43,36 +44,31 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class PatchFlowImplTest {
+class ReactivePatchFlowImplTest {
     private static final String BEFORE_PATCHING = "Before patching";
     private static final String AFTER_PATCHING = "After patching";
 
-    private PatchFlowImpl patchFlow;
+    private ReactivePatchFlowImpl patchFlow;
 
     @Mock
     private ModelRetriever modelRetriever;
     @Mock
-    private ModelSaver modelSaver;
+    private ReactiveModelSaver modelSaver;
     @Spy
     private DtoConversionService dtoConversionService = new DefaultDtoConversionService(
             new DtoConvertersCollection(
-                    singletonList(new TestModelDtoConverter()),
-                    singletonList(new TestModelDtoConverter()),
-                    emptyList(), emptyList(), emptyList()
+                    singletonList(new TestModelDtoConverter()), emptyList(),
+                    emptyList(), emptyList(), singletonList(new TestModelDtoConverter())
             ),
             new StubDtoConverter()
     );
@@ -99,35 +95,50 @@ class PatchFlowImplTest {
 
     @BeforeEach
     void createPatcherFlow() {
-        Patcher patcher = new PatcherImpl(dtoConversionService, objectMapper,
+        ReactivePatcher patcher = new ReactivePatcherImpl(dtoConversionService, objectMapper,
                 emptyFieldDestroyer, requestDtoValidator, patcherHooksCollection);
-        patchFlow = new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+        patchFlow = new ReactivePatchFlowImpl(modelRetriever, patcher, modelSaver,
                 dataSecurity, patcherHooksCollection);
+    }
+
+    @BeforeEach
+    void setupMocks() {
+        whenSaveAModelThenReturnIt();
+    }
+
+    private void whenSaveAModelThenReturnIt() {
+        //noinspection UnassignedFluxMonoInstance
+        lenient().doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
+                .when(modelSaver).saveModel(any());
     }
 
     @Test
     void whenPatching_thenPatchedModelShouldBeSaved() throws Exception {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
 
-        patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
+        patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING)).block();
 
         assertThatSavedModelWithNewName(AFTER_PATCHING);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void whenRetrieveModelThenReturnTestModelWithName(String name) {
         TestModel model = new TestModel();
         model.name = name;
 
-        when(modelRetriever.retrieveModel(descriptor)).thenReturn(model);
+        when(modelRetriever.retrieveModelReactively(descriptor)).thenReturn(Mono.just(model));
     }
 
+    @SuppressWarnings("SameParameterValue")
     @NotNull
     private JsonPatch patchToChangeNameTo(String newName) throws JsonPointerException {
         JsonPatchOperation operation = new ReplaceOperation(new JsonPointer("/name"), new TextNode(newName));
         return new JsonPatch(Collections.singletonList(operation));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertThatSavedModelWithNewName(String newName) {
+        //noinspection UnassignedFluxMonoInstance
         verify(modelSaver).saveModel(testModelCaptor.capture());
         assertThat(testModelCaptor.getValue(), hasProperty("name", equalTo(newName)));
     }
@@ -135,16 +146,11 @@ class PatchFlowImplTest {
     @Test
     void whenPatching_thenReturnedModelShouldBeThePatchedOne() throws Exception {
         whenRetrieveModelThenReturnTestModelWithName(BEFORE_PATCHING);
-        whenSaveModelThenReturnIt();
 
-        Model patchedModel = patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING));
+        Model patchedModel = patchFlow.patch(descriptor, patchToChangeNameTo(AFTER_PATCHING)).block();
 
         assertThat(patchedModel, instanceOf(TestModel.class));
         assertThat(patchedModel, hasProperty("name", equalTo(AFTER_PATCHING)));
-    }
-
-    private void whenSaveModelThenReturnIt() {
-        when(modelSaver.saveModel(any())).then(invocation -> invocation.getArgument(0));
     }
 
     @Test
@@ -154,7 +160,7 @@ class PatchFlowImplTest {
                 .when(dataSecurity).checkPatchAllowed(any());
 
         try {
-            patchFlow.patch(descriptor, anyPatch());
+            patchFlow.patch(descriptor, anyPatch()).block();
             fail("An exception should be thrown");
         } catch (ExtremumAccessDeniedException e) {
             assertThat(e.getMessage(), is("Access denied"));
@@ -173,9 +179,8 @@ class PatchFlowImplTest {
     @Test
     void givenPatcherHooksExist_whenPatching_thenAllTheHookMethodsShouldBeCalled() {
         whenRetrieveModelThenReturnATestModel();
-        whenSaveModelThenReturnIt();
 
-        patchFlow.patch(descriptor, anyPatch());
+        patchFlow.patch(descriptor, anyPatch()).block();
 
         verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
         verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
@@ -186,7 +191,7 @@ class PatchFlowImplTest {
     void whenPatching_thenEmptyFieldDestroyerShouldBeApplied() {
         whenRetrieveModelThenReturnATestModel();
 
-        patchFlow.patch(descriptor, anyPatch());
+        patchFlow.patch(descriptor, anyPatch()).block();
 
         verify(emptyFieldDestroyer).destroy(any());
     }
@@ -206,14 +211,14 @@ class PatchFlowImplTest {
     }
 
     private static class TestModelDtoConverter
-            implements ToRequestDtoConverter<TestModel, TestModelRequestDto>,
+            implements ReactiveToRequestDtoConverter<TestModel, TestModelRequestDto>,
             FromRequestDtoConverter<TestModel, TestModelRequestDto> {
 
         @Override
-        public TestModelRequestDto convertToRequest(TestModel model, ConversionConfig config) {
+        public Mono<TestModelRequestDto> convertToRequestReactively(TestModel model, ConversionConfig config) {
             TestModelRequestDto dto = new TestModelRequestDto();
             dto.name = model.name;
-            return dto;
+            return Mono.just(dto);
         }
 
         @Override

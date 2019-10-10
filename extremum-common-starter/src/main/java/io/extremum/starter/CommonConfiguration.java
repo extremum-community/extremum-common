@@ -17,14 +17,15 @@ import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.reactive.*;
 import io.extremum.common.service.CommonService;
+import io.extremum.common.service.ReactiveCommonService;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.mongo.config.*;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
@@ -219,6 +220,12 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public CommonServices commonServices(List<CommonService<? extends Model>> services) {
         return new ListBasedCommonServices(services);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveCommonServices reactiveCommonServices(List<ReactiveCommonService<? extends Model>> services) {
+        return new ListBasedReactiveCommonServices(services);
     }
 
     @Bean

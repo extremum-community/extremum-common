@@ -11,20 +11,21 @@ import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.RequestDto;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
 @Slf4j
-public final class PatcherImpl implements Patcher {
+public final class ReactivePatcherImpl implements ReactivePatcher {
     private final DtoConversionService dtoConversionService;
     private final ObjectMapper jsonMapper;
     private final PatcherHooksCollection hooksCollection;
 
     private final PatchingSupport patchingSupport;
 
-    public PatcherImpl(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
-            EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
-            PatcherHooksCollection hooksCollection) {
+    public ReactivePatcherImpl(DtoConversionService dtoConversionService, ObjectMapper jsonMapper,
+                               EmptyFieldDestroyer emptyFieldDestroyer, RequestDtoValidator dtoValidator,
+                               PatcherHooksCollection hooksCollection) {
         Objects.requireNonNull(dtoConversionService, "dtoConversionService cannot be null");
         Objects.requireNonNull(jsonMapper, "jsonMapper cannot be null");
         Objects.requireNonNull(emptyFieldDestroyer, "emptyFieldDestroyer cannot be null");
@@ -39,24 +40,25 @@ public final class PatcherImpl implements Patcher {
     }
 
     @Override
-    public final Model patch(Descriptor id, Model modelToPatch, JsonPatch patch) {
-        RequestDto patchedDto = applyPatch(patch, modelToPatch);
-        patchedDto = hooksCollection.afterPatchAppliedToDto(id.getModelType(), patchedDto);
-
-        patchingSupport.validateRequest(patchedDto);
-
-        return patchingSupport.assemblePatchedModel(patchedDto, modelToPatch);
+    public final Mono<Model> patch(Descriptor id, Model modelToPatch, JsonPatch patch) {
+        return applyPatch(patch, modelToPatch)
+                .doOnNext(patchedDto -> hooksCollection.afterPatchAppliedToDto(id.getModelType(), patchedDto))
+                .doOnNext(patchingSupport::validateRequest)
+                .map(patchedDto -> patchingSupport.assemblePatchedModel(patchedDto, modelToPatch));
     }
 
-    private RequestDto applyPatch(JsonPatch patch, Model modelToPatch) {
-        JsonNode nodeToPatch = modelToJsonNode(modelToPatch);
-        JsonNode patchedNode = patchingSupport.applyPatchToNode(patch, nodeToPatch);
-        Class<? extends RequestDto> requestDtoType = dtoConversionService.findRequestDtoType(modelToPatch.getClass());
-        return patchingSupport.nodeToRequestDto(patchedNode, requestDtoType);
+    private Mono<RequestDto> applyPatch(JsonPatch patch, Model modelToPatch) {
+        return modelToJsonNode(modelToPatch)
+                .map(nodeToPatch -> patchingSupport.applyPatchToNode(patch, nodeToPatch))
+                .map(patchedNode -> {
+                    Class<? extends RequestDto> requestDtoType = dtoConversionService.findReactiveRequestDtoType(
+                            modelToPatch.getClass());
+                    return patchingSupport.nodeToRequestDto(patchedNode, requestDtoType);
+                });
     }
 
-    private JsonNode modelToJsonNode(Model model) {
-        RequestDto requestDto = dtoConversionService.convertUnknownToRequestDto(model, ConversionConfig.defaults());
-        return jsonMapper.valueToTree(requestDto);
+    private Mono<JsonNode> modelToJsonNode(Model model) {
+        return dtoConversionService.convertUnknownToRequestDtoReactively(model, ConversionConfig.defaults())
+                .map(jsonMapper::valueToTree);
     }
 }

@@ -14,7 +14,11 @@ public interface DtoConversionService {
 
     RequestDto convertUnknownToRequestDto(Model model, ConversionConfig config);
 
+    Mono<RequestDto> convertUnknownToRequestDtoReactively(Model model, ConversionConfig config);
+
     <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto);
 
     Class<? extends RequestDto> findRequestDtoType(Class<? extends Model> modelClass);
+
+    Class<? extends RequestDto> findReactiveRequestDtoType(Class<? extends Model> modelClass);
 }
