@@ -1,5 +1,6 @@
 package io.extremum.batch.utils;
 
+import io.atlassian.fugue.Either;
 import io.extremum.batch.model.BatchRequestDto;
 import io.extremum.batch.model.DataWithId;
 import reactor.core.publisher.Mono;
