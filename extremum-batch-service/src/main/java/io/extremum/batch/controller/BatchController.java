@@ -61,7 +61,6 @@ public class BatchController {
     /*
      TODO
      * Next update's:
-     - separate between our controllers (call inner-services) and other API (call by request)
      - add header separate
      */
     @PostMapping
