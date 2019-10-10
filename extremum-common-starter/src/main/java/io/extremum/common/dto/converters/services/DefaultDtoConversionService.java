@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.function.Supplier;
+
 import static java.lang.String.format;
 
 @RequiredArgsConstructor
@@ -72,29 +74,25 @@ public class DefaultDtoConversionService implements DtoConversionService {
         @SuppressWarnings("unchecked")
         Class<? extends M> castModelClass = (Class<? extends M>) modelClass;
         FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter(castModelClass)
-                .orElseThrow(() -> new ConverterNotFoundException(
-                        format("Unable to find converter for model '%s'", modelClass.getSimpleName())));
+                .orElseThrow(onConverterNotFound("from-request", modelClass));
         return converter.convertFromRequest(dto);
+    }
+
+    private Supplier<ConverterNotFoundException> onConverterNotFound(String type, Class<? extends Model> modelClass) {
+        return () -> new ConverterNotFoundException(
+                format("Unable to find %s for model '%s'", type, modelClass.getSimpleName()));
     }
 
     private ToRequestDtoConverter<Model, RequestDto> findMandatoryToRequestConverter(
             Class<? extends Model> modelClass) {
         return dtoConverters.<Model, RequestDto>findToRequestDtoConverter(modelClass)
-                    .orElseThrow(
-                            () -> new ConverterNotFoundException(
-                                    format("Unable to find to-request converter for model '%s'",
-                                            modelClass.getSimpleName()))
-                    );
+                    .orElseThrow(onConverterNotFound("to-request", modelClass));
     }
 
     private ReactiveToRequestDtoConverter<Model, RequestDto> findMandatoryReactiveToRequestConverter(
             Class<? extends Model> modelClass) {
         return dtoConverters.<Model, RequestDto>findReactiveToRequestDtoConverter(modelClass)
-                    .orElseThrow(
-                            () -> new ConverterNotFoundException(
-                                    format("Unable to find reactive to-request converter for model '%s'",
-                                            modelClass.getSimpleName()))
-                    );
+                    .orElseThrow(onConverterNotFound("reactive to-request", modelClass));
     }
 
     @Override
