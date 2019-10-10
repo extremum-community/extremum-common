@@ -14,22 +14,19 @@ public class RoleSecurityReactiveEverythingManagementService implements Reactive
 
     @Override
     public Mono<ResponseDto> get(Descriptor id, boolean expand) {
-        roleSecurity.checkGetAllowed(id);
-
-        return everythingService.get(id, expand);
+        return Mono.fromRunnable(() -> roleSecurity.checkGetAllowed(id))
+                .then(everythingService.get(id, expand));
     }
 
     @Override
     public Mono<ResponseDto> patch(Descriptor id, JsonPatch patch, boolean expand) {
-        roleSecurity.checkPatchAllowed(id);
-
-        return everythingService.patch(id, patch, expand);
+        return Mono.fromRunnable(() -> roleSecurity.checkPatchAllowed(id))
+                .then(everythingService.patch(id, patch, expand));
     }
 
     @Override
     public Mono<Void> remove(Descriptor id) {
-        roleSecurity.checkRemovalAllowed(id);
-
-        return everythingService.remove(id);
+        return Mono.fromRunnable(() -> roleSecurity.checkRemovalAllowed(id))
+                .then(everythingService.remove(id));
     }
 }
