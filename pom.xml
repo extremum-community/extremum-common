@@ -32,6 +32,7 @@
         <module>extremum-elasticsearch-starter</module>
         <module>extremum-everything-starter</module>
         <module>extremum-watch-starter</module>
+        <module>extremum-batch-service</module>
     </modules>
 
     <scm>

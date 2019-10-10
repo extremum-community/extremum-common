@@ -1,4 +1,4 @@
-package io.extremum.common.batch;
+package io.extremum.batch.utils;
 
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.Response;
@@ -7,9 +7,9 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-class ResponseWrapper {
+public class ResponseWrapper {
 
-    static Flux<Response> onInformational(ClientResponse response, String id) {
+    public static Flux<Response> onInformational(ClientResponse response, String id) {
         return Flux.from(response.bodyToMono(Response.class)
                 .map(body -> Response.builder()
                         .withRequestId(id)
@@ -18,14 +18,14 @@ class ResponseWrapper {
                         .build()));
     }
 
-    static Flux<Response> onSuccess(ClientResponse response, String id) {
+    public static Flux<Response> onSuccess(ClientResponse response, String id) {
         return response.bodyToFlux(Response.class)
                 .map(body -> Response.builder(body)
                         .withRequestId(id)
                         .build());
     }
 
-    static Flux<Response> onRedirection(ClientResponse response, String id) {
+    public static Flux<Response> onRedirection(ClientResponse response, String id) {
         return Flux.from(response.bodyToMono(Response.class)
                 .map(body -> Response.builder()
                         .withRequestId(id)
@@ -34,7 +34,7 @@ class ResponseWrapper {
                         .build()));
     }
 
-    static Flux<Response> onError(ClientResponse response, String id) {
+    public static Flux<Response> onError(ClientResponse response, String id) {
         if (response.statusCode().is4xxClientError()) {
             if (response.statusCode().equals(HttpStatus.NOT_FOUND)) {
                 return Flux.from(errorResponse("Not found", id, response));

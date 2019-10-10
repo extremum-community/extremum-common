@@ -1,4 +1,4 @@
-package io.extremum.common.batch;
+package io.extremum.batch.model;
 
 import lombok.*;
 import org.springframework.http.HttpMethod;
@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter(AccessLevel.NONE)
-class BatchRequestDto {
+public class BatchRequestDto {
     private String id;
     @NotNull
     @NotBlank
@@ -19,7 +19,7 @@ class BatchRequestDto {
     @NotNull
     private HttpMethod method;
     @Pattern(regexp = "\\?((?:([^\\s=]+)=([\\w-_]+)\\&)+)?(?:([^\\s=]+)=([\\w-_]+))",
-            message = "Query params not valid!")
+            message = "Query string not valid!")
     private String query;
     private Object body;
 }

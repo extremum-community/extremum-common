@@ -1,5 +1,10 @@
-package io.extremum.common.batch;
+package io.extremum.batch.controller;
 
+import io.atlassian.fugue.Either;
+import io.extremum.batch.model.BatchRequestDto;
+import io.extremum.batch.model.DataWithId;
+import io.extremum.batch.utils.BatchValidation;
+import io.extremum.batch.utils.ResponseWrapper;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.Response;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -20,9 +25,12 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.resources.ConnectionProvider;
 
-import javax.validation.*;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
@@ -59,30 +67,25 @@ public class BatchController {
     @PostMapping
     public Mono<List<Response>> submitBatch(@RequestBody BatchRequestDto[] batchDto, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
         return Flux.fromArray(batchDto)
-                .flatMap(requestDto -> sendRequest(requestDto, auth))
+                .flatMap(BatchValidation.validateRequest(validator))
+                .flatMap(validated -> {
+                    if (validated.isRight()) {
+                        return sendRequest(validated.right().get(), auth)
+                                .<Either<DataWithId, DataWithId>>map(Either::right);
+                    } else {
+                        Mono<Either<DataWithId, DataWithId>> just = Mono.just(Either.left(validated.left().get()));
+                        return just;
+                    }
+                })
                 .publishOn(resultScheduler)
                 .flatMap(this::wrapResponses)
                 .collectList();
     }
 
     private Mono<DataWithId> sendRequest(BatchRequestDto dto, String auth) {
-        Set<ConstraintViolation<BatchRequestDto>> violations = validator.validate(dto);
-        if (violations.size() != 0) {
-            StringBuilder violationMessage = new StringBuilder();
-            violations.forEach(violation -> violationMessage
-                    .append(violation.getPropertyPath().toString())
-                    .append(" - ")
-                    .append(violation.getMessage())
-                    .append(","));
-            throw new ValidationException(violationMessage.toString().substring(0, violationMessage.length() - 2));
-        }
-
         WebClient.RequestBodySpec request = webClient
                 .method(dto.getMethod())
-                .uri(uriBuilder -> uriBuilder
-                        .path(dto.getEndpoint())
-                        .query(dto.getQuery())
-                        .build())
+                .uri(dto.getEndpoint() + Optional.ofNullable(dto.getQuery()).orElse(""))
                 .header(HttpHeaders.AUTHORIZATION, auth)
                 .contentType(MediaType.APPLICATION_JSON);
 
@@ -93,23 +96,33 @@ public class BatchController {
                 .map(response -> new DataWithId(dto.getId(), response));
     }
 
-    private Flux<Response> wrapResponses(DataWithId data) {
-        // This cast is safe because we put it on the previous step
-        ClientResponse response = (ClientResponse) data.getData();
-        String id = data.getId();
+    private Flux<Response> wrapResponses(Either<DataWithId, DataWithId> validated) {
+        if (validated.isRight()) {
+            DataWithId data = validated.right().get();
 
-        if (response.statusCode().is1xxInformational()) {
-            return ResponseWrapper.onInformational(response, id);
-        } else if (response.statusCode().is2xxSuccessful()) {
-            return ResponseWrapper.onSuccess(response, id);
-        } else if (response.statusCode().is3xxRedirection()) {
-            return ResponseWrapper.onRedirection(response, id);
+            // This cast is safe because we put it on the previous step
+            ClientResponse response = (ClientResponse) data.getData();
+            String id = data.getId();
+
+            if (response.statusCode().is1xxInformational()) {
+                return ResponseWrapper.onInformational(response, id);
+            } else if (response.statusCode().is2xxSuccessful()) {
+                return ResponseWrapper.onSuccess(response, id);
+            } else if (response.statusCode().is3xxRedirection()) {
+                return ResponseWrapper.onRedirection(response, id);
+            } else {
+                return ResponseWrapper.onError(response, id);
+            }
         } else {
-            return ResponseWrapper.onError(response, id);
+            DataWithId withId = validated.left().get();
+            String id = withId.getId();
+            String violations = (String) withId.getData();
+            return Flux.just(Response.builder()
+                    .withFailStatus(HttpStatus.BAD_REQUEST.value())
+                    .withRequestId(id)
+                    .withAlerts(Collections.singleton(Alert.errorAlert("Validation failed: " + violations)))
+                    .withNowTimestamp()
+                    .build());
         }
-    }
-
-    private static Mono<Response> onValidationException(ValidationException e) {
-        return Mono.just(Response.fail(Alert.errorAlert(e.getMessage()), HttpStatus.BAD_REQUEST.value()));
     }
 }

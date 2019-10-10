@@ -1,4 +1,4 @@
-package io.extremum.common.batch;
+package io.extremum.batch.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
