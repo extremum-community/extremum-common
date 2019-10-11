@@ -98,7 +98,7 @@ public class Alert {
         }
 
         public Builder withInfoLevel() {
-            level = AlertLevelEnum.ERROR;
+            level = AlertLevelEnum.INFO;
             return this;
         }
 
