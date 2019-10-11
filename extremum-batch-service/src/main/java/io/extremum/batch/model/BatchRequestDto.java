@@ -10,7 +10,6 @@ import javax.validation.constraints.Pattern;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter(AccessLevel.NONE)
 public class BatchRequestDto {
     private String id;
     @NotNull

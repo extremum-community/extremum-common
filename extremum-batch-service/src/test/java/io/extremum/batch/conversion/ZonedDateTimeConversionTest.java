@@ -17,7 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @SpringBootTest(classes = ConversionConfiguration.class)
-public class ZonedDateTimeConversionTest {
+class ZonedDateTimeConversionTest {
     @Autowired
     private ObjectMapper objectMapper;
     private String stringZDT = "\"1000-01-01T10:10:10.001000+0000\"";

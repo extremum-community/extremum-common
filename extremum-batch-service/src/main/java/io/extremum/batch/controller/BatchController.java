@@ -1,5 +1,7 @@
 package io.extremum.batch.controller;
 
+import io.extremum.batch.config.BatchProperties;
+import io.extremum.batch.config.WebClientProperties;
 import io.extremum.batch.model.BatchRequestDto;
 import io.extremum.batch.model.ValidatedRequest;
 import io.extremum.batch.utils.ResponseWrapper;
@@ -8,7 +10,6 @@ import io.extremum.sharedmodels.dto.Response;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,27 +40,20 @@ import static io.extremum.batch.utils.BatchValidation.validateRequest;
 @RestController
 @RequestMapping("/v1/batch")
 public class BatchController {
-    @Value("${batch.web.client.worker-thread-size}")
-    private int workerThreadSize;
-    @Value("${batch.result-thread-size}")
-    private int resultThreadSize;
-
     private WebClient webClient;
     private Scheduler resultScheduler;
     private Validator validator;
 
-    public BatchController(WebClient.Builder webClientBuilder) {
+    public BatchController(WebClientProperties clientProps, BatchProperties batchProps, WebClient.Builder webClientBuilder) {
         ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
-        // TODO refactor magic number to property variable
-        resourceFactory.setLoopResources(useNative -> new NioEventLoopGroup(workerThreadSize, new DefaultThreadFactory("batch-thread")));
+        resourceFactory.setLoopResources(useNative -> new NioEventLoopGroup(clientProps.getWorkerThreadSize(), new DefaultThreadFactory("batch-thread")));
         resourceFactory.setConnectionProvider(ConnectionProvider.elastic("batch-client"));
         resourceFactory.setUseGlobalResources(false);
         this.webClient = webClientBuilder
                 .clientConnector(new ReactorClientHttpConnector(resourceFactory, Function.identity()))
                 .build();
 
-        // TODO refactor magic number to property variable
-        this.resultScheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(resultThreadSize));
+        this.resultScheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(batchProps.getResultThreadSize()));
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
@@ -70,8 +64,9 @@ public class BatchController {
      * Next update's:
      - add header separate
      */
-    @PostMapping
-    public Mono<List<Response>> submitBatch(@RequestBody BatchRequestDto[] batchDto, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<List<Response>> submitBatch(@RequestBody BatchRequestDto[] batchDto,
+                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION,required = false) String auth) {
         return Flux.fromArray(batchDto)
                 .flatMap(validateRequest(validator))
                 .flatMap(validated -> {
