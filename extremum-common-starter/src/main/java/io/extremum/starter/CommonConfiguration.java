@@ -11,6 +11,7 @@ import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
+import io.extremum.common.descriptor.serde.StringToDescriptorConverter;
 import io.extremum.common.descriptor.service.*;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
@@ -18,6 +19,7 @@ import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.reactive.*;
 import io.extremum.common.service.CommonService;
+import io.extremum.common.service.ReactiveCommonService;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
@@ -223,6 +225,12 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactiveCommonServices reactiveCommonServices(List<ReactiveCommonService<? extends Model>> services) {
+        return new ListBasedReactiveCommonServices(services);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public ModelClasses modelClasses() {
         return new ScanningModelClasses(modelProperties.getPackageNames());
     }
@@ -250,5 +258,10 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public Reactifier reactifier(@Qualifier("reactifierScheduler") Scheduler reactifierScheduler) {
         return new IsolatedSchedulerReactifier(reactifierScheduler);
+    }
+
+    @Bean
+    public StringToDescriptorConverter stringToDescriptorConverter(DescriptorFactory descriptorFactory) {
+        return new StringToDescriptorConverter(descriptorFactory);
     }
 }

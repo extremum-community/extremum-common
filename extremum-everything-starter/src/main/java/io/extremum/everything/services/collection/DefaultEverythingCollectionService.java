@@ -40,10 +40,23 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     }
 
     @Override
+    public Mono<CollectionFragment<ResponseDto>> fetchCollectionReactively(CollectionDescriptor id,
+                                                                           Projection projection, boolean expand) {
+        CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
+        return coordinatesHandler.fetchCollectionReactively(id.getCoordinates(), projection)
+                .flatMap(fragment -> convertFragmentToDtos(fragment, expand));
+    }
+
+    private Mono<CollectionFragment<ResponseDto>> convertFragmentToDtos(
+            CollectionFragment<Model> fragment, boolean expand) {
+        return fragment.mapReactively(model -> convertModelToResponseDtoReactively(model, expand));
+    }
+
+    @Override
     public Flux<ResponseDto> streamCollection(CollectionDescriptor id, Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         Flux<Model> models = coordinatesHandler.streamCollection(id.getCoordinates(), projection);
-        return models.flatMap(model -> convertModelToResponseDtoReactively(model, expand));
+        return models.concatMap(model -> convertModelToResponseDtoReactively(model, expand));
     }
 
     private CoordinatesHandler findCoordinatesHandler(CollectionDescriptor.Type type) {

@@ -1,5 +1,8 @@
 package io.extremum.everything.collection;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -43,5 +46,13 @@ final class CollectionFragmentImpl<T> implements CollectionFragment<T> {
                 .map(mapper)
                 .collect(Collectors.toList());
         return new CollectionFragmentImpl<>(mappedElements, total);
+    }
+
+    @Override
+    public <U> Mono<CollectionFragment<U>> mapReactively(Function<? super T, ? extends Mono<? extends U>> mapper) {
+        return Flux.fromIterable(elements)
+                .concatMap(mapper)
+                .collectList()
+                .map(mappedElements -> new CollectionFragmentImpl<>(mappedElements, total));
     }
 }

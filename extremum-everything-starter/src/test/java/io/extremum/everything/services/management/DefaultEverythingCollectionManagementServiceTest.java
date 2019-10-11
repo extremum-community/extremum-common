@@ -1,6 +1,7 @@
 package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.everything.services.collection.EverythingCollectionService;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseStatusEnum;
@@ -31,8 +32,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +48,8 @@ class DefaultEverythingCollectionManagementServiceTest {
     private EverythingCollectionService everythingCollectionService;
     @Mock
     private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
+    @Mock
+    private ReactiveDescriptorService reactiveDescriptorService;
 
     private final Descriptor collectionDescriptor = Descriptor.forCollection("external-id",
             collectionDescriptor());
@@ -79,11 +81,6 @@ class DefaultEverythingCollectionManagementServiceTest {
                 .thenReturn(CollectionFragment.forCompleteCollection(expectedCollection));
     }
 
-    @NotNull
-    private CollectionDescriptor collectionDescriptor() {
-        return CollectionDescriptor.forOwned(new Descriptor("host-id"), "items");
-    }
-
     @Test
     void givenACollectionDescriptorExistsWithNullCollection_whenFetchingTheCollection_thenAnExceptionShouldBeThrown() {
         collectionDescriptor.setCollection(null);
@@ -105,6 +102,72 @@ class DefaultEverythingCollectionManagementServiceTest {
 
         Response response = service.fetchCollection(collectionDescriptor, projection, true);
 
+        assertThat(response.getPagination(), is(notNullValue()));
+        assertThat(response.getPagination().getCount(), is(2));
+        assertThat(response.getPagination().getOffset(), is(1));
+        assertThat(response.getPagination().getTotal(), is(2L));
+        assertThat(response.getPagination().getSince(), is(since));
+        assertThat(response.getPagination().getUntil(), is(until));
+    }
+
+    @Test
+    void givenACollectionDescriptorExists_whenFetchingTheCollectionReactively_thenTheCollectionShouldBeReturned() {
+        setupMocksToLoadACollectionDescriptorReactively();
+        setupMocksToReturnACollectionReactively();
+
+        Response response = service.fetchCollectionReactively(collectionDescriptor, emptyProjection, true).block();
+
+        assertThat(response, is(notNullValue()));
+        MatcherAssert.assertThat(response.getStatus(), CoreMatchers.is(ResponseStatusEnum.OK));
+        assertThat(response.getCode(), is(200));
+        assertThat(response.getResult(), is(instanceOf(Collection.class)));
+        @SuppressWarnings("unchecked")
+        Collection<ResponseDto> collection = (Collection<ResponseDto>) response.getResult();
+        assertThat(collection, is(sameInstance(expectedCollection)));
+        assertThat(response.getPagination(), is(notNullValue()));
+        assertThat(response.getPagination().getCount(), is(2));
+    }
+
+    private void setupMocksToLoadACollectionDescriptorReactively() {
+        when(reactiveDescriptorService.loadByExternalId(anyString()))
+                .thenReturn(Mono.just(collectionDescriptor));
+    }
+
+    private void setupMocksToReturnACollectionReactively() {
+        CollectionFragment<ResponseDto> fragment = CollectionFragment.forCompleteCollection(expectedCollection);
+        when(everythingCollectionService.fetchCollectionReactively(any(), any(), anyBoolean()))
+                .thenReturn(Mono.just(fragment));
+    }
+
+    @NotNull
+    private CollectionDescriptor collectionDescriptor() {
+        return CollectionDescriptor.forOwned(new Descriptor("host-id"), "items");
+    }
+
+    @Test
+    void givenACollectionDescriptorExistsWithNullCollection_whenFetchingTheCollectionReactively_thenAnExceptionShouldBeThrown() {
+        setupMocksToLoadACollectionDescriptorReactively();
+        collectionDescriptor.setCollection(null);
+
+        try {
+            service.fetchCollectionReactively(collectionDescriptor, emptyProjection, true).block();
+            fail("An exception should be thrown");
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(), is("For 'external-id' no collection was in the descriptor"));
+        }
+    }
+
+    @Test
+    void whenFetchingTheCollectionReactivelyWithAProjection_thenTheResponsePaginationShouldBeFilledCorrectly() {
+        setupMocksToLoadACollectionDescriptorReactively();
+        setupMocksToReturnACollectionReactively();
+        ZonedDateTime since = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime until = ZonedDateTime.of(3000, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+        Projection projection = new Projection(1, 11, since, until);
+
+        Response response = service.fetchCollectionReactively(collectionDescriptor, projection, true).block();
+
+        assertThat(response, is(notNullValue()));
         assertThat(response.getPagination(), is(notNullValue()));
         assertThat(response.getPagination().getCount(), is(2));
         assertThat(response.getPagination().getOffset(), is(1));

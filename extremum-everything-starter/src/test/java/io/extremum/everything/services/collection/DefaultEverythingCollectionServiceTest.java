@@ -160,6 +160,55 @@ class DefaultEverythingCollectionServiceTest {
     }
 
     @Test
+    void givenHostExistsAndNoCollectionStreamerRegistered_whenCollectionIsFetchedReactively_thenItShouldBeReturned() {
+        returnStreetAndHousesAndConvertToDtosInReactiveMode();
+
+        CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
+        Projection projection = Projection.empty();
+
+        Mono<CollectionFragment<ResponseDto>> resultMono = service.fetchCollectionReactively(collectionDescriptor,
+                projection, false);
+        CollectionFragment<ResponseDto> dtos = resultMono.block();
+
+        assertThat(dtos, is(notNullValue()));
+        assertThat(dtos.elements(), hasSize(2));
+    }
+
+    private void returnStreetAndHousesAndConvertToDtosInReactiveMode() {
+        when(streetReactiveGetterService.get("internalHostId")).thenReturn(Mono.just(new Street()));
+        stream2HousesWhenRequestedByIds();
+    }
+
+    @Test
+    void givenHostDoesNotExist_whenCollectionIsFetchedReactively_thenAnExceptionShouldBeThrown() {
+        when(streetReactiveGetterService.get("internalHostId")).thenReturn(Mono.empty());
+
+        CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
+        Projection projection = Projection.empty();
+
+        try {
+            service.fetchCollectionReactively(collectionDescriptor, projection, false).block();
+            fail("An exception should be thrown");
+        } catch (EverythingEverythingException e) {
+            assertThat(e.getMessage(), is("No host entity was found by external ID 'hostId'"));
+        }
+    }
+
+    @Test
+    void givenAnExplicitCollectionStreamerIsDefined_whenCollectionIsFetchedReactively_thenItShouldBeProvidedByTheStreamer() {
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forOwned(streetDescriptor(),
+                "explicitHouses");
+        Projection projection = Projection.empty();
+
+        Mono<CollectionFragment<ResponseDto>> resultMono = service.fetchCollectionReactively(collectionDescriptor,
+                projection, false);
+        CollectionFragment<ResponseDto> houses = resultMono.block();
+
+        assertThat(houses, is(notNullValue()));
+        assertThat(houses.elements(), hasSize(1));
+    }
+
+    @Test
     void givenHostExistsAndNoCollectionStreamerRegistered_whenCollectionIsStreamed_thenItShouldBeReturned() {
         returnStreetReactivelyWhenRequested();
         stream2HousesWhenRequestedByIds();
@@ -178,12 +227,12 @@ class DefaultEverythingCollectionServiceTest {
     }
 
     private void returnStreetReactivelyWhenRequested() {
-        when(streetReactiveGetterService.reactiveGet("internalHostId")).thenReturn(Mono.just(new Street()));
+        when(streetReactiveGetterService.get("internalHostId")).thenReturn(Mono.just(new Street()));
     }
 
     @Test
     void givenHostDoesNotExist_whenCollectionIsStreamed_thenAnExceptionShouldBeThrown() {
-        when(streetReactiveGetterService.reactiveGet("internalHostId")).thenReturn(Mono.empty());
+        when(streetReactiveGetterService.get("internalHostId")).thenReturn(Mono.empty());
 
         CollectionDescriptor collectionDescriptor = housesCollectionDescriptor();
         Projection projection = Projection.empty();
@@ -298,7 +347,7 @@ class DefaultEverythingCollectionServiceTest {
 
     private static class StreetReactiveGetter implements ReactiveGetterService<Street> {
         @Override
-        public Mono<Street> reactiveGet(String id) {
+        public Mono<Street> get(String id) {
             return Mono.just(new Street());
         }
 

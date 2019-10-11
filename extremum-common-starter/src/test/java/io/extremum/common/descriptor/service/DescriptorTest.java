@@ -1,9 +1,6 @@
 package io.extremum.common.descriptor.service;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.descriptor.DescriptorLoader;
-import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
-import io.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
+import io.extremum.sharedmodels.descriptor.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +10,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Optional;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +31,8 @@ class DescriptorTest {
             .internalId("internal-id")
             .storageType(Descriptor.StorageType.MONGO)
             .build();
+    private final Descriptor collectionDescriptorInDb = Descriptor.forCollection("external-id",
+            CollectionDescriptor.forFree("free"));
 
     @BeforeEach
     void initDescriptorLoader() {
@@ -227,6 +229,91 @@ class DescriptorTest {
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex, instanceOf(DescriptorNotFoundException.class));
                     assertThat(ex.getMessage(), is("Internal id internal-id without corresponding descriptor"));
+                })
+                .verify();
+    }
+
+    @Test
+    void givenTypeIsNotNull_whenEffectiveTypeIsUsed_thenTheTypeShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .type(Descriptor.Type.COLLECTION)
+                .build();
+
+        assertThat(descriptor.effectiveType(), is(Descriptor.Type.COLLECTION));
+    }
+
+    @Test
+    void givenTypeIsNullAndExternalIdIsNotNull_whenEffectiveTypeIsUsed_thenTheEffectiveTypeShouldBeReturnedAndFilled() {
+        when(descriptorLoader.loadByExternalId("external-id"))
+                .thenReturn(Optional.of(collectionDescriptorInDb));
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        assertThat(descriptor.effectiveType(), is(Descriptor.Type.COLLECTION));
+
+        assertThat(descriptor.getType(), is(Descriptor.Type.COLLECTION));
+    }
+
+    @Test
+    void givenTypeIsNullAndExternalIdIsNotNullAndNoDescriptorIsFound_whenTypeReactivelyIsUsed_thenAnExceptionShouldBeThrown() {
+        when(descriptorLoader.loadByExternalId("external-id"))
+                .thenReturn(Optional.empty());
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        assertThrows(DescriptorNotFoundException.class, descriptor::effectiveType);
+    }
+
+    @Test
+    void givenTypeIsNotNull_whenEffectiveTypeReactivelyIsUsed_thenTheTypeShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .type(Descriptor.Type.COLLECTION)
+                .build();
+
+        Mono<Descriptor.Type> typeMono = descriptor.effectiveTypeReactively();
+
+        StepVerifier.create(typeMono)
+                .expectNext(Descriptor.Type.COLLECTION)
+                .verifyComplete();
+    }
+
+    @Test
+    void givenTypeIsNullAndExternalIdIsNotNull_whenEffectiveTypeReactivelyIsUsed_thenTheEffectiveTypeShouldBeReturnedAndFilled() {
+        when(descriptorLoader.loadByExternalIdReactively("external-id"))
+                .thenReturn(Mono.just(collectionDescriptorInDb));
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        Mono<Descriptor.Type> typeMono = descriptor.effectiveTypeReactively();
+
+        StepVerifier.create(typeMono)
+                .expectNext(Descriptor.Type.COLLECTION)
+                .verifyComplete();
+
+        assertThat(descriptor.effectiveType(), is(Descriptor.Type.COLLECTION));
+    }
+
+    @Test
+    void givenTypeIsNullAndExternalIdIsNotNullAndNoDescriptorIsFound_whenEffectiveTypeReactivelyIsUsed_thenAnExceptionShouldBeThrown() {
+        when(descriptorLoader.loadByExternalIdReactively("external-id"))
+                .thenReturn(Mono.empty());
+
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        Mono<Descriptor.Type> typeMono = descriptor.effectiveTypeReactively();
+
+        StepVerifier.create(typeMono)
+                .expectErrorSatisfies(ex -> {
+                    assertThat(ex, instanceOf(DescriptorNotFoundException.class));
+                    assertThat(ex.getMessage(), is("Internal ID was not found for external ID external-id"));
                 })
                 .verify();
     }

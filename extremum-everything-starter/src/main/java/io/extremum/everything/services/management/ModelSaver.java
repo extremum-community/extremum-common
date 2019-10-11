@@ -1,10 +1,10 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.everything.services.SaverService;
 import io.extremum.everything.services.defaultservices.DefaultSaver;
+import io.extremum.sharedmodels.basic.Model;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

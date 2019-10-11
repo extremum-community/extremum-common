@@ -16,5 +16,5 @@ public interface ReactiveGetterService<M extends Model> extends EverythingEveryt
      * @param id descriptor internal ID
      * @return found object mono
      */
-    Mono<M> reactiveGet(String id);
+    Mono<M> get(String id);
 }

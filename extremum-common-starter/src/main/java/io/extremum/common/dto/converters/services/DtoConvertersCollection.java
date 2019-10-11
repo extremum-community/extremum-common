@@ -21,6 +21,7 @@ public class DtoConvertersCollection implements DtoConverters {
     private final List<ToRequestDtoConverter<?, ?>> toRequestConverters;
     private final List<ToResponseDtoConverter<?, ?>> toResponseConverters;
     private final List<ReactiveToResponseDtoConverter<?, ?>> reactiveToResponseDtoConverters;
+    private final List<ReactiveToRequestDtoConverter<?, ?>> reactiveToRequestDtoConverters;
 
     @Override
     public <M extends Model, D extends RequestDto> Optional<FromRequestDtoConverter<M, D>> findFromRequestDtoConverter(
@@ -47,6 +48,12 @@ public class DtoConvertersCollection implements DtoConverters {
     public <M extends Model, D extends ResponseDto> Optional<ReactiveToResponseDtoConverter<M, D>> findReactiveToResponseDtoConverter(Class<? extends M> modelClass) {
         return findConverter(modelClass, reactiveToResponseDtoConverters)
                 .map(converter -> (ReactiveToResponseDtoConverter<M, D>) converter);
+    }
+
+    @Override
+    public <M extends Model, D extends RequestDto> Optional<ReactiveToRequestDtoConverter<M, D>> findReactiveToRequestDtoConverter(Class<? extends M> modelClass) {
+        return findConverter(modelClass, reactiveToRequestDtoConverters)
+                .map(converter -> (ReactiveToRequestDtoConverter<M, D>) converter);
     }
 
     private <T extends DtoConverter> Optional<T> findConverter(Class<? extends Model> modelClass, List<T> converters) {

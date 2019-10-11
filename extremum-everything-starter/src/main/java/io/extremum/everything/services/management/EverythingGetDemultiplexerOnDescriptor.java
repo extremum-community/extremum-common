@@ -13,14 +13,15 @@ public class EverythingGetDemultiplexerOnDescriptor implements EverythingGetDemu
 
     @Override
     public Response get(Descriptor id, Projection projection, boolean expand) {
-        if (id.isSingle()) {
-            Object result = evrEvrManagementService.get(id, expand);
-            return Response.ok(result);
-        } else if (id.isCollection()) {
-            return fetchCollection(id, projection, expand);
-        } else {
-            throw new EverythingEverythingException(
-                    String.format("'%s' is neither single nor collection", id.getExternalId()));
+        switch (id.effectiveType()) {
+            case SINGLE:
+                Object result = evrEvrManagementService.get(id, expand);
+                return Response.ok(result);
+            case COLLECTION:
+                return fetchCollection(id, projection, expand);
+            default:
+                throw new EverythingEverythingException(
+                        String.format("'%s' is neither single nor collection", id.getExternalId()));
         }
     }
 

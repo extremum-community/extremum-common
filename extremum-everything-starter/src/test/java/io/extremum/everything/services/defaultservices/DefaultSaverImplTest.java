@@ -28,7 +28,7 @@ class DefaultSaverImplTest {
     private CommonService<TestModel> commonService;
 
     @Test
-    void whenSavingAModel_itShouldBeSavedToItsCommonService() {
+    void whenSavingAModel_thenItShouldBeSavedToItsCommonService() {
         TestModel model = new TestModel();
         
         saver.save(model);

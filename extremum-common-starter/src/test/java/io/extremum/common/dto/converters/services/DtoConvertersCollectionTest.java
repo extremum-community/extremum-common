@@ -1,9 +1,6 @@
 package io.extremum.common.dto.converters.services;
 
-import io.extremum.common.dto.converters.FromRequestDtoConverter;
-import io.extremum.common.dto.converters.ReactiveToResponseDtoConverter;
-import io.extremum.common.dto.converters.ToRequestDtoConverter;
-import io.extremum.common.dto.converters.ToResponseDtoConverter;
+import io.extremum.common.dto.converters.*;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.annotation.ModelName;
@@ -37,16 +34,18 @@ class DtoConvertersCollectionTest {
     private ToResponseDtoConverter<Model, ResponseDto> toResponseConverter;
     @Mock
     private ReactiveToResponseDtoConverter<Model, ResponseDto> reactiveToResponseDtoConverter;
+    @Mock
+    private ReactiveToRequestDtoConverter<Model, RequestDto> reactiveToRequestDtoConverter;
 
     private final DtoConverters emptyConverters = new DtoConvertersCollection(emptyList(), emptyList(), emptyList(),
-            emptyList());
+            emptyList(), emptyList());
 
     @Test
-    void givenThereIsFromRequestDtoConverter_whenFindingIt_itShouldBeFound() {
+    void givenThereIsFromRequestDtoConverter_whenFindingIt_thenItShouldBeFound() {
         when(fromRequestConverter.getSupportedModel()).thenReturn(MODEL_NAME);
 
         DtoConverters converters = new DtoConvertersCollection(
-                singletonList(fromRequestConverter), emptyList(), emptyList(), emptyList()
+                singletonList(fromRequestConverter), emptyList(), emptyList(), emptyList(), emptyList()
         );
 
         assertThat(converters.findFromRequestDtoConverter(AModel.class).orElse(null),
@@ -54,16 +53,16 @@ class DtoConvertersCollectionTest {
     }
 
     @Test
-    void givenThereIsNoFromRequestDtoConverter_whenFindingIt_emptyShouldBeReturned() {
+    void givenThereIsNoFromRequestDtoConverter_whenFindingIt_thenEmptyShouldBeReturned() {
         assertThat(emptyConverters.findFromRequestDtoConverter(AModel.class).orElse(null), is(nullValue()));
     }
 
     @Test
-    void givenThereIsToRequestDtoConverter_whenFindingIt_itShouldBeFound() {
+    void givenThereIsToRequestDtoConverter_whenFindingIt_thenItShouldBeFound() {
         when(toRequestConverter.getSupportedModel()).thenReturn(MODEL_NAME);
 
         DtoConverters converters = new DtoConvertersCollection(
-                emptyList(), singletonList(toRequestConverter), emptyList(), emptyList()
+                emptyList(), singletonList(toRequestConverter), emptyList(), emptyList(), emptyList()
         );
 
         assertThat(converters.findToRequestDtoConverter(AModel.class).orElse(null),
@@ -71,16 +70,16 @@ class DtoConvertersCollectionTest {
     }
 
     @Test
-    void givenThereIsNoToRequestDtoConverter_whenFindingIt_emptyShouldBeReturned() {
+    void givenThereIsNoToRequestDtoConverter_whenFindingIt_thenEmptyShouldBeReturned() {
         assertThat(emptyConverters.findToRequestDtoConverter(AModel.class).orElse(null), is(nullValue()));
     }
 
     @Test
-    void givenThereIsToResponseDtoConverter_whenFindingIt_itShouldBeFound() {
+    void givenThereIsToResponseDtoConverter_whenFindingIt_thenItShouldBeFound() {
         when(toResponseConverter.getSupportedModel()).thenReturn(MODEL_NAME);
 
         DtoConverters converters = new DtoConvertersCollection(
-                emptyList(), emptyList(), singletonList(toResponseConverter), emptyList()
+                emptyList(), emptyList(), singletonList(toResponseConverter), emptyList(), emptyList()
         );
 
         assertThat(converters.findToResponseDtoConverter(AModel.class).orElse(null),
@@ -88,16 +87,16 @@ class DtoConvertersCollectionTest {
     }
 
     @Test
-    void givenThereIsNoToResponseDtoConverter_whenFindingIt_emptyShouldBeReturned() {
+    void givenThereIsNoToResponseDtoConverter_whenFindingIt_thenEmptyShouldBeReturned() {
         assertThat(emptyConverters.findToResponseDtoConverter(AModel.class).orElse(null), is(nullValue()));
     }
 
     @Test
-    void givenThereIsReactiveToResponseDtoConverter_whenFindingIt_itShouldBeFound() {
+    void givenThereIsReactiveToResponseDtoConverter_whenFindingIt_thenItShouldBeFound() {
         when(reactiveToResponseDtoConverter.getSupportedModel()).thenReturn(MODEL_NAME);
 
         DtoConverters converters = new DtoConvertersCollection(
-                emptyList(), emptyList(), emptyList(), singletonList(reactiveToResponseDtoConverter)
+                emptyList(), emptyList(), emptyList(), singletonList(reactiveToResponseDtoConverter), emptyList()
         );
 
         assertThat(converters.findReactiveToResponseDtoConverter(AModel.class).orElse(null),
@@ -105,8 +104,25 @@ class DtoConvertersCollectionTest {
     }
 
     @Test
-    void givenThereIsNoReactiveToResponseDtoConverter_whenFindingIt_emptyShouldBeReturned() {
+    void givenThereIsNoReactiveToResponseDtoConverter_whenFindingIt_thenEmptyShouldBeReturned() {
         assertThat(emptyConverters.findReactiveToResponseDtoConverter(AModel.class).orElse(null), is(nullValue()));
+    }
+
+    @Test
+    void givenThereIsReactiveToRequestDtoConverter_whenFindingIt_thenItShouldBeFound() {
+        when(reactiveToRequestDtoConverter.getSupportedModel()).thenReturn(MODEL_NAME);
+
+        DtoConverters converters = new DtoConvertersCollection(
+                emptyList(), emptyList(), emptyList(), emptyList(), singletonList(reactiveToRequestDtoConverter)
+        );
+
+        assertThat(converters.findReactiveToRequestDtoConverter(AModel.class).orElse(null),
+                is(sameInstance(reactiveToRequestDtoConverter)));
+    }
+
+    @Test
+    void givenThereIsNoReactiveToRequestDtoConverter_whenFindingIt_thenEmptyShouldBeReturned() {
+        assertThat(emptyConverters.findReactiveToRequestDtoConverter(AModel.class).orElse(null), is(nullValue()));
     }
 
     @ModelName(MODEL_NAME)

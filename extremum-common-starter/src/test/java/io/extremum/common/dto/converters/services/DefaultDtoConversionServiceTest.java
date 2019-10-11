@@ -1,10 +1,9 @@
 package io.extremum.common.dto.converters.services;
 
-import io.extremum.common.dto.converters.ConversionConfig;
-import io.extremum.common.dto.converters.ReactiveToResponseDtoConverter;
-import io.extremum.common.dto.converters.StubDtoConverter;
-import io.extremum.common.dto.converters.ToResponseDtoConverter;
+import io.extremum.common.dto.converters.*;
+import io.extremum.common.exceptions.ConverterNotFoundException;
 import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,9 +12,11 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.Optional;
 
+import static io.extremum.common.dto.converters.ConversionConfig.defaults;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
@@ -35,14 +36,15 @@ class DefaultDtoConversionServiceTest {
 
     @Mock
     private ResponseDto convertedResponse;
+    @Mock
+    private RequestDto convertedRequest;
 
     @Test
     void givenToResponseConverterExists_whenConvertUnknownToResponseDto_thenShouldConvertWithTheGivenConverter() {
         when(converters.findToResponseDtoConverter(AModel.class))
                 .thenReturn(Optional.of(new AModelToResponseConverter()));
 
-        ResponseDto response = dtoConversionService.convertUnknownToResponseDto(new AModel(),
-                ConversionConfig.defaults());
+        ResponseDto response = dtoConversionService.convertUnknownToResponseDto(new AModel(), defaults());
         assertThat(response, is(sameInstance(convertedResponse)));
     }
 
@@ -51,8 +53,7 @@ class DefaultDtoConversionServiceTest {
         when(converters.findToResponseDtoConverter(AModel.class))
                 .thenReturn(Optional.empty());
 
-        ResponseDto response = dtoConversionService.convertUnknownToResponseDto(new AModel(),
-                ConversionConfig.defaults());
+        ResponseDto response = dtoConversionService.convertUnknownToResponseDto(new AModel(), defaults());
         assertThatResponseIsStub(response);
     }
 
@@ -61,8 +62,8 @@ class DefaultDtoConversionServiceTest {
         when(converters.findReactiveToResponseDtoConverter(AModel.class))
                 .thenReturn(Optional.of(new AReactiveModelToResponseConverter()));
 
-        ResponseDto response = dtoConversionService.convertUnknownToResponseDtoReactively(new AModel(),
-                ConversionConfig.defaults()).block();
+        ResponseDto response = dtoConversionService.convertUnknownToResponseDtoReactively(new AModel(), defaults())
+                .block();
         assertThat(response, is(sameInstance(convertedResponse)));
     }
 
@@ -71,10 +72,32 @@ class DefaultDtoConversionServiceTest {
         when(converters.findReactiveToResponseDtoConverter(AModel.class))
                 .thenReturn(Optional.empty());
 
-        ResponseDto response = dtoConversionService.convertUnknownToResponseDtoReactively(new AModel(),
-                ConversionConfig.defaults()).block();
+        ResponseDto response = dtoConversionService.convertUnknownToResponseDtoReactively(new AModel(), defaults())
+                .block();
         assertThat(response, is(notNullValue()));
         assertThatResponseIsStub(response);
+    }
+
+    @Test
+    void givenReactiveToRequestConverterExists_whenConvertUnknownToRequestDtoReactively_thenShouldConvertWithTheGivenConverter() {
+        when(converters.findReactiveToRequestDtoConverter(AModel.class))
+                .thenReturn(Optional.of(new AReactiveModelToRequestConverter()));
+
+        RequestDto requestDto = dtoConversionService.convertUnknownToRequestDtoReactively(new AModel(), defaults())
+                .block();
+        assertThat(requestDto, is(sameInstance(convertedRequest)));
+    }
+
+    @Test
+    void givenReactiveToRequestConverterDoesNotExist_whenConvertUnknownToRequestDtoReactively_thenExceptionShouldBeThrown() {
+        when(converters.findReactiveToRequestDtoConverter(AModel.class))
+                .thenReturn(Optional.empty());
+
+        Mono<RequestDto> mono = dtoConversionService.convertUnknownToRequestDtoReactively(new AModel(), defaults());
+
+        StepVerifier.create(mono)
+                .expectError(ConverterNotFoundException.class)
+                .verify();
     }
 
     private void assertThatResponseIsStub(ResponseDto response) {
@@ -109,6 +132,23 @@ class DefaultDtoConversionServiceTest {
 
         @Override
         public Class<? extends ResponseDto> getResponseDtoType() {
+            return null;
+        }
+
+        @Override
+        public String getSupportedModel() {
+            return null;
+        }
+    }
+
+    private class AReactiveModelToRequestConverter implements ReactiveToRequestDtoConverter<AModel, RequestDto> {
+        @Override
+        public Mono<RequestDto> convertToRequestReactively(AModel model, ConversionConfig config) {
+            return Mono.just(convertedRequest);
+        }
+
+        @Override
+        public Class<? extends RequestDto> getRequestDtoType() {
             return null;
         }
 
