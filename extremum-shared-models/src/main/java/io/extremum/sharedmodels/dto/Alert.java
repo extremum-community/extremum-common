@@ -107,6 +107,11 @@ public class Alert {
             return this;
         }
 
+        public Builder withTimestamp(ZonedDateTime timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+
         public Builder withNowTimestamp() {
             timestamp = ZonedDateTime.now();
             return this;
