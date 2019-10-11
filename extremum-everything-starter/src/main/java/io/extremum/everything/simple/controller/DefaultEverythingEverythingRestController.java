@@ -1,10 +1,12 @@
-package io.extremum.everything.controllers;
+package io.extremum.everything.simple.controller;
 
 
 import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.common.logging.InternalErrorLogger;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
+import io.extremum.everything.controllers.EverythingEverythingRestController;
+import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.everything.services.management.EverythingEverythingManagementService;
 import io.extremum.everything.services.management.EverythingGetDemultiplexer;

@@ -13,42 +13,13 @@
         a Spring Boot application</description>
 
     <properties>
-        <testcoverage.minimum>0.78</testcoverage.minimum>
+        <testcoverage.minimum>0.15</testcoverage.minimum>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.extremum</groupId>
-            <artifactId>extremum-common-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.extremum</groupId>
-            <artifactId>extremum-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <!-- optional because our users will almost surely add spring-boot-starter-web
-                 or spring-boot-starter-webflux that will in turn add some container-specific
-                 servlet-api artifact. To reduce the necessity to exclude duplicates, we just
-                 'auto-exclude' the servlet-api ourselves -->
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
+            <artifactId>extremum-everything-core</artifactId>
         </dependency>
 
         <dependency>
@@ -56,21 +27,11 @@
             <artifactId>extremum-core-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
         </dependency>
     </dependencies>
 </project>

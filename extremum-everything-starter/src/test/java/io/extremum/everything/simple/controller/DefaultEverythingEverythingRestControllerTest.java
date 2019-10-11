@@ -1,4 +1,4 @@
-package io.extremum.everything.controllers;
+package io.extremum.everything.simple.controller;
 
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
 import io.extremum.everything.services.management.EverythingEverythingManagementService;

@@ -1,4 +1,4 @@
-package io.extremum.everything.config;
+package io.extremum.everything.simple.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.ReactiveSecurityProvider;
@@ -10,12 +10,13 @@ import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.common.support.ReactiveCommonServices;
 import io.extremum.common.support.UniversalReactiveModelLoaders;
-import io.extremum.everything.controllers.DefaultEverythingEverythingRestController;
+import io.extremum.everything.config.EverythingCoreConfiguration;
 import io.extremum.everything.controllers.EverythingEverythingRestController;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.services.*;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
+import io.extremum.everything.simple.controller.DefaultEverythingEverythingRestController;
 import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.DefaultReactiveModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
