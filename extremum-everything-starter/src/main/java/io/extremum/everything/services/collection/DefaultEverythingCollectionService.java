@@ -56,7 +56,7 @@ public class DefaultEverythingCollectionService implements EverythingCollectionS
     public Flux<ResponseDto> streamCollection(CollectionDescriptor id, Projection projection, boolean expand) {
         CoordinatesHandler coordinatesHandler = findCoordinatesHandler(id.getType());
         Flux<Model> models = coordinatesHandler.streamCollection(id.getCoordinates(), projection);
-        return models.flatMap(model -> convertModelToResponseDtoReactively(model, expand));
+        return models.concatMap(model -> convertModelToResponseDtoReactively(model, expand));
     }
 
     private CoordinatesHandler findCoordinatesHandler(CollectionDescriptor.Type type) {

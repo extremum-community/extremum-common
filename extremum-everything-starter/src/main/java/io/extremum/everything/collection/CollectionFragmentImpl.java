@@ -51,7 +51,7 @@ final class CollectionFragmentImpl<T> implements CollectionFragment<T> {
     @Override
     public <U> Mono<CollectionFragment<U>> mapReactively(Function<? super T, ? extends Mono<? extends U>> mapper) {
         return Flux.fromIterable(elements)
-                .flatMap(mapper)
+                .concatMap(mapper)
                 .collectList()
                 .map(mappedElements -> new CollectionFragmentImpl<>(mappedElements, total));
     }

@@ -38,7 +38,7 @@ public class ReactiveResponseCollectionsMakeupAspect {
     }
 
     private Object applyMakeupToFluxPayload(Flux<?> flux) {
-        return flux.flatMap(this::possiblyApplyMakeupToResponseDtoInsideResponseOrSSE);
+        return flux.concatMap(this::possiblyApplyMakeupToResponseDtoInsideResponseOrSSE);
     }
 
     private Mono<?> possiblyApplyMakeupToResponseDtoInsideResponseOrSSE(Object object) {

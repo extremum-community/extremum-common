@@ -103,7 +103,7 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
             }
             if (result instanceof Flux) {
                 Flux<?> flux = (Flux<?>) result;
-                return flux.flatMap(object -> {
+                return flux.concatMap(object -> {
                     return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(object))
                             .thenReturn(object);
                 });
