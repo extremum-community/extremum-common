@@ -1,15 +1,14 @@
 package io.extremum.everything.services.management;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
-import com.github.fge.jsonpatch.JsonPatch;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
@@ -18,9 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -56,7 +53,7 @@ class EverythingEverythingManagementServiceRoleSecurityTest {
 
     @Test
     void givenSecurityRolesDoNotAllowGetAnEntity_whenGettingIt_anExceptionShouldBeThrown() {
-        Mockito.doThrow(new ExtremumAccessDeniedException("Access denied"))
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(roleSecurity).checkGetAllowed(descriptor);
 
         try {

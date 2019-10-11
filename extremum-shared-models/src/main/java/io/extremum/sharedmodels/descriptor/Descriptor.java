@@ -24,7 +24,7 @@ public class Descriptor implements Serializable {
     private volatile String externalId;
 
     @JsonProperty("type")
-    private volatile Type type = Type.SINGLE;
+    private volatile Type type;
 
     @JsonProperty("internalId")
     private volatile String internalId;
@@ -71,15 +71,43 @@ public class Descriptor implements Serializable {
     }
 
     public Type effectiveType() {
-        if (type == null) {
-            return Type.SINGLE;
+        if (type != null) {
+            return type;
+        }
+        if (type == null && internalId == null) {
+            fillByExternalIdAndValidateAccordingToType();
         }
         return type;
     }
 
+    @UsesStaticDependencies
+    private void fillByExternalIdAndValidateAccordingToType() {
+        //noinspection deprecation
+        StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByExternalId(this.externalId)
+                .map(this::copyFieldsFromAnotherDescriptor)
+                .map(descriptor -> {
+                    descriptor.validateFilled();
+                    return descriptor;
+                })
+                .orElseThrow(this::newDescriptorNotFoundByExternalIdException);
+    }
+
+    private void validateFilled() {
+        if (type == Type.COLLECTION) {
+            if (collection == null) {
+                throw new IllegalStateException(
+                        String.format("No collection in descriptor with external ID '%s'", externalId));
+            }
+        } else {
+            if (internalId == null) {
+                throw newDescriptorNotFoundByExternalIdException();
+            }
+        }
+    }
+
     public String getInternalId() {
         if (this.internalId == null) {
-            fillByExternalId();
+            fillSingleByExternalId();
         }
         return this.internalId;
     }
@@ -166,7 +194,7 @@ public class Descriptor implements Serializable {
         if (this.internalId != null) {
             fillByInternalId();
         } else if (this.externalId != null) {
-            fillByExternalId();
+            fillSingleByExternalId();
         }
     }
 
@@ -186,7 +214,7 @@ public class Descriptor implements Serializable {
     }
 
     @UsesStaticDependencies
-    private void fillByExternalId() {
+    private void fillSingleByExternalId() {
         //noinspection deprecation
         StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByExternalId(this.externalId)
                 .map(this::copyFieldsFromAnotherDescriptor)
@@ -213,6 +241,24 @@ public class Descriptor implements Serializable {
         this.display = d.display;
 
         return d;
+    }
+
+    @JsonIgnore
+    @UsesStaticDependencies
+    public Mono<Type> effectiveTypeReactively() {
+        if (this.type != null) {
+            return Mono.just(type);
+        }
+
+        if (this.externalId != null) {
+            return loadByExternalIdReactively()
+                    .then(Mono.defer(() -> Mono.just(effectiveType())));
+        } else if (this.internalId != null) {
+            return loadByInternalIdReactively()
+                    .then(Mono.defer(() -> Mono.just(effectiveType())));
+        } else {
+            throw new IllegalStateException("Both externalId and internalId are null");
+        }
     }
 
     @Override

@@ -1,19 +1,17 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.everything.services.GetterService;
 import io.extremum.everything.services.ReactiveGetterService;
 import io.extremum.everything.services.defaultservices.DefaultGetter;
 import io.extremum.everything.services.defaultservices.DefaultReactiveGetter;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
-import static java.lang.String.format;
 
 /**
  * @author rpuch
@@ -51,9 +49,9 @@ public class ModelRetriever {
     private void logModel(Descriptor id, Object getter, Model model) {
         if (log.isDebugEnabled()) {
             if (model != null) {
-                log.debug(format("Model with ID '%s' was found by service '%s': '%s'", id, getter, model));
+                log.debug("Model with ID '{}' was found by service '{}': '{}'", id, getter, model);
             } else {
-                log.debug(format("Model with ID '%s' wasn't found by service '%s'", id, getter));
+                log.debug("Model with ID '{}' wasn't found by service '{}'", id, getter);
             }
         }
     }

@@ -1,6 +1,7 @@
 package io.extremum.everything.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.authentication.api.ReactiveSecurityProvider;
 import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.collection.conversion.*;
 import io.extremum.common.collection.service.CollectionDescriptorService;
@@ -38,7 +39,9 @@ import io.extremum.everything.services.collection.ListBasedCollectionProviders;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
 import io.extremum.everything.support.DefaultModelDescriptors;
+import io.extremum.everything.support.DefaultReactiveModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
+import io.extremum.everything.support.ReactiveModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
 import io.extremum.sharedmodels.basic.Model;
@@ -86,6 +89,15 @@ public class EverythingEverythingConfiguration {
             EverythingEverythingManagementService everythingManagementService,
             EverythingCollectionManagementService everythingCollectionManagementService) {
         return new EverythingGetDemultiplexerOnDescriptor(everythingManagementService,
+                everythingCollectionManagementService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveGetDemultiplexer reactiveGetDemultiplexer(
+            ReactiveEverythingManagementService everythingManagementService,
+            EverythingCollectionManagementService everythingCollectionManagementService) {
+        return new ReactiveGetDemultiplexerOnDescriptor(everythingManagementService,
                 everythingCollectionManagementService);
     }
 
@@ -211,6 +223,59 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactiveModelDescriptors reactiveModelDescriptors(ModelClasses modelClasses,
+                                                             ReactiveDescriptorService descriptorService) {
+        return new DefaultReactiveModelDescriptors(modelClasses, descriptorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultReactiveSaver defaultReactiveSaver(ReactiveCommonServices commonServices) {
+        return new DefaultReactiveSaverImpl(commonServices);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultReactiveRemover defaultReactiveRemover(ReactiveCommonServices commonServices,
+                                                         ReactiveModelDescriptors modelDescriptors) {
+        return new DefaultReactiveRemoverImpl(commonServices, modelDescriptors);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveModelSaver reactiveModelSaver(List<ReactiveSaverService<?>> saverServices,
+                                                 DefaultReactiveSaver defaultSaver) {
+        return new ReactiveModelSaver(saverServices, defaultSaver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactivePatcher reactivePatcher(
+            DtoConversionService dtoConversionService,
+            ObjectMapper objectMapper,
+            EmptyFieldDestroyer emptyFieldDestroyer,
+            RequestDtoValidator requestDtoValidator,
+            PatcherHooksCollection hooksCollection
+    ) {
+        return new ReactivePatcherImpl(dtoConversionService, objectMapper,
+                emptyFieldDestroyer, requestDtoValidator, hooksCollection);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactivePatchFlow reactivePatchFlow(
+            ModelRetriever modelRetriever,
+            ReactivePatcher patcher,
+            ReactiveModelSaver modelSaver,
+            DataSecurity dataSecurity,
+            PatcherHooksCollection hooksCollection
+    ) {
+        return new ReactivePatchFlowImpl(modelRetriever, patcher, modelSaver,
+                dataSecurity, hooksCollection);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public RoleChecker roleChecker(SecurityProvider securityProvider) {
         return new SecurityProviderRoleChecker(securityProvider);
     }
@@ -223,8 +288,26 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RoleSecurity everythingRoleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
+    public RoleSecurity roleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
         return new ModelAnnotationRoleSecurity(roleChecker, modelClasses);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveSecurityProvider reactiveSecurityProvider() {
+        return new NullReactiveSecurityProvider();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveRoleChecker reactiveRoleChecker(ReactiveSecurityProvider securityProvider) {
+        return new SecurityProviderReactiveRoleChecker(securityProvider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveRoleSecurity reactiveRoleSecurity(ReactiveRoleChecker roleChecker, ModelClasses modelClasses) {
+        return new ModelAnnotationReactiveRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
@@ -250,6 +333,24 @@ public class EverythingEverythingConfiguration {
                 defaultRemover,
                 dtoConversionService, dataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, roleSecurity);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveEverythingManagementService reactiveEverythingManagementService(
+            ModelRetriever modelRetriever,
+            ReactivePatchFlow patchFlow,
+            List<ReactiveRemovalService> removalServices,
+            DefaultReactiveRemover defaultRemover,
+            DtoConversionService dtoConversionService,
+            ReactiveRoleSecurity roleSecurity,
+            DataSecurity dataSecurity) {
+        ReactiveEverythingManagementService service = new DefaultReactiveEverythingManagementService(
+                modelRetriever,
+                patchFlow, removalServices,
+                defaultRemover,
+                dtoConversionService, dataSecurity);
+        return new RoleSecurityReactiveEverythingManagementService(service, roleSecurity);
     }
 
     @Bean
@@ -331,9 +432,11 @@ public class EverythingEverythingConfiguration {
     @ConditionalOnMissingBean
     public EverythingCollectionManagementService everythingCollectionManagementService(
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-            EverythingCollectionService everythingCollectionService
+            EverythingCollectionService everythingCollectionService,
+            ReactiveDescriptorService reactiveDescriptorService
     ) {
         return new DefaultEverythingCollectionManagementService(
-                reactiveCollectionDescriptorService, everythingCollectionService);
+                reactiveCollectionDescriptorService, everythingCollectionService,
+                reactiveDescriptorService);
     }
 }

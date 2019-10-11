@@ -66,6 +66,11 @@ class MockDtoConversionService implements DtoConversionService {
     }
 
     @Override
+    public Mono<RequestDto> convertUnknownToRequestDtoReactively(Model model, ConversionConfig config) {
+        return Mono.just(convertUnknownToRequestDto(model, config));
+    }
+
+    @Override
     public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
         return (M) findFromRequestDtoConverter(modelClass)
                 .orElseThrow(() -> new IllegalArgumentException("No from request dto converter for " + modelClass))
@@ -77,5 +82,10 @@ class MockDtoConversionService implements DtoConversionService {
         return findToRequestDtoConverter(modelClass)
                 .orElseThrow(() -> new IllegalStateException("No to-request-converter to " + modelClass))
                 .getRequestDtoType();
+    }
+
+    @Override
+    public Class<? extends RequestDto> findReactiveRequestDtoType(Class<? extends Model> modelClass) {
+        return findRequestDtoType(modelClass);
     }
 }

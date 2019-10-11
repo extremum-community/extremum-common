@@ -17,7 +17,7 @@ public final class ListBasedCommonServices implements CommonServices {
     public ListBasedCommonServices(List<CommonService<? extends Model>> services) {
         Map<Class<? extends Model>, CommonService<? extends Model>> map = new HashMap<>();
         for (CommonService<? extends Model> service : services)  {
-            Class<? extends Model> modelClass = CommonServiceUtils.findServiceModelClass(service);
+            Class<? extends Model> modelClass = CommonServiceUtils.findCommonServiceModelClass(service);
             map.put(modelClass, service);
         }
 

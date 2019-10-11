@@ -1,5 +1,7 @@
 package io.extremum.everything.collection;
 
+import reactor.core.publisher.Mono;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.OptionalLong;
@@ -30,4 +32,6 @@ public interface CollectionFragment<T> {
     OptionalLong total();
 
     <U> CollectionFragment<U> map(Function<? super T, ? extends U> mapper);
+
+    <U> Mono<CollectionFragment<U>> mapReactively(Function<? super T, ? extends Mono<? extends U>> mapper);
 }

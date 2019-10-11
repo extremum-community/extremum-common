@@ -72,7 +72,7 @@ class PatchFlowImplTest {
             new DtoConvertersCollection(
                     singletonList(new TestModelDtoConverter()),
                     singletonList(new TestModelDtoConverter()),
-                    emptyList(), emptyList()
+                    emptyList(), emptyList(), emptyList()
             ),
             new StubDtoConverter()
     );

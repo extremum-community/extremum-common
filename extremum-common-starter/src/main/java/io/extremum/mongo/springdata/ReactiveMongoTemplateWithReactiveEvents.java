@@ -94,7 +94,7 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
                 .map(objectToSave -> reactiveEventPublisher.publishEvent(
                         new ReactiveBeforeConvertEvent<>(objectToSave)))
                 .thenMany(saver.save())
-                .flatMap(saved -> {
+                .concatMap(saved -> {
                     return reactiveEventPublisher.publishEvent(new ReactiveAfterSaveEvent<>(saved))
                             .thenReturn(saved);
                 });
@@ -109,7 +109,7 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
     @Override
     public <T> Flux<T> find(@Nullable Query query, Class<T> entityClass, String collectionName) {
         return super.find(query, entityClass, collectionName)
-                .flatMap(loaded -> {
+                .concatMap(loaded -> {
                     return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(loaded))
                             .thenReturn(loaded);
                 });

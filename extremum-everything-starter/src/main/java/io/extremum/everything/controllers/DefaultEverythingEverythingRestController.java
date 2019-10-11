@@ -30,7 +30,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
 @ConvertNullDescriptorToModelNotFound
-@RequestMapping(path = "/v1/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/v1/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}",
+        produces = MediaType.APPLICATION_JSON_VALUE)
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
@@ -48,7 +49,6 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
             @ApiImplicitParam(name = "until", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
     })
     @GetMapping
-    //    FIXME does projection need any annotation?
     public Response get(@PathVariable Descriptor id, Projection projection,
                         @RequestParam(defaultValue = "false") boolean expand) {
         return demultiplexer.get(id, projection, expand);
