@@ -2,9 +2,10 @@ package io.extremum.everything.simple.controller;
 
 
 import com.github.fge.jsonpatch.JsonPatch;
-import io.extremum.common.logging.InternalErrorLogger;
 import io.extremum.everything.aop.ConvertNullDescriptorToModelNotFound;
 import io.extremum.everything.collection.Projection;
+import io.extremum.everything.controllers.CollectionStreamer;
+import io.extremum.everything.controllers.EverythingControllers;
 import io.extremum.everything.controllers.EverythingEverythingRestController;
 import io.extremum.everything.controllers.EverythingExceptionHandlerTarget;
 import io.extremum.everything.services.management.EverythingCollectionManagementService;
@@ -12,34 +13,37 @@ import io.extremum.everything.services.management.EverythingEverythingManagement
 import io.extremum.everything.services.management.EverythingGetDemultiplexer;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.Response;
-import io.extremum.sharedmodels.dto.ResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Api(tags = "Everything Everything")
 @Slf4j
 @CrossOrigin
 @RestController
-@RequiredArgsConstructor
 @EverythingExceptionHandlerTarget
 @ConvertNullDescriptorToModelNotFound
-@RequestMapping(path = "/v1/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}",
-        produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = EverythingControllers.EVERYTHING_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 public class DefaultEverythingEverythingRestController implements EverythingEverythingRestController {
     private final EverythingEverythingManagementService evrEvrManagementService;
-    private final EverythingCollectionManagementService collectionManagementService;
     private final EverythingGetDemultiplexer demultiplexer;
 
-    private final InternalErrorLogger errorLogger = new InternalErrorLogger(log);
+    private final CollectionStreamer collectionStreamer;
+
+    public DefaultEverythingEverythingRestController(EverythingEverythingManagementService evrEvrManagementService,
+                                                     EverythingCollectionManagementService collectionManagementService,
+                                                     EverythingGetDemultiplexer demultiplexer) {
+        this.evrEvrManagementService = evrEvrManagementService;
+        this.demultiplexer = demultiplexer;
+
+        collectionStreamer = new CollectionStreamer(collectionManagementService);
+    }
 
     @ApiOperation(value = "Everything get")
     @ApiImplicitParams({
@@ -94,20 +98,6 @@ public class DefaultEverythingEverythingRestController implements EverythingEver
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<Object>> streamCollection(@PathVariable String id, Projection projection,
                                                           @RequestParam(defaultValue = "false") boolean expand) {
-        return collectionManagementService.streamCollection(id, projection, expand)
-                .map(this::dtoToSse)
-                .onErrorResume(e -> Mono.just(throwableToSse(e)));
-    }
-
-    private ServerSentEvent<Object> dtoToSse(ResponseDto dto) {
-        return ServerSentEvent.builder()
-                .data(dto)
-                .build();
-    }
-
-    private ServerSentEvent<Object> throwableToSse(Throwable e) {
-        return ServerSentEvent.builder().event("internal-error")
-                .data(errorLogger.logErrorAndReturnId(e))
-                .build();
+        return collectionStreamer.streamCollection(id, projection, expand);
     }
 }
