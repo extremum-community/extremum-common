@@ -23,7 +23,7 @@ import io.extremum.everything.support.DefaultReactiveModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.everything.support.ReactiveModelDescriptors;
 import io.extremum.security.*;
-import io.extremum.security.services.DataAccessChecker;
+import io.extremum.security.services.ReactiveDataAccessChecker;
 import io.extremum.starter.CommonConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -128,7 +128,7 @@ public class ReactiveEverythingConfiguration {
             ModelRetriever modelRetriever,
             ReactivePatcher patcher,
             ReactiveModelSaver modelSaver,
-            DataSecurity dataSecurity,
+            ReactiveDataSecurity dataSecurity,
             PatcherHooksCollection hooksCollection
     ) {
         return new ReactivePatchFlowImpl(modelRetriever, patcher, modelSaver,
@@ -149,16 +149,22 @@ public class ReactiveEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactivePrincipalSource reactivePrincipalSource(ReactiveSecurityProvider securityProvider) {
+        return new SecurityProviderReactivePrincipalSource(securityProvider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public ReactiveRoleSecurity reactiveRoleSecurity(ReactiveRoleChecker roleChecker, ModelClasses modelClasses) {
         return new ModelAnnotationReactiveRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    // TODO: reactify
-    public DataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker,
-                                               PrincipalSource principalSource) {
-        return new AccessCheckersDataSecurity(checkers, roleChecker, principalSource);
+    public ReactiveDataSecurity reactiveDataSecurity(List<ReactiveDataAccessChecker<?>> checkers,
+                                                     ReactiveRoleChecker roleChecker,
+                                                     ReactivePrincipalSource principalSource) {
+        return new AccessCheckersReactiveDataSecurity(checkers, roleChecker, principalSource);
     }
 
     @Bean
@@ -170,7 +176,7 @@ public class ReactiveEverythingConfiguration {
             DefaultReactiveRemover defaultRemover,
             DtoConversionService dtoConversionService,
             ReactiveRoleSecurity roleSecurity,
-            DataSecurity dataSecurity) {
+            ReactiveDataSecurity dataSecurity) {
         ReactiveEverythingManagementService service = new DefaultReactiveEverythingManagementService(
                 modelRetriever,
                 patchFlow, removalServices,

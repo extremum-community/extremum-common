@@ -21,9 +21,9 @@ import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import io.extremum.everything.services.RequestDtoValidator;
 import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.security.AllowEverythingForDataAccess;
-import io.extremum.security.DataSecurity;
+import io.extremum.security.AllowEverythingForDataAccessReactively;
 import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.security.ReactiveDataSecurity;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.RequestDto;
@@ -79,7 +79,7 @@ class ReactivePatchFlowImplTest {
     @Mock
     private RequestDtoValidator requestDtoValidator;
     @Spy
-    private DataSecurity dataSecurity = new AllowEverythingForDataAccess();
+    private ReactiveDataSecurity dataSecurity = new AllowEverythingForDataAccessReactively();
     @Spy
     private PatcherHooksCollection patcherHooksCollection = new PatcherHooksCollection(emptyList());
 
@@ -156,7 +156,8 @@ class ReactivePatchFlowImplTest {
     @Test
     void givenDataSecurityDoesNotAllowToPatch_whenPatching_thenAnExceptionShouldBeThrown() {
         whenRetrieveModelThenReturnATestModel();
-        Mockito.doThrow(new ExtremumAccessDeniedException("Access denied"))
+        //noinspection UnassignedFluxMonoInstance
+        doThrow(new ExtremumAccessDeniedException("Access denied"))
                 .when(dataSecurity).checkPatchAllowed(any());
 
         try {

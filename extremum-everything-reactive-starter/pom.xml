@@ -16,7 +16,7 @@
         (reactive flavor) to a Spring Boot application</description>
 
     <properties>
-        <testcoverage.minimum>0.35</testcoverage.minimum>
+        <testcoverage.minimum>0.34</testcoverage.minimum>
     </properties>
 
     <dependencies>

@@ -5,7 +5,7 @@ import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.services.ReactiveGetterService;
-import io.extremum.security.AllowEverythingForDataAccess;
+import io.extremum.security.AllowEverythingForDataAccessReactively;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ class DefaultReactiveEverythingManagementServiceTest {
                 new ModelRetriever(emptyList(), ImmutableList.of(new AlwaysEmptyGetterService()), null, null),
                 null, null, null,
                 dtoConversionService,
-                new AllowEverythingForDataAccess()
+                new AllowEverythingForDataAccessReactively()
         );
     }
 

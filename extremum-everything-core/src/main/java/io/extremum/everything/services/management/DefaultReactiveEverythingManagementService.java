@@ -8,6 +8,7 @@ import io.extremum.common.modelservices.ModelServices;
 import io.extremum.everything.services.ReactiveRemovalService;
 import io.extremum.everything.services.defaultservices.DefaultReactiveRemover;
 import io.extremum.security.DataSecurity;
+import io.extremum.security.ReactiveDataSecurity;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -23,7 +24,7 @@ public class DefaultReactiveEverythingManagementService implements ReactiveEvery
     private final List<ReactiveRemovalService> removalServices;
     private final DefaultReactiveRemover defaultRemover;
     private final DtoConversionService dtoConversionService;
-    private final DataSecurity dataSecurity;
+    private final ReactiveDataSecurity dataSecurity;
 
     private final ModelNames modelNames = new ModelNames();
 

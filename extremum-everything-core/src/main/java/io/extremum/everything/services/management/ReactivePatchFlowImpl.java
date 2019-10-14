@@ -2,7 +2,7 @@ package io.extremum.everything.services.management;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.everything.services.PatchPersistenceContext;
-import io.extremum.security.DataSecurity;
+import io.extremum.security.ReactiveDataSecurity;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,13 +15,13 @@ public class ReactivePatchFlowImpl implements ReactivePatchFlow {
     private final ModelRetriever modelRetriever;
     private final ReactivePatcher patcher;
     private final ReactiveModelSaver modelSaver;
-    private final DataSecurity dataSecurity;
+    private final ReactiveDataSecurity dataSecurity;
     private final PatcherHooksCollection hooksCollection;
 
     public ReactivePatchFlowImpl(ModelRetriever modelRetriever,
                                  ReactivePatcher patcher,
                                  ReactiveModelSaver modelSaver,
-                                 DataSecurity dataSecurity,
+                                 ReactiveDataSecurity dataSecurity,
                                  PatcherHooksCollection hooksCollection) {
         Objects.requireNonNull(modelRetriever, "modelRetriever cannot be null");
         Objects.requireNonNull(patcher, "patcher cannot be null");
