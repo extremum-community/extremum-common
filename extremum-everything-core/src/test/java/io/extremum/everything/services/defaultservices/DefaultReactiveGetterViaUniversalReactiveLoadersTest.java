@@ -17,9 +17,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultReactiveGetterImplTest {
+class DefaultReactiveGetterViaUniversalReactiveLoadersTest {
     @InjectMocks
-    private DefaultReactiveGetterImpl getter;
+    private DefaultReactiveGetterViaUniversalReactiveLoaders getter;
 
     @Mock
     private UniversalReactiveModelLoaders universalReactiveModelLoaders;
@@ -41,7 +41,7 @@ class DefaultReactiveGetterImplTest {
         when(universalReactiveModelLoaders.loadByDescriptor(descriptor))
                 .thenReturn(Mono.just(modelFromDatabase));
 
-        Model model = getter.reactiveGet("internalId").block();
+        Model model = getter.get("internalId").block();
 
         assertThat(model, is(sameInstance(modelFromDatabase)));
     }

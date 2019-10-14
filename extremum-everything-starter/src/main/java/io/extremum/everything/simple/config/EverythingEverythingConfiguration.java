@@ -76,7 +76,7 @@ public class EverythingEverythingConfiguration {
     public DefaultReactiveGetter defaultReactiveGetter(
             ReactiveDescriptorService reactiveDescriptorService,
             UniversalReactiveModelLoaders universalReactiveModelLoader) {
-        return new DefaultReactiveGetterImpl(reactiveDescriptorService, universalReactiveModelLoader);
+        return new DefaultReactiveGetterViaUniversalReactiveLoaders(reactiveDescriptorService, universalReactiveModelLoader);
     }
 
     @Bean

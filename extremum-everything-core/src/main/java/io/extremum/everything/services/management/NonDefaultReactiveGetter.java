@@ -17,7 +17,7 @@ final class NonDefaultReactiveGetter implements ReactiveGetter {
     }
 
     @Override
-    public Mono<Model> reactiveGet(String id) {
+    public Mono<Model> get(String id) {
         return getterService.get(id);
     }
 }

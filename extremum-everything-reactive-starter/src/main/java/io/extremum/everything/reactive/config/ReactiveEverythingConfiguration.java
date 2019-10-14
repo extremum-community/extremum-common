@@ -8,7 +8,6 @@ import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.common.support.ReactiveCommonServices;
-import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.everything.config.EverythingCoreConfiguration;
 import io.extremum.everything.controllers.EverythingEverythingRestController;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
@@ -77,9 +76,8 @@ public class ReactiveEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DefaultReactiveGetter defaultReactiveGetter(
-            ReactiveDescriptorService reactiveDescriptorService,
-            UniversalReactiveModelLoaders universalReactiveModelLoader) {
-        return new DefaultReactiveGetterImpl(reactiveDescriptorService, universalReactiveModelLoader);
+            ReactiveCommonServices commonServices, ReactiveModelDescriptors modelDescriptors) {
+        return new DefaultReactiveGetterViaReactiveCommonServices(commonServices, modelDescriptors);
     }
 
     @Bean

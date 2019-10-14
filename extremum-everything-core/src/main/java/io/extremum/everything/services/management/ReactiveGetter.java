@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
  * @author rpuch
  */
 public interface ReactiveGetter {
-    Mono<Model> reactiveGet(String id);
+    Mono<Model> get(String id);
 }
