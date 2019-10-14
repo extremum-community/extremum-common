@@ -1,4 +1,4 @@
-package io.extremum.everything.controllers;
+package io.extremum.everything.reactive.controller;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;

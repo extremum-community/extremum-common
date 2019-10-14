@@ -9,8 +9,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>extremum-everything-starter</artifactId>
-    <description>Spring Boot starter that adds support for everything-everything framework to
-        a Spring Boot application</description>
+    <description>Spring Boot starter that adds support for everything-everything framework
+        (non-reactive flavor) to a Spring Boot application</description>
 
     <properties>
         <testcoverage.minimum>0.15</testcoverage.minimum>

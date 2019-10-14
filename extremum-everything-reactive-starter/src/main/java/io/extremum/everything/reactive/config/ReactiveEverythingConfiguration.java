@@ -1,24 +1,27 @@
-package io.extremum.everything.simple.config;
+package io.extremum.everything.reactive.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.authentication.api.SecurityProvider;
+import io.extremum.authentication.api.ReactiveSecurityProvider;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
+import io.extremum.common.support.ReactiveCommonServices;
 import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.everything.config.EverythingCoreConfiguration;
 import io.extremum.everything.controllers.EverythingEverythingRestController;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
-import io.extremum.everything.services.RemovalService;
+import io.extremum.everything.reactive.controller.ReactiveEverythingEverythingRestController;
+import io.extremum.everything.services.ReactiveRemovalService;
+import io.extremum.everything.services.ReactiveSaverService;
 import io.extremum.everything.services.RequestDtoValidator;
-import io.extremum.everything.services.SaverService;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
-import io.extremum.everything.simple.controller.DefaultEverythingEverythingRestController;
 import io.extremum.everything.support.DefaultModelDescriptors;
+import io.extremum.everything.support.DefaultReactiveModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
+import io.extremum.everything.support.ReactiveModelDescriptors;
 import io.extremum.security.*;
 import io.extremum.security.services.DataAccessChecker;
 import io.extremum.starter.CommonConfiguration;
@@ -37,24 +40,24 @@ import java.util.List;
 @AutoConfigureAfter(CommonConfiguration.class)
 @AutoConfigureBefore({WebMvcAutoConfiguration.class, WebFluxAutoConfiguration.class})
 @Import(EverythingCoreConfiguration.class)
-public class EverythingEverythingConfiguration {
+public class ReactiveEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingGetDemultiplexer everythingDemultiplexer(
-            EverythingEverythingManagementService everythingManagementService,
+    public ReactiveGetDemultiplexer reactiveGetDemultiplexer(
+            ReactiveEverythingManagementService everythingManagementService,
             EverythingCollectionManagementService everythingCollectionManagementService) {
-        return new EverythingGetDemultiplexerOnDescriptor(everythingManagementService,
+        return new ReactiveGetDemultiplexerOnDescriptor(everythingManagementService,
                 everythingCollectionManagementService);
     }
 
     @Bean
     @ConditionalOnMissingBean(EverythingEverythingRestController.class)
-    public DefaultEverythingEverythingRestController everythingEverythingRestController(
-            EverythingEverythingManagementService everythingManagementService,
+    public ReactiveEverythingEverythingRestController everythingEverythingRestController(
+            ReactiveEverythingManagementService everythingManagementService,
             EverythingCollectionManagementService everythingCollectionManagementService,
-            EverythingGetDemultiplexer multiplexer) {
-        return new DefaultEverythingEverythingRestController(everythingManagementService,
+            ReactiveGetDemultiplexer multiplexer) {
+        return new ReactiveEverythingEverythingRestController(everythingManagementService,
                 everythingCollectionManagementService, multiplexer);
     }
 
@@ -81,68 +84,78 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultSaver defaultSaver(CommonServices commonServices) {
-        return new DefaultSaverImpl(commonServices);
+    public ReactiveModelDescriptors reactiveModelDescriptors(ModelClasses modelClasses,
+                                                             ReactiveDescriptorService descriptorService) {
+        return new DefaultReactiveModelDescriptors(modelClasses, descriptorService);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DefaultRemover defaultRemover(CommonServices commonServices, ModelDescriptors modelDescriptors) {
-        return new DefaultRemoverImpl(commonServices, modelDescriptors);
+    public DefaultReactiveSaver defaultReactiveSaver(ReactiveCommonServices commonServices) {
+        return new DefaultReactiveSaverImpl(commonServices);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ModelSaver modelSaver(List<SaverService<?>> saverServices, DefaultSaver defaultSaver) {
-        return new ModelSaver(saverServices, defaultSaver);
+    public DefaultReactiveRemover defaultReactiveRemover(ReactiveCommonServices commonServices,
+                                                         ReactiveModelDescriptors modelDescriptors) {
+        return new DefaultReactiveRemoverImpl(commonServices, modelDescriptors);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public Patcher patcher(
+    public ReactiveModelSaver reactiveModelSaver(List<ReactiveSaverService<?>> saverServices,
+                                                 DefaultReactiveSaver defaultSaver) {
+        return new ReactiveModelSaver(saverServices, defaultSaver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactivePatcher reactivePatcher(
             DtoConversionService dtoConversionService,
             ObjectMapper objectMapper,
             EmptyFieldDestroyer emptyFieldDestroyer,
             RequestDtoValidator requestDtoValidator,
             PatcherHooksCollection hooksCollection
     ) {
-        return new PatcherImpl(dtoConversionService, objectMapper,
+        return new ReactivePatcherImpl(dtoConversionService, objectMapper,
                 emptyFieldDestroyer, requestDtoValidator, hooksCollection);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public PatchFlow patchFlow(
+    public ReactivePatchFlow reactivePatchFlow(
             ModelRetriever modelRetriever,
-            Patcher patcher,
-            ModelSaver modelSaver,
+            ReactivePatcher patcher,
+            ReactiveModelSaver modelSaver,
             DataSecurity dataSecurity,
             PatcherHooksCollection hooksCollection
     ) {
-        return new PatchFlowImpl(modelRetriever, patcher, modelSaver,
+        return new ReactivePatchFlowImpl(modelRetriever, patcher, modelSaver,
                 dataSecurity, hooksCollection);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RoleChecker roleChecker(SecurityProvider securityProvider) {
-        return new SecurityProviderRoleChecker(securityProvider);
+    public ReactiveSecurityProvider reactiveSecurityProvider() {
+        return new NullReactiveSecurityProvider();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public PrincipalSource principalSource(SecurityProvider securityProvider) {
-        return new SecurityProviderPrincipalSource(securityProvider);
+    public ReactiveRoleChecker reactiveRoleChecker(ReactiveSecurityProvider securityProvider) {
+        return new SecurityProviderReactiveRoleChecker(securityProvider);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RoleSecurity roleSecurity(RoleChecker roleChecker, ModelClasses modelClasses) {
-        return new ModelAnnotationRoleSecurity(roleChecker, modelClasses);
+    public ReactiveRoleSecurity reactiveRoleSecurity(ReactiveRoleChecker roleChecker, ModelClasses modelClasses) {
+        return new ModelAnnotationReactiveRoleSecurity(roleChecker, modelClasses);
     }
 
     @Bean
     @ConditionalOnMissingBean
+    // TODO: reactify
     public DataSecurity everythingDataSecurity(List<DataAccessChecker<?>> checkers, RoleChecker roleChecker,
                                                PrincipalSource principalSource) {
         return new AccessCheckersDataSecurity(checkers, roleChecker, principalSource);
@@ -150,19 +163,19 @@ public class EverythingEverythingConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EverythingEverythingManagementService everythingEverythingManagementService(
+    public ReactiveEverythingManagementService reactiveEverythingManagementService(
             ModelRetriever modelRetriever,
-            PatchFlow patchFlow,
-            List<RemovalService> removalServices,
-            DefaultRemover defaultRemover,
+            ReactivePatchFlow patchFlow,
+            List<ReactiveRemovalService> removalServices,
+            DefaultReactiveRemover defaultRemover,
             DtoConversionService dtoConversionService,
-            RoleSecurity roleSecurity,
+            ReactiveRoleSecurity roleSecurity,
             DataSecurity dataSecurity) {
-        EverythingEverythingManagementService service = new DefaultEverythingEverythingManagementService(
+        ReactiveEverythingManagementService service = new DefaultReactiveEverythingManagementService(
                 modelRetriever,
                 patchFlow, removalServices,
                 defaultRemover,
                 dtoConversionService, dataSecurity);
-        return new RoleSecurityEverythingEverythingManagementService(service, roleSecurity);
+        return new RoleSecurityReactiveEverythingManagementService(service, roleSecurity);
     }
 }

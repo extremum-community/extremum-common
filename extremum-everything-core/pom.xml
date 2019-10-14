@@ -13,7 +13,7 @@
     <artifactId>extremum-everything-core</artifactId>
 
     <properties>
-        <testcoverage.minimum>0.82</testcoverage.minimum>
+        <testcoverage.minimum>0.81</testcoverage.minimum>
     </properties>
 
     <dependencies>
