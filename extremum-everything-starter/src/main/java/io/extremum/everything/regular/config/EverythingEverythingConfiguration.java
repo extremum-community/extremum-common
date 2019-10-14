@@ -1,4 +1,4 @@
-package io.extremum.everything.simple.config;
+package io.extremum.everything.regular.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.SecurityProvider;
@@ -16,7 +16,7 @@ import io.extremum.everything.services.RequestDtoValidator;
 import io.extremum.everything.services.SaverService;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
-import io.extremum.everything.simple.controller.DefaultEverythingEverythingRestController;
+import io.extremum.everything.regular.controller.DefaultEverythingEverythingRestController;
 import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;

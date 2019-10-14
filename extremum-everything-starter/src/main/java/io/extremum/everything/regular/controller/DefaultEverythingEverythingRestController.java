@@ -1,4 +1,4 @@
-package io.extremum.everything.simple.controller;
+package io.extremum.everything.regular.controller;
 
 
 import com.github.fge.jsonpatch.JsonPatch;
