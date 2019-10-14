@@ -8,8 +8,6 @@ import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.AlertLevelEnum;
 import io.extremum.sharedmodels.dto.Pagination;
 import io.extremum.sharedmodels.spacetime.TimeFrame;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -63,16 +61,16 @@ class SystemJsonObjectMapperTest {
                 .readerFor(Descriptor.class).readValue(json);
 
         assertThat(descriptor.getDisplay(), is(notNullValue()));
-        MatcherAssert.assertThat(descriptor.getDisplay().getType(), CoreMatchers.is(Display.Type.OBJECT));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon(), is(notNullValue()));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getType(), CoreMatchers.is(MediaType.IMAGE));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getUrl(), is("/url/to/resource"));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getDepth(), is(2));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getDuration(), is(notNullValue()));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getDuration().isInteger(), is(true));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getDuration().getIntegerValue(), is(20));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getWidth(), is(100));
-        MatcherAssert.assertThat(descriptor.getDisplay().getIcon().getHeight(), is(200));
+        assertThat(descriptor.getDisplay().getType(), is(Display.Type.OBJECT));
+        assertThat(descriptor.getDisplay().getIcon(), is(notNullValue()));
+        assertThat(descriptor.getDisplay().getIcon().getType(), is(MediaType.IMAGE));
+        assertThat(descriptor.getDisplay().getIcon().getUrl(), is("/url/to/resource"));
+        assertThat(descriptor.getDisplay().getIcon().getDepth(), is(2));
+        assertThat(descriptor.getDisplay().getIcon().getDuration(), is(notNullValue()));
+        assertThat(descriptor.getDisplay().getIcon().getDuration().isInteger(), is(true));
+        assertThat(descriptor.getDisplay().getIcon().getDuration().getIntegerValue(), is(20));
+        assertThat(descriptor.getDisplay().getIcon().getWidth(), is(100));
+        assertThat(descriptor.getDisplay().getIcon().getHeight(), is(200));
     }
 
     @Test
@@ -85,7 +83,7 @@ class SystemJsonObjectMapperTest {
 
         assertThat(deserializedAlert.isError(), is(true));
         assertThat(deserializedAlert.getMessage(), is("Oops"));
-        MatcherAssert.assertThat(deserializedAlert.getLevel(), CoreMatchers.is(AlertLevelEnum.ERROR));
+        assertThat(deserializedAlert.getLevel(), is(AlertLevelEnum.ERROR));
     }
 
     @Test

@@ -2,7 +2,6 @@ package io.extremum.jpa.dao;
 
 import io.extremum.jpa.TestWithServices;
 import io.extremum.jpa.model.HardDeleteJpaModel;
-import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +16,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
 class JpaHardDeleteRepositoriesTest extends TestWithServices {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private HardDeleteJpaDao dao;
 
@@ -79,7 +76,7 @@ class JpaHardDeleteRepositoriesTest extends TestWithServices {
 
         dao.deleteById(model.getId());
 
-        assertThat(dao.findById(model.getId()).isPresent(), CoreMatchers.is(false));
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
     }
 
     @Test
@@ -87,8 +84,8 @@ class JpaHardDeleteRepositoriesTest extends TestWithServices {
         HardDeleteJpaModel model = dao.save(new HardDeleteJpaModel());
 
         HardDeleteJpaModel deletedModel = dao.deleteByIdAndReturn(model.getId());
-        assertThat(deletedModel.getId(), CoreMatchers.is(equalTo(model.getId())));
+        assertThat(deletedModel.getId(), is(equalTo(model.getId())));
 
-        assertThat(dao.findById(model.getId()).isPresent(), CoreMatchers.is(false));
+        assertThat(dao.findById(model.getId()).isPresent(), is(false));
     }
 }

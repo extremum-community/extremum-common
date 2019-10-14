@@ -5,7 +5,6 @@ import io.extremum.common.utils.ModelUtils;
 import io.extremum.jpa.TestWithServices;
 import io.extremum.jpa.model.TestJpaModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import org.hamcrest.MatcherAssert;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -22,11 +21,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = JpaCommonDaoConfiguration.class)
@@ -242,8 +237,8 @@ class JpaCommonDaoTest extends TestWithServices {
         TestJpaModel proxy = dao.getOne(testModel.getId());
         TestJpaModel model = dao.findById(testModel.getId())
                 .orElseThrow(this::didNotFindAnything);
-        MatcherAssert.assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
-        MatcherAssert.assertThat(ModelUtils.getModelName(proxy), is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(model), is("TestJpaModel"));
+        assertThat(ModelUtils.getModelName(proxy), is("TestJpaModel"));
     }
 
     @NotNull

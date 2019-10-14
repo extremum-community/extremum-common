@@ -1,9 +1,8 @@
 package io.extremum.common.utils;
 
-import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.annotation.HardDelete;
 import io.extremum.common.model.annotation.ModelName;
-import org.hamcrest.MatcherAssert;
+import io.extremum.mongo.model.MongoCommonModel;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -16,17 +15,17 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ModelUtilsTest {
     @Test
     void givenModelNameAnnotationExists_whenGetModelNameIsCalledWithClass_thenModelNameShouldBeReturned() {
-        MatcherAssert.assertThat(ModelUtils.getModelName(Annotated.class), is("the-name"));
+        assertThat(ModelUtils.getModelName(Annotated.class), is("the-name"));
     }
 
     @Test
     void givenModelNameAnnotationExists_whenGetModelNameIsCalledWithObject_thenModelNameShouldBeReturned() {
-        MatcherAssert.assertThat(ModelUtils.getModelName(new Annotated()), is("the-name"));
+        assertThat(ModelUtils.getModelName(new Annotated()), is("the-name"));
     }
 
     @Test
     void givenModelIsAProxyOfAnAnnotatedClass_whenGetModelNameIsCalledWithObject_thenModelNameShouldBeReturned() {
-        MatcherAssert.assertThat(ModelUtils.getModelName(new AProxy$HibernateProxy$Tail()), is("the-name"));
+        assertThat(ModelUtils.getModelName(new AProxy$HibernateProxy$Tail()), is("the-name"));
     }
 
     @Test

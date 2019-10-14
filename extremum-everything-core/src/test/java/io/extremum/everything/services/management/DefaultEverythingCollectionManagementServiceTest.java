@@ -2,16 +2,14 @@ package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
-import io.extremum.everything.services.collection.EverythingCollectionService;
-import io.extremum.sharedmodels.dto.Response;
-import io.extremum.sharedmodels.dto.ResponseStatusEnum;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
+import io.extremum.everything.services.collection.EverythingCollectionService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
+import io.extremum.sharedmodels.dto.ResponseStatusEnum;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +30,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,7 +65,7 @@ class DefaultEverythingCollectionManagementServiceTest {
         Response response = service.fetchCollection(collectionDescriptor, emptyProjection, true);
 
         assertThat(response, is(notNullValue()));
-        MatcherAssert.assertThat(response.getStatus(), CoreMatchers.is(ResponseStatusEnum.OK));
+        assertThat(response.getStatus(), is(ResponseStatusEnum.OK));
         assertThat(response.getCode(), is(200));
         assertThat(response.getResult(), is(instanceOf(Collection.class)));
         @SuppressWarnings("unchecked")
@@ -118,7 +117,7 @@ class DefaultEverythingCollectionManagementServiceTest {
         Response response = service.fetchCollectionReactively(collectionDescriptor, emptyProjection, true).block();
 
         assertThat(response, is(notNullValue()));
-        MatcherAssert.assertThat(response.getStatus(), CoreMatchers.is(ResponseStatusEnum.OK));
+        assertThat(response.getStatus(), is(ResponseStatusEnum.OK));
         assertThat(response.getCode(), is(200));
         assertThat(response.getResult(), is(instanceOf(Collection.class)));
         @SuppressWarnings("unchecked")

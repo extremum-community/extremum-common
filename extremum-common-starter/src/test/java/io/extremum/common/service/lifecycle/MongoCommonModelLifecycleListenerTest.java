@@ -10,7 +10,6 @@ import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,7 +71,7 @@ class MongoCommonModelLifecycleListenerTest {
     }
 
     private void assertThatDescriptorInternalIdMatchesEntityId(TestMongoModel model) {
-        assertThat(model.getId().toString(), CoreMatchers.is(equalTo(model.getUuid().getInternalId())));
+        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
     }
 
     private void assertThatDescriptorWasSaved(TestMongoModel model) {
