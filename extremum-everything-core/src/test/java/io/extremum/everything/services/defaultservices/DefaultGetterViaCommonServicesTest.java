@@ -16,9 +16,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultGetterImplTest {
+class DefaultGetterViaCommonServicesTest {
     @InjectMocks
-    private DefaultGetterImpl getter;
+    private DefaultGetterViaCommonServices getter;
 
     @Mock
     private CommonServices commonServices;

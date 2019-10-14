@@ -102,7 +102,7 @@ class EverythingServicesTest {
         List<SaverService<?>> savers = ImmutableList.of(mongoWithServicesSaverService);
         List<RemovalService> removers = ImmutableList.of(mongoWithServicesRemovalService);
 
-        DefaultGetter defaultGetter = new DefaultGetterImpl(commonServices, modelDescriptors);
+        DefaultGetter defaultGetter = new DefaultGetterViaCommonServices(commonServices, modelDescriptors);
         DefaultSaver defaultSaver = new DefaultSaverImpl(commonServices);
         DefaultRemover defaultRemover = new DefaultRemoverImpl(commonServices, modelDescriptors);
 

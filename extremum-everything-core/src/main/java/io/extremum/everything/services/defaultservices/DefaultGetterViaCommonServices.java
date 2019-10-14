@@ -7,7 +7,7 @@ import io.extremum.everything.support.ModelDescriptors;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DefaultGetterImpl implements DefaultGetter {
+public class DefaultGetterViaCommonServices implements DefaultGetter {
     private final CommonServices commonServices;
     private final ModelDescriptors modelDescriptors;
 

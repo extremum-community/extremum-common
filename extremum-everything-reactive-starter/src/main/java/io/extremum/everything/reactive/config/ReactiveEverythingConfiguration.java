@@ -71,7 +71,7 @@ public class ReactiveEverythingConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DefaultGetter defaultGetter(CommonServices commonServices, ModelDescriptors modelDescriptors) {
-        return new DefaultGetterImpl(commonServices, modelDescriptors);
+        return new DefaultGetterViaCommonServices(commonServices, modelDescriptors);
     }
 
     @Bean
