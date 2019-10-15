@@ -55,7 +55,7 @@ public class ReactiveEverythingEverythingRestController implements EverythingEve
             @ApiImplicitParam(name = "until", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
     })
     @GetMapping
-    public Mono<Response> get(@PathVariable Descriptor id, Projection projection,
+    public Mono<Response> get(@PathVariable String id, Projection projection,
                               @RequestParam(defaultValue = "false") boolean expand) {
         return demultiplexer.get(id, projection, expand);
     }

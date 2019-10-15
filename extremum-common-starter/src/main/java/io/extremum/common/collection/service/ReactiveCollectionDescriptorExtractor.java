@@ -4,8 +4,8 @@ import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 
-public interface ReactiveCollectionDescriptorExtractionOverride {
-    boolean supports(Descriptor descriptor);
+public interface ReactiveCollectionDescriptorExtractor {
+    Mono<Descriptor.Type> typeForGetOperation(Descriptor descriptor);
 
     Mono<CollectionDescriptor> extractCollectionFromDescriptor(Descriptor descriptor);
 }

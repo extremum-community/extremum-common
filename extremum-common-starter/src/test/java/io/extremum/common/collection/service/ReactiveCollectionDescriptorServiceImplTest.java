@@ -35,6 +35,9 @@ class ReactiveCollectionDescriptorServiceImplTest {
     private ReactiveDescriptorDao reactiveDescriptorDao;
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
+    @Spy
+    private ReactiveCollectionDescriptorExtractor collectionDescriptorExtractor =
+            new ReactiveCollectionOverridesWithDescriptorExtractorList(emptyList());
 
     @Captor
     private ArgumentCaptor<Descriptor> descriptorCaptor;
@@ -45,7 +48,7 @@ class ReactiveCollectionDescriptorServiceImplTest {
     @BeforeEach
     void createService() {
         service = new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao, descriptorService,
-                emptyList());
+                collectionDescriptorExtractor);
     }
 
     @Test
@@ -122,7 +125,7 @@ class ReactiveCollectionDescriptorServiceImplTest {
     void givenAnExtractionOverrideExistsSupportingASingleDescriptor_whenRetrievingTheCollectionByTheSingleDescriptorExternalId_thenTheCollectionShouldBeReturnedByTheOverride() {
         returnSingleDescriptorFromDaoWhenRequested();
         service = new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao, descriptorService,
-                singletonList(new ExtractionOverride()));
+                new ReactiveCollectionOverridesWithDescriptorExtractorList(singletonList(new ExtractionOverride())));
 
         CollectionDescriptor collectionDescriptor = service.retrieveByExternalId("externalId").block();
 
@@ -133,10 +136,15 @@ class ReactiveCollectionDescriptorServiceImplTest {
         assertThat(ownedCoordinates.getHostAttributeName(), is("items"));
     }
 
-    private static class ExtractionOverride implements ReactiveCollectionDescriptorExtractionOverride {
+    private static class ExtractionOverride implements ReactiveCollectionOverride {
         @Override
         public boolean supports(Descriptor descriptor) {
             return true;
+        }
+
+        @Override
+        public Mono<Descriptor.Type> typeForGetOperation(Descriptor descriptor) {
+            return descriptor.effectiveTypeReactively();
         }
 
         @Override

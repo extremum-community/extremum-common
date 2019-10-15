@@ -47,7 +47,6 @@ import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -161,11 +160,18 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ReactiveCollectionDescriptorExtractor reactiveCollectionDescriptorExtractor(
+            List<ReactiveCollectionOverride> extractionOverrides) {
+        return new ReactiveCollectionOverridesWithDescriptorExtractorList(extractionOverrides);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public ReactiveCollectionDescriptorService reactiveCollectionDescriptorService(
             ReactiveDescriptorDao reactiveDescriptorDao, DescriptorService descriptorService,
-            List<ReactiveCollectionDescriptorExtractionOverride> extractionOverrides) {
+            ReactiveCollectionDescriptorExtractor collectionDescriptorExtractor) {
         return new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao, descriptorService,
-                extractionOverrides);
+                collectionDescriptorExtractor);
     }
 
     @Bean
