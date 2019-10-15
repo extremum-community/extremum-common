@@ -1,11 +1,11 @@
 package io.extremum.common.mapper;
 
-import io.extremum.common.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.extremum.common.utils.DateUtils;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -42,15 +42,15 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         return javaTimeModule;
     }
 
-    private class ZoneDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
+    private static class ZoneDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
         @Override
         public void serialize(ZonedDateTime zonedDateTime, JsonGenerator jsonGenerator,
-                SerializerProvider serializerProvider) throws IOException {
+                              SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeString(zonedDateTime.format(FORMATTER));
         }
     }
 
-    private class ZoneDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
+    private static class ZoneDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
         @Override
         public ZonedDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
                 throws IOException {
