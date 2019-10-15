@@ -1,5 +1,6 @@
 package io.extremum.common.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
@@ -29,6 +31,12 @@ class SystemJsonObjectMapperTest {
     private SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mapperDependencies);
 
     @Test
+    void testZonedDateTimeParseSuccessfully() throws JsonProcessingException {
+        String utc = mapper.writeValueAsString(ZonedDateTime.of(1000, 1, 1, 1, 1, 1, 999_888_000, ZoneId.of("UTC")));
+        assertThat(utc,is("\"1000-01-01T01:01:01.999888+0000\""));
+    }
+
+    @Test
     void whenDescriptorIsSerialized_thenTheResultShouldBeAStringLiteralOfExternalId() throws Exception {
         Descriptor descriptor = Descriptor.builder()
                 .externalId("external-id")
@@ -39,7 +47,7 @@ class SystemJsonObjectMapperTest {
 
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, descriptor);
-        
+
         assertThat(writer.toString(), is("\"external-id\""));
     }
 
