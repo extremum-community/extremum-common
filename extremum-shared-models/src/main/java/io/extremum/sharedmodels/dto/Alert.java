@@ -86,6 +86,8 @@ public class Alert {
         private ZonedDateTime timestamp;
         private String element;
         private String code;
+        private String link;
+        private String traceId;
 
         public Builder withErrorLevel() {
             level = AlertLevelEnum.ERROR;
@@ -127,6 +129,16 @@ public class Alert {
             return this;
         }
 
+        public Builder withLink(String link) {
+            this.link = link;
+            return this;
+        }
+
+        public Builder withTraceId(String traceId) {
+            this.traceId = traceId;
+            return this;
+        }
+
         public Alert build() {
             Alert alert = new Alert();
 
@@ -135,6 +147,8 @@ public class Alert {
             alert.timestamp = timestamp;
             alert.code = code;
             alert.element = element;
+            alert.link = link;
+            alert.traceId = traceId;
 
             return alert;
         }
