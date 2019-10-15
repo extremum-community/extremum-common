@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.collection.conversion.*;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.limit.ResponseLimiter;
 import io.extremum.common.limit.ResponseLimiterAdvice;
@@ -198,11 +197,9 @@ public class EverythingCoreConfiguration {
     @ConditionalOnMissingBean
     public EverythingCollectionManagementService everythingCollectionManagementService(
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-            EverythingCollectionService everythingCollectionService,
-            ReactiveDescriptorService reactiveDescriptorService
+            EverythingCollectionService everythingCollectionService
     ) {
         return new DefaultEverythingCollectionManagementService(
-                reactiveCollectionDescriptorService, everythingCollectionService,
-                reactiveDescriptorService);
+                reactiveCollectionDescriptorService, everythingCollectionService);
     }
 }
