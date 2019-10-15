@@ -8,7 +8,6 @@ import io.extremum.mongo.springdata.ReactiveBeforeConvertEvent;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +84,7 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
     }
 
     private void assertThatDescriptorInternalIdMatchesEntityId(TestMongoModel model) {
-        assertThat(model.getId().toString(), CoreMatchers.is(equalTo(model.getUuid().getInternalId())));
+        assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
     }
 
     @Test

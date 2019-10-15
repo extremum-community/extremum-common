@@ -1,6 +1,6 @@
 package io.extremum.watch.config;
 
-import io.extremum.everything.config.EverythingEverythingConfiguration;
+import io.extremum.everything.regular.config.EverythingEverythingConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
