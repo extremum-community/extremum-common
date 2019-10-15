@@ -1,7 +1,6 @@
 package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.services.collection.EverythingCollectionService;
@@ -47,8 +46,6 @@ class DefaultEverythingCollectionManagementServiceTest {
     private EverythingCollectionService everythingCollectionService;
     @Mock
     private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
-    @Mock
-    private ReactiveDescriptorService reactiveDescriptorService;
 
     private final Descriptor collectionDescriptor = Descriptor.forCollection("external-id",
             collectionDescriptor());
@@ -128,8 +125,8 @@ class DefaultEverythingCollectionManagementServiceTest {
     }
 
     private void setupMocksToLoadACollectionDescriptorReactively() {
-        when(reactiveDescriptorService.loadByExternalId(anyString()))
-                .thenReturn(Mono.just(collectionDescriptor));
+        when(reactiveCollectionDescriptorService.retrieveByExternalId(anyString()))
+                .thenReturn(Mono.just(collectionDescriptor.getCollection()));
     }
 
     private void setupMocksToReturnACollectionReactively() {
@@ -141,19 +138,6 @@ class DefaultEverythingCollectionManagementServiceTest {
     @NotNull
     private CollectionDescriptor collectionDescriptor() {
         return CollectionDescriptor.forOwned(new Descriptor("host-id"), "items");
-    }
-
-    @Test
-    void givenACollectionDescriptorExistsWithNullCollection_whenFetchingTheCollectionReactively_thenAnExceptionShouldBeThrown() {
-        setupMocksToLoadACollectionDescriptorReactively();
-        collectionDescriptor.setCollection(null);
-
-        try {
-            service.fetchCollectionReactively(collectionDescriptor, emptyProjection, true).block();
-            fail("An exception should be thrown");
-        } catch (IllegalStateException e) {
-            assertThat(e.getMessage(), is("For 'external-id' no collection was in the descriptor"));
-        }
     }
 
     @Test

@@ -58,8 +58,7 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
 
     @Override
     public Mono<Response> fetchCollectionReactively(Descriptor collectionId, Projection projection, boolean expand) {
-        return reactiveDescriptorService.loadByExternalId(collectionId.getExternalId())
-                .map(this::getRequiredCollectionDescriptor)
+        return reactiveCollectionDescriptorService.retrieveByExternalId(collectionId.getExternalId())
                 .flatMap(collectionDescriptor -> everythingCollectionService.fetchCollectionReactively(
                         collectionDescriptor, projection, expand))
                 .map(collectionFragment -> createResponse(collectionFragment, projection));
