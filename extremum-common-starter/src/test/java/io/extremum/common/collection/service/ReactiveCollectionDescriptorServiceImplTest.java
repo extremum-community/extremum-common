@@ -5,15 +5,21 @@ import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Mono;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +29,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ReactiveCollectionDescriptorServiceImplTest {
-    @InjectMocks
     private ReactiveCollectionDescriptorServiceImpl service;
 
     @Mock
@@ -37,6 +42,12 @@ class ReactiveCollectionDescriptorServiceImplTest {
     private final CollectionDescriptor owned = CollectionDescriptor.forOwned(new Descriptor("host-id"), "items");
     private final Descriptor collDescriptorInDb = Descriptor.forCollection("externalId", owned);
 
+    @BeforeEach
+    void createService() {
+        service = new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao, descriptorService,
+                emptyList());
+    }
+
     @Test
     void whenRetrievingACollectionByExternalId_thenItShouldBeRetrievedFromDao() {
         when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
@@ -49,9 +60,7 @@ class ReactiveCollectionDescriptorServiceImplTest {
 
     @Test
     void givenDescriptorTypeIsNotCollection_whenRetrievingACollectionByExternalId_thenItShouldBeRetrievedFromDao() {
-        collDescriptorInDb.setType(Descriptor.Type.SINGLE);
-        when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
-                .thenReturn(Mono.just(collDescriptorInDb));
+        returnSingleDescriptorFromDaoWhenRequested();
 
         try {
             service.retrieveByExternalId("externalId").block();
@@ -59,6 +68,12 @@ class ReactiveCollectionDescriptorServiceImplTest {
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is("Descriptor 'externalId' must have type COLLECTION, but it is 'SINGLE'"));
         }
+    }
+
+    private void returnSingleDescriptorFromDaoWhenRequested() {
+        collDescriptorInDb.setType(Descriptor.Type.SINGLE);
+        when(reactiveDescriptorDao.retrieveByExternalId("externalId"))
+                .thenReturn(Mono.just(collDescriptorInDb));
     }
 
     @Test
@@ -101,5 +116,32 @@ class ReactiveCollectionDescriptorServiceImplTest {
         Descriptor retrievedOrCreated = service.retrieveByCoordinatesOrCreate(owned).block();
 
         assertThat(retrievedOrCreated, is(sameInstance(collDescriptorInDb)));
+    }
+
+    @Test
+    void givenAnExtractionOverrideExistsSupportingASingleDescriptor_whenRetrievingTheCollectionByTheSingleDescriptorExternalId_thenTheCollectionShouldBeReturnedByTheOverride() {
+        returnSingleDescriptorFromDaoWhenRequested();
+        service = new ReactiveCollectionDescriptorServiceImpl(reactiveDescriptorDao, descriptorService,
+                singletonList(new ExtractionOverride()));
+
+        CollectionDescriptor collectionDescriptor = service.retrieveByExternalId("externalId").block();
+
+        assertThat(collectionDescriptor, is(notNullValue()));
+        assertThat(collectionDescriptor.getType(), is(CollectionDescriptor.Type.OWNED));
+        OwnedCoordinates ownedCoordinates = collectionDescriptor.getCoordinates().getOwnedCoordinates();
+        assertThat(ownedCoordinates.getHostId(), is(sameInstance(collDescriptorInDb)));
+        assertThat(ownedCoordinates.getHostAttributeName(), is("items"));
+    }
+
+    private static class ExtractionOverride implements ReactiveCollectionDescriptorExtractionOverride {
+        @Override
+        public boolean supports(Descriptor descriptor) {
+            return true;
+        }
+
+        @Override
+        public Mono<CollectionDescriptor> extractCollectionFromDescriptor(Descriptor descriptor) {
+            return Mono.just(CollectionDescriptor.forOwned(descriptor, "items"));
+        }
     }
 }
