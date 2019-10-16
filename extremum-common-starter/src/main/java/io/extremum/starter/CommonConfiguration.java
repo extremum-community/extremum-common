@@ -271,8 +271,8 @@ public class CommonConfiguration {
         return new StringToDescriptorConverter(descriptorFactory);
     }
 
-    @Bean
-    public ReactiveRequestIdControllerAspect reactiveRequestIdControllerAspect() {
-        return new ReactiveRequestIdControllerAspect();
-    }
+//    @Bean
+//    public ReactiveRequestIdControllerAspect reactiveRequestIdControllerAspect() {
+//        return new ReactiveRequestIdControllerAspect();
+//    }
 }
