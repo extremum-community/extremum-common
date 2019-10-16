@@ -10,6 +10,7 @@ import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.serde.StringToDescriptorConverter;
 import io.extremum.common.descriptor.service.*;
+import io.extremum.common.logging.ReactiveRequestIdControllerAspect;
 import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
@@ -268,5 +269,10 @@ public class CommonConfiguration {
     @Bean
     public StringToDescriptorConverter stringToDescriptorConverter(DescriptorFactory descriptorFactory) {
         return new StringToDescriptorConverter(descriptorFactory);
+    }
+
+    @Bean
+    public ReactiveRequestIdControllerAspect reactiveRequestIdControllerAspect() {
+        return new ReactiveRequestIdControllerAspect();
     }
 }
