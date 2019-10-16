@@ -2,7 +2,7 @@ package io.extremum.sharedmodels.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.extremum.sharedmodels.constants.HttpStatus;
+import io.extremum.sharedmodels.constant.HttpStatus;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

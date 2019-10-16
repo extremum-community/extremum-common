@@ -1,4 +1,4 @@
-package io.extremum.sharedmodels.constants;
+package io.extremum.sharedmodels.constant;
 
 
 public enum HttpStatus {
