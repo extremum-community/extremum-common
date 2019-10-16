@@ -110,6 +110,10 @@ public class Response {
         return alerts != null && !alerts.isEmpty();
     }
 
+    public Response withRequestId(String requestId) {
+        return new Response(status, code, timestamp, requestId, locale, alerts, result, pagination);
+    }
+
     @Override
     public String toString() {
         return "Response{" +
