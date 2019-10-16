@@ -1,14 +1,13 @@
 package io.extremum.everything.services.management;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
-import io.extremum.common.descriptor.service.ReactiveDescriptorService;
-import io.extremum.everything.services.collection.EverythingCollectionService;
-import io.extremum.sharedmodels.dto.Pagination;
-import io.extremum.sharedmodels.dto.Response;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
+import io.extremum.everything.services.collection.EverythingCollectionService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.Pagination;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -23,7 +22,6 @@ import static io.extremum.sharedmodels.dto.Response.ok;
 public class DefaultEverythingCollectionManagementService implements EverythingCollectionManagementService {
     private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
     private final EverythingCollectionService everythingCollectionService;
-    private final ReactiveDescriptorService reactiveDescriptorService;
 
     @Override
     public Response fetchCollection(Descriptor descriptor, Projection projection, boolean expand) {
@@ -58,8 +56,7 @@ public class DefaultEverythingCollectionManagementService implements EverythingC
 
     @Override
     public Mono<Response> fetchCollectionReactively(Descriptor collectionId, Projection projection, boolean expand) {
-        return reactiveDescriptorService.loadByExternalId(collectionId.getExternalId())
-                .map(this::getRequiredCollectionDescriptor)
+        return reactiveCollectionDescriptorService.retrieveByExternalId(collectionId.getExternalId())
                 .flatMap(collectionDescriptor -> everythingCollectionService.fetchCollectionReactively(
                         collectionDescriptor, projection, expand))
                 .map(collectionFragment -> createResponse(collectionFragment, projection));

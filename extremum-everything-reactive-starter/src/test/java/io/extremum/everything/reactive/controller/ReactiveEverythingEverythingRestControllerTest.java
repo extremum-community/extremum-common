@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.extremum.test.core.ResponseMatchers.notFound;
 import static io.extremum.test.core.ResponseMatchers.successful;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -189,5 +190,14 @@ class ReactiveEverythingEverythingRestControllerTest {
                 .getResponseBody();
 
         assertThat(responseText, startsWith("event:internal-error\ndata:Internal error "));
+    }
+
+    @Test
+    void givenNoSuchDescriptorExists_whenGetting_then404ShouldBeReturned() {
+        when(demultiplexer.get(anyString(), any(), anyBoolean())).thenReturn(Mono.empty());
+
+        Response response = getViaEverythingGet(UUID.randomUUID().toString());
+
+        assertThat(response, is(notFound()));
     }
 }

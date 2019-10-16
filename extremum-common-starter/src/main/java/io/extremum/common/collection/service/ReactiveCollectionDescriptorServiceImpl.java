@@ -11,23 +11,21 @@ import reactor.core.publisher.Mono;
 public class ReactiveCollectionDescriptorServiceImpl implements ReactiveCollectionDescriptorService {
     private final ReactiveDescriptorDao reactiveDescriptorDao;
     private final DescriptorSavers descriptorSavers;
+    private final ReactiveCollectionDescriptorExtractor collectionExtractor;
 
     private final CollectionDescriptorVerifier collectionDescriptorVerifier = new CollectionDescriptorVerifier();
 
     public ReactiveCollectionDescriptorServiceImpl(ReactiveDescriptorDao reactiveDescriptorDao,
-                                                   DescriptorService descriptorService) {
+            DescriptorService descriptorService, ReactiveCollectionDescriptorExtractor collectionExtractor) {
         this.reactiveDescriptorDao = reactiveDescriptorDao;
         this.descriptorSavers = new DescriptorSavers(descriptorService);
+        this.collectionExtractor = collectionExtractor;
     }
 
     @Override
     public Mono<CollectionDescriptor> retrieveByExternalId(String externalId) {
         return reactiveDescriptorDao.retrieveByExternalId(externalId)
-                .map(descriptor -> {
-                    collectionDescriptorVerifier.makeSureDescriptorContainsCollection(externalId, descriptor);
-                    return descriptor;
-                })
-                .map(Descriptor::getCollection);
+                .flatMap(collectionExtractor::extractCollectionFromDescriptor);
     }
 
     @Override

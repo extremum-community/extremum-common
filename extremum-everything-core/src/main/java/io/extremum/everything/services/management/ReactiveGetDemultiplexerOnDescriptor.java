@@ -1,5 +1,7 @@
 package io.extremum.everything.services.management;
 
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorExtractor;
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -11,10 +13,16 @@ import reactor.core.publisher.Mono;
 public class ReactiveGetDemultiplexerOnDescriptor implements ReactiveGetDemultiplexer {
     private final ReactiveEverythingManagementService evrEvrManagementService;
     private final EverythingCollectionManagementService collectionManagementService;
+    private final ReactiveDescriptorService reactiveDescriptorService;
+    private final ReactiveCollectionDescriptorExtractor collectionExtractor;
 
     @Override
-    public Mono<Response> get(Descriptor id, Projection projection, boolean expand) {
-        return id.effectiveTypeReactively().flatMap(type -> fetchForType(type, id, projection, expand));
+    public Mono<Response> get(String id, Projection projection, boolean expand) {
+        return reactiveDescriptorService.loadByExternalId(id)
+                .flatMap(descriptor -> {
+                    return collectionExtractor.typeForGetOperation(descriptor)
+                            .flatMap(type -> fetchForType(type, descriptor, projection, expand));
+                });
     }
 
     private Mono<? extends Response> fetchForType(Descriptor.Type type, Descriptor id,

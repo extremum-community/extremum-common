@@ -1,5 +1,6 @@
 package io.extremum.common.collection.conversion;
 
+import io.extremum.common.utils.StreamUtils;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author rpuch
@@ -44,22 +49,46 @@ public class ReactiveResponseCollectionsMakeupAspect {
     private Mono<?> possiblyApplyMakeupToResponseDtoInsideResponseOrSSE(Object object) {
         if (object instanceof Response) {
             Response response = (Response) object;
-            if (response.getResult() instanceof ResponseDto) {
-                ResponseDto responseDto = (ResponseDto) response.getResult();
-                return makeup.applyCollectionMakeupReactively(responseDto)
-                        .thenReturn(object);
+            Object payload = response.getResult();
+            if (payload instanceof ResponseDto) {
+                return applyMakeupToResponseDtoThenReturnResponse((ResponseDto) payload, response);
+            } else if (payload instanceof ResponseDto[]) {
+                ResponseDto[] responseDtos = (ResponseDto[]) payload;
+                return applyMakeupToResponseDtosInListAndReturnResponse(Arrays.asList(responseDtos), response);
+            } else if (payload instanceof Iterable) {
+                Iterable<?> iterable = (Iterable<?>) payload;
+                return applyMakeupToResponseDtosInIterableAndReturnResponse(iterable, response);
             }
         }
         if (object instanceof ServerSentEvent) {
             ServerSentEvent<?> sse = (ServerSentEvent<?>) object;
             if (sse.data() instanceof ResponseDto) {
                 ResponseDto responseDto = (ResponseDto) sse.data();
-                return makeup.applyCollectionMakeupReactively(responseDto)
-                        .thenReturn(object);
+                return applyMakeupToResponseDtoThenReturnResponse(responseDto, sse);
             }
         }
 
         return Mono.just(object);
+    }
+
+    private Mono<?> applyMakeupToResponseDtoThenReturnResponse(ResponseDto responseDto, Object response) {
+        return makeup.applyCollectionMakeupReactively(responseDto)
+                .thenReturn(response);
+    }
+
+    private Mono<?> applyMakeupToResponseDtosInIterableAndReturnResponse(Iterable<?> iterable, Response response) {
+        List<ResponseDto> responseDtos = StreamUtils.fromIterable(iterable)
+                .filter(obj -> obj instanceof ResponseDto)
+                .map(ResponseDto.class::cast)
+                .collect(Collectors.toList());
+        return applyMakeupToResponseDtosInListAndReturnResponse(responseDtos, response);
+    }
+
+    private Mono<?> applyMakeupToResponseDtosInListAndReturnResponse(List<ResponseDto> responseDtos,
+                                                                     Response response) {
+        return Flux.fromIterable(responseDtos)
+                .concatMap(makeup::applyCollectionMakeupReactively)
+                .then(Mono.just(response));
     }
 
     /**

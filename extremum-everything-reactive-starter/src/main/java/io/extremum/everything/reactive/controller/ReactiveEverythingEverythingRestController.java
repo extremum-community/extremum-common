@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
@@ -55,9 +56,16 @@ public class ReactiveEverythingEverythingRestController implements EverythingEve
             @ApiImplicitParam(name = "until", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
     })
     @GetMapping
-    public Mono<Response> get(@PathVariable Descriptor id, Projection projection,
+    public Mono<Response> get(@PathVariable String id, Projection projection,
                               @RequestParam(defaultValue = "false") boolean expand) {
-        return demultiplexer.get(id, projection, expand);
+        return demultiplexer.get(id, projection, expand)
+                .switchIfEmpty(Mono.just(notFound()));
+    }
+
+    private Response notFound() {
+        return Response.builder()
+                .withFailStatus(HttpStatus.NOT_FOUND.value())
+                .build();
     }
 
     @ApiOperation(value = "Everything patch")

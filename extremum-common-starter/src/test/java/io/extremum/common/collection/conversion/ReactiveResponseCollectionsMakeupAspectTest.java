@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,8 +45,8 @@ class ReactiveResponseCollectionsMakeupAspectTest {
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponse_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
-        Response result = controllerProxy.returnsMonoWithResponse().block();
+    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+        Response result = controllerProxy.returnsMonoWithResponseWithResponseDto().block();
 
         assertThat(result, is(sameInstance(response)));
         verifyThatMakeupWasApplied();
@@ -55,6 +56,20 @@ class ReactiveResponseCollectionsMakeupAspectTest {
     private void verifyThatMakeupWasApplied() {
         //noinspection UnassignedFluxMonoInstance
         verify(makeup).applyCollectionMakeupReactively(responseDto);
+    }
+
+    @Test
+    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+        controllerProxy.returnsMonoWithResponseWithResponseDtoArray().block();
+
+        verifyThatMakeupWasApplied();
+    }
+
+    @Test
+    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+        controllerProxy.returnsMonoWithResponseWithResponseDtoList().block();
+
+        verifyThatMakeupWasApplied();
     }
 
     @Test
@@ -176,8 +191,16 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
     @Controller
     private class TestController {
-        Mono<Response> returnsMonoWithResponse() {
+        Mono<Response> returnsMonoWithResponseWithResponseDto() {
             return Mono.just(response);
+        }
+
+        Mono<Response> returnsMonoWithResponseWithResponseDtoArray() {
+            return Mono.just(Response.ok(new ResponseDto[]{responseDto}));
+        }
+
+        Mono<Response> returnsMonoWithResponseWithResponseDtoList() {
+            return Mono.just(Response.ok(singletonList(responseDto)));
         }
 
         Mono<Response> returnsEmptyResponseMono() {

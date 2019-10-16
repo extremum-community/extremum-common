@@ -2,6 +2,7 @@ package io.extremum.everything.reactive.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.ReactiveSecurityProvider;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorExtractor;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -45,9 +46,12 @@ public class ReactiveEverythingConfiguration {
     @ConditionalOnMissingBean
     public ReactiveGetDemultiplexer reactiveGetDemultiplexer(
             ReactiveEverythingManagementService everythingManagementService,
-            EverythingCollectionManagementService everythingCollectionManagementService) {
+            EverythingCollectionManagementService everythingCollectionManagementService,
+            ReactiveDescriptorService reactiveDescriptorService,
+            ReactiveCollectionDescriptorExtractor collectionDescriptorExtractor) {
         return new ReactiveGetDemultiplexerOnDescriptor(everythingManagementService,
-                everythingCollectionManagementService);
+                everythingCollectionManagementService, reactiveDescriptorService,
+                collectionDescriptorExtractor);
     }
 
     @Bean
