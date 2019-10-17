@@ -4,7 +4,7 @@ import com.google.protobuf.Int32Value;
 import com.google.protobuf.Timestamp;
 import io.extremum.sharedmodels.dto.Projection;
 import io.extremum.sharedmodels.proto.common.ProtoProjection;
-import io.extremum.sharedmodels.proto.common.ZonedTimestamp;
+import io.extremum.sharedmodels.proto.common.ProtoZonedTimestamp;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -38,8 +38,8 @@ class ProjectionConverterTest {
         );
     }
 
-    private ZonedTimestamp createProtoTimestamp(ZonedDateTime fromZoned, Instant from) {
-        return ZonedTimestamp.newBuilder()
+    private ProtoZonedTimestamp createProtoTimestamp(ZonedDateTime fromZoned, Instant from) {
+        return ProtoZonedTimestamp.newBuilder()
                 .setTimestamp(Timestamp.newBuilder()
                         .setSeconds(from.getEpochSecond())
                         .setNanos(from.getNano())

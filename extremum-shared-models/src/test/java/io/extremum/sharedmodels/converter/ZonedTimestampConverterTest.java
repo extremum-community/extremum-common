@@ -1,7 +1,7 @@
 package io.extremum.sharedmodels.converter;
 
 import com.google.protobuf.Timestamp;
-import io.extremum.sharedmodels.proto.common.ZonedTimestamp;
+import io.extremum.sharedmodels.proto.common.ProtoZonedTimestamp;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -19,7 +19,7 @@ class ZonedTimestampConverterTest {
         ZonedDateTime fromZoned = ZonedDateTime.now();
         Instant from = fromZoned.toInstant();
 
-        ZonedTimestamp proto = ZonedTimestamp.newBuilder()
+        ProtoZonedTimestamp proto = ProtoZonedTimestamp.newBuilder()
                 .setTimestamp(Timestamp.newBuilder()
                         .setSeconds(from.getEpochSecond())
                         .setNanos(from.getNano())
@@ -33,16 +33,16 @@ class ZonedTimestampConverterTest {
 
     @Test
     void testBroke_CreateFromProto() {
-        ZonedTimestamp zoned0 = ZonedTimestamp.newBuilder()
+        ProtoZonedTimestamp zoned0 = ProtoZonedTimestamp.newBuilder()
                 .setZoneId(ZoneId.systemDefault().toString())
                 .setTimestamp(Timestamp.newBuilder()
                         .setNanos(0)
                         .setSeconds(0)
                         .build())
                 .build();
-        assertThat(ZonedTimestamp.getDefaultInstance(), not(zoned0));
+        assertThat(ProtoZonedTimestamp.getDefaultInstance(), not(zoned0));
 
-        ZonedTimestamp proto = ZonedTimestamp.getDefaultInstance();
+        ProtoZonedTimestamp proto = ProtoZonedTimestamp.getDefaultInstance();
         ZonedDateTime toZoned = timestampConverter.createFromProto(proto);
         assertThat(toZoned, nullValue());
     }
@@ -50,7 +50,7 @@ class ZonedTimestampConverterTest {
     @Test
     void testSuccessful_CreateProto() {
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedTimestamp proto = timestampConverter.createProto(now);
+        ProtoZonedTimestamp proto = timestampConverter.createProto(now);
 
         assertThat(proto.getZoneId(), is(now.getZone().toString()));
         assertThat(proto.getTimestamp().getSeconds(), is(now.toEpochSecond()));
@@ -59,7 +59,7 @@ class ZonedTimestampConverterTest {
 
     @Test
     void testBroke_CreateProto() {
-        ZonedTimestamp proto = timestampConverter.createProto(null);
-        assertThat(proto, equalTo(ZonedTimestamp.getDefaultInstance()));
+        ProtoZonedTimestamp proto = timestampConverter.createProto(null);
+        assertThat(proto, equalTo(ProtoZonedTimestamp.getDefaultInstance()));
     }
 }

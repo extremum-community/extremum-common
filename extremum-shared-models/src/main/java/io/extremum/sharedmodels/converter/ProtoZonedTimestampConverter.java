@@ -1,7 +1,7 @@
 package io.extremum.sharedmodels.converter;
 
 import com.google.protobuf.Timestamp;
-import io.extremum.sharedmodels.proto.common.ZonedTimestamp;
+import io.extremum.sharedmodels.proto.common.ProtoZonedTimestamp;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -11,13 +11,13 @@ import java.time.ZonedDateTime;
 @Service
 public class ProtoZonedTimestampConverter {
 
-    public ZonedTimestamp createProto(ZonedDateTime dateTime) {
+    public ProtoZonedTimestamp createProto(ZonedDateTime dateTime) {
         if (dateTime == null) {
-            return ZonedTimestamp.getDefaultInstance();
+            return ProtoZonedTimestamp.getDefaultInstance();
         }
 
         Instant dateTimeInstant = dateTime.toInstant();
-        return ZonedTimestamp.newBuilder()
+        return ProtoZonedTimestamp.newBuilder()
                 .setZoneId(dateTime.getZone().getId())
                 .setTimestamp(Timestamp.newBuilder()
                         .setSeconds(dateTimeInstant.getEpochSecond())
@@ -26,8 +26,8 @@ public class ProtoZonedTimestampConverter {
                 .build();
     }
 
-    public ZonedDateTime createFromProto(ZonedTimestamp timestamp) {
-        if (timestamp.equals(ZonedTimestamp.getDefaultInstance())) {
+    public ZonedDateTime createFromProto(ProtoZonedTimestamp timestamp) {
+        if (timestamp.equals(ProtoZonedTimestamp.getDefaultInstance())) {
             return null;
         }
         return Instant

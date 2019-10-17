@@ -5,6 +5,17 @@ import "extremum/common/common_models.proto";
 option java_multiple_files = true;
 option java_package = "io.extremum.sharedmodels.proto.everything";
 
+service EverythingEverythingService {
+    rpc Get (ProtoEvrEvrGetRequest) returns (ProtoResponse) {
+    }
+
+    rpc Patch (ProtoEvrEvrPatchRequest) returns (ProtoResponse) {
+    }
+
+    rpc Remove (ProtoEvrEvrRemoveRequest) returns (ProtoResponse) {
+    }
+}
+
 message ProtoEvrEvrGetRequest {
     string id = 1;
     ProtoProjection projection = 2;

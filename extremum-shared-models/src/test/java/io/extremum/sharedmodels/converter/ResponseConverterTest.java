@@ -12,7 +12,7 @@ import io.extremum.sharedmodels.proto.common.ProtoAlert;
 import io.extremum.sharedmodels.proto.common.ProtoPagination;
 import io.extremum.sharedmodels.proto.common.ProtoResponse;
 import io.extremum.sharedmodels.proto.common.ProtoResponse.ProtoResponseStatusEnum;
-import io.extremum.sharedmodels.proto.common.ZonedTimestamp;
+import io.extremum.sharedmodels.proto.common.ProtoZonedTimestamp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -134,8 +134,8 @@ class ResponseConverterTest {
         log.info(rawJsonResult);
     }
 
-    private ZonedTimestamp createProtoTimestamp(ZonedDateTime fromZoned, Instant from) {
-        return ZonedTimestamp.newBuilder()
+    private ProtoZonedTimestamp createProtoTimestamp(ZonedDateTime fromZoned, Instant from) {
+        return ProtoZonedTimestamp.newBuilder()
                 .setTimestamp(Timestamp.newBuilder()
                         .setSeconds(from.getEpochSecond())
                         .setNanos(from.getNano())

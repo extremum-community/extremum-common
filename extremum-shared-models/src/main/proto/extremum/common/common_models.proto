@@ -6,7 +6,7 @@ import "google/protobuf/wrappers.proto";
 option java_multiple_files = true;
 option java_package = "io.extremum.sharedmodels.proto.common";
 
-message ZonedTimestamp {
+message ProtoZonedTimestamp {
     google.protobuf.Timestamp timestamp = 1;
     string zone_id = 2;
 }
@@ -15,14 +15,14 @@ message ProtoPagination {
     int32 offset = 1;
     int32 count = 2;
     google.protobuf.Int64Value total = 3;
-    ZonedTimestamp since = 4;
-    ZonedTimestamp until = 5;
+    ProtoZonedTimestamp since = 4;
+    ProtoZonedTimestamp until = 5;
 }
 
 message ProtoAlert {
     ProtoAlertLevelEnum level = 1;
     string code = 2;
-    ZonedTimestamp timestamp = 3;
+    ProtoZonedTimestamp timestamp = 3;
     string element = 4;
     string message = 5;
     string link = 6;
@@ -44,8 +44,8 @@ message ProtoDescriptor {
     string internal_id = 2;
     string model_type = 3;
     ProtoStorageType storage_type = 4;
-    ZonedTimestamp created = 5;
-    ZonedTimestamp modified = 6;
+    ProtoZonedTimestamp created = 5;
+    ProtoZonedTimestamp modified = 6;
     google.protobuf.Int64Value version = 7;
     bool deleted = 8;
     ProtoDisplay display = 9;
@@ -110,14 +110,14 @@ message ProtoMultilingual {
 message ProtoProjection {
     google.protobuf.Int32Value offset = 1;
     google.protobuf.Int32Value limit = 2;
-    ZonedTimestamp since = 3;
-    ZonedTimestamp until = 4;
+    ProtoZonedTimestamp since = 3;
+    ProtoZonedTimestamp until = 4;
 }
 
 message ProtoResponse {
     ProtoResponseStatusEnum status = 1;
     google.protobuf.Int32Value code = 2;
-    ZonedTimestamp timestamp = 3;
+    ProtoZonedTimestamp timestamp = 3;
     string requestId = 4;
     string locale = 5;
     repeated ProtoAlert alerts = 6;

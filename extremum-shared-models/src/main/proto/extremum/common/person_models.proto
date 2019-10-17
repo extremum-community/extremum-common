@@ -69,7 +69,7 @@ enum ProtoGender {
 }
 
 message ProtoBirth {
-    ZonedTimestamp date = 1;
+    ProtoZonedTimestamp date = 1;
     string place = 2;
 }
 
@@ -167,8 +167,8 @@ message ProtoPersonPosition {
 }
 
 message ProtoTimeframe {
-    ZonedTimestamp start = 1;
-    ZonedTimestamp end = 2;
+    ProtoZonedTimestamp start = 1;
+    ProtoZonedTimestamp end = 2;
     oneof duration {
         google.protobuf.Int32Value int_value = 3;
         string string_value = 4;

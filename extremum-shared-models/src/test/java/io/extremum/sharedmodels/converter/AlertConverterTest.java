@@ -3,7 +3,7 @@ package io.extremum.sharedmodels.converter;
 import com.google.protobuf.Timestamp;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.proto.common.ProtoAlert;
-import io.extremum.sharedmodels.proto.common.ZonedTimestamp;
+import io.extremum.sharedmodels.proto.common.ProtoZonedTimestamp;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -88,8 +88,8 @@ class AlertConverterTest {
         );
     }
 
-    private ZonedTimestamp createProtoTimestamp(ZonedDateTime fromZoned, Instant from) {
-        return ZonedTimestamp.newBuilder()
+    private ProtoZonedTimestamp createProtoTimestamp(ZonedDateTime fromZoned, Instant from) {
+        return ProtoZonedTimestamp.newBuilder()
                 .setTimestamp(Timestamp.newBuilder()
                         .setSeconds(from.getEpochSecond())
                         .setNanos(from.getNano())
