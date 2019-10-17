@@ -46,7 +46,7 @@ class CaptureChangesAspectTest {
     @Mock
     private PatchFlowWatchProcessor patchFlowWatchProcessor;
     @Spy
-    private Executor executor = MoreExecutors.sameThreadExecutor();
+    private Executor executor = MoreExecutors.directExecutor();
 
     private CommonService<TestModel> commonServiceProxy;
     private PatchFlow patchFlowProxy;
