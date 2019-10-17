@@ -10,6 +10,7 @@ import java.util.Map;
 
 @Service
 public class ProtoMultilingualConverter {
+
     public Multilingual createFromProto(ProtoMultilingual proto) {
         if (ProtoMultilingual.getDefaultInstance().equals(proto)) {
             return null;

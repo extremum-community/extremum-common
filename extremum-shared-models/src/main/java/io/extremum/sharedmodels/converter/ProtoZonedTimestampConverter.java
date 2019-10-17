@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 
 @Service
 public class ProtoZonedTimestampConverter {
+
     public ZonedTimestamp createProto(ZonedDateTime dateTime) {
         if (dateTime == null) {
             return ZonedTimestamp.getDefaultInstance();

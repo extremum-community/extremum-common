@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProtoCoordinatesConverter {
+
     public Coordinates createFromProto(ProtoCoordinates proto) {
         Coordinates coordinates = new Coordinates();
         if (proto.hasLatitude()) {

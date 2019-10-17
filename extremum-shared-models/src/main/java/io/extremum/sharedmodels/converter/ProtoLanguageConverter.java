@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProtoLanguageConverter {
+
     public Language createFromProto(ProtoLanguage proto) {
         Language language = new Language();
         language.setLanguageTag(proto.getLanguageTag());

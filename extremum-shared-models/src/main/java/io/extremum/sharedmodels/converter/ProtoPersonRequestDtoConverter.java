@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProtoPersonConverter {
+public class ProtoPersonRequestDtoConverter {
     private final ObjectMapper mapper;
     private final ProtoMediaConverter mediaConverter;
     private final ProtoBirthConverter birthConverter;

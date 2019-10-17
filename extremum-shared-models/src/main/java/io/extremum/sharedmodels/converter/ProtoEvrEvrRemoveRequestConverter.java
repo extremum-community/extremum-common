@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProtoEvrEvrRemoveRequestConverter {
+
     public String extractId(ProtoEvrEvrRemoveRequest request) {
         return request.getId();
     }

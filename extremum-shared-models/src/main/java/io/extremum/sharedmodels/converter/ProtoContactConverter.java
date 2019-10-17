@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProtoContactConverter {
+
     public Contact createFromProto(ProtoContact proto) {
         Contact contact = new Contact();
         contact.setType(proto.getType());
