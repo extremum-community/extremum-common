@@ -31,7 +31,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     @Override
     public void applyCollectionMakeup(ResponseDto rootDto) {
-        List<ReferenceWithContext> collectedReferences = collectReferencesToApplyMakeup(rootDto);
+        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
 
         for (ReferenceWithContext context : collectedReferences) {
             applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
@@ -40,32 +40,51 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     @Override
     public Mono<Void> applyCollectionMakeupReactively(ResponseDto rootDto) {
-        List<ReferenceWithContext> collectedReferences = collectReferencesToApplyMakeup(rootDto);
+        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
 
+        return applyReactivelyToCollectedReferences(collectedReferences);
+    }
+
+    private Mono<Void> applyReactivelyToCollectedReferences(List<ReferenceWithContext> collectedReferences) {
         return Flux.fromIterable(collectedReferences)
                 .flatMap(context -> applyMakeupToCollectionReactively(
                         context.getReference(), context.getAttribute(), context.getDto()))
                 .then();
     }
 
+    private List<ReferenceWithContext> collectReferencesOnResponseDtoToApplyMakeup(ResponseDto rootDto) {
+        List<ReferenceWithContext> collectedReferences = new ArrayList<>();
+        CollectionVisitDriver collectionVisitDriver = createDriver(collectedReferences);
+        collectionVisitDriver.visitCollectionsInResponseDto(rootDto);
+        return collectedReferences;
+    }
+
+    private CollectionVisitDriver createDriver(List<ReferenceWithContext> collectedReferences) {
+        return new CollectionVisitDriver(
+                    VisitDirection.ROOT_TO_LEAVES,
+                    (reference, attribute, dto) -> collectReferenceIfEligible(reference, attribute,
+                            dto, collectedReferences));
+    }
+
     @Override
-    public Mono<Void> applyCollectionMakeupReactively(CollectionReference<?> collectionReference,
+    public Mono<Void> applyCollectionMakeupReactively(CollectionReference<?> reference,
                                                       CollectionDescriptor collectionDescriptor) {
         return reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(collectionDescriptor)
                 .doOnNext(descriptor -> {
-                    collectionReference.setId(descriptor.getExternalId());
-                    fillCollectionUrl(collectionReference, descriptor);
+                    reference.setId(descriptor.getExternalId());
+                    fillCollectionUrl(reference, descriptor);
                 })
-                .then();
+                .then(Mono.defer(() -> {
+                    List<ReferenceWithContext> collectedReferences = collectReferencesOnNonResponseDtoToApplyMakeup(
+                            reference);
+                    return applyReactivelyToCollectedReferences(collectedReferences);
+                }));
     }
 
-    private List<ReferenceWithContext> collectReferencesToApplyMakeup(ResponseDto rootDto) {
+    private List<ReferenceWithContext> collectReferencesOnNonResponseDtoToApplyMakeup(Object root) {
         List<ReferenceWithContext> collectedReferences = new ArrayList<>();
-        CollectionVisitDriver collectionVisitDriver = new CollectionVisitDriver(
-                VisitDirection.ROOT_TO_LEAVES,
-                (reference, attribute, dto) -> collectReferenceIfEligible(reference, attribute,
-                        dto, collectedReferences));
-        collectionVisitDriver.visitCollections(rootDto);
+        CollectionVisitDriver collectionVisitDriver = createDriver(collectedReferences);
+        collectionVisitDriver.visitCollectionsInNonResponseDto(root);
         return collectedReferences;
     }
 
