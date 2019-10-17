@@ -2,6 +2,7 @@ package io.extremum.sharedmodels.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.extremum.sharedmodels.logging.LoggingConstants;
 import io.extremum.sharedmodels.constant.HttpStatus;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -108,6 +109,10 @@ public class Response {
 
     public boolean hasAlerts() {
         return alerts != null && !alerts.isEmpty();
+    }
+
+    public Response withRequestId(String requestId) {
+        return new Response(status, code, timestamp, requestId, locale, alerts, result, pagination);
     }
 
     @Override
@@ -254,7 +259,7 @@ public class Response {
         }
 
         private String tryToDetermineRequestId() {
-            return MDC.get(Constants.REQUEST_ID_ATTRIBUTE_NAME);
+            return MDC.get(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME);
         }
     }
 }

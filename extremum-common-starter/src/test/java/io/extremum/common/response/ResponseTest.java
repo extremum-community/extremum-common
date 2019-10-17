@@ -1,9 +1,9 @@
 package io.extremum.common.response;
 
-import io.extremum.common.mapper.MockedMapperDependencies;
-import io.extremum.common.mapper.SystemJsonObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.common.mapper.MockedMapperDependencies;
+import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseStatusEnum;
@@ -18,9 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author rpuch
@@ -117,7 +117,6 @@ class ResponseTest {
         return Response.builder()
                 .withOkStatus()
                 .withLocale("en_US")
-//                .withLocale(DEFAULT_LOCALE)
                 .withRequestId(rqid);
     }
 
@@ -127,5 +126,22 @@ class ResponseTest {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    void whenCopyingWithARequestId_thenRequestIdShouldChangeButEverythingElseRemainTheSame() {
+        Response response = Response.builder()
+                .withFailStatus(400)
+                .withRequestId("old-id")
+                .withResult("the result")
+                .build();
+
+        Response copy = response.withRequestId("new-id");
+
+        assertThat(copy.getStatus(), is(ResponseStatusEnum.FAIL));
+        assertThat(copy.getCode(), is(400));
+        assertThat(copy.getResult(), is("the result"));
+
+        assertThat(copy.getRequestId(), is("new-id"));
     }
 }
