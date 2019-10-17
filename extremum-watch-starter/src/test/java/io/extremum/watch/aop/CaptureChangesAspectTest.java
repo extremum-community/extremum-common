@@ -2,7 +2,6 @@ package io.extremum.watch.aop;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.google.common.util.concurrent.MoreExecutors;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.ThrowOnAlert;
 import io.extremum.everything.services.management.PatchFlow;
@@ -22,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.shaded.com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author rpuch
  */
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class})
 class CaptureChangesAspectTest {
     @InjectMocks
     private CaptureChangesAspect aspect;
@@ -45,18 +46,20 @@ class CaptureChangesAspectTest {
     private CommonServiceWatchProcessor commonServiceWatchProcessor;
     @Mock
     private PatchFlowWatchProcessor patchFlowWatchProcessor;
-    @Spy
-    private Executor executor = MoreExecutors.directExecutor();
-
-    private CommonService<TestModel> commonServiceProxy;
-    private PatchFlow patchFlowProxy;
-
     @Mock
     private MongoCommonDao<TestModel> dao;
     @Mock
     private PatchFlow originalPatchFlow;
+
+    @Spy
+    private Executor executor = MoreExecutors.directExecutor();
+
     @Captor
     private ArgumentCaptor<Invocation> invocationCaptor;
+
+    private CommonService<TestModel> commonServiceProxy;
+    private PatchFlow patchFlowProxy;
+
 
     @BeforeEach
     void createProxies() {
@@ -114,7 +117,7 @@ class CaptureChangesAspectTest {
     }
 
     private void assertThatDeleteInvocationIsInvokedWith(String internalId,
-            TestModel model) throws JsonProcessingException {
+                                                         TestModel model) throws JsonProcessingException {
         verify(commonServiceWatchProcessor).process(invocationCaptor.capture(), same(model));
         Invocation invocation = invocationCaptor.getValue();
         assertThat(invocation.methodName(), is("delete"));
