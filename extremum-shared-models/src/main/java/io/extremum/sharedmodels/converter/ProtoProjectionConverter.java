@@ -1,7 +1,7 @@
 package io.extremum.sharedmodels.converter;
 
 import com.google.protobuf.Int32Value;
-import io.extremum.sharedmodels.dto.Projection;
+import io.extremum.sharedmodels.dto.ProjectionDto;
 import io.extremum.sharedmodels.proto.common.ProtoProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,44 +11,44 @@ import org.springframework.stereotype.Service;
 public class ProtoProjectionConverter {
     private final ProtoZonedTimestampConverter timestampConverter;
 
-    public ProtoProjection createProto(Projection projection) {
-        if (projection == null) {
+    public ProtoProjection createProto(ProjectionDto projectionDto) {
+        if (projectionDto == null) {
             return ProtoProjection.getDefaultInstance();
         }
 
         ProtoProjection.Builder protoBuilder = ProtoProjection.newBuilder();
 
-        if (projection.getSince() != null) {
-            protoBuilder.setSince(timestampConverter.createProto(projection.getSince()));
+        if (projectionDto.getSince() != null) {
+            protoBuilder.setSince(timestampConverter.createProto(projectionDto.getSince()));
         }
 
-        if (projection.getUntil() != null) {
-            protoBuilder.setUntil(timestampConverter.createProto(projection.getUntil()));
+        if (projectionDto.getUntil() != null) {
+            protoBuilder.setUntil(timestampConverter.createProto(projectionDto.getUntil()));
         }
 
-        if (projection.getLimit() != null) {
-            protoBuilder.setLimit(Int32Value.newBuilder().setValue(projection.getLimit()).build());
+        if (projectionDto.getLimit() != null) {
+            protoBuilder.setLimit(Int32Value.newBuilder().setValue(projectionDto.getLimit()).build());
         }
-        if (projection.getOffset() != null) {
-            protoBuilder.setOffset(Int32Value.newBuilder().setValue(projection.getOffset()).build());
+        if (projectionDto.getOffset() != null) {
+            protoBuilder.setOffset(Int32Value.newBuilder().setValue(projectionDto.getOffset()).build());
         }
         return protoBuilder.build();
     }
 
-    public Projection createFromProto(ProtoProjection proto) {
+    public ProjectionDto createFromProto(ProtoProjection proto) {
         if (proto == null || ProtoProjection.getDefaultInstance().equals(proto)) {
             return null;
         } else {
-            Projection projection = new Projection();
-            projection.setSince(timestampConverter.createFromProto(proto.getSince()));
-            projection.setUntil(timestampConverter.createFromProto(proto.getUntil()));
+            ProjectionDto projectionDto = new ProjectionDto();
+            projectionDto.setSince(timestampConverter.createFromProto(proto.getSince()));
+            projectionDto.setUntil(timestampConverter.createFromProto(proto.getUntil()));
             if (proto.hasLimit()) {
-                projection.setLimit(proto.getLimit().getValue());
+                projectionDto.setLimit(proto.getLimit().getValue());
             }
             if (proto.hasOffset()) {
-                projection.setOffset(proto.getOffset().getValue());
+                projectionDto.setOffset(proto.getOffset().getValue());
             }
-            return projection;
+            return projectionDto;
         }
     }
 }

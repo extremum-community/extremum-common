@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Setter
-public class Projection {
+public class ProjectionDto {
     public Integer offset;
     public Integer limit;
     public ZonedDateTime since;

@@ -2,7 +2,7 @@ package io.extremum.sharedmodels.converter;
 
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.Timestamp;
-import io.extremum.sharedmodels.dto.Projection;
+import io.extremum.sharedmodels.dto.ProjectionDto;
 import io.extremum.sharedmodels.proto.common.ProtoProjection;
 import io.extremum.sharedmodels.proto.common.ProtoZonedTimestamp;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class ProjectionConverterTest {
                 .setSince(createProtoTimestamp(fromZoned, from))
                 .build();
 
-        Projection fromProto = projectionConverter.createFromProto(proto);
+        ProjectionDto fromProto = projectionConverter.createFromProto(proto);
 
         assertAll(
                 () -> assertNotNull(fromProto.getLimit()),
@@ -50,13 +50,13 @@ class ProjectionConverterTest {
 
     @Test
     void testWithoutNulls_createProto() {
-        Projection projection = new Projection();
-        projection.setUntil(ZonedDateTime.now());
-        projection.setSince(ZonedDateTime.now());
-        projection.setOffset(100);
-        projection.setLimit(100);
+        ProjectionDto projectionDto = new ProjectionDto();
+        projectionDto.setUntil(ZonedDateTime.now());
+        projectionDto.setSince(ZonedDateTime.now());
+        projectionDto.setOffset(100);
+        projectionDto.setLimit(100);
 
-        ProtoProjection proto = projectionConverter.createProto(projection);
+        ProtoProjection proto = projectionConverter.createProto(projectionDto);
 
         assertAll(
                 () -> assertTrue(proto.hasSince()),
@@ -68,13 +68,13 @@ class ProjectionConverterTest {
 
     @Test
     void testWithNulls_createProto() {
-        Projection projection = new Projection();
-        projection.setUntil(null);
-        projection.setSince(null);
-        projection.setOffset(null);
-        projection.setLimit(null);
+        ProjectionDto projectionDto = new ProjectionDto();
+        projectionDto.setUntil(null);
+        projectionDto.setSince(null);
+        projectionDto.setOffset(null);
+        projectionDto.setLimit(null);
 
-        ProtoProjection proto = projectionConverter.createProto(projection);
+        ProtoProjection proto = projectionConverter.createProto(projectionDto);
 
         assertAll(
                 () -> assertFalse(proto.hasSince()),

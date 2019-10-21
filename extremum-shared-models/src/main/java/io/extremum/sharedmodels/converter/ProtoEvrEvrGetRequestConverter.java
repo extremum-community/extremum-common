@@ -1,6 +1,6 @@
 package io.extremum.sharedmodels.converter;
 
-import io.extremum.sharedmodels.dto.Projection;
+import io.extremum.sharedmodels.dto.ProjectionDto;
 import io.extremum.sharedmodels.proto.common.ProtoProjection;
 import io.extremum.sharedmodels.proto.everything.ProtoEvrEvrGetRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class ProtoEvrEvrGetRequestConverter {
         return request.getId().equals("") ? null : request.getId();
     }
 
-    public Projection extractProjection(ProtoEvrEvrGetRequest request) {
+    public ProjectionDto extractProjection(ProtoEvrEvrGetRequest request) {
         return projectionConverter.createFromProto(request.getProjection());
     }
 
