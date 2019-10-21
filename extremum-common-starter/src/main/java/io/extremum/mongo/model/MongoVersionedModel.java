@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -28,12 +29,14 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
 
     private ObjectId historyId;
 
+    @Indexed
     private ZonedDateTime created;
     private ZonedDateTime start;
     private ZonedDateTime end;
 
     private long version;
 
+    @Indexed
     private Boolean deleted = false;
 
     @Override
