@@ -1,6 +1,5 @@
-package io.extremum.versioned;
+package io.extremum.common.model;
 
-import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.sharedmodels.basic.Model;
 
 import java.io.Serializable;

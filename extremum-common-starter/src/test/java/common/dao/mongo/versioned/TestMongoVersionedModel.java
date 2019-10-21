@@ -1,7 +1,7 @@
-package io.extremum.versioned.mongo.dao;
+package common.dao.mongo.versioned;
 
 import io.extremum.common.model.annotation.ModelName;
-import io.extremum.versioned.mongo.model.MongoVersionedModel;
+import io.extremum.mongo.model.MongoVersionedModel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

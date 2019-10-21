@@ -27,7 +27,6 @@
         <module>extremum-test-harness</module>
         <module>extremum-common-starter</module>
         <module>extremum-core-test</module>
-        <module>extremum-versioned-mongo</module>
         <module>extremum-security</module>
         <module>extremum-jpa-starter</module>
         <module>extremum-elasticsearch-starter</module>

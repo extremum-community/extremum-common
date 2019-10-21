@@ -1,10 +1,11 @@
-package io.extremum.versioned.mongo.dao;
+package io.extremum.mongo.dao.impl;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.mongo.MongoConstants;
 import io.extremum.mongo.SoftDeletion;
-import io.extremum.versioned.VersionedModel;
-import io.extremum.versioned.mongo.model.MongoVersionedModel;
+import io.extremum.common.model.VersionedModel;
+import io.extremum.mongo.dao.ReactiveMongoVersionedDao;
+import io.extremum.mongo.model.MongoVersionedModel;
 import org.bson.types.ObjectId;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;

@@ -7,7 +7,7 @@ import io.extremum.mongo.service.ReactiveMongoCommonService;
 import org.bson.types.ObjectId;
 
 
-public class ReactiveMongoCommonServiceImpl<M extends MongoCommonModel> extends ReactiveCommonServiceImpl<ObjectId, M>
+public abstract class ReactiveMongoCommonServiceImpl<M extends MongoCommonModel> extends ReactiveCommonServiceImpl<ObjectId, M>
         implements ReactiveMongoCommonService<M> {
 
     public ReactiveMongoCommonServiceImpl(ReactiveMongoCommonDao<M> dao) {

@@ -1,7 +1,7 @@
-package io.extremum.versioned.mongo.model;
+package io.extremum.mongo.model;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.versioned.VersionedModel;
+import io.extremum.common.model.VersionedModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;

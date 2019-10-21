@@ -1,5 +1,6 @@
-package io.extremum.versioned.mongo.dao;
+package common.dao.mongo.versioned;
 
+import io.extremum.mongo.dao.impl.ReactiveMongoVersionedDaoImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 public class TestReactiveMongoVersionedDaoImpl extends ReactiveMongoVersionedDaoImpl<TestMongoVersionedModel>

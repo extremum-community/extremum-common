@@ -1,4 +1,4 @@
-package io.extremum.versioned.mongo.dao;
+package common.dao.mongo.versioned;
 
 import io.extremum.starter.CommonConfiguration;
 import org.springframework.context.annotation.Bean;

@@ -1,8 +1,9 @@
-package io.extremum.versioned.mongo.service;
+package io.extremum.mongo.service.impl;
 
 import io.extremum.common.dao.ReactiveCommonDao;
 import io.extremum.common.service.impl.ReactiveCommonServiceImpl;
-import io.extremum.versioned.mongo.model.MongoVersionedModel;
+import io.extremum.mongo.model.MongoVersionedModel;
+import io.extremum.mongo.service.ReactiveMongoVersionedService;
 import org.bson.types.ObjectId;
 
 public abstract class ReactiveMongoVersionedServiceImpl<M extends MongoVersionedModel>

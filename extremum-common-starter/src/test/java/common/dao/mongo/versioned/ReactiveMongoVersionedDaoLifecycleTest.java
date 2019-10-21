@@ -1,5 +1,6 @@
-package io.extremum.versioned.mongo.dao;
+package common.dao.mongo.versioned;
 
+import io.extremum.common.test.TestWithServices;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -21,7 +22,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = ReactiveVersionedMongoDaoTestConfiguration.class)
-class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
+class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
     @Autowired
     private TestReactiveMongoVersionedDao dao;
 

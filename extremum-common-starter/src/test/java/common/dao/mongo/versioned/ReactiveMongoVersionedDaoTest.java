@@ -1,5 +1,6 @@
-package io.extremum.versioned.mongo.dao;
+package common.dao.mongo.versioned;
 
+import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.MongoConstants;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static io.extremum.versioned.VersionedModel.FIELDS.historyId;
+import static io.extremum.common.model.VersionedModel.FIELDS.historyId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
