@@ -5,8 +5,11 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
@@ -95,7 +98,21 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenSomeHistoryExists_whenModelIsRetrievedByHistoryId_thenTheLastSnapshotShouldBeReturned() {
+    void givenSomeHistoryExists_whenModelIsWithWrongVersion_thenAnOptimisticLockingExceptionShouldBeTheResult() {
+        TestMongoVersionedModel savedModel = saveAModelAndThenChangeItsName();
+
+        savedModel.setName("Another name");
+        savedModel.setVersion(0L);
+
+        Mono<TestMongoVersionedModel> mono = dao.save(savedModel);
+
+        StepVerifier.create(mono)
+                .expectError(OptimisticLockingFailureException.class)
+                .verify();
+    }
+
+    @Test
+    void givenMoreThan1SnapshotsExist_whenModelIsRetrievedByHistoryId_thenTheLastSnapshotShouldBeReturned() {
         TestMongoVersionedModel savedModel = saveAModelAndThenChangeItsName();
 
         TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getHistoryId()).block();
