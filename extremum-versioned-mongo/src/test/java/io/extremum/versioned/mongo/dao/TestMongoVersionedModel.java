@@ -14,4 +14,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 public class TestMongoVersionedModel extends MongoVersionedModel {
     private String name;
+
+    public TestMongoVersionedModel() {
+    }
+
+    public TestMongoVersionedModel(String name) {
+        this.name = name;
+    }
 }
