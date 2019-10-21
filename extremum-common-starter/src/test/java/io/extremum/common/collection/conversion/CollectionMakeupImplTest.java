@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -269,6 +270,16 @@ class CollectionMakeupImplTest {
 
         assertThat(collection.getId(), is("external-id"));
         assertThat(collection.getUrl(), is("https://example.com/external-id"));
+    }
+
+    @Test
+    void whenApplyingCollectionMakeupToCollectionReference_thenIdAndUrlShouldBeFilledOnNestedCollectionReferencesAsWell() {
+        CollectionReference<Object> collection = new CollectionReference<>(singletonList(streetDto));
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("items");
+
+        collectionMakeup.applyCollectionMakeupReactively(collection, collectionDescriptor).block();
+
+        assertThat(streetDto.buildings.getId(), is(notNullValue()));
     }
 
     private static class BuildingResponseDto extends CommonResponseDto {

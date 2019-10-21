@@ -24,7 +24,7 @@ public class ResponseLimiterImpl implements ResponseLimiter {
 
     @Override
     public void limit(ResponseDto responseDto) {
-        collectionVisitDriver.visitCollections(responseDto);
+        collectionVisitDriver.visitCollectionsInResponseDto(responseDto);
     }
 
     private void limitCollectionTop(CollectionReference reference, Attribute attribute, ResponseDto dto) {
