@@ -128,6 +128,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
 
         currentSnapshot.setEnd(now);
 
+        nextSnapshot.setUuid(currentSnapshot.getUuid());
         nextSnapshot.setSnapshotId(newSnapshotId());
         nextSnapshot.setStart(now);
         nextSnapshot.setEnd(infinitelyDistantFuture());
