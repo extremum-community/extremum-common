@@ -15,6 +15,16 @@ public interface VersionedModel<ID extends Serializable> extends PersistableComm
     void setEnd(ZonedDateTime modified);
 
     @Override
+    default ZonedDateTime getModified() {
+        return getStart();
+    }
+
+    @Override
+    default void setModified(ZonedDateTime modified) {
+        // doing nothing
+    }
+
+    @Override
     default void copyServiceFieldsTo(Model to) {
         if (!(to instanceof VersionedModel)) {
             throw new IllegalStateException("I can only copy to a VersionedModel");

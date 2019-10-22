@@ -1,7 +1,7 @@
 package io.extremum.mongo.model;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.model.VersionedModel;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
@@ -39,16 +39,6 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
 
     @Indexed
     private Boolean deleted = false;
-
-    @Override
-    public ZonedDateTime getModified() {
-        return start;
-    }
-
-    @Override
-    public void setModified(ZonedDateTime modified) {
-        // doing nothing
-    }
 
     @Override
     public ObjectId getId() {
