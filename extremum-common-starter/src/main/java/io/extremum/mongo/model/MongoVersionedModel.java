@@ -27,6 +27,7 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     @Id
     private ObjectId snapshotId;
 
+    @Indexed
     private ObjectId historyId;
 
     @Indexed
