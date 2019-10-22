@@ -1,15 +1,13 @@
 package io.extremum.mongo.dao.impl;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.mongo.MongoConstants;
-import io.extremum.mongo.SoftDeletion;
 import io.extremum.common.model.VersionedModel;
+import io.extremum.mongo.MongoConstants;
 import io.extremum.mongo.dao.ReactiveMongoVersionedDao;
 import io.extremum.mongo.model.MongoVersionedModel;
 import org.bson.types.ObjectId;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,7 +23,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     private final ReactiveMongoOperations reactiveMongoOperations;
     private final Class<M> modelClass;
 
-    private final SoftDeletion softDeletion = new SoftDeletion();
+    private final VersionedQueries versionedQueries = new VersionedQueries();
 
     public ReactiveMongoVersionedDaoImpl(ReactiveMongoOperations reactiveMongoOperations) {
         this.reactiveMongoOperations = reactiveMongoOperations;
@@ -41,16 +39,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     private Query queryWithActualSnapshotCriteria(Query originalQuery) {
-        return originalQuery.addCriteria(actualSnapshot());
-    }
-
-    private Criteria actualSnapshot() {
-        ZonedDateTime now = ZonedDateTime.now();
-        return new Criteria().andOperator(
-                softDeletion.notDeleted(),
-                where(VersionedModel.FIELDS.start.name()).lte(now),
-                where(VersionedModel.FIELDS.end.name()).gt(now)
-        );
+        return originalQuery.addCriteria(versionedQueries.actualSnapshot());
     }
 
     @Override
@@ -159,7 +148,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     @Override
     public <N extends M> Flux<N> saveAll(Iterable<N> entities) {
         return Flux.fromIterable(entities)
-                .flatMap(this::save);
+                .concatMap(this::save);
     }
 
     @Override
