@@ -18,6 +18,7 @@ import java.util.Objects;
 @Setter
 @CompoundIndexes({
         @CompoundIndex(def = "{'historyId': 1, 'start': 1, 'end': 1}", name = "historyId_start_end"),
+        @CompoundIndex(def = "{'historyId': 1, 'currentSnapshot': 1}", name = "historyId_currentSnapshot"),
         @CompoundIndex(def = "{'historyId': 1, 'version': 1}", unique = true, name = "historyId_version")
 })
 public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
@@ -34,6 +35,7 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     private ZonedDateTime created;
     private ZonedDateTime start;
     private ZonedDateTime end;
+    @Indexed
     private boolean currentSnapshot;
 
     private long version;
