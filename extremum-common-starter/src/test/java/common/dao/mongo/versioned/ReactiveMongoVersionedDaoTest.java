@@ -14,7 +14,7 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static io.extremum.common.model.VersionedModel.FIELDS.historyId;
+import static io.extremum.common.model.VersionedModel.FIELDS.lineageId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -31,7 +31,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     void givenNoPreviousHistoryExists_whenModelIsSaved_then1SnapshotShouldBeCreated() {
         TestMongoVersionedModel savedModel = saveAModelWithInitialName();
 
-        List<TestMongoVersionedModel> snapshots = findSnapshotsByHistoryId(savedModel);
+        List<TestMongoVersionedModel> snapshots = findSnapshotsByLineageId(savedModel);
 
         assertThat(snapshots, hasSize(1));
         TestMongoVersionedModel snapshot = snapshots.get(0);
@@ -46,9 +46,9 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     }
 
     @NotNull
-    private List<TestMongoVersionedModel> findSnapshotsByHistoryId(TestMongoVersionedModel model) {
+    private List<TestMongoVersionedModel> findSnapshotsByLineageId(TestMongoVersionedModel model) {
         return mongoOperations.find(
-                    new Query().addCriteria(where(historyId.name()).is(model.getHistoryId())),
+                    new Query().addCriteria(where(lineageId.name()).is(model.getLineageId())),
                     TestMongoVersionedModel.class);
     }
 
@@ -60,10 +60,10 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenOneSnapshotExists_whenModelIsRetrievedByHistoryId_thenTheSnapshotShouldBeReturned() {
+    void givenOneSnapshotExists_whenModelIsRetrievedByLineageId_thenTheSnapshotShouldBeReturned() {
         TestMongoVersionedModel savedModel = saveAModelWithInitialName();
 
-        TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getHistoryId()).block();
+        TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getLineageId()).block();
 
         assertThat(retrievedModel, is(notNullValue()));
         assertThat(retrievedModel.getName(), is("Initial name"));
@@ -73,7 +73,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     void givenSomeHistoryExists_whenModelIsSaved_then1MoreSnapshotShouldBeAdded() {
         TestMongoVersionedModel savedModel = saveAModelAndThenChangeItsName();
 
-        List<TestMongoVersionedModel> snapshots = findSnapshotsByHistoryId(savedModel);
+        List<TestMongoVersionedModel> snapshots = findSnapshotsByLineageId(savedModel);
 
         assertThat(snapshots, hasSize(2));
 
@@ -88,7 +88,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
         assertThat(secondSnapshot.isCurrentSnapshot(), is(true));
         assertThat(secondSnapshot.getName(), is("Changed name"));
 
-        assertThat(firstSnapshot.getHistoryId(), equalTo(secondSnapshot.getHistoryId()));
+        assertThat(firstSnapshot.getLineageId(), equalTo(secondSnapshot.getLineageId()));
         assertThat(firstSnapshot.getCreated(), equalTo(secondSnapshot.getCreated()));
         assertThat(firstSnapshot.getEnd(), equalTo(secondSnapshot.getStart()));
         assertThat(firstSnapshot.getSnapshotId(), not(equalTo(secondSnapshot.getSnapshotId())));
@@ -116,10 +116,10 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenMoreThan1SnapshotsExist_whenModelIsRetrievedByHistoryId_thenTheLastSnapshotShouldBeReturned() {
+    void givenMoreThan1SnapshotsExist_whenModelIsRetrievedByLineageId_thenTheLastSnapshotShouldBeReturned() {
         TestMongoVersionedModel savedModel = saveAModelAndThenChangeItsName();
 
-        TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getHistoryId()).block();
+        TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getLineageId()).block();
 
         assertThat(retrievedModel, is(notNullValue()));
         assertThat(retrievedModel.getName(), is("Changed name"));
@@ -129,7 +129,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     void givenSomeHistoryExists_whenModelIsDeleted_thenANewSnapshotShouldBeCreated() {
         TestMongoVersionedModel savedModel = saveAndDeleteModel();
 
-        List<TestMongoVersionedModel> snapshots = findSnapshotsByHistoryId(savedModel);
+        List<TestMongoVersionedModel> snapshots = findSnapshotsByLineageId(savedModel);
 
         assertThat(snapshots, hasSize(2));
         assertThat(snapshots.get(0).getDeleted(), is(false));
@@ -139,7 +139,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     @NotNull
     private TestMongoVersionedModel saveAndDeleteModel() {
         TestMongoVersionedModel savedModel = saveAModelWithInitialName();
-        dao.deleteById(savedModel.getHistoryId()).block();
+        dao.deleteById(savedModel.getLineageId()).block();
         return savedModel;
     }
 
@@ -147,7 +147,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     void givenSomeHistoryExists_whenModelIsDeleted_thenTheModelShouldNotBeFoundAnymore() {
         TestMongoVersionedModel savedModel = saveAndDeleteModel();
 
-        TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getHistoryId()).block();
+        TestMongoVersionedModel retrievedModel = dao.findById(savedModel.getLineageId()).block();
         assertThat(retrievedModel, is(nullValue()));
     }
 }

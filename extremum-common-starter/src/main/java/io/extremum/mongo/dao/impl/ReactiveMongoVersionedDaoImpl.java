@@ -43,23 +43,23 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
-    public Mono<M> findById(ObjectId historyId) {
+    public Mono<M> findById(ObjectId lineageId) {
         return Mono.defer(() -> {
-            Query query = queryByHistoryId(historyId);
+            Query query = queryByLineageId(lineageId);
             return reactiveMongoOperations.findOne(query, modelClass);
         });
     }
 
-    private Query queryByHistoryId(ObjectId historyId) {
-        Query query = new Query().addCriteria(where(VersionedModel.FIELDS.historyId.name()).is(historyId));
+    private Query queryByLineageId(ObjectId lineageId) {
+        Query query = new Query().addCriteria(where(VersionedModel.FIELDS.lineageId.name()).is(lineageId));
         query = queryWithActualSnapshotCriteria(query);
         return query;
     }
 
     @Override
-    public Mono<Boolean> existsById(ObjectId historyId) {
+    public Mono<Boolean> existsById(ObjectId lineageId) {
         return Mono.defer(() -> {
-            Query query = queryByHistoryId(historyId);
+            Query query = queryByLineageId(lineageId);
             return reactiveMongoOperations.exists(query, modelClass);
         });
     }
@@ -70,14 +70,14 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
             if (isNew(model)) {
                 return addFirstSnapshot(model);
             } else {
-                return findById(model.getHistoryId())
+                return findById(model.getLineageId())
                         .flatMap(currentSnapshot -> addNextSnapshot(model, currentSnapshot));
             }
         });
     }
 
     private boolean isNew(M model) {
-        return model.getHistoryId() == null;
+        return model.getLineageId() == null;
     }
 
     private <N extends M> Mono<? extends N> addFirstSnapshot(N model) {
@@ -88,7 +88,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     private <N extends M> void fillFirstSnapshot(N newSnapshot) {
         ZonedDateTime now = ZonedDateTime.now();
 
-        newSnapshot.setHistoryId(newHistoryId());
+        newSnapshot.setLineageId(newLineageId());
         newSnapshot.setCreated(now);
         newSnapshot.setStart(now);
         newSnapshot.setEnd(infinitelyDistantFuture());
@@ -96,7 +96,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
         newSnapshot.setVersion(0L);
     }
 
-    private ObjectId newHistoryId() {
+    private ObjectId newLineageId() {
         return new ObjectId();
     }
 
@@ -120,8 +120,8 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
 
     private <N extends M> Exception versionDiffersOptimistickLockingException(N newSnapshot, M currentSnapshot) {
         return new OptimisticLockingFailureException(
-                String.format("Trying to save a model with historyId '%s' and version '%s' while it's already '%s'",
-                        newSnapshot.getHistoryId(), newSnapshot.getVersion(), currentSnapshot.getVersion()));
+                String.format("Trying to save a model with lineageId '%s' and version '%s' while it's already '%s'",
+                        newSnapshot.getLineageId(), newSnapshot.getVersion(), currentSnapshot.getVersion()));
     }
 
     private <N extends M> void prepareCurrentAndNextSnapshots(N nextSnapshot, M currentSnapshot) {
@@ -156,15 +156,15 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
-    public Mono<Void> deleteById(ObjectId historyId) {
-        return deleteByIdAndReturn(historyId).then();
+    public Mono<Void> deleteById(ObjectId lineageId) {
+        return deleteByIdAndReturn(lineageId).then();
     }
 
     @Override
-    public Mono<M> deleteByIdAndReturn(ObjectId historyId) {
-        return findById(historyId).flatMap(found -> {
+    public Mono<M> deleteByIdAndReturn(ObjectId lineageId) {
+        return findById(lineageId).flatMap(found -> {
             found.setDeleted(true);
             return save(found);
-        }).switchIfEmpty(Mono.error(new ModelNotFoundException(modelClass, historyId.toString())));
+        }).switchIfEmpty(Mono.error(new ModelNotFoundException(modelClass, lineageId.toString())));
     }
 }

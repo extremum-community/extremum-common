@@ -39,6 +39,6 @@ public interface VersionedModel<ID extends Serializable> extends PersistableComm
     }
 
     enum FIELDS {
-        id, uuid, historyId, created, start, end, currentSnapshot, version, deleted
+        id, uuid, lineageId, created, start, end, currentSnapshot, version, deleted
     }
 }

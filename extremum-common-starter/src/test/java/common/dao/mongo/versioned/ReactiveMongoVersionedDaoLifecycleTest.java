@@ -110,7 +110,7 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
     }
 
     @Test
-    void whenFindingById_thenDescriptorInternalIdShouldMatchTheHistoryId() {
+    void whenFindingById_thenDescriptorInternalIdShouldMatchTheLineageId() {
         TestMongoVersionedModel savedModel = saveATestModel();
 
         TestMongoVersionedModel loadedModel = dao.findById(savedModel.getId()).block();
@@ -167,15 +167,15 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
                 mismatchDescription.appendText("uuid is null");
                 return false;
             }
-            if (item.getHistoryId() == null) {
+            if (item.getLineageId() == null) {
                 mismatchDescription.appendText("id is null");
                 return false;
             }
-            if (!Objects.equals(item.getUuid().getInternalId(), item.getHistoryId().toString())) {
+            if (!Objects.equals(item.getUuid().getInternalId(), item.getLineageId().toString())) {
                 mismatchDescription.appendText("uuid.internalId '")
                         .appendValue(item.getUuid().getInternalId())
                         .appendText("' not equal to history id '")
-                        .appendValue(item.getHistoryId().toString());
+                        .appendValue(item.getLineageId().toString());
                 return false;
             }
             return true;
@@ -183,7 +183,7 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText("model with uuid.internalId equal to historyId.toString()");
+            description.appendText("model with uuid.internalId equal to lineageId.toString()");
         }
     }
 }

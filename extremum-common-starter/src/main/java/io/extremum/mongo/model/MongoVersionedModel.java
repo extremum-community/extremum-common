@@ -17,9 +17,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @CompoundIndexes({
-        @CompoundIndex(def = "{'historyId': 1, 'start': 1, 'end': 1}", name = "historyId_start_end"),
-        @CompoundIndex(def = "{'historyId': 1, 'currentSnapshot': 1}", name = "historyId_currentSnapshot"),
-        @CompoundIndex(def = "{'historyId': 1, 'version': 1}", unique = true, name = "historyId_version")
+        @CompoundIndex(def = "{'lineageId': 1, 'start': 1, 'end': 1}", name = "lineageId_start_end"),
+        @CompoundIndex(def = "{'lineageId': 1, 'currentSnapshot': 1}", name = "lineageId_currentSnapshot"),
+        @CompoundIndex(def = "{'lineageId': 1, 'version': 1}", unique = true, name = "lineageId_version")
 })
 public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     @Transient
@@ -29,7 +29,7 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     private ObjectId snapshotId;
 
     @Indexed
-    private ObjectId historyId;
+    private ObjectId lineageId;
 
     @Indexed
     private ZonedDateTime created;
@@ -45,12 +45,12 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
 
     @Override
     public ObjectId getId() {
-        return getHistoryId();
+        return getLineageId();
     }
 
     @Override
     public void setId(ObjectId id) {
-        setHistoryId(id);
+        setLineageId(id);
     }
 
     public Long getVersion() {
