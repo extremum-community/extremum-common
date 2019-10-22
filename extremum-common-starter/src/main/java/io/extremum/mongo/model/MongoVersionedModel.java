@@ -34,6 +34,7 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     private ZonedDateTime created;
     private ZonedDateTime start;
     private ZonedDateTime end;
+    private boolean currentSnapshot;
 
     private long version;
 

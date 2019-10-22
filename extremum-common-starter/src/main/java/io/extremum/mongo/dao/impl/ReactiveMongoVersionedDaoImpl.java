@@ -92,6 +92,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
         newSnapshot.setCreated(now);
         newSnapshot.setStart(now);
         newSnapshot.setEnd(infinitelyDistantFuture());
+        newSnapshot.setCurrentSnapshot(true);
         newSnapshot.setVersion(0L);
     }
 
@@ -127,11 +128,13 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
         ZonedDateTime now = ZonedDateTime.now();
 
         currentSnapshot.setEnd(now);
+        currentSnapshot.setCurrentSnapshot(false);
 
         nextSnapshot.setUuid(currentSnapshot.getUuid());
         nextSnapshot.setSnapshotId(newSnapshotId());
         nextSnapshot.setStart(now);
         nextSnapshot.setEnd(infinitelyDistantFuture());
+        nextSnapshot.setCurrentSnapshot(true);
         nextSnapshot.setVersion(nextSnapshot.getVersion() + 1);
     }
 

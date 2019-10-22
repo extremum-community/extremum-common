@@ -40,6 +40,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
         assertThat(snapshot.getStart(), is(notNullValue()));
         assertThat(snapshot.getStart(), is(equalTo(snapshot.getCreated())));
         assertThat(snapshot.getEnd(), is(MongoConstants.DISTANT_FUTURE));
+        assertThat(snapshot.isCurrentSnapshot(), is(true));
         assertThat(snapshot.getVersion(), is(0L));
         assertThat(snapshot.getName(), is("Initial name"));
     }
@@ -84,12 +85,14 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
         assertThat(secondSnapshot.getCreated(), is(notNullValue()));
         assertThat(secondSnapshot.getStart(), is(notNullValue()));
         assertThat(secondSnapshot.getEnd(), is(MongoConstants.DISTANT_FUTURE));
+        assertThat(secondSnapshot.isCurrentSnapshot(), is(true));
         assertThat(secondSnapshot.getName(), is("Changed name"));
 
         assertThat(firstSnapshot.getHistoryId(), equalTo(secondSnapshot.getHistoryId()));
         assertThat(firstSnapshot.getCreated(), equalTo(secondSnapshot.getCreated()));
         assertThat(firstSnapshot.getEnd(), equalTo(secondSnapshot.getStart()));
         assertThat(firstSnapshot.getSnapshotId(), not(equalTo(secondSnapshot.getSnapshotId())));
+        assertThat(firstSnapshot.isCurrentSnapshot(), is(false));
     }
 
     private TestMongoVersionedModel saveAModelAndThenChangeItsName() {
