@@ -22,13 +22,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedModel>
         implements ReactiveMongoVersionedDao<M> {
-    private final ReactiveMongoOperations mongoOperations;
+    private final ReactiveMongoOperations reactiveMongoOperations;
     private final Class<M> modelClass;
 
     private final SoftDeletion softDeletion = new SoftDeletion();
 
-    public ReactiveMongoVersionedDaoImpl(ReactiveMongoOperations mongoOperations) {
-        this.mongoOperations = mongoOperations;
+    public ReactiveMongoVersionedDaoImpl(ReactiveMongoOperations reactiveMongoOperations) {
+        this.reactiveMongoOperations = reactiveMongoOperations;
         modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
@@ -36,7 +36,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     public Flux<M> findAll() {
         return Flux.defer(() -> {
             Query query = queryWithActualSnapshotCriteria(new Query());
-            return mongoOperations.find(query, modelClass);
+            return reactiveMongoOperations.find(query, modelClass);
         });
     }
 
@@ -57,7 +57,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     public Mono<M> findById(ObjectId historyId) {
         return Mono.defer(() -> {
             Query query = queryByHistoryId(historyId);
-            return mongoOperations.findOne(query, modelClass);
+            return reactiveMongoOperations.findOne(query, modelClass);
         });
     }
 
@@ -71,7 +71,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     public Mono<Boolean> existsById(ObjectId historyId) {
         return Mono.defer(() -> {
             Query query = queryByHistoryId(historyId);
-            return mongoOperations.exists(query, modelClass);
+            return reactiveMongoOperations.exists(query, modelClass);
         });
     }
 
@@ -93,7 +93,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
 
     private <N extends M> Mono<? extends N> addFirstSnapshot(N model) {
         fillFirstSnapshot(model);
-        return mongoOperations.insert(model);
+        return reactiveMongoOperations.insert(model);
     }
 
     private <N extends M> void fillFirstSnapshot(N newSnapshot) {
@@ -150,7 +150,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     private <N extends M> Mono<N> saveOldSnapshotAndInsertNewSnapshot(N nextSnapshot, M currentSnapshot) {
-        return mongoOperations.inTransaction().execute(sessionBound -> {
+        return reactiveMongoOperations.inTransaction().execute(sessionBound -> {
             return sessionBound.save(currentSnapshot)
                     .then(sessionBound.insert(nextSnapshot));
         }).then(Mono.just(nextSnapshot));
