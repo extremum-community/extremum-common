@@ -1,7 +1,7 @@
 package io.extremum.common.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;

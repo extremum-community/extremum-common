@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>io.extremum</groupId>
-            <artifactId>extremum-mapper</artifactId>
+            <artifactId>extremum-jackson-mapper</artifactId>
         </dependency>
 
         <dependency>

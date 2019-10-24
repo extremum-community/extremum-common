@@ -19,7 +19,7 @@ import io.extremum.common.service.ReactiveCommonService;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
-import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.mongo.config.*;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import io.extremum.sharedmodels.basic.Model;

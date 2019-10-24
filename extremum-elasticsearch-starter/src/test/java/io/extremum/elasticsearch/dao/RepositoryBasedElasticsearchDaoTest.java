@@ -8,7 +8,7 @@ import io.extremum.common.utils.StreamUtils;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
-import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.index.query.QueryBuilders;

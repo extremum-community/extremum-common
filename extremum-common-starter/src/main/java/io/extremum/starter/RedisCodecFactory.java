@@ -1,6 +1,6 @@
 package io.extremum.starter;
 
-import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import org.redisson.client.codec.Codec;
 import org.redisson.codec.TypedJsonJacksonCodec;
 
