@@ -1,4 +1,4 @@
-package io.extremum.common.stucts;
+package io.extremum.sharedmodels.structs;
 
 import java.io.Serializable;
 import java.util.ArrayList;

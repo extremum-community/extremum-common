@@ -1,4 +1,4 @@
-package io.extremum.common.stucts;
+package io.extremum.sharedmodels.structs;
 
 public class IntegerRangeOrValue {
     public ValueType type;

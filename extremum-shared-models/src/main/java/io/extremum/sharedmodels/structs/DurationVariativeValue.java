@@ -1,4 +1,4 @@
-package io.extremum.common.stucts;
+package io.extremum.sharedmodels.structs;
 
 public class DurationVariativeValue {
     public ValueType type;
