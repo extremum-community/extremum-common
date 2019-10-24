@@ -21,6 +21,11 @@
         </dependency>
 
         <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-mapper</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>
         </dependency>

@@ -28,63 +28,69 @@
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-shared-models</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-test-harness</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-common-starter</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-core-test</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-security</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-core</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-starter</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-reactive-starter</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-jpa-starter</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-elasticsearch-starter</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-watch-starter</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-mapper</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>authentication-api</artifactId>
-                <version>1.0.15-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- Adding this BEFORE importing spring-boot-dependencies so that our versions win -->
