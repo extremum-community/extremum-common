@@ -12,6 +12,10 @@
 
     <artifactId>extremum-mapper</artifactId>
 
+    <properties>
+        <testcoverage.minimum>0.3</testcoverage.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.extremum</groupId>

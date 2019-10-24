@@ -1,29 +1,28 @@
-package models.serialization;
+package io.extremum.mapper.serializer;
 
-import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.mapper.MockedMapperDependencies;
-import io.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.sharedmodels.structs.DurationVariativeValue;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DurationVariativeValueSerializerTest {
-    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = new BasicJsonObjectMapper();
 
     @Test
-    public void simpleIntSerializeTest() throws JsonProcessingException, JSONException {
+    public void simpleIntSerializeTest() throws JsonProcessingException {
         DurationVariativeValue duration = new DurationVariativeValue(1);
         String jsonString = mapper.writeValueAsString(duration);
         assertEquals("1", jsonString);
     }
 
     @Test
-    public void simpleStringSerializeTest() throws JsonProcessingException, JSONException {
+    public void simpleStringSerializeTest() throws JsonProcessingException {
         DurationVariativeValue duration = new DurationVariativeValue("1h");
         String jsonString = mapper.writeValueAsString(duration);
         assertEquals("\"1h\"", jsonString);

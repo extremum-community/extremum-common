@@ -1,24 +1,21 @@
-package models.serialization;
+package io.extremum.mapper.serializer;
 
-import io.extremum.common.mapper.MockedMapperDependencies;
-import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.sharedmodels.basic.MultilingualLanguage;
-import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.sharedmodels.basic.MultilingualLanguage;
+import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StringOrMultilingualSerializerTest {
-    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = new BasicJsonObjectMapper();
 
     @Test
     public void serializeToSimpleTextTest() throws JsonProcessingException {

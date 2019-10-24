@@ -1,4 +1,4 @@
-package models;
+package io.extremum.mapper.util;
 
 import java.io.InputStream;
 

@@ -3,11 +3,11 @@ package io.extremum.elasticsearch.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
+import io.extremum.mapper.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
@@ -399,7 +399,7 @@ class RepositoryBasedReactiveElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         String uniqueName = UUID.randomUUID().toString();
         model.setName(uniqueName);
-        
+
         model = dao.save(model).block();
 
         List<TestElasticsearchModel> results = dao.search(uniqueName, exactMatchSearch())

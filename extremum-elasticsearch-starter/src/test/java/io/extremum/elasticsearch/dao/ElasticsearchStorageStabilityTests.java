@@ -1,10 +1,10 @@
 package io.extremum.elasticsearch.dao;
 
-import io.extremum.common.mapper.BasicJsonObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.mapper.BasicJsonObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**

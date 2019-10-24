@@ -1,11 +1,11 @@
-package common.serializers;
+package io.extremum.mapper.serializer;
 
-import io.extremum.common.mapper.BasicJsonObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.mapper.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import io.extremum.sharedmodels.basic.StringOrObject;
 import io.extremum.sharedmodels.personal.Name;
 import io.extremum.sharedmodels.personal.PersonRequestDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

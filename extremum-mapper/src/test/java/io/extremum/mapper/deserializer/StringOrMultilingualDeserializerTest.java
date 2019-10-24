@@ -1,23 +1,19 @@
-package models.deserialization;
+package io.extremum.mapper.deserializer;
 
-import io.extremum.common.mapper.MockedMapperDependencies;
-import io.extremum.common.mapper.SystemJsonObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.mapper.BasicJsonObjectMapper;
+import io.extremum.mapper.util.TestUtils;
 import io.extremum.sharedmodels.basic.MultilingualLanguage;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import models.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StringOrMultilingualDeserializerTest {
     private static final String PATH_TO_JSON = "json-files/";
-    private ObjectMapper mapper = new SystemJsonObjectMapper(new MockedMapperDependencies());
+    private ObjectMapper mapper = new BasicJsonObjectMapper();
 
     @Test
     public void deserializeSimpleTextTest() throws IOException {
