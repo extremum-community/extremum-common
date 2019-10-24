@@ -1,6 +1,6 @@
 package io.extremum.starter;
 
-import io.extremum.common.mapper.BasicJsonObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import org.redisson.client.codec.Codec;
 import org.redisson.codec.TypedJsonJacksonCodec;
 
@@ -10,5 +10,6 @@ class RedisCodecFactory {
                 new BasicJsonObjectMapper());
     }
 
-    private RedisCodecFactory() {}
+    private RedisCodecFactory() {
+    }
 }

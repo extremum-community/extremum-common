@@ -1,14 +1,14 @@
 package io.extremum.elasticsearch.dao;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,21 +22,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = ClassicElasticsearchDaoConfiguration.class)
@@ -296,7 +285,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         String uniqueName = UUID.randomUUID().toString();
         model.setName(uniqueName);
-        
+
         model = dao.save(model);
 
         List<TestElasticsearchModel> results = dao.search(uniqueName, exactMatchSearch());

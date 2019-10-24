@@ -7,13 +7,14 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
+
+import static io.extremum.sharedmodels.constants.DateConstants.*;
 
 /**
  * @author iPolyakov on 03.02.15.
@@ -23,13 +24,8 @@ public final class DateUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
-    public static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ";
     public static final String FORMAT_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}T[\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3}-[\\d]{4}";
 
-    public static final DateTimeFormatter ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz");
-
-    public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(FORMAT);
-    public static final ZoneId ZONE = ZoneId.systemDefault();
 
     public static SimpleDateFormat dateFormat() {
         return new SimpleDateFormat(FORMAT, Locale.US);
@@ -68,7 +64,7 @@ public final class DateUtils {
         return parseZonedDateTime(date, ISO_8601_ZONED_DATE_TIME_FORMATTER);
     }
 
-    public static String formatZonedDateTimeISO_8601(ZonedDateTime date){
+    public static String formatZonedDateTimeISO_8601(ZonedDateTime date) {
         return date.format(ISO_8601_ZONED_DATE_TIME_FORMATTER);
     }
 
@@ -95,5 +91,6 @@ public final class DateUtils {
         return ZonedDateTime.ofInstant(instant, zoneOffset);
     }
 
-    private DateUtils() {}
+    private DateUtils() {
+    }
 }

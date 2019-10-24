@@ -1,6 +1,7 @@
 package io.extremum.common.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 
 
 /**
