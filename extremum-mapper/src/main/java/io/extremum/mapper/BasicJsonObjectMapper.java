@@ -1,15 +1,19 @@
-package io.extremum.common.mapper;
+package io.extremum.mapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.extremum.common.utils.DateUtils;
+import io.extremum.mapper.module.BasicSerializationDeserializationModule;
+import io.extremum.mapper.module.StringOrObjectModule;
+import io.extremum.sharedmodels.constants.DateConstants;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 
@@ -19,7 +23,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  */
 public class BasicJsonObjectMapper extends ObjectMapper {
 
-    private static final DateTimeFormatter FORMATTER = ofPattern(DateUtils.FORMAT);
+    private static final DateTimeFormatter FORMATTER = ofPattern(DateConstants.FORMAT);
 
     public BasicJsonObjectMapper() {
         // deserialization
@@ -32,7 +36,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
 
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        this.setDateFormat(DateUtils.dateFormat());
+        this.setDateFormat(new SimpleDateFormat(DateConstants.FORMAT, Locale.US));
     }
 
     private JavaTimeModule createJavaTimeModule() {

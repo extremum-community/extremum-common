@@ -1,10 +1,10 @@
-package io.extremum.common.serializers;
+package io.extremum.mapper.serializer;
 
-import io.extremum.sharedmodels.basic.IntegerOrString;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import io.extremum.sharedmodels.basic.IntegerOrString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

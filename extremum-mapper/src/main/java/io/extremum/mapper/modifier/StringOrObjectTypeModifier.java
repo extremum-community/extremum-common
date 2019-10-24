@@ -1,11 +1,11 @@
-package io.extremum.common.deserializers;
+package io.extremum.mapper.modifier;
 
-import io.extremum.sharedmodels.basic.StringOrObject;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
+import io.extremum.sharedmodels.basic.StringOrObject;
 
 import java.lang.reflect.Type;
 

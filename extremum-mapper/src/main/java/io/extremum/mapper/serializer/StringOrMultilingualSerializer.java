@@ -1,11 +1,11 @@
-package io.extremum.common.serializers;
+package io.extremum.mapper.serializer;
 
-import io.extremum.sharedmodels.basic.MultilingualLanguage;
-import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import io.extremum.sharedmodels.basic.MultilingualLanguage;
+import io.extremum.sharedmodels.basic.StringOrMultilingual;
 
 import java.io.IOException;
 import java.util.Map;

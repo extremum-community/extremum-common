@@ -1,6 +1,5 @@
-package io.extremum.common.deserializers;
+package io.extremum.mapper.deserializer;
 
-import io.extremum.sharedmodels.basic.StringOrObject;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -8,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import io.extremum.sharedmodels.basic.StringOrObject;
 
 public class StringOrObjectDeserializers extends Deserializers.Base {
     @Override

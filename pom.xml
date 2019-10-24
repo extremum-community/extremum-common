@@ -35,6 +35,7 @@
         <module>extremum-everything-reactive-starter</module>
         <module>extremum-watch-starter</module>
         <module>extremum-batch-service</module>
+        <module>extremum-mapper</module>
     </modules>
 
     <scm>

@@ -1,4 +1,4 @@
-package io.extremum.common.exceptions;
+package io.extremum.mapper.exceptions;
 
 import lombok.Getter;
 

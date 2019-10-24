@@ -1,8 +1,5 @@
-package io.extremum.common.deserializers;
+package io.extremum.mapper.deserializer;
 
-import io.extremum.sharedmodels.content.Display;
-import io.extremum.sharedmodels.content.Media;
-import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
@@ -10,6 +7,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.TextNode;
+import io.extremum.sharedmodels.basic.StringOrMultilingual;
+import io.extremum.sharedmodels.content.Display;
+import io.extremum.sharedmodels.content.Media;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

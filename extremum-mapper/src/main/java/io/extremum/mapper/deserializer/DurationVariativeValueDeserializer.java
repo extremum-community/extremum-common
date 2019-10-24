@@ -1,7 +1,5 @@
-package io.extremum.common.deserializers;
+package io.extremum.mapper.deserializer;
 
-import io.extremum.common.exceptions.DeserializationException;
-import io.extremum.common.stucts.DurationVariativeValue;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -9,6 +7,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import io.extremum.mapper.exceptions.DeserializationException;
+import io.extremum.sharedmodels.structs.DurationVariativeValue;
 
 import java.io.IOException;
 import java.util.HashMap;

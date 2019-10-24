@@ -1,15 +1,5 @@
-package io.extremum.common.mapper;
+package io.extremum.mapper.module;
 
-import io.extremum.common.deserializers.*;
-import io.extremum.sharedmodels.dto.Pagination;
-import io.extremum.common.serializers.*;
-import io.extremum.common.stucts.DurationVariativeValue;
-import io.extremum.common.stucts.IdListOrObjectList;
-import io.extremum.common.stucts.IntegerRangeOrValue;
-import io.extremum.sharedmodels.basic.IdOrObject;
-import io.extremum.sharedmodels.basic.IntegerOrString;
-import io.extremum.sharedmodels.basic.StringOrMultilingual;
-import io.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
@@ -19,6 +9,16 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import io.extremum.mapper.deserializer.*;
+import io.extremum.mapper.serializer.*;
+import io.extremum.sharedmodels.basic.IdOrObject;
+import io.extremum.sharedmodels.basic.IntegerOrString;
+import io.extremum.sharedmodels.basic.StringOrMultilingual;
+import io.extremum.sharedmodels.content.Display;
+import io.extremum.sharedmodels.dto.Pagination;
+import io.extremum.sharedmodels.structs.DurationVariativeValue;
+import io.extremum.sharedmodels.structs.IdListOrObjectList;
+import io.extremum.sharedmodels.structs.IntegerRangeOrValue;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +98,7 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         private static final Logger LOGGER = LoggerFactory.getLogger(EnumDeserializerModifier.class);
 
         @Override
+        @SuppressWarnings("unchecked")
         public JsonDeserializer<Enum> modifyEnumDeserializer(
                 DeserializationConfig deserializationConfig, JavaType javaType, BeanDescription beanDescription, JsonDeserializer<?> jsonDeserializer) {
             return new JsonDeserializer<Enum>() {

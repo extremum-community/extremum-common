@@ -1,12 +1,12 @@
-package io.extremum.common.serializers;
+package io.extremum.mapper.serializer;
 
-import io.extremum.sharedmodels.basic.StringOrObject;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import io.extremum.sharedmodels.basic.StringOrObject;
 
 public class StringOrObjectSerializers extends Serializers.Base {
     @Override

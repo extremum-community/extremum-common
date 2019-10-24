@@ -1,7 +1,5 @@
-package io.extremum.common.deserializers;
+package io.extremum.mapper.deserializer;
 
-import io.extremum.common.exceptions.DeserializationException;
-import io.extremum.common.stucts.IntegerRangeOrValue;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -9,6 +7,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.extremum.mapper.exceptions.DeserializationException;
+import io.extremum.sharedmodels.structs.IntegerRangeOrValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
