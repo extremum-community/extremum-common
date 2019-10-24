@@ -17,11 +17,7 @@ public class CoreServices {
     }
 
     private static void startMongo() {
-        GenericContainer mongo = startGenericContainer("mongo:3.4-xenial", 27017);
-        String mongoUri = "mongodb://" + mongo.getContainerIpAddress() + ":" + mongo.getFirstMappedPort();
-        System.setProperty("mongo.serviceDbUri", mongoUri);
-        System.setProperty("mongo.descriptorsDbUri", mongoUri);
-        LOGGER.info("MongoDB uri is {}", mongoUri);
+        new MongoContainer();
     }
 
     private static void startRedis() {

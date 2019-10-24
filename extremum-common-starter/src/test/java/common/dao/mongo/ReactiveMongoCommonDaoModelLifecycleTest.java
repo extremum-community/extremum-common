@@ -404,7 +404,7 @@ class ReactiveMongoCommonDaoModelLifecycleTest extends TestWithServices {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText("model with uuid.internalId equal to uuid.id.toString()");
+            description.appendText("model with uuid.internalId equal to id.toString()");
         }
     }
 }
