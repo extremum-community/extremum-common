@@ -112,6 +112,8 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         converters.add(new DescriptorToStringConverter());
         converters.add(new StorageTypeToStringConverter());
         converters.add(new StringToStorageTypeConverter());
+        converters.add(new ReadinessToStringConverter());
+        converters.add(new StringToReadinessConverter());
 
         return new MongoCustomConversions(converters);
     }
@@ -147,6 +149,22 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         @Override
         public Descriptor.StorageType convert(String source) {
             return Descriptor.StorageType.fromString(source);
+        }
+    }
+
+    @WritingConverter
+    private static class ReadinessToStringConverter implements Converter<Descriptor.Readiness, String> {
+        @Override
+        public String convert(Descriptor.Readiness source) {
+            return source.getValue();
+        }
+    }
+
+    @ReadingConverter
+    private static class StringToReadinessConverter implements Converter<String, Descriptor.Readiness> {
+        @Override
+        public Descriptor.Readiness convert(String source) {
+            return Descriptor.Readiness.fromString(source);
         }
     }
 }
