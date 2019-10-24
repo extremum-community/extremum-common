@@ -6,8 +6,10 @@ import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.exceptions.RequestDtoValidationException;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
+import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.dto.Response;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -110,6 +112,21 @@ class DefaultEverythingEverythingExceptionHandlerTest {
     }
 
     @Test
+    void whenDescriptorNotReadyExceptionIsThrown_thenProper102ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
+            throws Exception {
+        JSONObject root = getSuccessfullyAndParseResponse("/descriptor-not-ready");
+
+        assertThat(root.getString("status"), is("DOING"));
+        assertThat(root.getInt("code"), is(102));
+        assertThat(root.getString("result"), is(nullValue()));
+        JSONArray alerts = root.getJSONArray("alerts");
+        assertThat(alerts.length(), is(1));
+        JSONObject alert = alerts.getJSONObject(0);
+        assertThat(alert.getString("level"), is("info"));
+        assertThat(alert.getString("message"), is("Requested entity is still being processed, please retry later"));
+    }
+
+    @Test
     void whenExtremumAccessDeniedExceptionIsThrown_thenProper403ResponseShouldBeReturnedAsResponseMessageCodeAttribute()
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/extremum-access-denied-exception");
@@ -153,6 +170,11 @@ class DefaultEverythingEverythingExceptionHandlerTest {
         @RequestMapping("/descriptor-not-found")
         Response descriptorNotFound() {
             throw new DescriptorNotFoundException("Did not find anything");
+        }
+
+        @RequestMapping("/descriptor-not-ready")
+        Response descriptorNotReady() {
+            throw new DescriptorNotReadyException("Still not ready");
         }
 
         @RequestMapping("/extremum-access-denied-exception")
