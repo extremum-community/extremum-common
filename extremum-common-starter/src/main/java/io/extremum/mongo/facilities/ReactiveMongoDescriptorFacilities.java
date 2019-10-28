@@ -13,4 +13,6 @@ public interface ReactiveMongoDescriptorFacilities {
     Mono<Descriptor> fromInternalId(ObjectId internalId);
 
     Mono<ObjectId> resolve(Descriptor descriptor);
+
+    Mono<Descriptor> makeDescriptorReady(String descriptorId);
 }

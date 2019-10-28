@@ -1,5 +1,6 @@
 package io.extremum.mongo.facilities;
 
+import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorResolver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
@@ -14,6 +15,7 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
 
     private final DescriptorFactory descriptorFactory;
     private final ReactiveDescriptorSaver descriptorSaver;
+    private final ReactiveDescriptorDao reactiveDescriptorDao;
 
     @Override
     public Mono<Descriptor> create(ObjectId id, String modelType) {
@@ -29,5 +31,20 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
     public Mono<ObjectId> resolve(Descriptor descriptor) {
         return DescriptorResolver.resolveReactively(descriptor, STORAGE_TYPE)
                 .map(ObjectId::new);
+    }
+
+    @Override
+    public Mono<Descriptor> makeDescriptorReady(String descriptorId) {
+        return reactiveDescriptorDao.retrieveByExternalId(descriptorId)
+                .doOnNext(descriptor -> validateDescriptorIsNotReady(descriptorId, descriptor))
+                .doOnNext(descriptor -> descriptor.setReadiness(Descriptor.Readiness.READY))
+                .flatMap(reactiveDescriptorDao::store);
+    }
+
+    private void validateDescriptorIsNotReady(String descriptorId, Descriptor descriptor) {
+        if (descriptor.getReadiness() == Descriptor.Readiness.READY) {
+            throw new IllegalStateException(
+                    "The descriptor with external ID '" + descriptorId + "' is already ready");
+        }
     }
 }

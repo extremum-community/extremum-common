@@ -2,6 +2,7 @@ package io.extremum.mongo.config;
 
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
+import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.reactive.ReactiveEventPublisher;
@@ -53,8 +54,10 @@ public class MainReactiveMongoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ReactiveMongoDescriptorFacilities reactiveMongoDescriptorFacilities(
-            DescriptorFactory descriptorFactory, ReactiveDescriptorSaver reactiveDescriptorSaver) {
-        return new ReactiveMongoDescriptorFacilitiesImpl(descriptorFactory, reactiveDescriptorSaver);
+            DescriptorFactory descriptorFactory, ReactiveDescriptorSaver reactiveDescriptorSaver,
+            ReactiveDescriptorDao reactiveDescriptorDao) {
+        return new ReactiveMongoDescriptorFacilitiesImpl(descriptorFactory, reactiveDescriptorSaver,
+                reactiveDescriptorDao);
     }
 
     @Bean
