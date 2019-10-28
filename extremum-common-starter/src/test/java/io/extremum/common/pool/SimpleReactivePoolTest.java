@@ -18,10 +18,10 @@ class SimpleReactivePoolTest {
 
     @Test
     void shouldReturnWhatAllocatorReturns() {
-        when(stringAllocator.allocate())
+        when(stringAllocator.allocate(3))
                 .thenReturn(Arrays.asList("one", "two", "three"));
 
-        ReactivePool<String> pool = new SimpleReactivePool<>(stringAllocator);
+        ReactivePool<String> pool = new SimpleReactivePool<>(3, 0.1f, 1000, stringAllocator);
 
         assertThat(pool.get().block(), is("one"));
         assertThat(pool.get().block(), is("two"));

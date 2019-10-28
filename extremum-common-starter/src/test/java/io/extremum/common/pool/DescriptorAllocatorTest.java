@@ -33,9 +33,9 @@ class DescriptorAllocatorTest {
                 .then(invocation -> invocation.getArgument(0));
 
         DescriptorAllocator allocator = new DescriptorAllocator(
-                new BlankDescriptorSaver(descriptorService), MONGO, idGenerator, 10);
+                new BlankDescriptorSaver(descriptorService), MONGO, idGenerator);
 
-        List<Descriptor> allocated = allocator.allocate();
+        List<Descriptor> allocated = allocator.allocate(10);
 
         assertThat(allocated, hasSize(10));
         assertThat(allocated, everyItem(hasProperty("internalId", notNullValue())));
