@@ -25,6 +25,12 @@ public final class DescriptorServiceImpl implements DescriptorService {
     }
 
     @Override
+    public List<Descriptor> storeBatch(List<Descriptor> descriptors) {
+        Objects.requireNonNull(descriptors, "descriptors list is null");
+        return descriptorDao.storeBatch(descriptors);
+    }
+
+    @Override
     public Optional<Descriptor> loadByExternalId(String externalId) {
         Objects.requireNonNull(externalId, "externalId is null");
 

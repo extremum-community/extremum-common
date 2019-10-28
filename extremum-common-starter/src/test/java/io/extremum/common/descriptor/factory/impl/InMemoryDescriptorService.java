@@ -7,6 +7,7 @@ import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,12 @@ public class InMemoryDescriptorService implements DescriptorService {
         externalIdToDescriptorMap.put(externalId, descriptor);
 
         return descriptor;
+    }
+
+    @Override
+    public List<Descriptor> storeBatch(List<Descriptor> descriptors) {
+        descriptors.forEach(this::store);
+        return descriptors;
     }
 
     @Override

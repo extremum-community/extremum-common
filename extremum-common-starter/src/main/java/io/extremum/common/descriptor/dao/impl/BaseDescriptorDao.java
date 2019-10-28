@@ -5,11 +5,9 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -98,5 +96,27 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
             collectionCoordinatesToExternalIds.put(
                     descriptor.getCollection().toCoordinatesString(), descriptor.getExternalId());
         }
+    }
+
+    @Override
+    public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
+        List<Descriptor> savedDescriptors = descriptorRepository.saveAll(descriptorsToSave);
+
+        Map<String, Descriptor> mapByExternalId = descriptorsToSave.stream()
+                .collect(toMap(Descriptor::getExternalId, identity()));
+        descriptors.putAll(mapByExternalId);
+
+        Map<String, String> mapByInternalId = descriptorsToSave.stream()
+                .filter(Descriptor::isSingle)
+                .collect(toMap(Descriptor::getInternalId, Descriptor::getExternalId));
+        internalIdIndex.putAll(mapByInternalId);
+
+        Map<String, String> mapByCollectionCoordinates = descriptorsToSave.stream()
+                .filter(Descriptor::isCollection)
+                .collect(toMap(descriptor ->
+                        descriptor.getCollection().toCoordinatesString(), Descriptor::getExternalId));
+        collectionCoordinatesToExternalIds.putAll(mapByCollectionCoordinates);
+
+        return savedDescriptors;
     }
 }

@@ -9,12 +9,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -72,5 +77,17 @@ class DescriptorServiceImplTest {
                 .storageType(Descriptor.StorageType.MONGO)
                 .readiness(Descriptor.Readiness.BLANK)
                 .build();
+    }
+
+    @Test
+    void whenABatchOfDescriptorsIsSaved_thenItShouldBeSavedToDao() {
+        when(descriptorDao.storeBatch(any())).then(invocation -> invocation.getArgument(0));
+
+        List<Descriptor> descriptors = singletonList(new Descriptor("external-id"));
+        List<Descriptor> savedDescriptors = descriptorService.storeBatch(descriptors);
+
+        assertThat(savedDescriptors, is(sameInstance(descriptors)));
+
+        verify(descriptorDao).storeBatch(descriptors);
     }
 }
