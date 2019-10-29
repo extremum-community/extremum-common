@@ -14,5 +14,5 @@ public interface ReactiveMongoDescriptorFacilities {
 
     Mono<ObjectId> resolve(Descriptor descriptor);
 
-    Mono<Descriptor> makeDescriptorReady(String descriptorId);
+    Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType);
 }

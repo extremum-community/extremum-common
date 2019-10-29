@@ -108,11 +108,12 @@ class ReactiveMongoDescriptorFacilitiesImplTest {
                 .build();
         reactiveDescriptorDao.store(blankDescriptor).block();
 
-        Mono<Descriptor> mono = facilities.makeDescriptorReady("external-id");
+        Mono<Descriptor> mono = facilities.makeDescriptorReady("external-id", "TestModel");
 
         StepVerifier.create(mono)
                 .assertNext(descriptor -> {
                     assertThat(descriptor.getReadiness(), is(Readiness.READY));
+                    assertThat(descriptor.getModelType(), is("TestModel"));
                 })
                 .verifyComplete();
 

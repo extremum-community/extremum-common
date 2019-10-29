@@ -34,10 +34,13 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
     }
 
     @Override
-    public Mono<Descriptor> makeDescriptorReady(String descriptorId) {
-        return reactiveDescriptorDao.retrieveByExternalId(descriptorId)
-                .doOnNext(descriptor -> validateDescriptorIsNotReady(descriptorId, descriptor))
-                .doOnNext(descriptor -> descriptor.setReadiness(Descriptor.Readiness.READY))
+    public Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType) {
+        return reactiveDescriptorDao.retrieveByExternalId(descriptorExternalId)
+                .doOnNext(descriptor -> validateDescriptorIsNotReady(descriptorExternalId, descriptor))
+                .doOnNext(descriptor -> {
+                    descriptor.setReadiness(Descriptor.Readiness.READY);
+                    descriptor.setModelType(modelType);
+                })
                 .flatMap(reactiveDescriptorDao::store);
     }
 
