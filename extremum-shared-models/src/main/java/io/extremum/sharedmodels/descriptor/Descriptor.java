@@ -232,6 +232,7 @@ public class Descriptor implements Serializable {
     private Descriptor copyFieldsFromAnotherDescriptor(Descriptor d) {
         this.externalId = d.externalId;
         this.type = d.type;
+        this.readiness = d.readiness;
         this.internalId = d.internalId;
         this.modelType = d.modelType;
         this.storageType = d.storageType;
