@@ -88,16 +88,11 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     private <N extends M> void fillFirstSnapshot(N newSnapshot) {
         ZonedDateTime now = ZonedDateTime.now();
 
-        newSnapshot.setLineageId(newLineageId());
         newSnapshot.setCreated(now);
         newSnapshot.setStart(now);
         newSnapshot.setEnd(infinitelyDistantFuture());
         newSnapshot.setCurrentSnapshot(true);
         newSnapshot.setVersion(0L);
-    }
-
-    private ObjectId newLineageId() {
-        return new ObjectId();
     }
 
     private ZonedDateTime infinitelyDistantFuture() {
