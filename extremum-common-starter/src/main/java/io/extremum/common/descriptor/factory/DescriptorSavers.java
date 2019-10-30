@@ -19,6 +19,7 @@ public class DescriptorSavers {
         return Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .type(Descriptor.Type.SINGLE)
+                .readiness(Descriptor.Readiness.READY)
                 .internalId(internalId)
                 .modelType(modelType)
                 .storageType(storageType)

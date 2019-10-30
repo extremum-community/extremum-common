@@ -107,4 +107,13 @@ class DescriptorMongoStorageTest extends TestWithServices {
 
         assertThat(indices, hasItem(havingName("collection.coordinatesString")));
     }
+
+    @Test
+    void whenDescriptorIsStored_thenReadinessShouldBeSet() {
+        Descriptor descriptor = createAndSaveNewDescriptor();
+
+        Document document = findDescriptorDocument(descriptor);
+
+        assertThat(document.get("readiness"), is("ready"));
+    }
 }

@@ -1,11 +1,11 @@
 package io.extremum.sharedmodels.descriptor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
-import io.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
+import io.extremum.sharedmodels.content.Display;
 import lombok.*;
 import reactor.core.publisher.Mono;
 
@@ -62,6 +62,7 @@ public class Descriptor implements Serializable {
         Descriptor descriptor = new Descriptor(externalId);
         descriptor.type = Type.COLLECTION;
         descriptor.collection = collectionDescriptor;
+        descriptor.readiness = Readiness.READY;
         return descriptor;
     }
 
