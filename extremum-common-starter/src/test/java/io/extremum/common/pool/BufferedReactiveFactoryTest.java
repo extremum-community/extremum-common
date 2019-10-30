@@ -17,7 +17,7 @@ class BufferedReactiveFactoryTest {
     @Mock
     private Allocator<String> stringAllocator;
 
-    private BufferedReactiveFactory<String> pool;
+    private SimpleReactiveBuffer<String> pool;
 
     @AfterEach
     void shutdownPool() {
@@ -39,14 +39,14 @@ class BufferedReactiveFactoryTest {
         assertThat(pool.get().block(), is("one"));
     }
 
-    private BufferedReactiveFactory<String> buildPool() {
+    private SimpleReactiveBuffer<String> buildPool() {
         SimpleReactivePoolConfig config = SimpleReactivePoolConfig.builder()
                 .batchSize(3)
                 .startAllocationThreshold(0.1f)
                 .maxClientsToWaitForAllocation(1000)
                 .checkForAllocationEachMillis(1)
                 .build();
-        return new BufferedReactiveFactory<>(config, stringAllocator);
+        return new SimpleReactiveBuffer<>(config, stringAllocator);
     }
 
     @Test
