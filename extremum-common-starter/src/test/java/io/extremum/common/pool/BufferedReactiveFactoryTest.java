@@ -13,11 +13,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SimpleReactivePoolTest {
+class BufferedReactiveFactoryTest {
     @Mock
     private Allocator<String> stringAllocator;
 
-    private SimpleReactivePool<String> pool;
+    private BufferedReactiveFactory<String> pool;
 
     @AfterEach
     void shutdownPool() {
@@ -39,14 +39,14 @@ class SimpleReactivePoolTest {
         assertThat(pool.get().block(), is("one"));
     }
 
-    private SimpleReactivePool<String> buildPool() {
+    private BufferedReactiveFactory<String> buildPool() {
         SimpleReactivePoolConfig config = SimpleReactivePoolConfig.builder()
                 .batchSize(3)
                 .startAllocationThreshold(0.1f)
                 .maxClientsToWaitForAllocation(1000)
                 .checkForAllocationEachMillis(1)
                 .build();
-        return new SimpleReactivePool<>(config, stringAllocator);
+        return new BufferedReactiveFactory<>(config, stringAllocator);
     }
 
     @Test
