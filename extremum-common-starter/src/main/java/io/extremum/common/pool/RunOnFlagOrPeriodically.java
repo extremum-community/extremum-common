@@ -13,18 +13,23 @@ import static java.lang.Thread.currentThread;
 class RunOnFlagOrPeriodically {
     private static final Object FLAG = new Object();
 
+    private final long checkForAllocationEachMillis;
     private final Runnable action;
 
     private final BlockingQueue<Object> flagQueue = new ArrayBlockingQueue<>(1);
     private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor();
 
-    public RunOnFlagOrPeriodically(Runnable action) {
+    private volatile boolean flagEverRaised = false;
+
+    public RunOnFlagOrPeriodically(long checkForAllocationEachMillis, Runnable action) {
+        this.checkForAllocationEachMillis = checkForAllocationEachMillis;
         this.action = action;
 
         taskExecutor.execute(new ActionTask());
     }
 
     void raiseFlag() {
+        flagEverRaised = true;
         flagQueue.offer(FLAG);
     }
 
@@ -37,8 +42,10 @@ class RunOnFlagOrPeriodically {
         public void run() {
             while (!currentThread().isInterrupted()) {
                 try {
-                    waitForFlagOr1Second();
-                    action.run();
+                    waitForFlagOrTimeBetweenAllocations();
+                    if (flagEverRaised) {
+                        action.run();
+                    }
                 } catch (InterruptedException e) {
                     currentThread().interrupt();
                     break;
@@ -48,8 +55,8 @@ class RunOnFlagOrPeriodically {
             }
         }
 
-        private void waitForFlagOr1Second() throws InterruptedException {
-            flagQueue.poll(1, TimeUnit.SECONDS);
+        private void waitForFlagOrTimeBetweenAllocations() throws InterruptedException {
+            flagQueue.poll(checkForAllocationEachMillis, TimeUnit.MILLISECONDS);
         }
     }
 }

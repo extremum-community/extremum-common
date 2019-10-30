@@ -18,7 +18,7 @@ public class SimpleReactivePool<T> implements ReactivePool<T> {
     private final RunOnFlagOrPeriodically allocation;
 
     public SimpleReactivePool(int batchSize, float startAllocationThreshold, int maxClientsToWaitForAllocation,
-                              Allocator<T> allocator) {
+            long checkForAllocationEachMillis, Allocator<T> allocator) {
         this.batchSize = batchSize;
         this.startAllocationThreshold = startAllocationThreshold;
         this.allocator = allocator;
@@ -28,7 +28,7 @@ public class SimpleReactivePool<T> implements ReactivePool<T> {
         ExecutorService executorService = newBoundedSingleThreadExecutor(maxClientsToWaitForAllocation);
         schedulerToWaitForAllocation = Schedulers.fromExecutorService(executorService);
 
-        allocation = new RunOnFlagOrPeriodically(new AllocateConditionally());
+        allocation = new RunOnFlagOrPeriodically(checkForAllocationEachMillis, new AllocateConditionally());
     }
 
     private ThreadPoolExecutor newBoundedSingleThreadExecutor(int maxClientsToWaitForAllocation) {
