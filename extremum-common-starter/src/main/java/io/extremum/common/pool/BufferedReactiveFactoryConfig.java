@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(builderClassName = "Builder")
 @Getter
-public class SimpleReactiveBufferConfig {
+public class BufferedReactiveFactoryConfig {
     private final int batchSize;
     private final float startAllocationThreshold;
     private final int maxClientsToWaitForAllocation;

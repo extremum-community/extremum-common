@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class BufferedReactiveFactory<T> implements ReactiveSupplier<T> {
-    private final SimpleReactiveBufferConfig config;
+    private final BufferedReactiveFactoryConfig config;
     private final Allocator<T> allocator;
     private final Scheduler schedulerToWaitForAllocation;
 
     private final BlockingQueue<T> elements;
     private final RunOnFlagOrPeriodically allocation;
 
-    public BufferedReactiveFactory(SimpleReactiveBufferConfig config, Allocator<T> allocator) {
+    public BufferedReactiveFactory(BufferedReactiveFactoryConfig config, Allocator<T> allocator) {
         config.validate();
 
         this.config = config;
