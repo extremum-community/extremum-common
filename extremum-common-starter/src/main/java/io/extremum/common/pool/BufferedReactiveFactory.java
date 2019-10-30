@@ -9,7 +9,7 @@ import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class SimpleReactiveBuffer<T> implements ReactiveSupplier<T> {
+public class BufferedReactiveFactory<T> implements ReactiveSupplier<T> {
     private final SimpleReactiveBufferConfig config;
     private final Allocator<T> allocator;
     private final Scheduler schedulerToWaitForAllocation;
@@ -17,7 +17,7 @@ public class SimpleReactiveBuffer<T> implements ReactiveSupplier<T> {
     private final BlockingQueue<T> elements;
     private final RunOnFlagOrPeriodically allocation;
 
-    public SimpleReactiveBuffer(SimpleReactiveBufferConfig config, Allocator<T> allocator) {
+    public BufferedReactiveFactory(SimpleReactiveBufferConfig config, Allocator<T> allocator) {
         config.validate();
 
         this.config = config;
