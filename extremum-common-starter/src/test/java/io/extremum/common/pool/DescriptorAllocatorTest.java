@@ -48,7 +48,7 @@ class DescriptorAllocatorTest {
 
     private static class MongoIdGenerator implements InternalIdGenerator {
         @Override
-        public String generateRandomInternalId() {
+        public String generateInternalId() {
             return new ObjectId().toString();
         }
     }

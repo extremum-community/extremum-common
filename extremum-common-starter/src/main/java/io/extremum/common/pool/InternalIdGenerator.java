@@ -1,5 +1,5 @@
 package io.extremum.common.pool;
 
 public interface InternalIdGenerator {
-    String generateRandomInternalId();
+    String generateInternalId();
 }

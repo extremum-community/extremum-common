@@ -17,7 +17,7 @@ public class DescriptorAllocator implements Allocator<Descriptor> {
     @Override
     public List<Descriptor> allocate(int quantityToAllocate) {
         List<String> internalIds = IntStream.range(0, quantityToAllocate)
-                .mapToObj(i -> internalIdGenerator.generateRandomInternalId())
+                .mapToObj(i -> internalIdGenerator.generateInternalId())
                 .collect(Collectors.toList());
         return blankDescriptorSaver.createAndSaveBatchOfBlankDescriptors(internalIds, storageType);
     }
