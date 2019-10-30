@@ -31,7 +31,7 @@ class SimpleReactivePoolTest {
         when(stringAllocator.allocate(3))
                 .thenReturn(Arrays.asList("one", "two", "three"));
 
-        pool = new SimpleReactivePool<>(3, 0.1f, 1000, 1, stringAllocator);
+        pool = buildPool();
 
         assertThat(pool.get().block(), is("one"));
         assertThat(pool.get().block(), is("two"));
@@ -39,9 +39,19 @@ class SimpleReactivePoolTest {
         assertThat(pool.get().block(), is("one"));
     }
 
+    private SimpleReactivePool<String> buildPool() {
+        SimpleReactivePoolConfig config = SimpleReactivePoolConfig.builder()
+                .batchSize(3)
+                .startAllocationThreshold(0.1f)
+                .maxClientsToWaitForAllocation(1000)
+                .checkForAllocationEachMillis(1)
+                .build();
+        return new SimpleReactivePool<>(config, stringAllocator);
+    }
+
     @Test
     void shouldNotAllocateIfNothingIsRequestedYet() throws InterruptedException {
-        pool = new SimpleReactivePool<>(3, 0.1f, 1000, 1, stringAllocator);
+        pool = buildPool();
 
         waitToLetPoolMakeAnAllocation();
 

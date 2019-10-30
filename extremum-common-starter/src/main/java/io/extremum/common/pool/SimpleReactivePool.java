@@ -9,26 +9,25 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class SimpleReactivePool<T> implements ReactivePool<T> {
-    private final int batchSize;
-    private final float startAllocationThreshold;
+    private final SimpleReactivePoolConfig config;
     private final Allocator<T> allocator;
     private final Scheduler schedulerToWaitForAllocation;
 
     private final BlockingQueue<T> elements;
     private final RunOnFlagOrPeriodically allocation;
 
-    public SimpleReactivePool(int batchSize, float startAllocationThreshold, int maxClientsToWaitForAllocation,
-            long checkForAllocationEachMillis, Allocator<T> allocator) {
-        this.batchSize = batchSize;
-        this.startAllocationThreshold = startAllocationThreshold;
+    public SimpleReactivePool(SimpleReactivePoolConfig config, Allocator<T> allocator) {
+        config.validate();
+
+        this.config = config;
         this.allocator = allocator;
 
-        elements = new ArrayBlockingQueue<>(batchSize * 2);
+        elements = new ArrayBlockingQueue<>(config.getBatchSize() * 2);
 
-        ExecutorService executorService = newBoundedSingleThreadExecutor(maxClientsToWaitForAllocation);
+        ExecutorService executorService = newBoundedSingleThreadExecutor(config.getMaxClientsToWaitForAllocation());
         schedulerToWaitForAllocation = Schedulers.fromExecutorService(executorService);
 
-        allocation = new RunOnFlagOrPeriodically(checkForAllocationEachMillis, new AllocateConditionally());
+        allocation = new RunOnFlagOrPeriodically(config.getCheckForAllocationEachMillis(), new AllocateConditionally());
     }
 
     private ThreadPoolExecutor newBoundedSingleThreadExecutor(int maxClientsToWaitForAllocation) {
@@ -59,7 +58,7 @@ public class SimpleReactivePool<T> implements ReactivePool<T> {
     }
 
     private boolean tooFewLeft() {
-        return (float) elements.size() / batchSize < startAllocationThreshold;
+        return (float) elements.size() / config.getBatchSize() < config.getStartAllocationThreshold();
     }
 
     private void requestAllocation() {
@@ -81,7 +80,7 @@ public class SimpleReactivePool<T> implements ReactivePool<T> {
         }
 
         private void allocate() {
-            List<T> newElements = allocator.allocate(batchSize);
+            List<T> newElements = allocator.allocate(config.getBatchSize());
             elements.addAll(newElements);
         }
     }
