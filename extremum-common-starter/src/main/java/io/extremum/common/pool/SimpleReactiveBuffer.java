@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class SimpleReactiveBuffer<T> implements ReactiveSupplier<T> {
-    private final SimpleReactivePoolConfig config;
+    private final SimpleReactiveBufferConfig config;
     private final Allocator<T> allocator;
     private final Scheduler schedulerToWaitForAllocation;
 
     private final BlockingQueue<T> elements;
     private final RunOnFlagOrPeriodically allocation;
 
-    public SimpleReactiveBuffer(SimpleReactivePoolConfig config, Allocator<T> allocator) {
+    public SimpleReactiveBuffer(SimpleReactiveBufferConfig config, Allocator<T> allocator) {
         config.validate();
 
         this.config = config;

@@ -40,7 +40,7 @@ class BufferedReactiveFactoryTest {
     }
 
     private SimpleReactiveBuffer<String> buildPool() {
-        SimpleReactivePoolConfig config = SimpleReactivePoolConfig.builder()
+        SimpleReactiveBufferConfig config = SimpleReactiveBufferConfig.builder()
                 .batchSize(3)
                 .startAllocationThreshold(0.1f)
                 .maxClientsToWaitForAllocation(1000)
