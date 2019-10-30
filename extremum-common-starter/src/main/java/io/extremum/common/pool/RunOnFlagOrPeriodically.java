@@ -1,6 +1,7 @@
 package io.extremum.common.pool;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import java.util.concurrent.*;
 
@@ -17,7 +18,7 @@ class RunOnFlagOrPeriodically {
     private final Runnable action;
 
     private final BlockingQueue<Object> flagQueue = new ArrayBlockingQueue<>(1);
-    private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor(new CustomizableThreadFactory("allocator-"));
 
     private volatile boolean flagEverRaised = false;
 

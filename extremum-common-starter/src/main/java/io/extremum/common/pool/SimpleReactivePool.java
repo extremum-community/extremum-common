@@ -1,5 +1,6 @@
 package io.extremum.common.pool;
 
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -33,7 +34,8 @@ public class SimpleReactivePool<T> implements ReactivePool<T> {
     private ThreadPoolExecutor newBoundedSingleThreadExecutor(int maxClientsToWaitForAllocation) {
         return new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(maxClientsToWaitForAllocation));
+                new LinkedBlockingQueue<>(maxClientsToWaitForAllocation),
+                new CustomizableThreadFactory("wait-for-allocation-"));
     }
 
     @Override
