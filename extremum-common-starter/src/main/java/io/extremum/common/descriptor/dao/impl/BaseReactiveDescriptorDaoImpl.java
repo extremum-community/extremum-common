@@ -27,7 +27,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
                                 .cacheSize(cacheSize)
                                 .maxIdle(idleTime, TimeUnit.DAYS)
-                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)
+                                .syncStrategy(LocalCachedMapOptions.SyncStrategy.INVALIDATE)
                 ),
 
                 // TODO: here, we use getMap() instead of getMapCache() because the latter causes weird runtime exceptions

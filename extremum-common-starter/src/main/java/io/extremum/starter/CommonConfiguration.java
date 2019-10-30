@@ -14,6 +14,7 @@ import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.reactive.*;
+import io.extremum.common.redisson.ExtremumRedisson;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.ReactiveCommonService;
 import io.extremum.common.support.*;
@@ -87,7 +88,7 @@ public class CommonConfiguration {
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
     public RedissonClient redissonClient(Config redissonConfig) {
-        return Redisson.create(redissonConfig);
+        return new ExtremumRedisson(redissonConfig);
     }
 
     @Bean
@@ -269,4 +270,5 @@ public class CommonConfiguration {
     public StringToDescriptorConverter stringToDescriptorConverter(DescriptorFactory descriptorFactory) {
         return new StringToDescriptorConverter(descriptorFactory);
     }
+
 }

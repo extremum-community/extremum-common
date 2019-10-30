@@ -2,6 +2,7 @@ package io.extremum.mongo.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorLifecycleListener;
@@ -121,8 +122,8 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
-                                                               DescriptorSaver descriptorSaver) {
-        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
+            DescriptorSaver descriptorSaver, DescriptorDao descriptorDao) {
+        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver, descriptorDao);
     }
 
     @Bean

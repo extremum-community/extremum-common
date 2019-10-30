@@ -15,6 +15,7 @@ import io.extremum.sharedmodels.content.Media;
 import io.extremum.sharedmodels.content.MediaType;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor.Readiness;
 import io.extremum.starter.DescriptorDaoFactory;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.RedisProperties;
@@ -339,5 +340,36 @@ class DescriptorDaoTest extends TestWithServices {
         retrieved1 = descriptorDao.retrieveByInternalId(internalId1)
                 .orElseThrow(() -> new AssertionError("Did not find anything"));
         assertThat(retrieved1.getExternalId(), is(equalTo(externalId1)));
+    }
+
+    @Test
+    void givenABlankDescriptorWasRetrievedFromOneDao_whenItIsMadeReadyThrowAnotherDao_thenItShouldBeRetrievedFromFirstDaoAsReady() {
+        // given
+        DescriptorDao anotherDao = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
+                redissonClient, descriptorRepository);
+        Descriptor descriptor = createBlankDescriptor();
+        Descriptor storedDescriptor = descriptorDao.store(descriptor);
+        anotherDao.retrieveByExternalId(storedDescriptor.getExternalId());
+
+        // when
+        mongoDescriptorFacilities.makeDescriptorReady(descriptor.getExternalId(), "TestModel");
+
+        // then
+        Descriptor retrievedDescriptor = anotherDao.retrieveByExternalId(storedDescriptor.getExternalId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+        assertThat("Probably an old cached copy was retrieved",
+                retrievedDescriptor.getReadiness(), is(Readiness.READY));
+    }
+
+    @NotNull
+    private Descriptor createBlankDescriptor() {
+        Descriptor descriptor = createMongoModelDescriptor();
+        descriptor.setReadiness(Readiness.BLANK);
+        return descriptor;
+    }
+
+    private Descriptor createMongoModelDescriptor() {
+        DescriptorSavers savers = new DescriptorSavers(descriptorService);
+        return savers.createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
     }
 }

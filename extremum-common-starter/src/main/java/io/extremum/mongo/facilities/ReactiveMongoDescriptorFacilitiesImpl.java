@@ -17,6 +17,8 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
     private final ReactiveDescriptorSaver descriptorSaver;
     private final ReactiveDescriptorDao reactiveDescriptorDao;
 
+    private final DescriptorReadinessValidation descriptorReadinessValidation = new DescriptorReadinessValidation();
+
     @Override
     public Mono<Descriptor> create(ObjectId id, String modelType) {
         return descriptorSaver.createAndSave(id.toString(), modelType, STORAGE_TYPE);
@@ -36,18 +38,12 @@ public final class ReactiveMongoDescriptorFacilitiesImpl implements ReactiveMong
     @Override
     public Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType) {
         return reactiveDescriptorDao.retrieveByExternalId(descriptorExternalId)
-                .doOnNext(descriptor -> validateDescriptorIsNotReady(descriptorExternalId, descriptor))
+                .doOnNext(descriptor -> descriptorReadinessValidation.validateDescriptorIsNotReady(
+                        descriptorExternalId, descriptor))
                 .doOnNext(descriptor -> {
                     descriptor.setReadiness(Descriptor.Readiness.READY);
                     descriptor.setModelType(modelType);
                 })
                 .flatMap(reactiveDescriptorDao::store);
-    }
-
-    private void validateDescriptorIsNotReady(String descriptorId, Descriptor descriptor) {
-        if (descriptor.getReadiness() == Descriptor.Readiness.READY) {
-            throw new IllegalStateException(
-                    "The descriptor with external ID '" + descriptorId + "' is already ready");
-        }
     }
 }

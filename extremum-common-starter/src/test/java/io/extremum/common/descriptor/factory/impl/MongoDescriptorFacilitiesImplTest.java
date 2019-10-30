@@ -1,5 +1,6 @@
 package io.extremum.common.descriptor.factory.impl;
 
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
@@ -14,8 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -26,13 +26,15 @@ class MongoDescriptorFacilitiesImplTest {
 
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
+    @Spy
+    private DescriptorDao descriptorDao = new InMemoryDescriptorDao();
 
     private final ObjectId objectId = new ObjectId();
 
     @BeforeEach
     void initDescriptorSaver() {
         DescriptorSaver descriptorSaver = new DescriptorSaver(descriptorService);
-        facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(), descriptorSaver);
+        facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(), descriptorSaver, descriptorDao);
     }
 
     @Test
@@ -48,5 +50,22 @@ class MongoDescriptorFacilitiesImplTest {
         assertThat(descriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
 
         verify(descriptorService).store(descriptor);
+    }
+
+    @Test
+    void givenABlankDescriptorExists_whenMakingItReady_thenItBecomesReadyAndReturnsTheDescriptor() {
+        Descriptor blankDescriptor = Descriptor.builder()
+                .externalId("external-id")
+                .readiness(Descriptor.Readiness.BLANK)
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
+        descriptorDao.store(blankDescriptor);
+
+        Descriptor descriptor = facilities.makeDescriptorReady("external-id", "TestModel");
+
+        assertThat(descriptor.getReadiness(), is(Descriptor.Readiness.READY));
+        assertThat(descriptor.getModelType(), is("TestModel"));
+
+        verify(descriptorDao, times(2)).store(blankDescriptor);
     }
 }
