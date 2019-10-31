@@ -12,17 +12,16 @@ import static java.lang.Thread.currentThread;
  */
 @Slf4j
 class RunOnFlagOrPeriodically {
-    private static final Object FLAG = new Object();
-
     private final long checkForAllocationEachMillis;
     private final Runnable action;
 
-    private final BlockingQueue<Object> flagQueue = new ArrayBlockingQueue<>(1);
-    private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor(new CustomizableThreadFactory("allocator-"));
+    private final Object waitNotifyMonitor = new Object();
+    private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor(
+            new CustomizableThreadFactory("allocator-"));
 
     private volatile boolean flagEverRaised = false;
 
-    public RunOnFlagOrPeriodically(long checkForAllocationEachMillis, Runnable action) {
+    RunOnFlagOrPeriodically(long checkForAllocationEachMillis, Runnable action) {
         this.checkForAllocationEachMillis = checkForAllocationEachMillis;
         this.action = action;
 
@@ -31,7 +30,9 @@ class RunOnFlagOrPeriodically {
 
     void raiseFlag() {
         flagEverRaised = true;
-        flagQueue.offer(FLAG);
+        synchronized (waitNotifyMonitor) {
+            waitNotifyMonitor.notify();
+        }
     }
 
     void shutdown() {
@@ -57,7 +58,9 @@ class RunOnFlagOrPeriodically {
         }
 
         private void waitForFlagOrTimeBetweenAllocations() throws InterruptedException {
-            flagQueue.poll(checkForAllocationEachMillis, TimeUnit.MILLISECONDS);
+            synchronized (waitNotifyMonitor) {
+                waitNotifyMonitor.wait(checkForAllocationEachMillis);
+            }
         }
     }
 }
