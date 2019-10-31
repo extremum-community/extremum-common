@@ -11,10 +11,15 @@ public class DescriptorSavers {
         this.descriptorService = descriptorService;
     }
 
+    public Descriptor createSingleDescriptor(String internalId, Descriptor.StorageType storageType) {
+        return createSingleDescriptor(internalId, null, storageType);
+    }
+
     Descriptor createSingleDescriptor(String internalId, String modelType, Descriptor.StorageType storageType) {
         return Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .type(Descriptor.Type.SINGLE)
+                .readiness(Descriptor.Readiness.READY)
                 .internalId(internalId)
                 .modelType(modelType)
                 .storageType(storageType)

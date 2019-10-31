@@ -2,6 +2,7 @@ package io.extremum.common.descriptor.service;
 
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +23,14 @@ public class ReactiveDescriptorServiceImpl implements ReactiveDescriptorService 
     public Mono<Descriptor> loadByExternalId(String externalId) {
         Objects.requireNonNull(externalId, "externalId is null");
 
-        return reactiveDescriptorDao.retrieveByExternalId(externalId);
+        return reactiveDescriptorDao.retrieveByExternalId(externalId)
+                .map(descriptor -> {
+                    if (descriptor.getReadiness() == Descriptor.Readiness.BLANK) {
+                        throw new DescriptorNotReadyException(
+                                String.format("Descriptor with external ID '%s' is not ready yet", externalId));
+                    }
+                    return descriptor;
+                });
     }
 
     @Override

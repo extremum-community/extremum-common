@@ -1,6 +1,8 @@
 package common.dao.mongo.versioned;
 
 import io.extremum.common.test.TestWithServices;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import org.bson.types.ObjectId;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -8,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Objects;
@@ -51,9 +55,11 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
 
     @Test
     void givenEntityIsNew_whenSaving_thenAllAutoFieldsShouldBeFilled() {
-        TestMongoVersionedModel savedModel = dao.save(new TestMongoVersionedModel()).block();
+        Mono<TestMongoVersionedModel> mono = dao.save(new TestMongoVersionedModel());
 
-        assertThatSystemFieldsAreFilled(savedModel);
+        StepVerifier.create(mono)
+                .assertNext(this::assertThatSystemFieldsAreFilled)
+                .verifyComplete();
     }
 
     @Test
@@ -67,11 +73,13 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
 
     @Test
     void givenEntityIsNotNew_whenSaving_thenAllAutoFieldsShouldBeFilled() {
-        TestMongoVersionedModel savedModel = dao.save(new TestMongoVersionedModel()).block();
-        savedModel.setName(randomName());
-        TestMongoVersionedModel resavedModel = dao.save(savedModel).block();
+        Mono<TestMongoVersionedModel> mono = dao.save(new TestMongoVersionedModel())
+                .doOnNext(savedModel -> savedModel.setName(randomName()))
+                .flatMap(savedModel -> dao.save(savedModel));
 
-        assertThatSystemFieldsAreFilled(resavedModel);
+        StepVerifier.create(mono)
+                .assertNext(this::assertThatSystemFieldsAreFilled)
+                .verifyComplete();
     }
 
     @Test
@@ -83,6 +91,26 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
 
         assertThat(resavedModels, hasSize(1));
         assertThatSystemFieldsAreFilled(resavedModels.get(0));
+    }
+
+    @Test
+    void givenEntityHasUUIDButNotLineageId_whenSavingIt_thenDescriptorInternalIdShouldMatchTheLineageId() {
+        TestMongoVersionedModel model = new TestMongoVersionedModel();
+        model.setUuid(createADescriptor());
+
+        Mono<TestMongoVersionedModel> mono = dao.save(model);
+
+        StepVerifier.create(mono)
+                .assertNext(createdModel -> assertThat(createdModel, hasUuidConsistentWithId()))
+                .verifyComplete();
+    }
+
+    private Descriptor createADescriptor() {
+        return Descriptor.builder()
+                    .externalId(UUID.randomUUID().toString())
+                    .internalId(new ObjectId().toString())
+                    .storageType(Descriptor.StorageType.MONGO)
+                    .build();
     }
 
     @Test

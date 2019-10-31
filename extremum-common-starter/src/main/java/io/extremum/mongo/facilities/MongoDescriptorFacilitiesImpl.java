@@ -1,10 +1,11 @@
 package io.extremum.mongo.facilities;
 
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorResolver;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 
@@ -17,6 +18,9 @@ public final class MongoDescriptorFacilitiesImpl implements MongoDescriptorFacil
 
     private final DescriptorFactory descriptorFactory;
     private final DescriptorSaver descriptorSaver;
+    private final DescriptorDao descriptorDao;
+
+    private final DescriptorReadinessValidation descriptorReadinessValidation = new DescriptorReadinessValidation();
 
     @Override
     public Descriptor create(ObjectId id, String modelType) {
@@ -58,5 +62,23 @@ public final class MongoDescriptorFacilitiesImpl implements MongoDescriptorFacil
     public ObjectId resolve(Descriptor descriptor) {
         String internalId = DescriptorResolver.resolve(descriptor, STORAGE_TYPE);
         return new ObjectId(internalId);
+    }
+
+    @Override
+    public Descriptor makeDescriptorReady(String descriptorExternalId, String modelType) {
+        Descriptor descriptor = descriptorDao.retrieveByExternalId(descriptorExternalId)
+                .orElseThrow(() -> doesNotExistException(descriptorExternalId));
+
+        descriptorReadinessValidation.validateDescriptorIsNotReady(descriptorExternalId, descriptor);
+
+        descriptor.setReadiness(Descriptor.Readiness.READY);
+        descriptor.setModelType(modelType);
+
+        return descriptorDao.store(descriptor);
+    }
+
+    private DescriptorNotFoundException doesNotExistException(String descriptorExternalId) {
+        String errorMessage = String.format("No descriptor with externalId '%s' exists", descriptorExternalId);
+        return new DescriptorNotFoundException(errorMessage);
     }
 }

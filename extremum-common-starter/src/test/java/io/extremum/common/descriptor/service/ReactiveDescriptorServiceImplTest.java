@@ -2,12 +2,14 @@ package io.extremum.common.descriptor.service;
 
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -63,5 +65,25 @@ class ReactiveDescriptorServiceImplTest {
         Mono<Descriptor> mono = reactiveDescriptorService.loadByInternalId("internalId");
 
         assertThat(mono.block(), is(sameInstance(descriptor)));
+    }
+
+    @Test
+    void givenDescriptorIsBlank_whenLoadingItByExternalId_thenDescriptorNotReadyExceptionShouldBeThrown() {
+        when(reactiveDescriptorDao.retrieveByExternalId("external-id"))
+                .thenReturn(Mono.just(blankDescriptor()));
+
+        Mono<Descriptor> mono = reactiveDescriptorService.loadByExternalId("external-id");
+
+        StepVerifier.create(mono)
+                .expectError(DescriptorNotReadyException.class)
+                .verify();
+    }
+
+    private Descriptor blankDescriptor() {
+        return Descriptor.builder()
+                .externalId("external-id")
+                .storageType(Descriptor.StorageType.MONGO)
+                .readiness(Descriptor.Readiness.BLANK)
+                .build();
     }
 }
