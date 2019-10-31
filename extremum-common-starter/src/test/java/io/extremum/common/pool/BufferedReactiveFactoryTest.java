@@ -2,21 +2,26 @@ package io.extremum.common.pool;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static java.util.Collections.synchronizedList;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
@@ -26,29 +31,32 @@ class BufferedReactiveFactoryTest {
     @Mock
     private Allocator<String> stringAllocator;
 
-    private BufferedReactiveFactory<String> pool;
+    private BufferedReactiveFactory<String> factory;
+
+    @BeforeEach
+    void initMocks() {
+        lenient().when(stringAllocator.allocate(3))
+                .thenReturn(Arrays.asList("one", "two", "three"));
+    }
 
     @AfterEach
-    void shutdownPool() {
-        if (pool != null) {
-            pool.shutdown();
+    void shutdownFactory() {
+        if (factory != null) {
+            factory.shutdown();
         }
     }
 
     @Test
     void shouldReturnWhatAllocatorReturns() {
-        when(stringAllocator.allocate(3))
-                .thenReturn(Arrays.asList("one", "two", "three"));
+        factory = buildFactory();
 
-        pool = buildPool();
-
-        assertThat(pool.get().block(), is("one"));
-        assertThat(pool.get().block(), is("two"));
-        assertThat(pool.get().block(), is("three"));
-        assertThat(pool.get().block(), is("one"));
+        assertThat(factory.get().block(), is("one"));
+        assertThat(factory.get().block(), is("two"));
+        assertThat(factory.get().block(), is("three"));
+        assertThat(factory.get().block(), is("one"));
     }
 
-    private BufferedReactiveFactory<String> buildPool() {
+    private BufferedReactiveFactory<String> buildFactory() {
         BufferedReactiveFactoryConfig config = BufferedReactiveFactoryConfig.builder()
                 .batchSize(3)
                 .startAllocationThreshold(0.1f)
@@ -60,14 +68,14 @@ class BufferedReactiveFactoryTest {
 
     @Test
     void shouldNotAllocateIfNothingIsRequestedYet() throws InterruptedException {
-        pool = buildPool();
+        factory = buildFactory();
 
-        waitToLetPoolMakeAnAllocation();
+        waitToLetFactoryMakeAnAllocation();
 
         verify(stringAllocator, never()).allocate(anyInt());
     }
 
-    private void waitToLetPoolMakeAnAllocation() throws InterruptedException {
+    private void waitToLetFactoryMakeAnAllocation() throws InterruptedException {
         Thread.sleep(100);
     }
 
@@ -79,18 +87,18 @@ class BufferedReactiveFactoryTest {
          * the third one fails with RejectedExecutionException.
          */
 
-        pool = new BufferedReactiveFactory<>(configWithMax1ClientAllowedToWait(), slowAllocator());
+        factory = new BufferedReactiveFactory<>(configWithMax1ClientAllowedToWait(), slowAllocator());
 
         AtomicInteger successCounter = new AtomicInteger(0);
         List<Throwable> exceptions = new CopyOnWriteArrayList<>();
 
-        Runnable task = () -> pool.get()
+        Runnable task = () -> factory.get()
                 .doOnNext(x -> successCounter.incrementAndGet())
                 .doOnError(exceptions::add)
                 .block();
         List<Thread> threads = IntStream.range(0, 3)
                 .mapToObj(i -> new Thread(task))
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
 
         threads.forEach(Thread::start);
         threads.forEach(this::joinThread);
@@ -135,5 +143,107 @@ class BufferedReactiveFactoryTest {
     private void assertThatThereIsOneRejectedExecutionException(List<Throwable> exceptions) {
         assertThat(exceptions, hasSize(1));
         assertThat(exceptions.get(0), is(instanceOf(RejectedExecutionException.class)));
+    }
+
+    @Test
+    void givenFactoryIsShutDown_whenGettingAnElement_thenAnExceptionShouldBeReturned() {
+        factory = buildFactory();
+        factory.shutdown();
+
+        Mono<String> mono = factory.get();
+
+        StepVerifier.create(mono)
+                .expectError(FactoryClosedException.class)
+                .verify();
+    }
+
+    @Test
+    void givenFactoryIsShutDownAndLeftoversDestroyed_whenGettingAnElement_thenAnExceptionShouldBeReturned()
+            throws InterruptedException {
+        factory = buildFactory();
+        factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftovers -> {});
+
+        Mono<String> mono = factory.get();
+
+        StepVerifier.create(mono)
+                .expectError(FactoryClosedException.class)
+                .verify();
+    }
+
+    @Test
+    void givenFactoryIsShutDownAndLeftoversDestroyed_whenShuttingDown_thenNothingShouldHappen()
+            throws InterruptedException {
+        factory = buildFactory();
+        factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftovers -> {});
+
+        factory.shutdown();
+    }
+
+    @Test
+    void givenFactoryIsShutDown_whenShuttingDownAndDestoryingLeftovers_thenNothingShouldHappen()
+            throws InterruptedException {
+        factory = buildFactory();
+        factory.shutdown();
+
+        factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftovers -> {});
+    }
+
+    @Test
+    void whenShuttingDownAndDestroyingLeftovers_thenLeftoversShouldBeDestroyedWithDestoryer()
+            throws InterruptedException {
+        factory = buildFactory();
+        factory.get().block();
+
+        List<String> leftover = synchronizedList(new ArrayList<>());
+        factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftover::addAll);
+
+        assertThat(leftover, is(equalTo(Arrays.asList("two", "three"))));
+    }
+
+    @Test
+    void givenAllocationIsInProgress_whenShuttingDownAndDestoryingLeftovers_thenLeftoversShouldBeDestroyedWithDestoryer()
+            throws InterruptedException {
+        BufferedReactiveFactoryConfig config = BufferedReactiveFactoryConfig.builder()
+                .batchSize(3)
+                .checkForAllocationEachMillis(1)
+                .build();
+        factory = new BufferedReactiveFactory<>(config, new SlowAfterFirstAllocation());
+
+        takeAllFromFastBatch();
+        requestFirstFromSlowBatch();
+
+        Thread.sleep(20);
+
+        List<String> leftover = synchronizedList(new ArrayList<>());
+        factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftover::addAll);
+
+        assertThat(leftover, is(equalTo(Arrays.asList("two", "three"))));
+    }
+
+    private void takeAllFromFastBatch() {
+        for (int i = 0; i < 3; i++) {
+            factory.get().block();
+        }
+    }
+
+    private void requestFirstFromSlowBatch() {
+        factory.get().subscribe();
+    }
+
+    private static class SlowAfterFirstAllocation implements Allocator<String> {
+        private volatile boolean allocatedAnything = false;
+
+        @Override
+        public List<String> allocate(int quantityToAllocate) {
+            if (allocatedAnything) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            allocatedAnything = true;
+            return Arrays.asList("one", "two", "three");
+        }
     }
 }

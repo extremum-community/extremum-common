@@ -19,6 +19,7 @@ class RunOnFlagOrPeriodically {
     private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor(
             new CustomizableThreadFactory("allocator-"));
 
+    private volatile boolean running = true;
     private volatile boolean flagEverRaised = false;
 
     RunOnFlagOrPeriodically(long checkForAllocationEachMillis, Runnable action) {
@@ -36,13 +37,19 @@ class RunOnFlagOrPeriodically {
     }
 
     void shutdown() {
+        running = false;
         taskExecutor.shutdown();
+    }
+
+    void shutdownAndWait(long timeout, TimeUnit timeUnit) throws InterruptedException {
+        shutdown();
+        taskExecutor.awaitTermination(timeout, timeUnit);
     }
 
     private class ActionTask implements Runnable {
         @Override
         public void run() {
-            while (!currentThread().isInterrupted()) {
+            while (running && !currentThread().isInterrupted()) {
                 try {
                     waitForFlagOrTimeBetweenAllocations();
                     if (flagEverRaised) {
@@ -50,7 +57,7 @@ class RunOnFlagOrPeriodically {
                     }
                 } catch (InterruptedException e) {
                     currentThread().interrupt();
-                    break;
+                    running = false;
                 } catch (Exception e) {
                     log.error("An exception caught while processing flag", e);
                 }

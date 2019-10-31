@@ -6,6 +6,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.PreDestroy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -16,6 +17,8 @@ public class BufferedReactiveFactory<T> implements ReactiveSupplier<T> {
 
     private final BlockingQueue<T> elements;
     private final RunOnFlagOrPeriodically allocation;
+
+    private volatile boolean closed = false;
 
     public BufferedReactiveFactory(BufferedReactiveFactoryConfig config, Allocator<T> allocator) {
         config.validate();
@@ -41,6 +44,10 @@ public class BufferedReactiveFactory<T> implements ReactiveSupplier<T> {
     @Override
     public Mono<T> get() {
         return Mono.defer(() -> {
+            if (closed) {
+                return Mono.error(new FactoryClosedException("Already closed"));
+            }
+
             T value = elements.poll();
             if (value != null) {
                 return Mono.just(value);
@@ -69,8 +76,23 @@ public class BufferedReactiveFactory<T> implements ReactiveSupplier<T> {
 
     @PreDestroy
     public void shutdown() {
+        closed = true;
         allocation.shutdown();
         schedulerToWaitForAllocation.dispose();
+    }
+
+    public void shutdownAndDestroyLeftovers(long timeout, TimeUnit timeUnit, BatchDestroyer<T> destroyer) throws InterruptedException {
+        closed = true;
+        allocation.shutdownAndWait(timeout, timeUnit);
+        schedulerToWaitForAllocation.dispose();
+
+        destroyLeftovers(destroyer);
+    }
+
+    private void destroyLeftovers(BatchDestroyer<T> destroyer) {
+        List<T> leftovers = new ArrayList<>();
+        elements.drainTo(leftovers);
+        destroyer.destroy(leftovers);
     }
 
     private class AllocateConditionally implements Runnable {
