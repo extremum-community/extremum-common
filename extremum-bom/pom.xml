@@ -80,7 +80,11 @@
                 <artifactId>extremum-watch-starter</artifactId>
                 <version>1.0.15-SNAPSHOT</version>
             </dependency>
-
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-jackson-mapper</artifactId>
+                <version>1.0.15-SNAPSHOT</version>
+            </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>authentication-api</artifactId>

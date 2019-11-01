@@ -1,11 +1,11 @@
 package io.extremum.sharedmodels.descriptor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
-import io.extremum.sharedmodels.content.Display;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
+import io.extremum.sharedmodels.content.Display;
 import lombok.*;
 import reactor.core.publisher.Mono;
 
@@ -21,33 +21,35 @@ public class Descriptor implements Serializable {
     public static final String COLLECTION = "descriptor-identifiers";
 
     @JsonProperty("externalId")
-    private volatile String externalId;
+    private String externalId;
 
     @JsonProperty("type")
-    private volatile Type type;
+    private Type type;
+    @JsonProperty("readiness")
+    private Readiness readiness = Readiness.READY;
 
     @JsonProperty("internalId")
-    private volatile String internalId;
+    private String internalId;
     @JsonProperty("modelType")
-    private volatile String modelType;
+    private String modelType;
     @JsonProperty("storageType")
-    private volatile StorageType storageType;
+    private StorageType storageType;
 
     @JsonProperty("collection")
-    private volatile CollectionDescriptor collection;
+    private CollectionDescriptor collection;
 
     @JsonProperty("created")
-    private volatile ZonedDateTime created;
+    private ZonedDateTime created;
     @JsonProperty("modified")
-    private volatile ZonedDateTime modified;
+    private ZonedDateTime modified;
     @JsonProperty("version")
-    private volatile Long version;
+    private Long version;
 
     @JsonProperty("deleted")
-    private volatile boolean deleted;
+    private boolean deleted;
 
     @JsonProperty("display")
-    private volatile Display display;
+    private Display display;
 
     public Descriptor() {
     }
@@ -60,6 +62,7 @@ public class Descriptor implements Serializable {
         Descriptor descriptor = new Descriptor(externalId);
         descriptor.type = Type.COLLECTION;
         descriptor.collection = collectionDescriptor;
+        descriptor.readiness = Readiness.READY;
         return descriptor;
     }
 
@@ -74,7 +77,7 @@ public class Descriptor implements Serializable {
         if (type != null) {
             return type;
         }
-        if (type == null && internalId == null) {
+        if (internalId == null) {
             fillByExternalIdAndValidateAccordingToType();
         }
         return type;
@@ -230,6 +233,7 @@ public class Descriptor implements Serializable {
     private Descriptor copyFieldsFromAnotherDescriptor(Descriptor d) {
         this.externalId = d.externalId;
         this.type = d.type;
+        this.readiness = d.readiness;
         this.internalId = d.internalId;
         this.modelType = d.modelType;
         this.storageType = d.storageType;
@@ -354,6 +358,34 @@ public class Descriptor implements Serializable {
             }
 
             return null;
+        }
+    }
+
+    public enum Readiness {
+        BLANK("blank"), READY("ready");
+
+        private final String value;
+
+        Readiness(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String getValue() {
+            return value;
+        }
+
+        @JsonCreator
+        public static Readiness fromString(String value) {
+            if (value != null) {
+                for (Readiness readiness : Readiness.values()) {
+                    if (readiness.getValue().equalsIgnoreCase(value)) {
+                        return readiness;
+                    }
+                }
+            }
+
+            throw new IllegalStateException(String.format("Unsupported Readiness: '%s'", value));
         }
     }
 

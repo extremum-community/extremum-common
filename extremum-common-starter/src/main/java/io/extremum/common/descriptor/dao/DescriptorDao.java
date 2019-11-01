@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.dao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,4 +20,8 @@ public interface DescriptorDao {
     Map<String, String> retrieveMapByInternalIds(Collection<String> internalIds);
 
     Descriptor store(Descriptor descriptor);
+
+    List<Descriptor> storeBatch(List<Descriptor> descriptors);
+
+    void destroyBatch(List<Descriptor> descriptors);
 }

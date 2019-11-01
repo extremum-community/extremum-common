@@ -149,6 +149,7 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
         private String externalId;
 
         private Descriptor.Type type;
+        private Descriptor.Readiness readiness;
 
         @Indexed(unique = true, sparse = true)
         private String internalId;

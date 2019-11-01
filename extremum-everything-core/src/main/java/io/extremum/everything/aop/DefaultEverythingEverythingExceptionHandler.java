@@ -6,6 +6,7 @@ import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.exceptions.RequestDtoValidationException;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
+import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.dto.Response;
@@ -55,16 +56,19 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     @ExceptionHandler
     public Response handleEverythingEverythingException(EverythingEverythingException e) {
-        log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
-                e.getLocalizedMessage(), e);
+        logException(e);
 
         return fail(errorAlert(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
-    @ExceptionHandler
-    public Response handleModelNotFoundException(ModelNotFoundException e) {
+    private void logException(Exception e) {
         log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
                 e.getLocalizedMessage(), e);
+    }
+
+    @ExceptionHandler
+    public Response handleModelNotFoundException(ModelNotFoundException e) {
+        logException(e);
 
         return notFound();
     }
@@ -78,10 +82,20 @@ public class DefaultEverythingEverythingExceptionHandler implements EverythingEv
 
     @ExceptionHandler
     public Response handleDescriptorNotFoundException(DescriptorNotFoundException e) {
-        log.debug("Exception has occurred and will be handled in DefaultEverythingEverythingExceptionHandler: {}",
-                e.getLocalizedMessage(), e);
+        logException(e);
 
         return notFound();
+    }
+
+    @ExceptionHandler
+    public Response handleDescriptorNotReadyException(DescriptorNotReadyException e) {
+        logException(e);
+
+        return Response.builder()
+                .withDoingStatus()
+                .withAlert(Alert.infoAlert("Requested entity is still being processed, please retry later"))
+                .withNowTimestamp()
+                .build();
     }
 
     @ExceptionHandler

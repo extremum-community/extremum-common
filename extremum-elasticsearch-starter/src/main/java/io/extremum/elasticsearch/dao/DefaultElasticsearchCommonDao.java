@@ -16,6 +16,7 @@ import io.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
+import io.extremum.sharedmodels.constants.DateConstants;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
@@ -76,9 +77,9 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
     private final Class<? extends M> modelClass;
 
     protected DefaultElasticsearchCommonDao(Class<M> modelClass, ElasticsearchProperties elasticsearchProperties,
-            DescriptorService descriptorService,
-            ElasticsearchDescriptorFacilities descriptorFacilities, ObjectMapper mapper, String indexName,
-            String indexType) {
+                                            DescriptorService descriptorService,
+                                            ElasticsearchDescriptorFacilities descriptorFacilities, ObjectMapper mapper, String indexName,
+                                            String indexType) {
         this.modelClass = modelClass;
         this.descriptorService = descriptorService;
         this.descriptorFacilities = descriptorFacilities;
@@ -90,9 +91,9 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
     }
 
     protected DefaultElasticsearchCommonDao(ElasticsearchProperties elasticsearchProperties,
-            DescriptorService descriptorService,
-            ElasticsearchDescriptorFacilities descriptorFactory,
-            ObjectMapper mapper, String indexName, String indexType) {
+                                            DescriptorService descriptorService,
+                                            ElasticsearchDescriptorFacilities descriptorFactory,
+                                            ObjectMapper mapper, String indexName, String indexType) {
         this.descriptorService = descriptorService;
         this.descriptorFacilities = descriptorFactory;
         this.mapper = mapper;
@@ -168,7 +169,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
     }
 
     private List<M> executeSearch(String queryString, SearchRequest request,
-            RestHighLevelClient client) throws IOException {
+                                  RestHighLevelClient client) throws IOException {
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 
         if (HttpStatus.SC_OK != response.status().getStatus()) {
@@ -345,7 +346,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
         });
 
         refreshIndex();
-        
+
         return StreamUtils.fromIterable(entities).collect(Collectors.toList());
     }
 
@@ -458,7 +459,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
                 .map(m -> m.get(fieldName))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .map(v -> DateUtils.parseZonedDateTime(v, DateUtils.ISO_8601_ZONED_DATE_TIME_FORMATTER))
+                .map(v -> DateUtils.parseZonedDateTime(v, DateConstants.ISO_8601_ZONED_DATE_TIME_FORMATTER))
                 .orElse(null);
     }
 }

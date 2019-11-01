@@ -1,7 +1,9 @@
 package io.extremum.common.service.lifecycle;
 
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorDao;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
@@ -31,6 +33,8 @@ class MongoCommonModelLifecycleListenerTest {
 
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
+    @Spy
+    private DescriptorDao descriptorDao = new InMemoryDescriptorDao();
 
     private final ObjectId objectId = new ObjectId();
     private final Descriptor descriptor = Descriptor.builder()
@@ -43,7 +47,7 @@ class MongoCommonModelLifecycleListenerTest {
     @BeforeEach
     void createListener() {
         MongoDescriptorFacilities facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(),
-                new DescriptorSaver(descriptorService));
+                new DescriptorSaver(descriptorService), descriptorDao);
         listener = new MongoCommonModelLifecycleListener(facilities);
     }
 

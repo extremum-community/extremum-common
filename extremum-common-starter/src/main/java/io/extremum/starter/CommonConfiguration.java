@@ -10,16 +10,17 @@ import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.serde.StringToDescriptorConverter;
 import io.extremum.common.descriptor.service.*;
-import io.extremum.common.mapper.BasicJsonObjectMapper;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.reactive.*;
+import io.extremum.common.redisson.ExtremumRedisson;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.ReactiveCommonService;
 import io.extremum.common.support.*;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.mongo.config.*;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import io.extremum.sharedmodels.basic.Model;
@@ -44,6 +45,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
@@ -87,7 +89,7 @@ public class CommonConfiguration {
     @ConditionalOnProperty(value = "redis.uri")
     @ConditionalOnMissingBean
     public RedissonClient redissonClient(Config redissonConfig) {
-        return Redisson.create(redissonConfig);
+        return new ExtremumRedisson(redissonConfig);
     }
 
     @Bean
@@ -111,9 +113,10 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
+    public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository,
+            @Qualifier("descriptorsMongoTemplate") MongoOperations descriptorMongoOperations) {
         return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
-                redissonClient, descriptorRepository);
+                redissonClient, descriptorRepository, descriptorMongoOperations);
     }
 
     @Bean
@@ -269,4 +272,5 @@ public class CommonConfiguration {
     public StringToDescriptorConverter stringToDescriptorConverter(DescriptorFactory descriptorFactory) {
         return new StringToDescriptorConverter(descriptorFactory);
     }
+
 }

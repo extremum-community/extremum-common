@@ -3,8 +3,8 @@ package io.extremum.common.limit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.collection.visit.CollectionVisitDriver;
-import io.extremum.common.utils.attribute.Attribute;
-import io.extremum.common.utils.attribute.VisitDirection;
+import io.extremum.common.attribute.Attribute;
+import io.extremum.common.walk.VisitDirection;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.sharedmodels.fundamental.CollectionReference;
 

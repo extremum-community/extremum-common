@@ -1,6 +1,7 @@
 package io.extremum.common.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
@@ -31,7 +32,7 @@ class SystemJsonObjectMapperTest {
     @Test
     void testZonedDateTimeParseSuccessfully() throws JsonProcessingException {
         String utc = mapper.writeValueAsString(ZonedDateTime.of(1000, 1, 1, 1, 1, 1, 999_888_000, ZoneId.of("UTC")));
-        assertThat(utc,is("\"1000-01-01T01:01:01.999888+0000\""));
+        assertThat(utc, is("\"1000-01-01T01:01:01.999888+0000\""));
     }
 
     @Test

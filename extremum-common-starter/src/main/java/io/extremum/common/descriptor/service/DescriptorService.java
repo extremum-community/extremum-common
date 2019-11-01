@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.service;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +18,8 @@ public interface DescriptorService {
     String createExternalId();
 
     Descriptor store(Descriptor descriptor);
+
+    List<Descriptor> storeBatch(List<Descriptor> descriptors);
 
     /**
      * Loads an optional {@link Descriptor} by its external ID.

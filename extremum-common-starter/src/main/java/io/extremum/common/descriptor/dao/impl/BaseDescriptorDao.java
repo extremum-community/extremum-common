@@ -1,29 +1,34 @@
 package io.extremum.common.descriptor.dao.impl;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
 @Slf4j
 public abstract class BaseDescriptorDao implements DescriptorDao {
     private final DescriptorRepository descriptorRepository;
+    private final MongoOperations descriptorMongoOperations;
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
     private final RMap<String, String> collectionCoordinatesToExternalIds;
     private static final int RETRY_ATTEMPTS = 3;
 
-    BaseDescriptorDao(DescriptorRepository descriptorRepository, RMap<String, Descriptor> descriptors,
+    BaseDescriptorDao(DescriptorRepository descriptorRepository, MongoOperations descriptorMongoOperations,
+            RMap<String, Descriptor> descriptors,
             RMap<String, String> internalIdIndex, RMap<String, String> collectionCoordinatesToExternalIds) {
         this.descriptorRepository = descriptorRepository;
+        this.descriptorMongoOperations = descriptorMongoOperations;
         this.descriptors = descriptors;
         this.internalIdIndex = internalIdIndex;
         this.collectionCoordinatesToExternalIds = collectionCoordinatesToExternalIds;
@@ -98,5 +103,55 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
             collectionCoordinatesToExternalIds.put(
                     descriptor.getCollection().toCoordinatesString(), descriptor.getExternalId());
         }
+    }
+
+    @Override
+    public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
+        List<Descriptor> savedDescriptors = descriptorRepository.saveAll(descriptorsToSave);
+
+        Map<String, Descriptor> mapByExternalId = descriptorsToSave.stream()
+                .collect(toMap(Descriptor::getExternalId, identity()));
+        descriptors.putAll(mapByExternalId);
+
+        Map<String, String> mapByInternalId = descriptorsToSave.stream()
+                .filter(Descriptor::isSingle)
+                .collect(toMap(Descriptor::getInternalId, Descriptor::getExternalId));
+        internalIdIndex.putAll(mapByInternalId);
+
+        Map<String, String> mapByCollectionCoordinates = descriptorsToSave.stream()
+                .filter(Descriptor::isCollection)
+                .collect(toMap(descriptor ->
+                        descriptor.getCollection().toCoordinatesString(), Descriptor::getExternalId));
+        collectionCoordinatesToExternalIds.putAll(mapByCollectionCoordinates);
+
+        return savedDescriptors;
+    }
+
+    @Override
+    public void destroyBatch(List<Descriptor> descriptorsToDestroy) {
+        String[] externalIds = descriptorsToDestroy.stream()
+                .map(Descriptor::getExternalId)
+                .toArray(String[]::new);
+
+        destroyInMongo(externalIds);
+
+        descriptors.fastRemove(externalIds);
+
+        String[] internalIds = descriptorsToDestroy.stream()
+                .filter(Descriptor::isSingle)
+                .map(Descriptor::getInternalId)
+                .toArray(String[]::new);
+        internalIdIndex.fastRemove(internalIds);
+
+        String[] coordinateStrings = descriptorsToDestroy.stream()
+                .filter(Descriptor::isCollection)
+                .map(descriptor -> descriptor.getCollection().toCoordinatesString())
+                .toArray(String[]::new);
+        collectionCoordinatesToExternalIds.fastRemove(coordinateStrings);
+    }
+
+    private void destroyInMongo(String[] externalIds) {
+        Criteria criteria = where("_id").in(Arrays.asList(externalIds));
+        descriptorMongoOperations.remove(new Query(criteria), Descriptor.class);
     }
 }

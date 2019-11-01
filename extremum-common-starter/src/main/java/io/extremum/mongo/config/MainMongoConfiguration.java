@@ -2,6 +2,7 @@ package io.extremum.mongo.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorLifecycleListener;
@@ -112,6 +113,8 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         converters.add(new DescriptorToStringConverter());
         converters.add(new StorageTypeToStringConverter());
         converters.add(new StringToStorageTypeConverter());
+        converters.add(new ReadinessToStringConverter());
+        converters.add(new StringToReadinessConverter());
 
         return new MongoCustomConversions(converters);
     }
@@ -119,8 +122,8 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
-                                                               DescriptorSaver descriptorSaver) {
-        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
+            DescriptorSaver descriptorSaver, DescriptorDao descriptorDao) {
+        return new MongoDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver, descriptorDao);
     }
 
     @Bean
@@ -147,6 +150,22 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         @Override
         public Descriptor.StorageType convert(String source) {
             return Descriptor.StorageType.fromString(source);
+        }
+    }
+
+    @WritingConverter
+    private static class ReadinessToStringConverter implements Converter<Descriptor.Readiness, String> {
+        @Override
+        public String convert(Descriptor.Readiness source) {
+            return source.getValue();
+        }
+    }
+
+    @ReadingConverter
+    private static class StringToReadinessConverter implements Converter<String, Descriptor.Readiness> {
+        @Override
+        public Descriptor.Readiness convert(String source) {
+            return Descriptor.Readiness.fromString(source);
         }
     }
 }

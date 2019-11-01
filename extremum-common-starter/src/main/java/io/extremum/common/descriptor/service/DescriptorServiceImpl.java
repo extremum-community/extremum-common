@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.service;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.uuid.UUIDGenerator;
+import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
@@ -24,9 +25,23 @@ public final class DescriptorServiceImpl implements DescriptorService {
     }
 
     @Override
+    public List<Descriptor> storeBatch(List<Descriptor> descriptors) {
+        Objects.requireNonNull(descriptors, "descriptors list is null");
+        return descriptorDao.storeBatch(descriptors);
+    }
+
+    @Override
     public Optional<Descriptor> loadByExternalId(String externalId) {
         Objects.requireNonNull(externalId, "externalId is null");
-        return descriptorDao.retrieveByExternalId(externalId);
+
+        return descriptorDao.retrieveByExternalId(externalId)
+                .map(descriptor -> {
+                    if (descriptor.getReadiness() == Descriptor.Readiness.BLANK) {
+                        throw new DescriptorNotReadyException(
+                                String.format("Descriptor with external ID '%s' is not ready yet", externalId));
+                    }
+                    return descriptor;
+                });
     }
 
     @Override

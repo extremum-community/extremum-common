@@ -1,11 +1,13 @@
 package descriptor;
 
+import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import io.extremum.sharedmodels.content.Display;
@@ -13,25 +15,32 @@ import io.extremum.sharedmodels.content.Media;
 import io.extremum.sharedmodels.content.MediaType;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.Descriptor.Readiness;
 import io.extremum.starter.DescriptorDaoFactory;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.RedisProperties;
-import config.DescriptorConfiguration;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -54,13 +63,16 @@ class DescriptorDaoTest extends TestWithServices {
     private MongoDescriptorFacilities mongoDescriptorFacilities;
     @Autowired
     private DescriptorSaver descriptorSaver;
+    @Autowired
+    @Qualifier("descriptorsMongoTemplate")
+    private MongoOperations descriptorMongoOperations;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
     @BeforeEach
     void init() {
         freshDaoToAvoidCachingInMemory = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
-                redissonClient, descriptorRepository);
+                redissonClient, descriptorRepository, descriptorMongoOperations);
     }
 
     @Test
@@ -309,5 +321,74 @@ class DescriptorDaoTest extends TestWithServices {
         } catch (DuplicateKeyException  e) {
             assertThat(e.getMessage(), containsString("duplicate key error"));
         }
+    }
+
+    @Test
+    void whenStoringABatchOfDescriptors_thenTheyShouldBeSavedAndBecomeRetrievable() {
+        String internalId1 = new ObjectId().toString();
+        String internalId2 = new ObjectId().toString();
+        DescriptorSavers savers = new DescriptorSavers(descriptorService);
+        List<Descriptor> descriptorsToSave = Stream.of(internalId1, internalId2)
+                .map(internalId -> savers.createSingleDescriptor(internalId, Descriptor.StorageType.MONGO))
+                .collect(Collectors.toList());
+
+        List<Descriptor> savedDescriptors = descriptorDao.storeBatch(descriptorsToSave);
+
+        assertThat(savedDescriptors, hasSize(2));
+        assertThat(savedDescriptors.get(0).getInternalId(), is(equalTo(internalId1)));
+        assertThat(savedDescriptors.get(1).getInternalId(), is(equalTo(internalId2)));
+
+        String externalId1 = savedDescriptors.get(0).getExternalId();
+        Descriptor retrieved1 = descriptorDao.retrieveByExternalId(externalId1)
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+        assertThat(retrieved1.getInternalId(), is(equalTo(internalId1)));
+
+        retrieved1 = descriptorDao.retrieveByInternalId(internalId1)
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+        assertThat(retrieved1.getExternalId(), is(equalTo(externalId1)));
+    }
+
+    @Test
+    void givenABlankDescriptorWasRetrievedFromOneDao_whenItIsMadeReadyThrowAnotherDao_thenItShouldBeRetrievedFromFirstDaoAsReady() {
+        // given
+        DescriptorDao anotherDao = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
+                redissonClient, descriptorRepository, descriptorMongoOperations);
+        Descriptor descriptor = createBlankDescriptor();
+        Descriptor storedDescriptor = descriptorDao.store(descriptor);
+        anotherDao.retrieveByExternalId(storedDescriptor.getExternalId());
+
+        // when
+        mongoDescriptorFacilities.makeDescriptorReady(descriptor.getExternalId(), "TestModel");
+
+        // then
+        Descriptor retrievedDescriptor = anotherDao.retrieveByExternalId(storedDescriptor.getExternalId())
+                .orElseThrow(() -> new AssertionError("Did not find anything"));
+        assertThat("Probably an old cached copy was retrieved",
+                retrievedDescriptor.getReadiness(), is(Readiness.READY));
+    }
+
+    @NotNull
+    private Descriptor createBlankDescriptor() {
+        Descriptor descriptor = createMongoModelDescriptor();
+        descriptor.setReadiness(Readiness.BLANK);
+        return descriptor;
+    }
+
+    private Descriptor createMongoModelDescriptor() {
+        DescriptorSavers savers = new DescriptorSavers(descriptorService);
+        return savers.createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+    }
+
+    @Test
+    void whenDestroingDescriptorsInABatch_thenTheyShouldBeDestroyed() {
+        Descriptor descriptor = descriptorDao.store(createBlankDescriptor());
+
+        descriptorDao.destroyBatch(singletonList(descriptor));
+
+        Optional<Descriptor> byExternalId = descriptorDao.retrieveByExternalId(descriptor.getExternalId());
+        assertThat(byExternalId.isPresent(), is(false));
+
+        Optional<Descriptor> byInternalId = descriptorDao.retrieveByInternalId(descriptor.getInternalId());
+        assertThat(byInternalId.isPresent(), is(false));
     }
 }

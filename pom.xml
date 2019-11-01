@@ -35,7 +35,9 @@
         <module>extremum-everything-reactive-starter</module>
         <module>extremum-watch-starter</module>
         <module>extremum-batch-service</module>
+        <module>extremum-jackson-mapper</module>
     </modules>
+
 
     <scm>
         <url>https://github.com/extremum-io/extremum-common</url>

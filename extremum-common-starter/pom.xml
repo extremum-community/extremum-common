@@ -11,13 +11,18 @@
     <artifactId>extremum-common-starter</artifactId>
 
     <properties>
-        <testcoverage.minimum>0.64</testcoverage.minimum>
+        <testcoverage.minimum>0.71</testcoverage.minimum>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.extremum</groupId>
             <artifactId>extremum-shared-models</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-jackson-mapper</artifactId>
         </dependency>
 
         <dependency>
