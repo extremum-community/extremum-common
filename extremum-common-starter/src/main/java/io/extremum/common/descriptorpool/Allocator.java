@@ -1,4 +1,4 @@
-package io.extremum.common.pool;
+package io.extremum.common.descriptorpool;
 
 import java.util.List;
 
