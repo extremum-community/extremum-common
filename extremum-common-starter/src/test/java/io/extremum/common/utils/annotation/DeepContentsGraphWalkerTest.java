@@ -1,12 +1,12 @@
 package io.extremum.common.utils.annotation;
 
-import io.extremum.common.utils.attribute.DeepAttributeGraphWalker;
+import io.extremum.common.utils.attribute.DeepContentsGraphWalker;
 import com.google.common.collect.ImmutableSet;
+import io.extremum.common.utils.attribute.ObjectVisitor;
 import io.extremum.common.utils.attribute.VisitDirection;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -17,8 +17,8 @@ import static org.hamcrest.Matchers.hasSize;
 /**
  * @author rpuch
  */
-class DeepAttributeGraphWalkerTest {
-    private final DeepAttributeGraphWalker rootToLeavesWalker = new DeepAttributeGraphWalker(
+class DeepContentsGraphWalkerTest {
+    private final DeepContentsGraphWalker rootToLeavesWalker = new DeepContentsGraphWalker(
             VisitDirection.ROOT_TO_LEAVES, 10);
     private final ValueCollector collector = new ValueCollector();
 
@@ -111,7 +111,7 @@ class DeepAttributeGraphWalkerTest {
         Container b = new Container(c);
         Container a = new Container(b);
 
-        DeepAttributeGraphWalker limitedWalker = new DeepAttributeGraphWalker(VisitDirection.ROOT_TO_LEAVES, 2);
+        DeepContentsGraphWalker limitedWalker = new DeepContentsGraphWalker(VisitDirection.ROOT_TO_LEAVES, 2);
 
         limitedWalker.walk(new Container(a), collector);
 
@@ -121,7 +121,7 @@ class DeepAttributeGraphWalkerTest {
 
     @Test
     void givenPredicateDoesNotAllowToVisitAnything_whenThereAreFieldsToVisit_nothingShouldBeVisited() {
-        DeepAttributeGraphWalker dontGoDeeper = new DeepAttributeGraphWalker(VisitDirection.ROOT_TO_LEAVES,
+        DeepContentsGraphWalker dontGoDeeper = new DeepContentsGraphWalker(VisitDirection.ROOT_TO_LEAVES,
                 10, object -> false);
 
         DeepBean root = new DeepBean();
@@ -143,7 +143,7 @@ class DeepAttributeGraphWalkerTest {
 
     @Test
     void givenWalkerVisitsLeavesToRoot_whenVisiting_thenRootShouldBeVisitedFirst() {
-        DeepAttributeGraphWalker leavesToRootWalker = new DeepAttributeGraphWalker(VisitDirection.LEAVES_TO_ROOT, 10);
+        DeepContentsGraphWalker leavesToRootWalker = new DeepContentsGraphWalker(VisitDirection.LEAVES_TO_ROOT, 10);
 
         Object leaf = "leaf";
         Container root = new Container(leaf);
@@ -170,4 +170,22 @@ class DeepAttributeGraphWalkerTest {
             this.object = object;
         }
     }
+
+    private static class ValueCollector implements ObjectVisitor {
+        private final List<Object> values = new ArrayList<>();
+
+        List<Object> getValues() {
+            return values;
+        }
+
+        Set<Object> collectedSet() {
+            return new HashSet<>(values);
+        }
+
+        @Override
+        public void visit(Object object) {
+            values.add(object);
+        }
+    }
+
 }

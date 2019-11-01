@@ -14,11 +14,11 @@ public class CollectionVisitDriver {
 
     private final CollectionVisitor collectionVisitor;
 
-    private final AttributeGraphWalker deepWalker;
+    private final ObjectContentsGraphWalker deepWalker;
     private final AttributeGraphWalker shallowWalker = new ShallowAttributeGraphWalker();
 
     public CollectionVisitDriver(VisitDirection visitDirection, CollectionVisitor collectionVisitor) {
-        deepWalker = new DeepAttributeGraphWalker(visitDirection, 10, CollectionVisitDriver::shouldGoDeeper);
+        deepWalker = new DeepContentsGraphWalker(visitDirection, 10, CollectionVisitDriver::shouldGoDeeper);
         this.collectionVisitor = collectionVisitor;
     }
 
@@ -32,12 +32,12 @@ public class CollectionVisitDriver {
     }
 
     public void visitCollectionsInNonResponseDto(Object root) {
-        AttributeVisitor dtoVisitor = this::walkResponseDtoInAttribute;
+        ObjectVisitor dtoVisitor = this::walkResponseDtoInAttribute;
         deepWalker.walk(root, new IsResponseDto(dtoVisitor));
     }
 
-    private void walkResponseDtoInAttribute(Attribute dtoAttribute) {
-        ResponseDto dto = (ResponseDto) dtoAttribute.value();
+    private void walkResponseDtoInAttribute(Object object) {
+        ResponseDto dto = (ResponseDto) object;
         if (dto == null) {
             return;
         }
@@ -60,18 +60,17 @@ public class CollectionVisitDriver {
         collectionVisitor.visit(reference, attribute, dto);
     }
 
-    private static class IsResponseDto implements AttributeVisitor {
-        private final AttributeVisitor visitor;
+    private static class IsResponseDto implements ObjectVisitor {
+        private final ObjectVisitor visitor;
 
-        private IsResponseDto(AttributeVisitor visitor) {
+        private IsResponseDto(ObjectVisitor visitor) {
             this.visitor = visitor;
         }
 
         @Override
-        public void visitAttribute(Attribute attribute) {
-            Object value = attribute.value();
-            if (value != null && ResponseDto.class.isAssignableFrom(value.getClass())) {
-                visitor.visitAttribute(attribute);
+        public void visit(Object object) {
+            if (ResponseDto.class.isAssignableFrom(object.getClass())) {
+                visitor.visit(object);
             }
         }
     }
