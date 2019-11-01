@@ -1,30 +1,33 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.attribute;
 
 import java.lang.annotation.Annotation;
-import java.util.Objects;
+import java.lang.reflect.Field;
 
-public class AdHocAttribute implements Attribute {
+/**
+ * @author rpuch
+ */
+public class FieldAttribute implements Attribute {
+    private final Field field;
     private final Object value;
 
-    public AdHocAttribute(Object value) {
-        Objects.requireNonNull(value, "value is null");
-
+    public FieldAttribute(Field field, Object value) {
+        this.field = field;
         this.value = value;
     }
 
     @Override
     public String name() {
-        throw new IllegalStateException("Ad hoc attribute does not have name");
+        return field.getName();
     }
 
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-        return null;
+        return field.getAnnotation(annotationClass);
     }
 
     @Override
     public Class<?> type() {
-        return value.getClass();
+        return field.getType();
     }
 
     @Override

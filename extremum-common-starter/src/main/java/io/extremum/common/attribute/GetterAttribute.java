@@ -1,4 +1,4 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.attribute;
 
 import io.extremum.common.utils.ReflectionUtils;
 

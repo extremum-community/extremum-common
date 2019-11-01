@@ -1,6 +1,8 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.walk;
 
 import com.google.common.collect.ImmutableList;
+import io.extremum.common.attribute.Attribute;
+import io.extremum.common.attribute.InstanceAttributes;
 import io.extremum.common.exceptions.ProgrammingErrorException;
 
 import java.util.*;
@@ -14,7 +16,7 @@ import java.util.function.Predicate;
  *
  * @author rpuch
  */
-public class DeepAttributeGraphWalker implements AttributeGraphWalker {
+public class DeepContentsGraphWalker implements ObjectContentsGraphWalker {
     private static final List<String> PREFIXES_TO_IGNORE = ImmutableList.of("java", "sun.");
     private static final int INITIAL_DEPTH = 1;
 
@@ -22,19 +24,19 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     private final int maxLevel;
     private final Predicate<Object> shouldGoDeeperPredicate;
 
-    public DeepAttributeGraphWalker(VisitDirection visitDirection, int maxLevel) {
+    public DeepContentsGraphWalker(VisitDirection visitDirection, int maxLevel) {
         this(visitDirection, maxLevel, object -> true);
     }
 
-    public DeepAttributeGraphWalker(VisitDirection visitDirection, int maxLevel,
-                                    Predicate<Object> shouldGoDeeperPredicate) {
+    public DeepContentsGraphWalker(VisitDirection visitDirection, int maxLevel,
+                                   Predicate<Object> shouldGoDeeperPredicate) {
         this.visitDirection = visitDirection;
         this.maxLevel = maxLevel;
         this.shouldGoDeeperPredicate = shouldGoDeeperPredicate;
     }
 
     @Override
-    public void walk(Object root, AttributeVisitor visitor) {
+    public void walk(Object root, ObjectVisitor visitor) {
         Objects.requireNonNull(root, "Root cannot be null");
         Objects.requireNonNull(visitor, "Visitor cannot be null");
 
@@ -57,16 +59,16 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
         }
         context.rememberAsSeen(attributeValue);
 
-        visitWithAttribute(attribute, context, currentDepth);
+        visitWithAttribute(attribute.value(), context, currentDepth);
     }
 
-    private void visitWithAttribute(Attribute attribute, Context context, int currentDepth) {
+    private void visitWithAttribute(Object object, Context context, int currentDepth) {
         if (visitDirection == VisitDirection.ROOT_TO_LEAVES) {
-            context.visitAttribute(attribute);
-            goDeeperIfNeeded(attribute.value(), context, currentDepth);
+            context.visitObject(object);
+            goDeeperIfNeeded(object, context, currentDepth);
         } else if (visitDirection == VisitDirection.LEAVES_TO_ROOT) {
-            goDeeperIfNeeded(attribute.value(), context, currentDepth);
-            context.visitAttribute(attribute);
+            goDeeperIfNeeded(object, context, currentDepth);
+            context.visitObject(object);
         } else {
             throw new ProgrammingErrorException("Unsupported visit direction " + visitDirection);
         }
@@ -94,7 +96,7 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     }
 
     private void visitAndGoDeeperThroughIterableElement(Object element, Context context, int currentDepth) {
-        visitWithAttribute(new AdHocAttribute(element), context, currentDepth);
+        visitWithAttribute(element, context, currentDepth);
         if (shouldGoDeeper(element, currentDepth)) {
             walkContentsRecursively(element, context, currentDepth + 1);
         }
@@ -131,10 +133,10 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
     }
 
     private static class Context {
-        private final AttributeVisitor visitor;
+        private final ObjectVisitor visitor;
         private final Map<Object, Object> visitedObjects = new IdentityHashMap<>();
 
-        private Context(AttributeVisitor visitor) {
+        private Context(ObjectVisitor visitor) {
             this.visitor = visitor;
         }
 
@@ -148,8 +150,8 @@ public class DeepAttributeGraphWalker implements AttributeGraphWalker {
             }
         }
 
-        void visitAttribute(Attribute attribute) {
-            visitor.visitAttribute(attribute);
+        void visitObject(Object object) {
+            visitor.visit(object);
         }
     }
 }
