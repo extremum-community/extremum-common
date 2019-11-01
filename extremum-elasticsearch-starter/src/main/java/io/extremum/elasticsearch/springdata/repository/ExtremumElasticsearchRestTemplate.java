@@ -1,28 +1,16 @@
 package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.VersionType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -32,13 +20,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.GetResultMapper;
 import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
-import org.springframework.data.elasticsearch.core.query.*;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -47,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.elasticsearch.client.Requests.refreshRequest;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -67,11 +56,6 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
 
         saveProcess = new SaveProcess(descriptorFacilities);
         searchPreparation = new SearchPreparation(this);
-    }
-
-    private static String[] toArray(List<String> values) {
-        String[] valuesAsArray = new String[values.size()];
-        return values.toArray(valuesAsArray);
     }
 
     @Override
@@ -255,47 +239,6 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     // request method signatures which were removed in 7.1.0 (or earlier). Hence the copy-paste.
 
     @Override
-    public boolean indexExists(String indexName) {
-        GetIndexRequest request = new GetIndexRequest();
-        request.indices(indexName);
-        try {
-            return getClient().indices().exists(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while for indexExists request: " + request.toString(), e);
-        }
-    }
-
-    @Override
-    public boolean putMapping(String indexName, String type, Object mapping) {
-        Assert.notNull(indexName, "No index defined for putMapping()");
-        Assert.notNull(type, "No type defined for putMapping()");
-        PutMappingRequest request = new PutMappingRequest(indexName).type(type);
-        if (mapping instanceof String) {
-            request.source(String.valueOf(mapping), XContentType.JSON);
-        } else if (mapping instanceof Map) {
-            request.source((Map) mapping);
-        } else if (mapping instanceof XContentBuilder) {
-            request.source((XContentBuilder) mapping);
-        }
-        try {
-            return getClient().indices().putMapping(request, RequestOptions.DEFAULT).isAcknowledged();
-        } catch (IOException e) {
-            throw new ElasticsearchException("Failed to put mapping for " + indexName, e);
-        }
-    }
-
-    @Override
-    public void refresh(String indexName) {
-        Assert.notNull(indexName, "No index defined for refresh()");
-        try {
-            // TODO: Do something with the response.
-            getClient().indices().refresh(refreshRequest(indexName), RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("failed to refresh index: " + indexName, e);
-        }
-    }
-
-    @Override
     public <T> long count(SearchQuery searchQuery, Class<T> clazz) {
         QueryBuilder elasticsearchQuery = searchQuery.getQuery();
         QueryBuilder elasticsearchFilter = searchQuery.getFilter();
@@ -420,97 +363,6 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
             return getClient().search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException("Error for search request with scroll: " + searchRequest.toString(), e);
-        }
-    }
-
-    @Override
-    public <T> T queryForObject(GetQuery query, Class<T> clazz, GetResultMapper mapper) {
-        ElasticsearchPersistentEntity<T> persistentEntity = getPersistentEntityFor(clazz);
-        GetRequest request = new GetRequest(persistentEntity.getIndexName(), persistentEntity.getIndexType(),
-                query.getId());
-        GetResponse response;
-        try {
-            response = getClient().get(request, RequestOptions.DEFAULT);
-            T entity = mapper.mapResult(response, clazz);
-            return entity;
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while getting for request: " + request.toString(), e);
-        }
-    }
-
-    @Override
-    public String delete(String indexName, String type, String id) {
-        DeleteRequest request = new DeleteRequest(indexName, type, id);
-        try {
-            return getClient().delete(request, RequestOptions.DEFAULT).getId();
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while deleting item request: " + request.toString(), e);
-        }
-    }
-
-    @Override
-    public boolean createIndex(String indexName, Object settings) {
-        CreateIndexRequest request = new CreateIndexRequest(indexName);
-        if (settings instanceof String) {
-            request.settings(String.valueOf(settings), Requests.INDEX_CONTENT_TYPE);
-        } else if (settings instanceof Map) {
-            request.settings((Map) settings);
-        } else if (settings instanceof XContentBuilder) {
-            request.settings((XContentBuilder) settings);
-        }
-        try {
-            return getClient().indices().create(request, RequestOptions.DEFAULT).isAcknowledged();
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error for creating index: " + request.toString(), e);
-        }
-    }
-
-    @Override
-    public <T> List<T> multiGet(SearchQuery searchQuery, Class<T> clazz) {
-        return getResultsMapper().mapResults(getMultiResponse(searchQuery, clazz), clazz);
-    }
-
-    private <T> MultiGetResponse getMultiResponse(Query searchQuery, Class<T> clazz) {
-
-        String indexName = !isEmpty(searchQuery.getIndices()) ? searchQuery.getIndices().get(0)
-                : getPersistentEntityFor(clazz).getIndexName();
-        String type = !isEmpty(searchQuery.getTypes()) ? searchQuery.getTypes().get(0)
-                : getPersistentEntityFor(clazz).getIndexType();
-
-        Assert.notNull(indexName, "No index defined for Query");
-        Assert.notNull(type, "No type define for Query");
-        Assert.notEmpty(searchQuery.getIds(), "No Id define for Query");
-
-        MultiGetRequest request = new MultiGetRequest();
-
-        if (searchQuery.getFields() != null && !searchQuery.getFields().isEmpty()) {
-            searchQuery.addSourceFilter(new FetchSourceFilter(toArray(searchQuery.getFields()), null));
-        }
-
-        for (String id : searchQuery.getIds()) {
-
-            MultiGetRequest.Item item = new MultiGetRequest.Item(indexName, type, id);
-
-            if (searchQuery.getRoute() != null) {
-                item = item.routing(searchQuery.getRoute());
-            }
-
-            request.add(item);
-        }
-        try {
-            return getClient().multiGet(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while multiget for request: " + request.toString(), e);
-        }
-    }
-
-    @Override
-    public UpdateResponse update(UpdateQuery query) {
-        UpdateRequest request = new UpdatePreparation(this).prepareUpdate(query);
-        try {
-            return getClient().update(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while update for request: " + request.toString(), e);
         }
     }
 
