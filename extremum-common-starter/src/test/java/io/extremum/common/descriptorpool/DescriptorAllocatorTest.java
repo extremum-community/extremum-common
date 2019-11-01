@@ -1,4 +1,4 @@
-package io.extremum.common.pool;
+package io.extremum.common.descriptorpool;
 
 import io.extremum.common.descriptor.factory.BlankDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;

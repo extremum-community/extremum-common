@@ -45,6 +45,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
@@ -112,9 +113,10 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository) {
+    public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository,
+            @Qualifier("descriptorsMongoTemplate") MongoOperations descriptorMongoOperations) {
         return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
-                redissonClient, descriptorRepository);
+                redissonClient, descriptorRepository, descriptorMongoOperations);
     }
 
     @Bean

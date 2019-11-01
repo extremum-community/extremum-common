@@ -1,4 +1,4 @@
-package io.extremum.common.pool;
+package io.extremum.common.descriptorpool;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
@@ -12,17 +12,17 @@ import static java.lang.Thread.currentThread;
  */
 @Slf4j
 class RunOnFlagOrPeriodically {
-    private static final Object FLAG = new Object();
-
     private final long checkForAllocationEachMillis;
     private final Runnable action;
 
-    private final BlockingQueue<Object> flagQueue = new ArrayBlockingQueue<>(1);
-    private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor(new CustomizableThreadFactory("allocator-"));
+    private final Object waitNotifyMonitor = new Object();
+    private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor(
+            new CustomizableThreadFactory("allocator-"));
 
+    private volatile boolean running = true;
     private volatile boolean flagEverRaised = false;
 
-    public RunOnFlagOrPeriodically(long checkForAllocationEachMillis, Runnable action) {
+    RunOnFlagOrPeriodically(long checkForAllocationEachMillis, Runnable action) {
         this.checkForAllocationEachMillis = checkForAllocationEachMillis;
         this.action = action;
 
@@ -31,17 +31,25 @@ class RunOnFlagOrPeriodically {
 
     void raiseFlag() {
         flagEverRaised = true;
-        flagQueue.offer(FLAG);
+        synchronized (waitNotifyMonitor) {
+            waitNotifyMonitor.notify();
+        }
     }
 
     void shutdown() {
+        running = false;
         taskExecutor.shutdown();
+    }
+
+    void shutdownAndWait(long timeout, TimeUnit timeUnit) throws InterruptedException {
+        shutdown();
+        taskExecutor.awaitTermination(timeout, timeUnit);
     }
 
     private class ActionTask implements Runnable {
         @Override
         public void run() {
-            while (!currentThread().isInterrupted()) {
+            while (running && !currentThread().isInterrupted()) {
                 try {
                     waitForFlagOrTimeBetweenAllocations();
                     if (flagEverRaised) {
@@ -49,7 +57,7 @@ class RunOnFlagOrPeriodically {
                     }
                 } catch (InterruptedException e) {
                     currentThread().interrupt();
-                    break;
+                    running = false;
                 } catch (Exception e) {
                     log.error("An exception caught while processing flag", e);
                 }
@@ -57,7 +65,9 @@ class RunOnFlagOrPeriodically {
         }
 
         private void waitForFlagOrTimeBetweenAllocations() throws InterruptedException {
-            flagQueue.poll(checkForAllocationEachMillis, TimeUnit.MILLISECONDS);
+            synchronized (waitNotifyMonitor) {
+                waitNotifyMonitor.wait(checkForAllocationEachMillis);
+            }
         }
     }
 }

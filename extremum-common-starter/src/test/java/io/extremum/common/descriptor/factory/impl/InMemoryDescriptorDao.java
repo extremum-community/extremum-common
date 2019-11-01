@@ -47,4 +47,9 @@ public class InMemoryDescriptorDao implements DescriptorDao {
     public List<Descriptor> storeBatch(List<Descriptor> descriptors) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void destroyBatch(List<Descriptor> descriptors) {
+        throw new UnsupportedOperationException();
+    }
 }

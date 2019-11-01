@@ -25,8 +25,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -60,13 +63,16 @@ class DescriptorDaoTest extends TestWithServices {
     private MongoDescriptorFacilities mongoDescriptorFacilities;
     @Autowired
     private DescriptorSaver descriptorSaver;
+    @Autowired
+    @Qualifier("descriptorsMongoTemplate")
+    private MongoOperations descriptorMongoOperations;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
     @BeforeEach
     void init() {
         freshDaoToAvoidCachingInMemory = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
-                redissonClient, descriptorRepository);
+                redissonClient, descriptorRepository, descriptorMongoOperations);
     }
 
     @Test
@@ -346,7 +352,7 @@ class DescriptorDaoTest extends TestWithServices {
     void givenABlankDescriptorWasRetrievedFromOneDao_whenItIsMadeReadyThrowAnotherDao_thenItShouldBeRetrievedFromFirstDaoAsReady() {
         // given
         DescriptorDao anotherDao = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
-                redissonClient, descriptorRepository);
+                redissonClient, descriptorRepository, descriptorMongoOperations);
         Descriptor descriptor = createBlankDescriptor();
         Descriptor storedDescriptor = descriptorDao.store(descriptor);
         anotherDao.retrieveByExternalId(storedDescriptor.getExternalId());
@@ -371,5 +377,18 @@ class DescriptorDaoTest extends TestWithServices {
     private Descriptor createMongoModelDescriptor() {
         DescriptorSavers savers = new DescriptorSavers(descriptorService);
         return savers.createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+    }
+
+    @Test
+    void whenDestroingDescriptorsInABatch_thenTheyShouldBeDestroyed() {
+        Descriptor descriptor = descriptorDao.store(createBlankDescriptor());
+
+        descriptorDao.destroyBatch(singletonList(descriptor));
+
+        Optional<Descriptor> byExternalId = descriptorDao.retrieveByExternalId(descriptor.getExternalId());
+        assertThat(byExternalId.isPresent(), is(false));
+
+        Optional<Descriptor> byInternalId = descriptorDao.retrieveByInternalId(descriptor.getInternalId());
+        assertThat(byInternalId.isPresent(), is(false));
     }
 }
