@@ -124,10 +124,10 @@ public class ExtremumReactiveElasticsearchClient extends DefaultReactiveElastics
     private Request convertIndex(IndexRequest indexRequest) {
         Request result = RequestConverters.index(indexRequest);
         if (indexRequest.ifSeqNo() != SequenceNumbers.UNASSIGNED_SEQ_NO) {
-            result.addParameter("if_seq_no", Long.toString(indexRequest.ifSeqNo()));
+//            result.addParameter("if_seq_no", Long.toString(indexRequest.ifSeqNo()));
         }
         if (indexRequest.ifPrimaryTerm() != SequenceNumbers.UNASSIGNED_PRIMARY_TERM) {
-            result.addParameter("if_primary_term", Long.toString(indexRequest.ifPrimaryTerm()));
+//            result.addParameter("if_primary_term", Long.toString(indexRequest.ifPrimaryTerm()));
         }
         return result;
     }
