@@ -217,7 +217,9 @@ class BufferedReactiveFactoryTest {
         List<String> leftover = synchronizedList(new ArrayList<>());
         factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftover::addAll);
 
-        assertThat(leftover, is(equalTo(Arrays.asList("two", "three"))));
+        assertThat(leftover,
+                either(equalTo(Arrays.asList("two", "three")))
+                        .or(equalTo(Arrays.asList("one", "two", "three"))));
     }
 
     private void takeAllFromFastBatch() {
