@@ -1,8 +1,6 @@
-package io.extremum.common.utils.annotation;
+package io.extremum.common.walk;
 
-import io.extremum.common.utils.attribute.Attribute;
-import io.extremum.common.utils.attribute.AttributeVisitor;
-import io.extremum.common.utils.attribute.ShallowFieldGraphWalker;
+import io.extremum.common.attribute.Attribute;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

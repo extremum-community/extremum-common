@@ -1,4 +1,7 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.walk;
+
+import io.extremum.common.attribute.Attribute;
+import io.extremum.common.attribute.InstanceAttributes;
 
 import java.util.Objects;
 

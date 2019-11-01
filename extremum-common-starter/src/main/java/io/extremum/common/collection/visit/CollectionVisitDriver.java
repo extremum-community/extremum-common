@@ -1,6 +1,7 @@
 package io.extremum.common.collection.visit;
 
-import io.extremum.common.utils.attribute.*;
+import io.extremum.common.attribute.*;
+import io.extremum.common.walk.*;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.sharedmodels.fundamental.CollectionReference;

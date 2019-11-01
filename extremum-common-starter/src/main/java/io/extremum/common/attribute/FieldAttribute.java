@@ -1,4 +1,4 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.attribute;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -6,11 +6,11 @@ import java.lang.reflect.Field;
 /**
  * @author rpuch
  */
-class FieldAttribute implements Attribute {
+public class FieldAttribute implements Attribute {
     private final Field field;
     private final Object value;
 
-    FieldAttribute(Field field, Object value) {
+    public FieldAttribute(Field field, Object value) {
         this.field = field;
         this.value = value;
     }

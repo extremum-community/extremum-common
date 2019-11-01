@@ -1,4 +1,4 @@
-package io.extremum.common.utils.annotation;
+package io.extremum.common.walk;
 
 /**
  * @author rpuch

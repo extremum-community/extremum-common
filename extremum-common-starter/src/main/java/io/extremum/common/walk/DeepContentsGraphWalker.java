@@ -1,6 +1,8 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.walk;
 
 import com.google.common.collect.ImmutableList;
+import io.extremum.common.attribute.Attribute;
+import io.extremum.common.attribute.InstanceAttributes;
 import io.extremum.common.exceptions.ProgrammingErrorException;
 
 import java.util.*;

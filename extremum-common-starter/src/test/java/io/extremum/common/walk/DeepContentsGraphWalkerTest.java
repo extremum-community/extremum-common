@@ -1,9 +1,6 @@
-package io.extremum.common.utils.annotation;
+package io.extremum.common.walk;
 
-import io.extremum.common.utils.attribute.DeepContentsGraphWalker;
 import com.google.common.collect.ImmutableSet;
-import io.extremum.common.utils.attribute.ObjectVisitor;
-import io.extremum.common.utils.attribute.VisitDirection;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;

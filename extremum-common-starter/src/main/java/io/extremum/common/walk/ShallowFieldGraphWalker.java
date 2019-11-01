@@ -1,5 +1,6 @@
-package io.extremum.common.utils.attribute;
+package io.extremum.common.walk;
 
+import io.extremum.common.attribute.FieldAttribute;
 import io.extremum.common.utils.InstanceFields;
 import io.extremum.common.utils.ReflectionUtils;
 
