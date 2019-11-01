@@ -17,7 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.Optional;
 
@@ -42,6 +44,9 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     private DescriptorsProperties descriptorsProperties;
     @Autowired
     private MongoDescriptorFacilities mongoDescriptorFacilities;
+    @Autowired
+    @Qualifier("descriptorsMongoTemplate")
+    private MongoOperations descriptorMongoOperations;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -52,7 +57,7 @@ class DescriptorRedisSerializationTest extends TestWithServices {
         descriptor = createADescriptor();
         
         freshDaoToAvoidCachingInMemory = DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
-                redissonClient, descriptorRepository);
+                redissonClient, descriptorRepository, descriptorMongoOperations);
     }
 
     @Test

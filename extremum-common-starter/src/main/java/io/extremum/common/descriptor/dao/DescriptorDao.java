@@ -22,4 +22,6 @@ public interface DescriptorDao {
     Descriptor store(Descriptor descriptor);
 
     List<Descriptor> storeBatch(List<Descriptor> descriptors);
+
+    void destroyBatch(List<Descriptor> descriptors);
 }
