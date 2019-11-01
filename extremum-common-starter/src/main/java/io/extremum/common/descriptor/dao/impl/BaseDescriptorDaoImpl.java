@@ -7,16 +7,19 @@ import org.redisson.RedissonLocalCachedMap.CacheValue;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.concurrent.TimeUnit;
 
 public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
     public BaseDescriptorDaoImpl(RedissonClient redissonClient, DescriptorRepository descriptorRepository,
+                                 MongoOperations descriptorMongoOperations,
                                  String descriptorsMapName, String internalIdsMapName,
                                  String collectionCoordinatesMapName,
                                  Codec codec,
                                  int cacheSize, long idleTime) {
         super(descriptorRepository,
+                descriptorMongoOperations,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
                         codec,
