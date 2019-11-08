@@ -18,7 +18,7 @@ class NullPatcherHooksTest {
     void whenCallingAfterPatchApplied_thenTheDtoPassedAsAnArgumentShouldBeReturned() {
         RequestDto dto = mock(RequestDto.class);
 
-        RequestDto result = hooks.afterPatchAppliedToDto(dto);
+        RequestDto result = hooks.afterPatchAppliedToDto(null, dto);
 
         assertThat(result, is(sameInstance(dto)));
     }

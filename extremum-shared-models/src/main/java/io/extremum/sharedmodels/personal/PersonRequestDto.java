@@ -2,6 +2,7 @@ package io.extremum.sharedmodels.personal;
 
 import io.extremum.sharedmodels.annotation.DocumentationName;
 import io.extremum.sharedmodels.basic.StringOrObject;
+import io.extremum.sharedmodels.constraints.OnePrimaryContactAllowed;
 import io.extremum.sharedmodels.content.Media;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.sharedmodels.spacetime.CategorizedAddress;
@@ -25,6 +26,7 @@ public class PersonRequestDto implements RequestDto {
     private List<Language> languages;
     private String hometown;
     private List<CategorizedAddress> addresses;
+    @OnePrimaryContactAllowed
     private List<Contact> contacts;
     private List<PersonPositionForRequestDto> positions;
     private String relationship;

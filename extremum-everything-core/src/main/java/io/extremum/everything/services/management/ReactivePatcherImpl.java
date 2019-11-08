@@ -42,7 +42,7 @@ public final class ReactivePatcherImpl implements ReactivePatcher {
     @Override
     public final Mono<Model> patch(Descriptor id, Model modelToPatch, JsonPatch patch) {
         return applyPatch(patch, modelToPatch)
-                .doOnNext(patchedDto -> hooksCollection.afterPatchAppliedToDto(id.getModelType(), patchedDto))
+                .doOnNext(patchedDto -> hooksCollection.afterPatchAppliedToDto(id.getModelType(), modelToPatch, patchedDto))
                 .doOnNext(patchingSupport::validateRequest)
                 .map(patchedDto -> patchingSupport.assemblePatchedModel(patchedDto, modelToPatch));
     }
