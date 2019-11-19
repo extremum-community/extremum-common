@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.client.reactive.DefaultReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
@@ -92,7 +93,7 @@ public class ElasticsearchRepositoriesConfiguration {
                 .map(h -> h.getHost() + ":" + h.getPort())
                 .toArray(String[]::new);
 
-        return ExtremumReactiveElasticsearchClient.create(HttpHeaders.EMPTY, hosts);
+        return DefaultReactiveElasticsearchClient.create(HttpHeaders.EMPTY, hosts);
     }
 
     @Bean

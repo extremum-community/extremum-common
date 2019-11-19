@@ -14,13 +14,6 @@
         <testcoverage.minimum>0.62</testcoverage.minimum>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>spring-libs-snapshot</id>
-            <url>https://repo.spring.io/libs-snapshot</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>io.extremum</groupId>
