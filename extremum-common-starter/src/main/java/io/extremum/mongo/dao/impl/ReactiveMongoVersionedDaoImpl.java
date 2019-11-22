@@ -101,8 +101,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
 
     private <N extends M> Mono<N> addNextSnapshot(N newSnapshot, M currentSnapshot) {
         if (versionDiffers(newSnapshot, currentSnapshot)) {
-            //FIXME
-            //return Mono.error(versionDiffersOptimistickLockingException(newSnapshot, currentSnapshot));
+            return Mono.error(versionDiffersOptimistickLockingException(newSnapshot, currentSnapshot));
         }
 
         prepareCurrentAndNextSnapshots(newSnapshot, currentSnapshot);
