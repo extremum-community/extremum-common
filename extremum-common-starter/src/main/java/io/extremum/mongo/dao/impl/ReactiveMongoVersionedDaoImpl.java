@@ -71,9 +71,16 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
                 return addFirstSnapshot(model);
             } else {
                 return findById(model.getLineageId())
-                        .flatMap(currentSnapshot -> addNextSnapshot(model, currentSnapshot));
+                        .flatMap(currentSnapshot -> addNextSnapshot(model, currentSnapshot))
+                        .switchIfEmpty(Mono.error(() -> modelNotFoundExceptionWhenUpdating(model)));
             }
         });
+    }
+
+    private <N extends M> ModelNotFoundException modelNotFoundExceptionWhenUpdating(N model) {
+        String message = String.format("No current snapshot found by lineageId '%s' when trying to update",
+                model.getLineageId());
+        return new ModelNotFoundException(message);
     }
 
     private boolean isNew(M model) {
