@@ -110,10 +110,9 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
 
         Mono<TestMongoVersionedModel> mono = dao.save(savedModel);
 
-        //FIXME
-        //StepVerifier.create(mono)
-        //        .expectError(OptimisticLockingFailureException.class)
-        //        .verify();
+        StepVerifier.create(mono)
+                .expectError(OptimisticLockingFailureException.class)
+                .verify();
     }
 
     @Test
