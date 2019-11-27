@@ -83,8 +83,7 @@ class MongoCommonDaoTest extends TestWithServices {
         TestMongoModel model = getTestModel();
         model.setId(new ObjectId(model.getUuid().getInternalId()));
         model.setVersion(123L);
-        //FIXME
-        //assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model));
+        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(model));
     }
 
     @Test

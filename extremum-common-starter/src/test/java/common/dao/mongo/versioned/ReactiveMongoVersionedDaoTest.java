@@ -1,5 +1,6 @@
 package common.dao.mongo.versioned;
 
+import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.MongoConstants;
 import org.jetbrains.annotations.NotNull;
@@ -102,7 +103,7 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
     }
 
     @Test
-    void givenSomeHistoryExists_whenModelIsWithWrongVersion_thenAnOptimisticLockingExceptionShouldBeTheResult() {
+    void givenSomeHistoryExists_whenModelIsSavedWithWrongVersion_thenAnOptimisticLockingExceptionShouldBeTheResult() {
         TestMongoVersionedModel savedModel = saveAModelAndThenChangeItsName();
 
         savedModel.setName("Another name");
@@ -110,10 +111,24 @@ class ReactiveMongoVersionedDaoTest extends TestWithServices {
 
         Mono<TestMongoVersionedModel> mono = dao.save(savedModel);
 
-        //FIXME
-        //StepVerifier.create(mono)
-        //        .expectError(OptimisticLockingFailureException.class)
-        //        .verify();
+        StepVerifier.create(mono)
+                .expectError(OptimisticLockingFailureException.class)
+                .verify();
+    }
+
+    @Test
+    void givenNothingToUpdateExists_whentryingToUpdateWithExistingLineageId_thenAnExceptionShouldBeThrown() {
+        TestMongoVersionedModel savedModel = saveAModelWithInitialName();
+
+        mongoOperations.remove(savedModel);
+
+        savedModel.setName("Another name");
+
+        Mono<TestMongoVersionedModel> mono = dao.save(savedModel);
+
+        StepVerifier.create(mono)
+                .expectError(ModelNotFoundException.class)
+                .verify();
     }
 
     @Test
