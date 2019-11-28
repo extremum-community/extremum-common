@@ -163,9 +163,10 @@ public class EverythingCoreConfiguration {
     @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
                                              ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-                                             CollectionUrls collectionUrls) {
+                                             CollectionUrls collectionUrls,
+                                             List<CollectionMakeupModule> makeupModules) {
         return new CollectionMakeupImpl(collectionDescriptorService,
-                reactiveCollectionDescriptorService, collectionUrls);
+                reactiveCollectionDescriptorService, collectionUrls, makeupModules);
     }
 
     @Bean
