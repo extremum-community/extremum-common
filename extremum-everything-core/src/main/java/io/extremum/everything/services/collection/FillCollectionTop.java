@@ -41,7 +41,11 @@ public class FillCollectionTop implements CollectionMakeupModule {
                                                      CollectionMakeupRequest request) {
         //noinspection unchecked
         request.getReference().setTop(new ArrayList(dtosFragment.elements()));
-        dtosFragment.total().ifPresent(count -> request.getReference().setCount(count));
+        dtosFragment.total().ifPresent(count -> {
+            if (request.getReference().getCount() == null) {
+                request.getReference().setCount(count);
+            }
+        });
     }
 
     @Override

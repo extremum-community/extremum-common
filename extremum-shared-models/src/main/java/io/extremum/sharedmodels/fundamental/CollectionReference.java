@@ -28,6 +28,10 @@ public class CollectionReference<T> {
         return new CollectionReference<>(null, null);
     }
 
+    public static <T> CollectionReference<T> withTotal(long total) {
+        return new CollectionReference<>(null, (Long) total);
+    }
+
     public CollectionReference() {
         this(emptyList());
     }

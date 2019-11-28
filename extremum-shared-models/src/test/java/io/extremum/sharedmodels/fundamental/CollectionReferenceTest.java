@@ -14,4 +14,12 @@ class CollectionReferenceTest {
         assertThat(reference.getTop(), is(nullValue()));
         assertThat(reference.getCount(), is(nullValue()));
     }
+
+    @Test
+    void whenCreatingACollectionReferenceWithCountOnly_thenItShouldBeFilledCorrectly() {
+        CollectionReference<?> reference = CollectionReference.withTotal(10);
+
+        assertThat(reference.getTop(), is(nullValue()));
+        assertThat(reference.getCount(), is(10L));
+    }
 }
