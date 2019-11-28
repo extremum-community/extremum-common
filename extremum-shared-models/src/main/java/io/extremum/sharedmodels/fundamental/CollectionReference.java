@@ -57,4 +57,8 @@ public class CollectionReference<T> {
         Objects.requireNonNull(top, "top cannot be null");
         this.top = top;
     }
+
+    public void setCount(Long count) {
+        this.count = count;
+    }
 }
