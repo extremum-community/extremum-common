@@ -81,7 +81,9 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                                                       CollectionDescriptor collectionDescriptor) {
         return reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(collectionDescriptor)
                 .doOnNext(descriptor -> {
-                    reference.setId(descriptor.getExternalId());
+                    if (reference.getId() == null) {
+                        reference.setId(descriptor.getExternalId());
+                    }
                     fillCollectionUrl(reference, descriptor);
                 })
                 .flatMap(descriptor -> applyModulesReactively(new CollectionMakeupRequest(reference, descriptor)))
@@ -123,7 +125,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     private void fillCollectionIdAndUrlIfAttributeAllowsIt(CollectionReference reference,
             Descriptor collectionDescriptor, Attribute attribute) {
-        if (shouldFillCollectionId(attribute)) {
+        if (reference.getId() == null && shouldFillCollectionId(attribute)) {
             reference.setId(collectionDescriptor.getExternalId());
         }
 
@@ -132,6 +134,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     private void fillCollectionUrl(CollectionReference reference,
                                    Descriptor collectionDescriptor) {
+        if (reference.getUrl() != null) {
+            return;
+        }
+
         String collectionExternalId = collectionDescriptor.getExternalId();
 
         String externalUrl = collectionUrls.collectionUrl(collectionExternalId);
