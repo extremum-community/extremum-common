@@ -18,9 +18,13 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -61,6 +65,9 @@ class CollectionMakeupImplTest {
 
     @Mock
     private CollectionMakeupModule makeupModule;
+
+    @Captor
+    private ArgumentCaptor<CollectionMakeupRequest> makeupRequestCaptor;
 
     private StreetResponseDto streetDto;
     private final Descriptor descriptorInDB = Descriptor.forCollection("external-id",
@@ -338,6 +345,35 @@ class CollectionMakeupImplTest {
         verify(makeupModule, atLeast(1)).applyToCollectionReactively(any());
     }
 
+    @Test
+    void givenAModuleIsDefinedAndItFillsTopWithMoreCollectionReferences_whenApplyingCollectionMakeup_thenAllCollectionReferencesShouldBeMadeUp() {
+        // given
+        createMakeupWith1Module();
+        doAnswer(new FillTopWithOuterDtoOnFirstInvocationAndDoNothingThen())
+                .when(makeupModule).applyToCollection(any());
+
+        // when
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        // then
+        assertThat(outerDto.innerDto.buildings.getId(), is(notNullValue()));
+    }
+
+    @Test
+    void givenAModuleIsDefinedAndItFillsTopWithMoreCollectionReferences_whenApplyingCollectionMakeupReactively_thenAllCollectionReferencesShouldBeMadeUp() {
+        // given
+        createMakeupWith1Module();
+        //noinspection UnassignedFluxMonoInstance
+        doAnswer(new FillTopWithOuterDtoOnFirstInvocationAndDoNothingThenReactively())
+                .when(makeupModule).applyToCollectionReactively(any());
+
+        // when
+        collectionMakeup.applyCollectionMakeupReactively(streetDto).block();
+
+        // then
+        assertThat(outerDto.innerDto.buildings.getId(), is(notNullValue()));
+    }
+
     private static class BuildingResponseDto extends CommonResponseDto {
         public String address;
 
@@ -438,6 +474,37 @@ class CollectionMakeupImplTest {
         @Override
         public String getModel() {
             return "Container";
+        }
+    }
+
+    private abstract class FillTopWithOuterDtoBase implements Answer {
+        private boolean first = true;
+
+        final void fillTop(InvocationOnMock invocation) {
+            if (!first) {
+                return;
+            }
+            first = false;
+            CollectionMakeupRequest request = invocation.getArgument(0);
+            request.getReference().setTop((List) singletonList(outerDto));
+        }
+    }
+
+    private class FillTopWithOuterDtoOnFirstInvocationAndDoNothingThen extends FillTopWithOuterDtoBase {
+        @Override
+        public Object answer(InvocationOnMock invocation) {
+            fillTop(invocation);
+            return null;
+        }
+    }
+
+    private class FillTopWithOuterDtoOnFirstInvocationAndDoNothingThenReactively extends FillTopWithOuterDtoBase {
+        @Override
+        public Object answer(InvocationOnMock invocation) {
+            return Mono.defer(() -> {
+                fillTop(invocation);
+                return Mono.empty();
+            });
         }
     }
 }

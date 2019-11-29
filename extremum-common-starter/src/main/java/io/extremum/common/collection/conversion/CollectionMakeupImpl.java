@@ -17,8 +17,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author rpuch
@@ -41,18 +42,61 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     @Override
     public void applyCollectionMakeup(ResponseDto rootDto) {
-        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
+        Set<CollectionReference<?>> allVisitedReferences = new HashSet<>();
 
-        for (ReferenceWithContext context : collectedReferences) {
-            applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
+        // the loop is needed because modules can fill top which can contain
+        // new collection references that we need to process as well
+        while (true) {
+            List<ReferenceWithContext> collectedReferences = collectOnlyNewReferencesToApplyMakeup(
+                    rootDto, allVisitedReferences);
+            if (collectedReferences.isEmpty()) {
+                break;
+            }
+
+            for (ReferenceWithContext context : collectedReferences) {
+                applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
+            }
+
+            addVisitedReferences(collectedReferences, allVisitedReferences);
         }
+    }
+
+    private List<ReferenceWithContext> collectOnlyNewReferencesToApplyMakeup(ResponseDto rootDto,
+            Set<CollectionReference<?>> allVisitedReferences) {
+        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
+        collectedReferences.removeIf(context -> allVisitedReferences.contains(context.getReference()));
+        return collectedReferences;
+    }
+
+    private void addVisitedReferences(List<ReferenceWithContext> collectedReferences, Set<CollectionReference<?>> allVisitedReferences) {
+        List<? extends CollectionReference<?>> justReferences = collectedReferences.stream()
+                .map(ReferenceWithContext::getReference)
+                .collect(Collectors.toList());
+        allVisitedReferences.addAll(justReferences);
     }
 
     @Override
     public Mono<Void> applyCollectionMakeupReactively(ResponseDto rootDto) {
-        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
+        Set<CollectionReference<?>> allVisitedReferences = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        return applyReactivelyToNonVisitedReferences(rootDto, allVisitedReferences);
+    }
 
-        return applyReactivelyToCollectedReferences(collectedReferences);
+    private Mono<Void> applyReactivelyToNonVisitedReferences(ResponseDto rootDto,
+                                                             Set<CollectionReference<?>> allVisitedReferences) {
+        // the recursion is needed because modules can fill top which can contain
+        // new collection references that we need to process as well
+
+        List<ReferenceWithContext> collectedReferences = collectOnlyNewReferencesToApplyMakeup(
+                rootDto, allVisitedReferences);
+        if (collectedReferences.isEmpty()) {
+            return Mono.empty();
+        }
+
+        return applyReactivelyToCollectedReferences(collectedReferences)
+                .then(Mono.defer(() -> {
+                    addVisitedReferences(collectedReferences, allVisitedReferences);
+                    return applyReactivelyToNonVisitedReferences(rootDto, allVisitedReferences);
+                }));
     }
 
     private Mono<Void> applyReactivelyToCollectedReferences(List<ReferenceWithContext> collectedReferences) {
