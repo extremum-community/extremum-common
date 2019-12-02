@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 
 import static java.util.function.Function.identity;
@@ -21,6 +20,8 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
     private final RMap<String, String> collectionCoordinatesToExternalIds;
+
+    private final DescriptorInitializations initializations = new DescriptorInitializations();
 
     BaseDescriptorDao(DescriptorRepository descriptorRepository, MongoOperations descriptorMongoOperations,
             RMap<String, Descriptor> descriptors,
@@ -66,45 +67,15 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public Descriptor store(Descriptor descriptor) {
-        fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(descriptor);
+        initializations.fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(descriptor);
 
-        boolean initializeVersionManually = shouldInitializeVersionManually(descriptor);
+        boolean initializeVersionManually = initializations.shouldInitializeVersionManually(descriptor);
 
-        fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptor, initializeVersionManually);
+        initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptor, initializeVersionManually);
         putToMaps(descriptor);
 
-        removeVersionIfItWasSetManually(descriptor, initializeVersionManually);
+        initializations.removeVersionIfItWasSetManually(descriptor, initializeVersionManually);
         return descriptorMongoOperations.save(descriptor);
-    }
-
-    private void fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(Descriptor descriptor) {
-        ZonedDateTime now = ZonedDateTime.now();
-        if (descriptor.getCreated() == null) {
-            descriptor.setCreated(now);
-        }
-        if (descriptor.getModified() == null) {
-            descriptor.setModified(now);
-        }
-    }
-
-    private boolean shouldInitializeVersionManually(Descriptor descriptor) {
-        boolean initializeVersionManually = false;
-        if (descriptor.getVersion() == null) {
-            initializeVersionManually = true;
-        }
-        return initializeVersionManually;
-    }
-
-    private void fillVersionIfNeededToHaveFullyFilledObjectInRedis(Descriptor descriptor, boolean initializeVersionManually) {
-        if (initializeVersionManually) {
-            descriptor.setVersion(0L);
-        }
-    }
-
-    private void removeVersionIfItWasSetManually(Descriptor descriptor, boolean initializeVersionManually) {
-        if (initializeVersionManually) {
-            descriptor.setVersion(null);
-        }
     }
 
     private void putToMaps(Descriptor descriptor) {
@@ -120,19 +91,20 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
-        descriptorsToSave.forEach(this::fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis);
+        descriptorsToSave.forEach(initializations::fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis);
 
         Boolean[] initializeVersionManually = descriptorsToSave.stream()
-                .map(this::shouldInitializeVersionManually)
+                .map(initializations::shouldInitializeVersionManually)
                 .toArray(Boolean[]::new);
 
         for (int i = 0; i < descriptorsToSave.size(); i++) {
-            fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptorsToSave.get(i), initializeVersionManually[i]);
+            initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptorsToSave.get(i),
+                    initializeVersionManually[i]);
         }
         putManyToMaps(descriptorsToSave);
 
         for (int i = 0; i < descriptorsToSave.size(); i++) {
-            removeVersionIfItWasSetManually(descriptorsToSave.get(i), initializeVersionManually[i]);
+            initializations.removeVersionIfItWasSetManually(descriptorsToSave.get(i), initializeVersionManually[i]);
         }
         return descriptorRepository.saveAll(descriptorsToSave);
     }

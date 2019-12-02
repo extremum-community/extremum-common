@@ -4,6 +4,7 @@ import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
@@ -138,5 +139,25 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         } catch (DuplicateKeyException e) {
             assertThat(e.getMessage(), containsString("duplicate key error"));
         }
+    }
+
+    @Test
+    void givenADescriptorIsSaved_whenItIsRetrieved_thenItsCreatedModifiedAndVersionShouldBeFilled() {
+        Descriptor descriptorToSave = new DescriptorSavers(descriptorService)
+                .createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+        Descriptor savedDescriptor = reactiveDescriptorDao.store(descriptorToSave).block();
+        assertThat(savedDescriptor, is(notNullValue()));
+
+        Descriptor retrievedDescriptor = reactiveDescriptorDao.retrieveByExternalId(savedDescriptor.getExternalId())
+                .block();
+        assertThat(retrievedDescriptor, is(notNullValue()));
+
+        assertThatAutoFieldsAreFilledCorrectly(retrievedDescriptor);
+    }
+
+    private void assertThatAutoFieldsAreFilledCorrectly(Descriptor retrievedDescriptor) {
+        assertThat(retrievedDescriptor.getCreated(), is(notNullValue()));
+        assertThat(retrievedDescriptor.getModified(), is(notNullValue()));
+        assertThat(retrievedDescriptor.getVersion(), is(0L));
     }
 }
