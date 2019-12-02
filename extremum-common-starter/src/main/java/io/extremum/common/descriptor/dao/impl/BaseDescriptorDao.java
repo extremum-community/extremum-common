@@ -2,12 +2,12 @@ package io.extremum.common.descriptor.dao.impl;
 
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static java.util.function.Function.identity;
@@ -15,14 +15,12 @@ import static java.util.stream.Collectors.toMap;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
-@Slf4j
 public abstract class BaseDescriptorDao implements DescriptorDao {
     private final DescriptorRepository descriptorRepository;
     private final MongoOperations descriptorMongoOperations;
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
     private final RMap<String, String> collectionCoordinatesToExternalIds;
-    private static final int RETRY_ATTEMPTS = 3;
 
     BaseDescriptorDao(DescriptorRepository descriptorRepository, MongoOperations descriptorMongoOperations,
             RMap<String, Descriptor> descriptors,
@@ -68,30 +66,45 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public Descriptor store(Descriptor descriptor) {
-        Optional<Descriptor> optionalDesc = descriptorRepository.findByExternalId(descriptor.getExternalId());
+        fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(descriptor);
 
-        descriptorRepository.save(descriptor);
+        boolean initializeVersionManually = shouldInitializeVersionManually(descriptor);
 
-        if (optionalDesc.isPresent()) {
-            try {
-                putToMaps(descriptor);
-            } catch (RuntimeException e) {
-                Descriptor oldDescriptor = optionalDesc.get();
-                for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
-                    try {
-                        descriptorRepository.save(oldDescriptor);
-                        break;
-                    } catch (Exception ex) {
-                        if (i == 3) {
-                            log.error("Failed reset to old state descriptor with external id: {}", oldDescriptor.getExternalId());
-                        }
-                    }
-                }
-            }
-        } else {
-            putToMaps(descriptor);
+        fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptor, initializeVersionManually);
+        putToMaps(descriptor);
+
+        removeVersionIfItWasSetManually(descriptor, initializeVersionManually);
+        return descriptorMongoOperations.save(descriptor);
+    }
+
+    private void fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(Descriptor descriptor) {
+        ZonedDateTime now = ZonedDateTime.now();
+        if (descriptor.getCreated() == null) {
+            descriptor.setCreated(now);
         }
-        return descriptor;
+        if (descriptor.getModified() == null) {
+            descriptor.setModified(now);
+        }
+    }
+
+    private boolean shouldInitializeVersionManually(Descriptor descriptor) {
+        boolean initializeVersionManually = false;
+        if (descriptor.getVersion() == null) {
+            initializeVersionManually = true;
+        }
+        return initializeVersionManually;
+    }
+
+    private void fillVersionIfNeededToHaveFullyFilledObjectInRedis(Descriptor descriptor, boolean initializeVersionManually) {
+        if (initializeVersionManually) {
+            descriptor.setVersion(0L);
+        }
+    }
+
+    private void removeVersionIfItWasSetManually(Descriptor descriptor, boolean initializeVersionManually) {
+        if (initializeVersionManually) {
+            descriptor.setVersion(null);
+        }
     }
 
     private void putToMaps(Descriptor descriptor) {
