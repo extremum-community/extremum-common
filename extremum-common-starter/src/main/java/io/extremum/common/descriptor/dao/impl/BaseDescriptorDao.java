@@ -120,8 +120,24 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
-        List<Descriptor> savedDescriptors = descriptorRepository.saveAll(descriptorsToSave);
+        descriptorsToSave.forEach(this::fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis);
 
+        Boolean[] initializeVersionManually = descriptorsToSave.stream()
+                .map(this::shouldInitializeVersionManually)
+                .toArray(Boolean[]::new);
+
+        for (int i = 0; i < descriptorsToSave.size(); i++) {
+            fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptorsToSave.get(i), initializeVersionManually[i]);
+        }
+        putManyToMaps(descriptorsToSave);
+
+        for (int i = 0; i < descriptorsToSave.size(); i++) {
+            removeVersionIfItWasSetManually(descriptorsToSave.get(i), initializeVersionManually[i]);
+        }
+        return descriptorRepository.saveAll(descriptorsToSave);
+    }
+
+    private void putManyToMaps(List<Descriptor> descriptorsToSave) {
         Map<String, Descriptor> mapByExternalId = descriptorsToSave.stream()
                 .collect(toMap(Descriptor::getExternalId, identity()));
         descriptors.putAll(mapByExternalId);
@@ -136,8 +152,6 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 .collect(toMap(descriptor ->
                         descriptor.getCollection().toCoordinatesString(), Descriptor::getExternalId));
         collectionCoordinatesToExternalIds.putAll(mapByCollectionCoordinates);
-
-        return savedDescriptors;
     }
 
     @Override

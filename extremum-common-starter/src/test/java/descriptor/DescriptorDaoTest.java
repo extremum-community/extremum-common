@@ -402,8 +402,26 @@ class DescriptorDaoTest extends TestWithServices {
                 .retrieveByExternalId(savedDescriptor.getExternalId())
                 .orElseThrow(() -> new AssertionError("Did not find the descriptor"));
 
+        assertThatAutoFieldsAreFilledCorrectly(retrievedDescriptor);
+    }
+
+    private void assertThatAutoFieldsAreFilledCorrectly(Descriptor retrievedDescriptor) {
         assertThat(retrievedDescriptor.getCreated(), is(notNullValue()));
         assertThat(retrievedDescriptor.getModified(), is(notNullValue()));
         assertThat(retrievedDescriptor.getVersion(), is(0L));
+    }
+
+    @Test
+    void givenADescriptorIsSavedInABatch_whenItIsRetrieved_thenItsCreatedModifiedAndVersionShouldBeFilled() {
+        Descriptor descriptorToSave = new DescriptorSavers(descriptorService)
+                .createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+        List<Descriptor> savedDescriptors = descriptorDao.storeBatch(singletonList(descriptorToSave));
+        Descriptor savedDescriptor = savedDescriptors.get(0);
+
+        Descriptor retrievedDescriptor = freshDaoToAvoidCachingInMemory
+                .retrieveByExternalId(savedDescriptor.getExternalId())
+                .orElseThrow(() -> new AssertionError("Did not find the descriptor"));
+
+        assertThatAutoFieldsAreFilledCorrectly(retrievedDescriptor);
     }
 }
