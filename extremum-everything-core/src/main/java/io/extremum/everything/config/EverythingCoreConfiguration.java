@@ -6,7 +6,6 @@ import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.limit.ResponseLimiter;
-import io.extremum.common.limit.ResponseLimiterAdvice;
 import io.extremum.common.limit.ResponseLimiterImpl;
 import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.support.ListBasedUniversalReactiveModelLoaders;
@@ -185,12 +184,6 @@ public class EverythingCoreConfiguration {
     @ConditionalOnMissingBean
     public ResponseLimiter responseLimiter(ObjectMapper objectMapper) {
         return new ResponseLimiterImpl(limitsProperties.getCollectionTopMaxSizeBytes(), objectMapper);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ResponseLimiterAdvice responseLimiterAdvice(ResponseLimiter limiter) {
-        return new ResponseLimiterAdvice(limiter);
     }
 
     @Bean
