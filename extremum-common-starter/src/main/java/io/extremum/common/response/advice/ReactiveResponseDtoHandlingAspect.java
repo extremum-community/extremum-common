@@ -27,63 +27,63 @@ public abstract class ReactiveResponseDtoHandlingAspect {
         Object invocationResult = point.proceed();
 
         if (invocationResult instanceof Mono) {
-            return applyMakeupToMonoPayload((Mono<?>) invocationResult);
+            return applyToMonoPayload((Mono<?>) invocationResult);
         }
         if (invocationResult instanceof Flux) {
-            return applyMakeupToFluxPayload((Flux<?>) invocationResult);
+            return applyToFluxPayload((Flux<?>) invocationResult);
         }
 
         return invocationResult;
     }
 
-    private Object applyMakeupToMonoPayload(Mono<?> mono) {
-        return mono.flatMap(this::possiblyApplyMakeupToResponseDtoInsideResponseOrSSE);
+    private Object applyToMonoPayload(Mono<?> mono) {
+        return mono.flatMap(this::possiblyApplyToResponseDtoInsideResponseOrSSE);
     }
 
-    private Object applyMakeupToFluxPayload(Flux<?> flux) {
-        return flux.concatMap(this::possiblyApplyMakeupToResponseDtoInsideResponseOrSSE);
+    private Object applyToFluxPayload(Flux<?> flux) {
+        return flux.concatMap(this::possiblyApplyToResponseDtoInsideResponseOrSSE);
     }
 
-    private Mono<?> possiblyApplyMakeupToResponseDtoInsideResponseOrSSE(Object object) {
+    private Mono<?> possiblyApplyToResponseDtoInsideResponseOrSSE(Object object) {
         if (object instanceof Response) {
             Response response = (Response) object;
             Object payload = response.getResult();
             if (payload instanceof ResponseDto) {
-                return applyMakeupToResponseDtoThenReturnResponse((ResponseDto) payload, response);
+                return applyToResponseDtoThenReturnResponse((ResponseDto) payload, response);
             } else if (payload instanceof ResponseDto[]) {
                 ResponseDto[] responseDtos = (ResponseDto[]) payload;
-                return applyMakeupToResponseDtosInListAndReturnResponse(Arrays.asList(responseDtos), response);
+                return applyToResponseDtosInListAndReturnResponse(Arrays.asList(responseDtos), response);
             } else if (payload instanceof Iterable) {
                 Iterable<?> iterable = (Iterable<?>) payload;
-                return applyMakeupToResponseDtosInIterableAndReturnResponse(iterable, response);
+                return applyToResponseDtosInIterableAndReturnResponse(iterable, response);
             }
         }
         if (object instanceof ServerSentEvent) {
             ServerSentEvent<?> sse = (ServerSentEvent<?>) object;
             if (sse.data() instanceof ResponseDto) {
                 ResponseDto responseDto = (ResponseDto) sse.data();
-                return applyMakeupToResponseDtoThenReturnResponse(responseDto, sse);
+                return applyToResponseDtoThenReturnResponse(responseDto, sse);
             }
         }
 
         return Mono.just(object);
     }
 
-    private Mono<?> applyMakeupToResponseDtoThenReturnResponse(ResponseDto responseDto, Object response) {
+    private Mono<?> applyToResponseDtoThenReturnResponse(ResponseDto responseDto, Object response) {
         return applyToResponseDto(responseDto)
                 .thenReturn(response);
     }
 
-    private Mono<?> applyMakeupToResponseDtosInIterableAndReturnResponse(Iterable<?> iterable, Response response) {
+    private Mono<?> applyToResponseDtosInIterableAndReturnResponse(Iterable<?> iterable, Response response) {
         List<ResponseDto> responseDtos = StreamUtils.fromIterable(iterable)
                 .filter(obj -> obj instanceof ResponseDto)
                 .map(ResponseDto.class::cast)
                 .collect(Collectors.toList());
-        return applyMakeupToResponseDtosInListAndReturnResponse(responseDtos, response);
+        return applyToResponseDtosInListAndReturnResponse(responseDtos, response);
     }
 
-    private Mono<?> applyMakeupToResponseDtosInListAndReturnResponse(List<ResponseDto> responseDtos,
-                                                                     Response response) {
+    private Mono<?> applyToResponseDtosInListAndReturnResponse(List<ResponseDto> responseDtos,
+                                                               Response response) {
         return Flux.fromIterable(responseDtos)
                 .concatMap(this::applyToResponseDto)
                 .then(Mono.just(response));
