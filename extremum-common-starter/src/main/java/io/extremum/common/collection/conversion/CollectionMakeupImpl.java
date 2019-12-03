@@ -1,9 +1,10 @@
 package io.extremum.common.collection.conversion;
 
+import com.google.common.collect.ImmutableList;
+import io.extremum.common.attribute.Attribute;
 import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.collection.visit.CollectionVisitDriver;
-import io.extremum.common.attribute.Attribute;
 import io.extremum.common.walk.VisitDirection;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -16,33 +17,86 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author rpuch
  */
 @Service
-@RequiredArgsConstructor
 public class CollectionMakeupImpl implements CollectionMakeup {
     private final CollectionDescriptorService collectionDescriptorService;
     private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService;
     private final CollectionUrls collectionUrls;
+    private final List<CollectionMakeupModule> makeupModules;
+
+    public CollectionMakeupImpl(CollectionDescriptorService collectionDescriptorService,
+            ReactiveCollectionDescriptorService reactiveCollectionDescriptorService, CollectionUrls collectionUrls,
+            List<CollectionMakeupModule> makeupModules) {
+        this.collectionDescriptorService = collectionDescriptorService;
+        this.reactiveCollectionDescriptorService = reactiveCollectionDescriptorService;
+        this.collectionUrls = collectionUrls;
+        this.makeupModules = ImmutableList.copyOf(makeupModules);
+    }
 
     @Override
     public void applyCollectionMakeup(ResponseDto rootDto) {
-        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
+        Set<CollectionReference<?>> allVisitedReferences = new HashSet<>();
 
-        for (ReferenceWithContext context : collectedReferences) {
-            applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
+        // the loop is needed because modules can fill top which can contain
+        // new collection references that we need to process as well
+        while (true) {
+            List<ReferenceWithContext> collectedReferences = collectOnlyNewReferencesToApplyMakeup(
+                    rootDto, allVisitedReferences);
+            if (collectedReferences.isEmpty()) {
+                break;
+            }
+
+            for (ReferenceWithContext context : collectedReferences) {
+                applyMakeupToCollection(context.getReference(), context.getAttribute(), context.getDto());
+            }
+
+            addVisitedReferences(collectedReferences, allVisitedReferences);
         }
+    }
+
+    private List<ReferenceWithContext> collectOnlyNewReferencesToApplyMakeup(ResponseDto rootDto,
+            Set<CollectionReference<?>> allVisitedReferences) {
+        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
+        collectedReferences.removeIf(context -> allVisitedReferences.contains(context.getReference()));
+        return collectedReferences;
+    }
+
+    private void addVisitedReferences(List<ReferenceWithContext> collectedReferences, Set<CollectionReference<?>> allVisitedReferences) {
+        List<? extends CollectionReference<?>> justReferences = collectedReferences.stream()
+                .map(ReferenceWithContext::getReference)
+                .collect(Collectors.toList());
+        allVisitedReferences.addAll(justReferences);
     }
 
     @Override
     public Mono<Void> applyCollectionMakeupReactively(ResponseDto rootDto) {
-        List<ReferenceWithContext> collectedReferences = collectReferencesOnResponseDtoToApplyMakeup(rootDto);
+        Set<CollectionReference<?>> allVisitedReferences = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        return applyReactivelyToNonVisitedReferences(rootDto, allVisitedReferences);
+    }
 
-        return applyReactivelyToCollectedReferences(collectedReferences);
+    private Mono<Void> applyReactivelyToNonVisitedReferences(ResponseDto rootDto,
+                                                             Set<CollectionReference<?>> allVisitedReferences) {
+        // the recursion is needed because modules can fill top which can contain
+        // new collection references that we need to process as well
+
+        List<ReferenceWithContext> collectedReferences = collectOnlyNewReferencesToApplyMakeup(
+                rootDto, allVisitedReferences);
+        if (collectedReferences.isEmpty()) {
+            return Mono.empty();
+        }
+
+        return applyReactivelyToCollectedReferences(collectedReferences)
+                .then(Mono.defer(() -> {
+                    addVisitedReferences(collectedReferences, allVisitedReferences);
+                    return applyReactivelyToNonVisitedReferences(rootDto, allVisitedReferences);
+                }));
     }
 
     private Mono<Void> applyReactivelyToCollectedReferences(List<ReferenceWithContext> collectedReferences) {
@@ -71,9 +125,12 @@ public class CollectionMakeupImpl implements CollectionMakeup {
                                                       CollectionDescriptor collectionDescriptor) {
         return reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(collectionDescriptor)
                 .doOnNext(descriptor -> {
-                    reference.setId(descriptor.getExternalId());
+                    if (reference.getId() == null) {
+                        reference.setId(descriptor.getExternalId());
+                    }
                     fillCollectionUrl(reference, descriptor);
                 })
+                .flatMap(descriptor -> applyModulesReactively(new CollectionMakeupRequest(reference, descriptor)))
                 .then(Mono.defer(() -> {
                     List<ReferenceWithContext> collectedReferences = collectReferencesOnNonResponseDtoToApplyMakeup(
                             reference);
@@ -104,11 +161,15 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         Descriptor collectionDescriptorToUse = getExistingOrCreateNewCollectionDescriptor(attribute, dto);
 
         fillCollectionIdAndUrlIfAttributeAllowsIt(reference, collectionDescriptorToUse, attribute);
+
+        for (CollectionMakeupModule module : makeupModules) {
+            module.applyToCollection(new CollectionMakeupRequest(reference, attribute, dto, collectionDescriptorToUse));
+        }
     }
 
     private void fillCollectionIdAndUrlIfAttributeAllowsIt(CollectionReference reference,
             Descriptor collectionDescriptor, Attribute attribute) {
-        if (shouldFillCollectionId(attribute)) {
+        if (reference.getId() == null && shouldFillCollectionId(attribute)) {
             reference.setId(collectionDescriptor.getExternalId());
         }
 
@@ -117,6 +178,10 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     private void fillCollectionUrl(CollectionReference reference,
                                    Descriptor collectionDescriptor) {
+        if (reference.getUrl() != null) {
+            return;
+        }
+
         String collectionExternalId = collectionDescriptor.getExternalId();
 
         String externalUrl = collectionUrls.collectionUrl(collectionExternalId);
@@ -152,6 +217,14 @@ public class CollectionMakeupImpl implements CollectionMakeup {
         return getExistingOrCreateNewCollectionDescriptorReactively(attribute, dto)
                 .doOnNext(collectionDescriptor -> fillCollectionIdAndUrlIfAttributeAllowsIt(
                         reference, collectionDescriptor, attribute))
+                .flatMap(collectionDescriptor -> applyModulesReactively(
+                        new CollectionMakeupRequest(reference, attribute, dto, collectionDescriptor)))
+                .then();
+    }
+
+    private Mono<Void> applyModulesReactively(CollectionMakeupRequest request) {
+        return Flux.fromIterable(makeupModules)
+                .flatMap(module -> module.applyToCollectionReactively(request))
                 .then();
     }
 
