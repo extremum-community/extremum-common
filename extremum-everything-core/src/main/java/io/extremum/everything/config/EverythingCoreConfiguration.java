@@ -28,10 +28,7 @@ import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import io.extremum.everything.services.*;
-import io.extremum.everything.services.collection.CollectionProviders;
-import io.extremum.everything.services.collection.DefaultEverythingCollectionService;
-import io.extremum.everything.services.collection.EverythingCollectionService;
-import io.extremum.everything.services.collection.ListBasedCollectionProviders;
+import io.extremum.everything.services.collection.*;
 import io.extremum.everything.services.defaultservices.DefaultGetter;
 import io.extremum.everything.services.defaultservices.DefaultReactiveGetter;
 import io.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
@@ -162,9 +159,10 @@ public class EverythingCoreConfiguration {
     @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
                                              ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-                                             CollectionUrls collectionUrls) {
+                                             CollectionUrls collectionUrls,
+                                             List<CollectionMakeupModule> makeupModules) {
         return new CollectionMakeupImpl(collectionDescriptorService,
-                reactiveCollectionDescriptorService, collectionUrls);
+                reactiveCollectionDescriptorService, collectionUrls, makeupModules);
     }
 
     @Bean
@@ -194,5 +192,10 @@ public class EverythingCoreConfiguration {
     ) {
         return new DefaultEverythingCollectionManagementService(
                 reactiveCollectionDescriptorService, everythingCollectionService);
+    }
+
+    @Bean
+    public FillCollectionTop fillCollectionTop(EverythingCollectionService everythingCollectionService) {
+        return new FillCollectionTop(everythingCollectionService);
     }
 }
