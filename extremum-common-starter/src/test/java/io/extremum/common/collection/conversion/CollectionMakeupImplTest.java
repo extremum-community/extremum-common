@@ -18,15 +18,20 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +43,6 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 class CollectionMakeupImplTest {
-    @InjectMocks
     private CollectionMakeupImpl collectionMakeup;
 
     @Spy
@@ -59,6 +63,12 @@ class CollectionMakeupImplTest {
     @Spy
     private CollectionUrls collectionUrls = new CollectionUrlsInRoot(new TestApplicationUrls());
 
+    @Mock
+    private CollectionMakeupModule makeupModule;
+
+    @Captor
+    private ArgumentCaptor<CollectionMakeupRequest> makeupRequestCaptor;
+
     private StreetResponseDto streetDto;
     private final Descriptor descriptorInDB = Descriptor.forCollection("external-id",
             CollectionDescriptor.forOwned(
@@ -68,7 +78,18 @@ class CollectionMakeupImplTest {
     private OuterResponseDtoWithObjectTyping outerResponseDtoWithObjectTyping;
 
     @BeforeEach
-    void setUp() {
+    void createMakeup() {
+        collectionMakeup = new CollectionMakeupImpl(collectionDescriptorService, reactiveCollectionDescriptorService,
+                collectionUrls, emptyList());
+    }
+
+    @BeforeEach
+    void initModule() {
+        lenient().when(makeupModule.applyToCollectionReactively(any())).thenReturn(Mono.empty());
+    }
+
+    @BeforeEach
+    void createDtos() {
         BuildingResponseDto building1 = new BuildingResponseDto("building1", "address1");
         BuildingResponseDto building2 = new BuildingResponseDto("building2", "address2");
         List<IdOrObject<Descriptor, BuildingResponseDto>> buildings = Arrays.asList(
@@ -282,6 +303,77 @@ class CollectionMakeupImplTest {
         assertThat(streetDto.buildings.getId(), is(notNullValue()));
     }
 
+    @Test
+    void givenAModuleIsDefined_whenApplyingCollectionMakeup_thenModuleShouldBeApplied() {
+        createMakeupWith1Module();
+
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        verify(makeupModule, atLeast(1)).applyToCollection(any());
+    }
+
+    private void createMakeupWith1Module() {
+        collectionMakeup = new CollectionMakeupImpl(collectionDescriptorService, reactiveCollectionDescriptorService,
+                collectionUrls, singletonList(makeupModule));
+    }
+
+    @Test
+    void givenAModuleIsDefined_whenApplyingCollectionMakeupReactively_thenModuleShouldBeApplied() {
+        createMakeupWith1Module();
+
+        collectionMakeup.applyCollectionMakeupReactively(streetDto).block();
+
+        //noinspection UnassignedFluxMonoInstance
+        verify(makeupModule, atLeast(1)).applyToCollectionReactively(any());
+    }
+
+    @Test
+    void givenAModuleIsDefined_whenApplyingCollectionMakeupToCollectionReference_thenModuleShouldBeApplied() {
+        // given
+        CollectionReference<Object> collection = new CollectionReference<>(new ArrayList<>());
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree("items");
+        when(reactiveCollectionDescriptorService.retrieveByCoordinatesOrCreate(collectionDescriptor))
+                .thenReturn(Mono.just(descriptorInDB));
+
+        createMakeupWith1Module();
+
+        // when
+        collectionMakeup.applyCollectionMakeupReactively(collection, collectionDescriptor).block();
+
+        // then
+        //noinspection UnassignedFluxMonoInstance
+        verify(makeupModule, atLeast(1)).applyToCollectionReactively(any());
+    }
+
+    @Test
+    void givenAModuleIsDefinedAndItFillsTopWithMoreCollectionReferences_whenApplyingCollectionMakeup_thenAllCollectionReferencesShouldBeMadeUp() {
+        // given
+        createMakeupWith1Module();
+        doAnswer(new FillTopWithOuterDtoOnFirstInvocationAndDoNothingThen())
+                .when(makeupModule).applyToCollection(any());
+
+        // when
+        collectionMakeup.applyCollectionMakeup(streetDto);
+
+        // then
+        assertThat(outerDto.innerDto.buildings.getId(), is(notNullValue()));
+    }
+
+    @Test
+    void givenAModuleIsDefinedAndItFillsTopWithMoreCollectionReferences_whenApplyingCollectionMakeupReactively_thenAllCollectionReferencesShouldBeMadeUp() {
+        // given
+        createMakeupWith1Module();
+        //noinspection UnassignedFluxMonoInstance
+        doAnswer(new FillTopWithOuterDtoOnFirstInvocationAndDoNothingThenReactively())
+                .when(makeupModule).applyToCollectionReactively(any());
+
+        // when
+        collectionMakeup.applyCollectionMakeupReactively(streetDto).block();
+
+        // then
+        assertThat(outerDto.innerDto.buildings.getId(), is(notNullValue()));
+    }
+
     private static class BuildingResponseDto extends CommonResponseDto {
         public String address;
 
@@ -382,6 +474,37 @@ class CollectionMakeupImplTest {
         @Override
         public String getModel() {
             return "Container";
+        }
+    }
+
+    private abstract class FillTopWithOuterDtoBase implements Answer {
+        private boolean first = true;
+
+        final void fillTop(InvocationOnMock invocation) {
+            if (!first) {
+                return;
+            }
+            first = false;
+            CollectionMakeupRequest request = invocation.getArgument(0);
+            request.getReference().setTop((List) singletonList(outerDto));
+        }
+    }
+
+    private class FillTopWithOuterDtoOnFirstInvocationAndDoNothingThen extends FillTopWithOuterDtoBase {
+        @Override
+        public Object answer(InvocationOnMock invocation) {
+            fillTop(invocation);
+            return null;
+        }
+    }
+
+    private class FillTopWithOuterDtoOnFirstInvocationAndDoNothingThenReactively extends FillTopWithOuterDtoBase {
+        @Override
+        public Object answer(InvocationOnMock invocation) {
+            return Mono.defer(() -> {
+                fillTop(invocation);
+                return Mono.empty();
+            });
         }
     }
 }
