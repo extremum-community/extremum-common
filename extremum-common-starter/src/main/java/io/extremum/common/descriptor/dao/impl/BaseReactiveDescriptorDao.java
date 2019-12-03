@@ -7,6 +7,11 @@ import org.redisson.api.RMapReactive;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+
 
 @Slf4j
 public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao {
@@ -73,5 +78,12 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
         }
 
         return afterPutToDescriptors;
+    }
+
+    @Override
+    public Mono<Map<String, String>> retrieveMapByInternalIds(Collection<String> internalIds) {
+        Objects.requireNonNull(internalIds, "internalIds is null");
+
+        return internalIdIndex.getAll(new HashSet<>(internalIds));
     }
 }

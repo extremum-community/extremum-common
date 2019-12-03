@@ -73,6 +73,10 @@ public class Descriptor implements Serializable {
         return this.externalId;
     }
 
+    public boolean hasExternalId() {
+        return externalId != null;
+    }
+
     public Type effectiveType() {
         if (type != null) {
             return type;
@@ -113,6 +117,10 @@ public class Descriptor implements Serializable {
             fillSingleByExternalId();
         }
         return this.internalId;
+    }
+
+    public boolean hasInternalId() {
+        return internalId != null;
     }
 
     @JsonIgnore

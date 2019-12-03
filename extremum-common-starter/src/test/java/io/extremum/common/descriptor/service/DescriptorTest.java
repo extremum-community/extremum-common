@@ -317,4 +317,40 @@ class DescriptorTest {
                 })
                 .verify();
     }
+
+    @Test
+    void givenNoExternalIdIsDefined_whenCallingHasExternalId_thenFalseShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .internalId("internal-id")
+                .build();
+
+        assertThat(descriptor.hasExternalId(), is(false));
+    }
+
+    @Test
+    void givenExternalIdIsDefined_whenCallingHasExternalId_thenFalseShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        assertThat(descriptor.hasExternalId(), is(true));
+    }
+
+    @Test
+    void givenNoInternalIdIsDefined_whenCallingHasExternalId_thenFalseShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .build();
+
+        assertThat(descriptor.hasInternalId(), is(false));
+    }
+
+    @Test
+    void givenInternalIdIsDefined_whenCallingHasExternalId_thenFalseShouldBeReturned() {
+        Descriptor descriptor = Descriptor.builder()
+                .internalId("internal-id")
+                .build();
+
+        assertThat(descriptor.hasInternalId(), is(true));
+    }
 }

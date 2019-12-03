@@ -1,4 +1,4 @@
-package io.extremum.common.limit;
+package io.extremum.common.descriptor.resolve;
 
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -20,12 +20,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReactiveResponseLimiterAspectTest {
+class ReactiveDescriptorResolvingAspectTest {
     @InjectMocks
-    private ReactiveResponseLimiterAspect aspect;
+    private ReactiveDescriptorResolvingAspect aspect;
 
     @Mock
-    private ResponseLimiter limiter;
+    private ResponseDtoDescriptorResolver resolver;
 
     private final ResponseDto responseDto = mock(ResponseDto.class);
     private final Response response = Response.ok(responseDto);
@@ -37,150 +37,156 @@ class ReactiveResponseLimiterAspectTest {
         controllerProxy = AspectWrapping.wrapInAspect(new TestController(), aspect);
     }
 
+    @BeforeEach
+    void configureMakeupToReturnEmptyMono() {
+        lenient().when(resolver.resolveExternalIdsIn(any()))
+                .thenReturn(Mono.empty());
+    }
+
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenLimitingShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         Response result = controllerProxy.returnsMonoWithResponseWithResponseDto().block();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatLimitingWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
 
     }
 
-    private void verifyThatLimitingWasApplied() {
+    private void verifyThatExternalIdResolvingWasApplied() {
         //noinspection UnassignedFluxMonoInstance
-        verify(limiter).limit(responseDto);
+        verify(resolver).resolveExternalIdsIn(responseDto);
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenLimitingShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         controllerProxy.returnsMonoWithResponseWithResponseDtoArray().block();
 
-        verifyThatLimitingWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenLimitingShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         controllerProxy.returnsMonoWithResponseWithResponseDtoList().block();
 
-        verifyThatLimitingWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsEmptyResponseMono().block();
 
         assertThat(result, is(nullValue()));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
 
     }
 
-    private void verifyThatLimitingWasNotApplied() {
+    private void verifyThatExternalIdResolvingWasNotApplied() {
         //noinspection UnassignedFluxMonoInstance
-        verify(limiter, never()).limit(responseDto);
+        verify(resolver, never()).resolveExternalIdsIn(responseDto);
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         String result = controllerProxy.returnsMonoWithString().block();
 
         assertThat(result, is("test"));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsMonoWithResponseWithString().block();
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getResult(), is("test"));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponseAndItReturnsNull_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithResponseAndItReturnsNull_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Mono<Response> result = controllerProxy.returnsNullMono();
 
         assertThat(result, is(nullValue()));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponse_whenCallingTheMethod_thenLimitingShouldBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponse_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         Response result = controllerProxy.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatLimitingWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenLimitingShouldBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         Response result = controllerProxy.returnsEmptyResponseFlux().blockLast();
 
         assertThat(result, is(nullValue()));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnTypeIsFluxWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         String result = controllerProxy.returnsFluxWithString().blockLast();
 
         assertThat(result, is("test"));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnsFluxWithResponseWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnsFluxWithResponseWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsFluxWithResponseWithString().blockLast();
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getResult(), is("test"));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponseAndItReturnsNull_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponseAndItReturnsNull_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Flux<Response> result = controllerProxy.returnsNullFlux();
 
         assertThat(result, is(nullValue()));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenLimitingShouldBeApplied() {
+    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         ServerSentEvent<ResponseDto> result = controllerProxy.returnsFluxOfServerSentEventsWithResponseDto()
                 .blockLast();
         assertThat(result, is(notNullValue()));
 
         assertThat(result.data(), is(sameInstance(responseDto)));
-        verifyThatLimitingWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
+    void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsNonPublisher();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenLimitingShouldNotBeApplied() {
+    void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenResolvingShouldNotBeApplied() {
         NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(new NotAnnotatedAsController(), aspect);
 
         Response result = notController.returnsMonoWithResponse().block();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenLimitingShouldNotBeApplied() {
+    void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenResolvingShouldNotBeApplied() {
         NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(new NotAnnotatedAsController(), aspect);
 
         Response result = notController.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatLimitingWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Controller
