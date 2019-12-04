@@ -26,8 +26,7 @@ public class BatchReactiveDescriptorResolver implements ReactiveDescriptorResolv
 
             return descriptorService.loadMapByInternalIds(unresolvedDescriptorInternalIds)
                     .flatMap(internalIdToExternalId -> {
-                        fillExternalIds(unresolvedDescriptors, internalIdToExternalId);
-                        return Mono.empty();
+                        return Mono.fromRunnable(() -> fillExternalIds(unresolvedDescriptors, internalIdToExternalId));
                     });
         });
     }
