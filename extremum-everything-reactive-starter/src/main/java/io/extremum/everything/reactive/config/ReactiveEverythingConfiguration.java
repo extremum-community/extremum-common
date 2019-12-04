@@ -6,6 +6,8 @@ import io.extremum.common.collection.service.ReactiveCollectionDescriptorExtract
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
+import io.extremum.common.limit.ReactiveResponseLimiterAspect;
+import io.extremum.common.limit.ResponseLimiter;
 import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.common.support.ReactiveCommonServices;
@@ -185,5 +187,12 @@ public class ReactiveEverythingConfiguration {
                 defaultRemover,
                 dtoConversionService, dataSecurity);
         return new RoleSecurityReactiveEverythingManagementService(service, roleSecurity);
+    }
+
+    // ToDO: restore
+//    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveResponseLimiterAspect reactiveResponseLimiterAspect(ResponseLimiter limiter) {
+        return new ReactiveResponseLimiterAspect(limiter);
     }
 }

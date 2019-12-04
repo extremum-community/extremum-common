@@ -3,7 +3,7 @@
     <parent>
         <groupId>io.extremum</groupId>
         <artifactId>extremum-module-parent</artifactId>
-        <version>1.0.15-SNAPSHOT</version>
+        <version>1.0.17-SNAPSHOT</version>
         <relativePath>../extremum-module-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -13,13 +13,6 @@
     <properties>
         <testcoverage.minimum>0.62</testcoverage.minimum>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>spring-libs-snapshot</id>
-            <url>https://repo.spring.io/libs-snapshot</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>

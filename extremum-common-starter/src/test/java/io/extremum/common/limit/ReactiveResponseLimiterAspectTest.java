@@ -1,4 +1,4 @@
-package io.extremum.common.collection.conversion;
+package io.extremum.common.limit;
 
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -17,16 +17,15 @@ import reactor.core.publisher.Mono;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReactiveResponseCollectionsMakeupAspectTest {
+class ReactiveResponseLimiterAspectTest {
     @InjectMocks
-    private ReactiveResponseCollectionsMakeupAspect aspect;
+    private ReactiveResponseLimiterAspect aspect;
 
     @Mock
-    private CollectionMakeup makeup;
+    private ResponseLimiter limiter;
 
     private final ResponseDto responseDto = mock(ResponseDto.class);
     private final Response response = Response.ok(responseDto);
@@ -38,52 +37,46 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         controllerProxy = AspectWrapping.wrapInAspect(new TestController(), aspect);
     }
 
-    @BeforeEach
-    void configureMakeupToReturnEmptyMono() {
-        lenient().when(makeup.applyCollectionMakeupReactively(any()))
-                .thenReturn(Mono.empty());
-    }
-
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenLimitingShouldBeApplied() {
         Response result = controllerProxy.returnsMonoWithResponseWithResponseDto().block();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasApplied();
+        verifyThatLimitingWasApplied();
 
     }
 
-    private void verifyThatMakeupWasApplied() {
+    private void verifyThatLimitingWasApplied() {
         //noinspection UnassignedFluxMonoInstance
-        verify(makeup).applyCollectionMakeupReactively(responseDto);
+        verify(limiter).limit(responseDto);
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenLimitingShouldBeApplied() {
         controllerProxy.returnsMonoWithResponseWithResponseDtoArray().block();
 
-        verifyThatMakeupWasApplied();
+        verifyThatLimitingWasApplied();
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenLimitingShouldBeApplied() {
         controllerProxy.returnsMonoWithResponseWithResponseDtoList().block();
 
-        verifyThatMakeupWasApplied();
+        verifyThatLimitingWasApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         Response result = controllerProxy.returnsEmptyResponseMono().block();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
 
     }
 
-    private void verifyThatMakeupWasNotApplied() {
+    private void verifyThatLimitingWasNotApplied() {
         //noinspection UnassignedFluxMonoInstance
-        verify(makeup, never()).applyCollectionMakeupReactively(responseDto);
+        verify(limiter, never()).limit(responseDto);
     }
 
     @Test
@@ -91,7 +84,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         String result = controllerProxy.returnsMonoWithString().block();
 
         assertThat(result, is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -100,7 +93,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getResult(), is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -108,23 +101,23 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         Mono<Response> result = controllerProxy.returnsNullMono();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponse_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponse_whenCallingTheMethod_thenLimitingShouldBeApplied() {
         Response result = controllerProxy.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasApplied();
+        verifyThatLimitingWasApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenLimitingShouldBeApplied() {
         Response result = controllerProxy.returnsEmptyResponseFlux().blockLast();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -132,7 +125,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         String result = controllerProxy.returnsFluxWithString().blockLast();
 
         assertThat(result, is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -141,7 +134,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getResult(), is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -149,7 +142,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         Flux<Response> result = controllerProxy.returnsNullFlux();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -159,7 +152,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         assertThat(result, is(notNullValue()));
 
         assertThat(result.data(), is(sameInstance(responseDto)));
-        verifyThatMakeupWasApplied();
+        verifyThatLimitingWasApplied();
     }
 
     @Test
@@ -167,7 +160,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         Response result = controllerProxy.returnsNonPublisher();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -177,7 +170,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         Response result = notController.returnsMonoWithResponse().block();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Test
@@ -187,7 +180,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         Response result = notController.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasNotApplied();
+        verifyThatLimitingWasNotApplied();
     }
 
     @Controller
@@ -219,7 +212,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         Mono<Response> returnsNullMono() {
             return null;
         }
-        
+
         Flux<Response> returnsFluxWithResponse() {
             return Flux.just(response);
         }

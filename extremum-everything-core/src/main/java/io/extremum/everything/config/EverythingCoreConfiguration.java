@@ -6,7 +6,6 @@ import io.extremum.common.collection.service.CollectionDescriptorService;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.limit.ResponseLimiter;
-import io.extremum.common.limit.ResponseLimiterAdvice;
 import io.extremum.common.limit.ResponseLimiterImpl;
 import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.support.ListBasedUniversalReactiveModelLoaders;
@@ -29,10 +28,7 @@ import io.extremum.everything.destroyer.EmptyFieldDestroyer;
 import io.extremum.everything.destroyer.EmptyFieldDestroyerConfig;
 import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
 import io.extremum.everything.services.*;
-import io.extremum.everything.services.collection.CollectionProviders;
-import io.extremum.everything.services.collection.DefaultEverythingCollectionService;
-import io.extremum.everything.services.collection.EverythingCollectionService;
-import io.extremum.everything.services.collection.ListBasedCollectionProviders;
+import io.extremum.everything.services.collection.*;
 import io.extremum.everything.services.defaultservices.DefaultGetter;
 import io.extremum.everything.services.defaultservices.DefaultReactiveGetter;
 import io.extremum.everything.services.management.DefaultEverythingCollectionManagementService;
@@ -163,9 +159,10 @@ public class EverythingCoreConfiguration {
     @ConditionalOnMissingBean
     public CollectionMakeup collectionMakeup(CollectionDescriptorService collectionDescriptorService,
                                              ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
-                                             CollectionUrls collectionUrls) {
+                                             CollectionUrls collectionUrls,
+                                             List<CollectionMakeupModule> makeupModules) {
         return new CollectionMakeupImpl(collectionDescriptorService,
-                reactiveCollectionDescriptorService, collectionUrls);
+                reactiveCollectionDescriptorService, collectionUrls, makeupModules);
     }
 
     @Bean
@@ -189,17 +186,16 @@ public class EverythingCoreConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ResponseLimiterAdvice responseLimiterAdvice(ResponseLimiter limiter) {
-        return new ResponseLimiterAdvice(limiter);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     public EverythingCollectionManagementService everythingCollectionManagementService(
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService,
             EverythingCollectionService everythingCollectionService
     ) {
         return new DefaultEverythingCollectionManagementService(
                 reactiveCollectionDescriptorService, everythingCollectionService);
+    }
+
+    @Bean
+    public FillCollectionTop fillCollectionTop(EverythingCollectionService everythingCollectionService) {
+        return new FillCollectionTop(everythingCollectionService);
     }
 }

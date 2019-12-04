@@ -15,6 +15,8 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
     private final RMapReactive<String, String> collectionCoordinatesToExternalIds;
     private final ReactiveMongoOperations reactiveMongoOperations;
 
+    private final DescriptorInitializations initializations = new DescriptorInitializations();
+
     BaseReactiveDescriptorDao(RMapReactive<String, Descriptor> descriptors,
                               RMapReactive<String, String> internalIdIndex,
                               RMapReactive<String, String> collectionCoordinatesToExternalIds,
@@ -44,9 +46,17 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
 
     @Override
     public Mono<Descriptor> store(Descriptor descriptor) {
-        return reactiveMongoOperations.save(descriptor)
-                .flatMap(savedDescriptor -> putToMaps(savedDescriptor)
-                        .thenReturn(savedDescriptor));
+        initializations.fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(descriptor);
+
+        boolean initializeVersionManually = initializations.shouldInitializeVersionManually(descriptor);
+
+        initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptor, initializeVersionManually);
+
+        return putToMaps(descriptor)
+                .then(Mono.defer(() -> {
+                    initializations.removeVersionIfItWasSetManually(descriptor, initializeVersionManually);
+                    return reactiveMongoOperations.save(descriptor);
+                }));
     }
 
     private Mono<Void> putToMaps(Descriptor descriptor) {

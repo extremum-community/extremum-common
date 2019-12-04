@@ -3,9 +3,10 @@ package io.extremum.sharedmodels.fundamental;
 import io.extremum.sharedmodels.annotation.DocumentationName;
 import lombok.Getter;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.Collections.emptyList;
 
 /**
  * @author rpuch
@@ -16,15 +17,23 @@ public class CollectionReference<T> {
     private String id;
 
     private String url;
-    private final Long count;
+    private Long count;
     private List<T> top;
 
     public static <T> CollectionReference<T> forUnknownTotalSize(List<T> top) {
         return new CollectionReference<>(top, null);
     }
 
+    public static <T> CollectionReference<T> uninitialized() {
+        return new CollectionReference<>(null, null);
+    }
+
+    public static <T> CollectionReference<T> withTotal(long total) {
+        return new CollectionReference<>(null, (Long) total);
+    }
+
     public CollectionReference() {
-        this(Collections.emptyList());
+        this(emptyList());
     }
 
     public CollectionReference(List<T> list) {
@@ -32,12 +41,10 @@ public class CollectionReference<T> {
     }
 
     public CollectionReference(List<T> top, long total) {
-        this(top, (Long) total);
+        this(Objects.requireNonNull(top, "top cannot be null"), (Long) total);
     }
 
     private CollectionReference(List<T> top, Long total) {
-        Objects.requireNonNull(top, "top cannot be null");
-
         this.count = total;
         this.top = top;
     }
@@ -53,5 +60,9 @@ public class CollectionReference<T> {
     public void setTop(List<T> top) {
         Objects.requireNonNull(top, "top cannot be null");
         this.top = top;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
     }
 }

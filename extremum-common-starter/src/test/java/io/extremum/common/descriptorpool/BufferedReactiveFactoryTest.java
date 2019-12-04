@@ -1,5 +1,6 @@
 package io.extremum.common.descriptorpool;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,11 +118,7 @@ class BufferedReactiveFactoryTest {
     @NotNull
     private Allocator<String> slowAllocator() {
         return quantityToAllocate -> {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
             return IntStream.range(0, quantityToAllocate)
                     .mapToObj(Integer::toString)
                     .collect(Collectors.toList());
@@ -217,7 +214,9 @@ class BufferedReactiveFactoryTest {
         List<String> leftover = synchronizedList(new ArrayList<>());
         factory.shutdownAndDestroyLeftovers(1, TimeUnit.SECONDS, leftover::addAll);
 
-        assertThat(leftover, is(equalTo(Arrays.asList("two", "three"))));
+        assertThat(leftover,
+                either(equalTo(Arrays.asList("two", "three")))
+                        .or(equalTo(Arrays.asList("one", "two", "three"))));
     }
 
     private void takeAllFromFastBatch() {
@@ -236,11 +235,7 @@ class BufferedReactiveFactoryTest {
         @Override
         public List<String> allocate(int quantityToAllocate) {
             if (allocatedAnything) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
             }
             allocatedAnything = true;
             return Arrays.asList("one", "two", "three");

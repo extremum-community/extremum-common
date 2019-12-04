@@ -2,7 +2,6 @@ package io.extremum.common.descriptor.dao.impl;
 
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -15,14 +14,14 @@ import static java.util.stream.Collectors.toMap;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
-@Slf4j
 public abstract class BaseDescriptorDao implements DescriptorDao {
     private final DescriptorRepository descriptorRepository;
     private final MongoOperations descriptorMongoOperations;
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
     private final RMap<String, String> collectionCoordinatesToExternalIds;
-    private static final int RETRY_ATTEMPTS = 3;
+
+    private final DescriptorInitializations initializations = new DescriptorInitializations();
 
     BaseDescriptorDao(DescriptorRepository descriptorRepository, MongoOperations descriptorMongoOperations,
             RMap<String, Descriptor> descriptors,
@@ -68,30 +67,15 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public Descriptor store(Descriptor descriptor) {
-        Optional<Descriptor> optionalDesc = descriptorRepository.findByExternalId(descriptor.getExternalId());
+        initializations.fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(descriptor);
 
-        descriptorRepository.save(descriptor);
+        boolean initializeVersionManually = initializations.shouldInitializeVersionManually(descriptor);
 
-        if (optionalDesc.isPresent()) {
-            try {
-                putToMaps(descriptor);
-            } catch (RuntimeException e) {
-                Descriptor oldDescriptor = optionalDesc.get();
-                for (int i = 1; i <= RETRY_ATTEMPTS; i++) {
-                    try {
-                        descriptorRepository.save(oldDescriptor);
-                        break;
-                    } catch (Exception ex) {
-                        if (i == 3) {
-                            log.error("Failed reset to old state descriptor with external id: {}", oldDescriptor.getExternalId());
-                        }
-                    }
-                }
-            }
-        } else {
-            putToMaps(descriptor);
-        }
-        return descriptor;
+        initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptor, initializeVersionManually);
+        putToMaps(descriptor);
+
+        initializations.removeVersionIfItWasSetManually(descriptor, initializeVersionManually);
+        return descriptorMongoOperations.save(descriptor);
     }
 
     private void putToMaps(Descriptor descriptor) {
@@ -107,8 +91,25 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
-        List<Descriptor> savedDescriptors = descriptorRepository.saveAll(descriptorsToSave);
+        descriptorsToSave.forEach(initializations::fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis);
 
+        Boolean[] initializeVersionManually = descriptorsToSave.stream()
+                .map(initializations::shouldInitializeVersionManually)
+                .toArray(Boolean[]::new);
+
+        for (int i = 0; i < descriptorsToSave.size(); i++) {
+            initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptorsToSave.get(i),
+                    initializeVersionManually[i]);
+        }
+        putManyToMaps(descriptorsToSave);
+
+        for (int i = 0; i < descriptorsToSave.size(); i++) {
+            initializations.removeVersionIfItWasSetManually(descriptorsToSave.get(i), initializeVersionManually[i]);
+        }
+        return descriptorRepository.saveAll(descriptorsToSave);
+    }
+
+    private void putManyToMaps(List<Descriptor> descriptorsToSave) {
         Map<String, Descriptor> mapByExternalId = descriptorsToSave.stream()
                 .collect(toMap(Descriptor::getExternalId, identity()));
         descriptors.putAll(mapByExternalId);
@@ -123,8 +124,6 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 .collect(toMap(descriptor ->
                         descriptor.getCollection().toCoordinatesString(), Descriptor::getExternalId));
         collectionCoordinatesToExternalIds.putAll(mapByCollectionCoordinates);
-
-        return savedDescriptors;
     }
 
     @Override
