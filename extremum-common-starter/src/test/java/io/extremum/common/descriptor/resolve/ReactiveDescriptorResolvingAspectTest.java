@@ -38,7 +38,7 @@ class ReactiveDescriptorResolvingAspectTest {
     }
 
     @BeforeEach
-    void configureMakeupToReturnEmptyMono() {
+    void configureResolverToReturnEmptyMono() {
         lenient().when(resolver.resolveExternalIdsIn(any()))
                 .thenReturn(Mono.empty());
     }

@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
  * @author rpuch
  */
 @Aspect
-@Order(10) // must be BEFORE ReactiveResponseCollectionsMakeupAspect so that limiting happen AFTER makeup
+@Order(20) // must be BEFORE ReactiveResponseCollectionsMakeupAspect so that limiting happen AFTER makeup
 @RequiredArgsConstructor
 public class ReactiveResponseLimiterAspect extends ReactiveResponseDtoHandlingAspect {
     private final ResponseLimiter limiter;
