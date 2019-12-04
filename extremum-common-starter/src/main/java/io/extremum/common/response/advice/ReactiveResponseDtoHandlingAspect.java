@@ -5,7 +5,6 @@ import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 /**
  * @author rpuch
  */
-@Aspect
 public abstract class ReactiveResponseDtoHandlingAspect {
     protected abstract Mono<?> applyToResponseDto(ResponseDto responseDto);
 
@@ -96,14 +94,14 @@ public abstract class ReactiveResponseDtoHandlingAspect {
     @Pointcut("" +
             "within(@org.springframework.stereotype.Controller *) || " +
             "within(@(@org.springframework.stereotype.Controller *) *)")
-    private void isController() {
+    protected void isController() {
     }
 
     @Pointcut("execution(reactor.core.publisher.Mono *..*.*(..))")
-    private void returnsMono() {
+    protected void returnsMono() {
     }
 
     @Pointcut("execution(reactor.core.publisher.Flux *..*.*(..))")
-    private void returnsFlux() {
+    protected void returnsFlux() {
     }
 }
