@@ -1,4 +1,4 @@
-package io.extremum.common.collection.conversion;
+package io.extremum.common.limit;
 
 import io.extremum.common.response.advice.ReactiveResponseDtoHandlingAspect;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -9,11 +9,14 @@ import reactor.core.publisher.Mono;
  * @author rpuch
  */
 @RequiredArgsConstructor
-public class ReactiveResponseCollectionsMakeupAspect extends ReactiveResponseDtoHandlingAspect {
-    private final CollectionMakeup makeup;
+public class ReactiveResponseLimiterAspect extends ReactiveResponseDtoHandlingAspect {
+    private final ResponseLimiter limiter;
 
     @Override
     protected Mono<?> applyToResponseDto(ResponseDto responseDto) {
-        return makeup.applyCollectionMakeupReactively(responseDto);
+        return Mono.fromCallable(() -> {
+            limiter.limit(responseDto);
+            return Mono.empty();
+        });
     }
 }

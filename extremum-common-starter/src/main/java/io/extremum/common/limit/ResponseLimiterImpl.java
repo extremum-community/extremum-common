@@ -27,12 +27,12 @@ public class ResponseLimiterImpl implements ResponseLimiter {
         collectionVisitDriver.visitCollectionsInResponseDto(responseDto);
     }
 
-    private void limitCollectionTop(CollectionReference reference, Attribute attribute, ResponseDto dto) {
+    private void limitCollectionTop(CollectionReference<?> reference, Attribute attribute, ResponseDto dto) {
         int topCollectionLimit = capTopLimitBasedOnBudget(reference);
         applyLimitToCollection(reference, topCollectionLimit);
     }
 
-    private int capTopLimitBasedOnBudget(CollectionReference reference) {
+    private int capTopLimitBasedOnBudget(CollectionReference<?> reference) {
         int elementsThatFit = 0;
         long accumulatedElementsSize = 0;
 
@@ -63,8 +63,11 @@ public class ResponseLimiterImpl implements ResponseLimiter {
         return serializedForm.length;
     }
 
-    private void applyLimitToCollection(CollectionReference<Object> collectionReference, int topCollectionLimit) {
-        List<Object> cappedTop = collectionReference.getTop().subList(0, topCollectionLimit);
-        collectionReference.setTop(cappedTop);
+    private void applyLimitToCollection(CollectionReference<?> collectionReference, int topCollectionLimit) {
+        @SuppressWarnings("unchecked")
+        CollectionReference<Object> castReference = (CollectionReference<Object>) collectionReference;
+
+        List<Object> cappedTop = castReference.getTop().subList(0, topCollectionLimit);
+        castReference.setTop(cappedTop);
     }
 }

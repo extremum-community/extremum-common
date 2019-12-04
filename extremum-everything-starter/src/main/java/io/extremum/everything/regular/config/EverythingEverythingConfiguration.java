@@ -5,18 +5,20 @@ import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
+import io.extremum.common.limit.ResponseLimiter;
+import io.extremum.common.limit.ResponseLimiterAdvice;
 import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ModelClasses;
 import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.everything.config.EverythingCoreConfiguration;
 import io.extremum.everything.controllers.EverythingEverythingRestController;
 import io.extremum.everything.destroyer.EmptyFieldDestroyer;
+import io.extremum.everything.regular.controller.DefaultEverythingEverythingRestController;
 import io.extremum.everything.services.RemovalService;
 import io.extremum.everything.services.RequestDtoValidator;
 import io.extremum.everything.services.SaverService;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.services.management.*;
-import io.extremum.everything.regular.controller.DefaultEverythingEverythingRestController;
 import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
 import io.extremum.security.*;
@@ -164,5 +166,11 @@ public class EverythingEverythingConfiguration {
                 defaultRemover,
                 dtoConversionService, dataSecurity);
         return new RoleSecurityEverythingEverythingManagementService(service, roleSecurity);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ResponseLimiterAdvice responseLimiterAdvice(ResponseLimiter limiter) {
+        return new ResponseLimiterAdvice(limiter);
     }
 }
