@@ -189,8 +189,7 @@ public class ReactiveEverythingConfiguration {
         return new RoleSecurityReactiveEverythingManagementService(service, roleSecurity);
     }
 
-    // ToDO: restore
-//    @Bean
+    @Bean
     @ConditionalOnMissingBean
     public ReactiveResponseLimiterAspect reactiveResponseLimiterAspect(ResponseLimiter limiter) {
         return new ReactiveResponseLimiterAspect(limiter);
