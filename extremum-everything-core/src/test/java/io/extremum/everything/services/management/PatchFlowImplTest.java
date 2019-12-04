@@ -1,24 +1,5 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.common.dto.converters.ConversionConfig;
-import io.extremum.common.dto.converters.FromRequestDtoConverter;
-import io.extremum.common.dto.converters.StubDtoConverter;
-import io.extremum.common.dto.converters.ToRequestDtoConverter;
-import io.extremum.common.dto.converters.services.DefaultDtoConversionService;
-import io.extremum.common.dto.converters.services.DtoConversionService;
-import io.extremum.common.dto.converters.services.DtoConvertersCollection;
-import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.sharedmodels.basic.Model;
-import io.extremum.mongo.model.MongoCommonModel;
-import io.extremum.common.model.annotation.ModelName;
-import io.extremum.everything.destroyer.EmptyFieldDestroyer;
-import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
-import io.extremum.security.AllowEverythingForDataAccess;
-import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.security.DataSecurity;
-import io.extremum.everything.services.RequestDtoValidator;
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.dto.RequestDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -27,6 +8,25 @@ import com.github.fge.jackson.jsonpointer.JsonPointerException;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.ReplaceOperation;
+import io.extremum.common.dto.converters.ConversionConfig;
+import io.extremum.common.dto.converters.FromRequestDtoConverter;
+import io.extremum.common.dto.converters.StubDtoConverter;
+import io.extremum.common.dto.converters.ToRequestDtoConverter;
+import io.extremum.common.dto.converters.services.DefaultDtoConversionService;
+import io.extremum.common.dto.converters.services.DtoConversionService;
+import io.extremum.common.dto.converters.services.DtoConvertersCollection;
+import io.extremum.common.mapper.SystemJsonObjectMapper;
+import io.extremum.common.model.annotation.ModelName;
+import io.extremum.everything.destroyer.EmptyFieldDestroyer;
+import io.extremum.everything.destroyer.PublicEmptyFieldDestroyer;
+import io.extremum.everything.services.RequestDtoValidator;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.security.AllowEverythingForDataAccess;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.ExtremumAccessDeniedException;
+import io.extremum.sharedmodels.basic.Model;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.test.core.MockedMapperDependencies;
 import lombok.Getter;
 import lombok.ToString;
@@ -43,13 +43,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -177,7 +174,7 @@ class PatchFlowImplTest {
 
         patchFlow.patch(descriptor, anyPatch());
 
-        verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
+        verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any(), any());
         verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
         verify(patcherHooksCollection).afterSave(eq(TestModel.MODEL_NAME), any());
     }

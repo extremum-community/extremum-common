@@ -1,11 +1,11 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.mongo.model.MongoCommonModel;
+import com.google.common.collect.ImmutableList;
 import io.extremum.common.model.annotation.ModelName;
 import io.extremum.everything.services.PatchPersistenceContext;
 import io.extremum.everything.services.PatcherHooksService;
+import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.sharedmodels.dto.RequestDto;
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,18 +39,24 @@ class PatcherHooksCollectionTest {
 
     @Test
     void givenHooksExist_whenCallingAfterPatchAppliedToDto_thenOnlyApplicableHooksShouldBeCalled() {
-        collection.afterPatchAppliedToDto("AModel", requestDto);
+        AModel aModel = new AModel();
+        BModel bModel = new BModel();
 
-        verify(aModelHooksService).afterPatchAppliedToDto(requestDto);
-        verify(bModelHooksService, never()).afterPatchAppliedToDto(requestDto);
+        collection.afterPatchAppliedToDto("AModel", aModel, requestDto);
+
+        verify(aModelHooksService).afterPatchAppliedToDto(aModel, requestDto);
+        verify(bModelHooksService, never()).afterPatchAppliedToDto(bModel, requestDto);
     }
 
     @Test
     void givenNoHooksExist_whenCallingAfterPatchAppliedToDto_thenNoHooksShouldBeCalled() {
-        collection.afterPatchAppliedToDto("WithoutHooks", requestDto);
+        AModel aModel = new AModel();
+        BModel bModel = new BModel();
 
-        verify(aModelHooksService, never()).afterPatchAppliedToDto(requestDto);
-        verify(bModelHooksService, never()).afterPatchAppliedToDto(requestDto);
+        collection.afterPatchAppliedToDto("WithoutHooks", aModel, requestDto);
+
+        verify(aModelHooksService, never()).afterPatchAppliedToDto(aModel, requestDto);
+        verify(bModelHooksService, never()).afterPatchAppliedToDto(bModel, requestDto);
     }
 
     @Test
@@ -71,7 +77,7 @@ class PatcherHooksCollectionTest {
         collection.beforeSave("WithoutHooks", context);
 
         verify(aModelHooksService, never()).beforeSave(any());
-        verify(bModelHooksService, never()).afterPatchAppliedToDto(any());
+        verify(bModelHooksService, never()).afterPatchAppliedToDto(any(), any());
     }
 
     @Test
@@ -92,7 +98,7 @@ class PatcherHooksCollectionTest {
         collection.afterSave("WithoutHooks", context);
 
         verify(aModelHooksService, never()).afterSave(any());
-        verify(bModelHooksService, never()).afterPatchAppliedToDto(any());
+        verify(bModelHooksService, never()).afterPatchAppliedToDto(any(), any());
     }
 
     @ModelName("AModel")
