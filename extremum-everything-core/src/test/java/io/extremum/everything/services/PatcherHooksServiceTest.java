@@ -18,7 +18,13 @@ class PatcherHooksServiceTest {
         RequestDto dto = mock(RequestDto.class);
         PatcherHooksService<Model, RequestDto> hooksService = new DefaultHooksService();
 
-        RequestDto newDto = hooksService.afterPatchAppliedToDto(dto);
+        Model model = new Model() {
+            @Override
+            public void copyServiceFieldsTo(Model to) {
+            }
+        };
+
+        RequestDto newDto = hooksService.afterPatchAppliedToDto(model, dto);
 
         assertThat(newDto, is(sameInstance(dto)));
     }
