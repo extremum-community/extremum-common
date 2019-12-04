@@ -64,7 +64,7 @@ class ResponseLimiterImplTest {
     }
 
     @Test
-    void test() {
+    void givenEveryCollectionElementExceedsTheLimit_whenLimiting_thenOneElementShouldBeStillRetained() {
         List<TestResponseDto> dtos = Stream.of(1, 2)
                 .map(n -> nestedDtoWithTopOfSize3k())
                 .collect(Collectors.toList());
