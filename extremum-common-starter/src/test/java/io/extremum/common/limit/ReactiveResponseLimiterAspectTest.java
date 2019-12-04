@@ -1,5 +1,7 @@
 package io.extremum.common.limit;
 
+import io.extremum.common.response.advice.NotAnnotatedAsController;
+import io.extremum.common.response.advice.TestController;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.test.aop.AspectWrapping;
@@ -10,11 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,7 +34,7 @@ class ReactiveResponseLimiterAspectTest {
 
     @BeforeEach
     void prepareProxy() {
-        controllerProxy = AspectWrapping.wrapInAspect(new TestController(), aspect);
+        controllerProxy = AspectWrapping.wrapInAspect(new TestController(responseDto, response), aspect);
     }
 
     @Test
@@ -80,7 +80,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnTypeIsMonoWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         String result = controllerProxy.returnsMonoWithString().block();
 
         assertThat(result, is("test"));
@@ -88,7 +88,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnsMonoWithResponseWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         Response result = controllerProxy.returnsMonoWithResponseWithString().block();
 
         assertThat(result, is(notNullValue()));
@@ -97,7 +97,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponseAndItReturnsNull_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithResponseAndItReturnsNull_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         Mono<Response> result = controllerProxy.returnsNullMono();
 
         assertThat(result, is(nullValue()));
@@ -121,7 +121,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnTypeIsFluxWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         String result = controllerProxy.returnsFluxWithString().blockLast();
 
         assertThat(result, is("test"));
@@ -129,7 +129,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnsFluxWithResponseWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnsFluxWithResponseWithString_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         Response result = controllerProxy.returnsFluxWithResponseWithString().blockLast();
 
         assertThat(result, is(notNullValue()));
@@ -138,7 +138,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponseAndItReturnsNull_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponseAndItReturnsNull_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         Flux<Response> result = controllerProxy.returnsNullFlux();
 
         assertThat(result, is(nullValue()));
@@ -146,7 +146,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenLimitingShouldBeApplied() {
         ServerSentEvent<ResponseDto> result = controllerProxy.returnsFluxOfServerSentEventsWithResponseDto()
                 .blockLast();
         assertThat(result, is(notNullValue()));
@@ -156,7 +156,7 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenLimitingShouldNotBeApplied() {
         Response result = controllerProxy.returnsNonPublisher();
 
         assertThat(result, is(sameInstance(response)));
@@ -164,8 +164,9 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenMakeupIsNotApplied() {
-        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(new NotAnnotatedAsController(), aspect);
+    void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenLimitingShouldNotBeApplied() {
+        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(
+                new NotAnnotatedAsController(response), aspect);
 
         Response result = notController.returnsMonoWithResponse().block();
 
@@ -174,85 +175,13 @@ class ReactiveResponseLimiterAspectTest {
     }
 
     @Test
-    void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenMakeupIsNotApplied() {
-        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(new NotAnnotatedAsController(), aspect);
+    void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenLimitingShouldNotBeApplied() {
+        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(
+                new NotAnnotatedAsController(response), aspect);
 
         Response result = notController.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
         verifyThatLimitingWasNotApplied();
-    }
-
-    @Controller
-    private class TestController {
-        Mono<Response> returnsMonoWithResponseWithResponseDto() {
-            return Mono.just(response);
-        }
-
-        Mono<Response> returnsMonoWithResponseWithResponseDtoArray() {
-            return Mono.just(Response.ok(new ResponseDto[]{responseDto}));
-        }
-
-        Mono<Response> returnsMonoWithResponseWithResponseDtoList() {
-            return Mono.just(Response.ok(singletonList(responseDto)));
-        }
-
-        Mono<Response> returnsEmptyResponseMono() {
-            return Mono.empty();
-        }
-
-        Mono<String> returnsMonoWithString() {
-            return Mono.just("test");
-        }
-
-        Mono<Response> returnsMonoWithResponseWithString() {
-            return Mono.just(Response.ok("test"));
-        }
-
-        Mono<Response> returnsNullMono() {
-            return null;
-        }
-
-        Flux<Response> returnsFluxWithResponse() {
-            return Flux.just(response);
-        }
-
-        Flux<Response> returnsEmptyResponseFlux() {
-            return Flux.empty();
-        }
-
-        Flux<String> returnsFluxWithString() {
-            return Flux.just("test");
-        }
-
-        Flux<Response> returnsFluxWithResponseWithString() {
-            return Flux.just(Response.ok("test"));
-        }
-
-        Flux<Response> returnsNullFlux() {
-            return null;
-        }
-
-        Flux<ServerSentEvent<ResponseDto>> returnsFluxOfServerSentEventsWithResponseDto() {
-            return Flux.just(
-                    ServerSentEvent.<ResponseDto>builder()
-                            .data(responseDto)
-                            .build()
-            );
-        }
-
-        Response returnsNonPublisher() {
-            return response;
-        }
-    }
-
-    private class NotAnnotatedAsController {
-        Mono<Response> returnsMonoWithResponse() {
-            return Mono.just(response);
-        }
-
-        Flux<Response> returnsFluxWithResponse() {
-            return Flux.just(response);
-        }
     }
 }

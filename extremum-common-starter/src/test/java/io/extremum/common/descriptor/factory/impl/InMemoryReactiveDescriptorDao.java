@@ -4,6 +4,7 @@ import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,11 @@ public class InMemoryReactiveDescriptorDao implements ReactiveDescriptorDao {
     @Override
     public Mono<Descriptor> retrieveByCollectionCoordinates(String collectionCoordinates) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Mono<Map<String, String>> retrieveMapByInternalIds(Collection<String> internalIds) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

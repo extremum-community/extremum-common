@@ -56,7 +56,7 @@ public class CollectionVisitDriver {
             return;
         }
 
-        CollectionReference reference = (CollectionReference) attribute.value();
+        CollectionReference<?> reference = (CollectionReference<?>) attribute.value();
 
         collectionVisitor.visit(reference, attribute, dto);
     }

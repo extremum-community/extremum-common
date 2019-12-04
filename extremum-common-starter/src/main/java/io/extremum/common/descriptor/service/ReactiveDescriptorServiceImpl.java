@@ -6,6 +6,8 @@ import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -38,5 +40,10 @@ public class ReactiveDescriptorServiceImpl implements ReactiveDescriptorService 
         Objects.requireNonNull(internalId, "internalId is null");
 
         return reactiveDescriptorDao.retrieveByInternalId(internalId);
+    }
+
+    @Override
+    public Mono<Map<String, String>> loadMapByInternalIds(Collection<String> internalIds) {
+        return reactiveDescriptorDao.retrieveMapByInternalIds(internalIds);
     }
 }

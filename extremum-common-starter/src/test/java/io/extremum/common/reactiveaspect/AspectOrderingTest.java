@@ -2,6 +2,8 @@ package io.extremum.common.reactiveaspect;
 
 import io.extremum.common.collection.conversion.CollectionMakeup;
 import io.extremum.common.collection.conversion.ReactiveResponseCollectionsMakeupAspect;
+import io.extremum.common.descriptor.resolve.ReactiveDescriptorResolvingAspect;
+import io.extremum.common.descriptor.resolve.ResponseDtoDescriptorResolver;
 import io.extremum.common.limit.ReactiveResponseLimiterAspect;
 import io.extremum.common.limit.ResponseLimiter;
 import io.extremum.sharedmodels.dto.Response;
@@ -21,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AspectCompositionTest {
+class AspectOrderingTest {
     @InjectMocks
     private ReactiveResponseCollectionsMakeupAspect applyMakeupAspect;
     @Mock
@@ -32,6 +34,11 @@ class AspectCompositionTest {
     @Mock
     private ResponseLimiter limiter;
 
+    @InjectMocks
+    private ReactiveDescriptorResolvingAspect descriptorResolvingAspect;
+    @Mock
+    private ResponseDtoDescriptorResolver descriptorResolver;
+
     private final ResponseDto responseDto = mock(ResponseDto.class);
     private final Response response = Response.ok(responseDto);
 
@@ -39,12 +46,19 @@ class AspectCompositionTest {
 
     @BeforeEach
     void prepareProxy() {
-        controllerProxy = AspectWrapping.wrapInAspects(new TestController(), applyMakeupAspect, limiterAspect);
+        controllerProxy = AspectWrapping.wrapInAspects(new TestController(),
+                applyMakeupAspect, limiterAspect, descriptorResolvingAspect);
     }
 
     @BeforeEach
     void configureMakeupToReturnEmptyMono() {
         lenient().when(makeup.applyCollectionMakeupReactively(any()))
+                .thenReturn(Mono.empty());
+    }
+
+    @BeforeEach
+    void configureDescriptorResolverToReturnEmptyMono() {
+        lenient().when(descriptorResolver.resolveExternalIdsIn(any()))
                 .thenReturn(Mono.empty());
     }
 
@@ -56,6 +70,17 @@ class AspectCompositionTest {
 
         inOrder.verify(makeup).applyCollectionMakeupReactively(responseDto);
         inOrder.verify(limiter).limit(responseDto);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    void limitingShouldBeRunBeforeResolvingExternalId() {
+        controllerProxy.returnsMonoWithResponseWithResponseDto().block();
+
+        InOrder inOrder = inOrder(limiter, descriptorResolver);
+
+        inOrder.verify(limiter).limit(responseDto);
+        inOrder.verify(descriptorResolver).resolveExternalIdsIn(responseDto);
         inOrder.verifyNoMoreInteractions();
     }
 

@@ -11,6 +11,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -85,5 +89,17 @@ class ReactiveDescriptorServiceImplTest {
                 .storageType(Descriptor.StorageType.MONGO)
                 .readiness(Descriptor.Readiness.BLANK)
                 .build();
+    }
+
+    @Test
+    void whenLoadingDescriptorsByInternalIds_thenThenShouldBeLoadedFromDao() {
+        when(reactiveDescriptorDao.retrieveMapByInternalIds(singletonList("internal-id")))
+                .thenReturn(Mono.just(singletonMap("internal-id", "external-id")));
+
+        Mono<Map<String, String>> mono = reactiveDescriptorService.loadMapByInternalIds(singletonList("internal-id"));
+
+        StepVerifier.create(mono)
+                .expectNext(singletonMap("internal-id", "external-id"))
+                .verifyComplete();
     }
 }

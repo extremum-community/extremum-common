@@ -7,6 +7,8 @@ import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
@@ -39,6 +41,11 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
     @Override
     public Mono<Descriptor> loadByInternalId(String internalId) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Mono<Map<String, String>> loadMapByInternalIds(Collection<String> internalIds) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public Stream<Descriptor> descriptors() {

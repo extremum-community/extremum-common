@@ -1,4 +1,4 @@
-package io.extremum.common.collection.conversion;
+package io.extremum.common.descriptor.resolve;
 
 import io.extremum.common.response.advice.NotAnnotatedAsController;
 import io.extremum.common.response.advice.TestController;
@@ -17,16 +17,16 @@ import reactor.core.publisher.Mono;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReactiveResponseCollectionsMakeupAspectTest {
+class ReactiveDescriptorResolvingAspectTest {
     @InjectMocks
-    private ReactiveResponseCollectionsMakeupAspect aspect;
+    private ReactiveDescriptorResolvingAspect aspect;
 
     @Mock
-    private CollectionMakeup makeup;
+    private ResponseDtoDescriptorResolver resolver;
 
     private final ResponseDto responseDto = mock(ResponseDto.class);
     private final Response response = Response.ok(responseDto);
@@ -39,157 +39,156 @@ class ReactiveResponseCollectionsMakeupAspectTest {
     }
 
     @BeforeEach
-    void configureMakeupToReturnEmptyMono() {
-        lenient().when(makeup.applyCollectionMakeupReactively(any()))
+    void configureResolverToReturnEmptyMono() {
+        lenient().when(resolver.resolveExternalIdsIn(any()))
                 .thenReturn(Mono.empty());
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDto_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         Response result = controllerProxy.returnsMonoWithResponseWithResponseDto().block();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
 
     }
 
-    private void verifyThatMakeupWasApplied() {
+    private void verifyThatExternalIdResolvingWasApplied() {
         //noinspection UnassignedFluxMonoInstance
-        verify(makeup).applyCollectionMakeupReactively(responseDto);
+        verify(resolver).resolveExternalIdsIn(responseDto);
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDtoArray_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         controllerProxy.returnsMonoWithResponseWithResponseDtoArray().block();
 
-        verifyThatMakeupWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsMonoWithResponseWithResponseDtoList_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         controllerProxy.returnsMonoWithResponseWithResponseDtoList().block();
 
-        verifyThatMakeupWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsEmptyResponseMono().block();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
 
     }
 
-    private void verifyThatMakeupWasNotApplied() {
+    private void verifyThatExternalIdResolvingWasNotApplied() {
         //noinspection UnassignedFluxMonoInstance
-        verify(makeup, never()).applyCollectionMakeupReactively(responseDto);
+        verify(resolver, never()).resolveExternalIdsIn(responseDto);
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnTypeIsMonoWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         String result = controllerProxy.returnsMonoWithString().block();
 
         assertThat(result, is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnsMonoWithResponseWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnsMonoWithResponseWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsMonoWithResponseWithString().block();
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getResult(), is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsMonoWithResponseAndItReturnsNull_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnTypeIsMonoWithResponseAndItReturnsNull_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Mono<Response> result = controllerProxy.returnsNullMono();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponse_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponse_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         Response result = controllerProxy.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponseAndMethodReturnsEmpty_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         Response result = controllerProxy.returnsEmptyResponseFlux().blockLast();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnTypeIsFluxWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         String result = controllerProxy.returnsFluxWithString().blockLast();
 
         assertThat(result, is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnsFluxWithResponseWithString_whenCallingTheMethod_thenCollectionMakeupShouldBeNotApplied() {
+    void givenMethodReturnsFluxWithResponseWithString_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsFluxWithResponseWithString().blockLast();
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getResult(), is("test"));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnTypeIsFluxWithResponseAndItReturnsNull_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnTypeIsFluxWithResponseAndItReturnsNull_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Flux<Response> result = controllerProxy.returnsNullFlux();
 
         assertThat(result, is(nullValue()));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenCollectionMakeupShouldBeApplied() {
+    void givenMethodReturnsFluxOfServerSentEventsWithResponseDto_whenCallingTheMethod_thenResolvingShouldBeApplied() {
         ServerSentEvent<ResponseDto> result = controllerProxy.returnsFluxOfServerSentEventsWithResponseDto()
                 .blockLast();
         assertThat(result, is(notNullValue()));
 
         assertThat(result.data(), is(sameInstance(responseDto)));
-        verifyThatMakeupWasApplied();
+        verifyThatExternalIdResolvingWasApplied();
     }
 
     @Test
-    void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenCollectionMakeupShouldNotBeApplied() {
+    void givenMethodReturnsNonPublisher_whenCallingTheMethod_thenResolvingShouldNotBeApplied() {
         Response result = controllerProxy.returnsNonPublisher();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenMakeupIsNotApplied() {
+    void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenResolvingShouldNotBeApplied() {
         NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(
                 new NotAnnotatedAsController(response), aspect);
 
         Response result = notController.returnsMonoWithResponse().block();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
 
     @Test
-    void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenMakeupIsNotApplied() {
+    void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenResolvingShouldNotBeApplied() {
         NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(
                 new NotAnnotatedAsController(response), aspect);
 
         Response result = notController.returnsFluxWithResponse().blockLast();
 
         assertThat(result, is(sameInstance(response)));
-        verifyThatMakeupWasNotApplied();
+        verifyThatExternalIdResolvingWasNotApplied();
     }
-
 }
