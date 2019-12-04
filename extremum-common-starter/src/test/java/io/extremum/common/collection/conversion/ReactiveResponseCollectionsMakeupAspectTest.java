@@ -1,5 +1,7 @@
 package io.extremum.common.collection.conversion;
 
+import io.extremum.common.response.advice.NotAnnotatedAsController;
+import io.extremum.common.response.advice.TestController;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.test.aop.AspectWrapping;
@@ -10,11 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +35,7 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
     @BeforeEach
     void prepareProxy() {
-        controllerProxy = AspectWrapping.wrapInAspect(new TestController(), aspect);
+        controllerProxy = AspectWrapping.wrapInAspect(new TestController(responseDto, response), aspect);
     }
 
     @BeforeEach
@@ -172,7 +172,8 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
     @Test
     void givenTargetIsNotAController_whenInvokingAMonoMethodReturningAResponse_thenMakeupIsNotApplied() {
-        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(new NotAnnotatedAsController(), aspect);
+        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(
+                new NotAnnotatedAsController(response), aspect);
 
         Response result = notController.returnsMonoWithResponse().block();
 
@@ -182,7 +183,8 @@ class ReactiveResponseCollectionsMakeupAspectTest {
 
     @Test
     void givenTargetIsNotAController_whenInvokingAFluxMethodReturningAResponse_thenMakeupIsNotApplied() {
-        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(new NotAnnotatedAsController(), aspect);
+        NotAnnotatedAsController notController = AspectWrapping.wrapInAspect(
+                new NotAnnotatedAsController(response), aspect);
 
         Response result = notController.returnsFluxWithResponse().blockLast();
 
@@ -190,76 +192,4 @@ class ReactiveResponseCollectionsMakeupAspectTest {
         verifyThatMakeupWasNotApplied();
     }
 
-    @Controller
-    private class TestController {
-        Mono<Response> returnsMonoWithResponseWithResponseDto() {
-            return Mono.just(response);
-        }
-
-        Mono<Response> returnsMonoWithResponseWithResponseDtoArray() {
-            return Mono.just(Response.ok(new ResponseDto[]{responseDto}));
-        }
-
-        Mono<Response> returnsMonoWithResponseWithResponseDtoList() {
-            return Mono.just(Response.ok(singletonList(responseDto)));
-        }
-
-        Mono<Response> returnsEmptyResponseMono() {
-            return Mono.empty();
-        }
-
-        Mono<String> returnsMonoWithString() {
-            return Mono.just("test");
-        }
-
-        Mono<Response> returnsMonoWithResponseWithString() {
-            return Mono.just(Response.ok("test"));
-        }
-
-        Mono<Response> returnsNullMono() {
-            return null;
-        }
-        
-        Flux<Response> returnsFluxWithResponse() {
-            return Flux.just(response);
-        }
-
-        Flux<Response> returnsEmptyResponseFlux() {
-            return Flux.empty();
-        }
-
-        Flux<String> returnsFluxWithString() {
-            return Flux.just("test");
-        }
-
-        Flux<Response> returnsFluxWithResponseWithString() {
-            return Flux.just(Response.ok("test"));
-        }
-
-        Flux<Response> returnsNullFlux() {
-            return null;
-        }
-
-        Flux<ServerSentEvent<ResponseDto>> returnsFluxOfServerSentEventsWithResponseDto() {
-            return Flux.just(
-                    ServerSentEvent.<ResponseDto>builder()
-                            .data(responseDto)
-                            .build()
-            );
-        }
-
-        Response returnsNonPublisher() {
-            return response;
-        }
-    }
-
-    private class NotAnnotatedAsController {
-        Mono<Response> returnsMonoWithResponse() {
-            return Mono.just(response);
-        }
-
-        Flux<Response> returnsFluxWithResponse() {
-            return Flux.just(response);
-        }
-    }
 }
