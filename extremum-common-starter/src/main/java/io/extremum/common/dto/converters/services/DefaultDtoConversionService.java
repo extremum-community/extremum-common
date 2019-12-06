@@ -70,10 +70,8 @@ public class DefaultDtoConversionService implements DtoConversionService {
     }
 
     @Override
-    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
-        @SuppressWarnings("unchecked")
-        Class<? extends M> castModelClass = (Class<? extends M>) modelClass;
-        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter(castModelClass)
+    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<M> modelClass, D dto) {
+        FromRequestDtoConverter<M, D> converter = dtoConverters.<M, D>findFromRequestDtoConverter(modelClass)
                 .orElseThrow(onConverterNotFound("from-request", modelClass));
         return converter.convertFromRequest(dto);
     }

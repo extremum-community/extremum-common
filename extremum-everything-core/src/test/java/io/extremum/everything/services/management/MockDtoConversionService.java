@@ -71,8 +71,8 @@ class MockDtoConversionService implements DtoConversionService {
     }
 
     @Override
-    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<? extends Model> modelClass, D dto) {
-        return (M) findFromRequestDtoConverter(modelClass)
+    public <M extends Model, D extends RequestDto> M convertFromRequestDto(Class<M> modelClass, D dto) {
+        return findFromRequestDtoConverter(modelClass)
                 .orElseThrow(() -> new IllegalArgumentException("No from request dto converter for " + modelClass))
                 .convertFromRequest(dto);
     }
