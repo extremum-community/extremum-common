@@ -1,7 +1,7 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.everything.services.PatchPersistenceContext;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.dto.RequestDto;
 
 /**
@@ -9,7 +9,7 @@ import io.extremum.sharedmodels.dto.RequestDto;
  */
 final class NullPatcherHooks implements PatcherHooks {
     @Override
-    public RequestDto afterPatchAppliedToDto(RequestDto patchedDto) {
+    public RequestDto afterPatchAppliedToDto(Model originModel, RequestDto patchedDto) {
         return patchedDto;
     }
 

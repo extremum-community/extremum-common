@@ -5,9 +5,9 @@ import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
@@ -17,7 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -159,5 +164,18 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         assertThat(retrievedDescriptor.getCreated(), is(notNullValue()));
         assertThat(retrievedDescriptor.getModified(), is(notNullValue()));
         assertThat(retrievedDescriptor.getVersion(), is(0L));
+    }
+
+    @Test
+    void givenADescriptorExists_whenRetrievingItWithInternalIdsCollection_thenItsExternalIdShouldBeReturnedInAMap() {
+        ObjectId objectId = new ObjectId();
+        Descriptor descriptor = mongoDescriptorFacilities.create(objectId, "test_model");
+
+        Mono<Map<String, String>> mono = reactiveDescriptorDao.retrieveMapByInternalIds(
+                singletonList(objectId.toString()));
+
+        StepVerifier.create(mono)
+                .expectNext(singletonMap(descriptor.getInternalId(), descriptor.getExternalId()))
+                .verifyComplete();
     }
 }

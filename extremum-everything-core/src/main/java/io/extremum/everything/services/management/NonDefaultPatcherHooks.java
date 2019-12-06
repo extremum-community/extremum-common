@@ -1,8 +1,8 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.everything.services.PatchPersistenceContext;
 import io.extremum.everything.services.PatcherHooksService;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.dto.RequestDto;
 
 /**
@@ -16,8 +16,8 @@ final class NonDefaultPatcherHooks implements PatcherHooks {
     }
 
     @Override
-    public RequestDto afterPatchAppliedToDto(RequestDto patchedDto) {
-        return patcherHooksService.afterPatchAppliedToDto(patchedDto);
+    public RequestDto afterPatchAppliedToDto(Model model, RequestDto patchedDto) {
+        return patcherHooksService.afterPatchAppliedToDto(model, patchedDto);
     }
 
     @Override

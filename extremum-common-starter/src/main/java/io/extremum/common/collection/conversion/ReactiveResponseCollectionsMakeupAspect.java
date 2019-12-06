@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
  * @author rpuch
  */
 @Aspect
-@Order(10)
+@Order(30)
 @RequiredArgsConstructor
 public class ReactiveResponseCollectionsMakeupAspect extends ReactiveResponseDtoHandlingAspect {
     private final CollectionMakeup makeup;

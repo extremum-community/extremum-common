@@ -1,4 +1,4 @@
-package io.extremum.common.limit;
+package io.extremum.common.descriptor.resolve;
 
 import io.extremum.common.response.advice.ReactiveResponseDtoHandlingAspect;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -11,16 +11,13 @@ import reactor.core.publisher.Mono;
  * @author rpuch
  */
 @Aspect
-@Order(20) // must be BEFORE ReactiveResponseCollectionsMakeupAspect so that limiting happen AFTER makeup
+@Order(10)
 @RequiredArgsConstructor
-public class ReactiveResponseLimiterAspect extends ReactiveResponseDtoHandlingAspect {
-    private final ResponseLimiter limiter;
+public class ReactiveDescriptorResolvingAspect extends ReactiveResponseDtoHandlingAspect {
+    private final ResponseDtoDescriptorResolver descriptorResolver;
 
     @Override
     protected Mono<?> applyToResponseDto(ResponseDto responseDto) {
-        return Mono.fromCallable(() -> {
-            limiter.limit(responseDto);
-            return Mono.empty();
-        });
+        return descriptorResolver.resolveExternalIdsIn(responseDto);
     }
 }

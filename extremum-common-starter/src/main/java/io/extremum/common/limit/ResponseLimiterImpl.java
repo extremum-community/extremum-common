@@ -28,6 +28,10 @@ public class ResponseLimiterImpl implements ResponseLimiter {
     }
 
     private void limitCollectionTop(CollectionReference<?> reference, Attribute attribute, ResponseDto dto) {
+        if (reference.getTop() == null) {
+            return;
+        }
+
         int topCollectionLimit = capTopLimitBasedOnBudget(reference);
         applyLimitToCollection(reference, topCollectionLimit);
     }

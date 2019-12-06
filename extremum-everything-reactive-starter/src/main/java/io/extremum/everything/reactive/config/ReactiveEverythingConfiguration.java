@@ -3,6 +3,7 @@ package io.extremum.everything.reactive.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.authentication.api.ReactiveSecurityProvider;
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorExtractor;
+import io.extremum.common.descriptor.resolve.*;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
@@ -189,10 +190,29 @@ public class ReactiveEverythingConfiguration {
         return new RoleSecurityReactiveEverythingManagementService(service, roleSecurity);
     }
 
-    // ToDO: restore
-//    @Bean
+    @Bean
     @ConditionalOnMissingBean
     public ReactiveResponseLimiterAspect reactiveResponseLimiterAspect(ResponseLimiter limiter) {
         return new ReactiveResponseLimiterAspect(limiter);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveDescriptorResolver reactiveDescriptorResolver(ReactiveDescriptorService reactiveDescriptorService) {
+        return new BatchReactiveDescriptorResolver(reactiveDescriptorService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ResponseDtoDescriptorResolver responseDtoDescriptorResolver(
+            ReactiveDescriptorResolver reactiveDescriptorResolver) {
+        return new IntrospectingResponseDtoDescriptorResolver(reactiveDescriptorResolver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveDescriptorResolvingAspect reactiveDescriptorResolvingAspect(
+            ResponseDtoDescriptorResolver responseDtoDescriptorResolver) {
+        return new ReactiveDescriptorResolvingAspect(responseDtoDescriptorResolver);
     }
 }

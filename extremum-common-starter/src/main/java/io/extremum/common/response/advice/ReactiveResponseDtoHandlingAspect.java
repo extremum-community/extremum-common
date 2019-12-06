@@ -34,11 +34,11 @@ public abstract class ReactiveResponseDtoHandlingAspect {
         return invocationResult;
     }
 
-    private Object applyToMonoPayload(Mono<?> mono) {
+    private Mono<?> applyToMonoPayload(Mono<?> mono) {
         return mono.flatMap(this::possiblyApplyToResponseDtoInsideResponseOrSSE);
     }
 
-    private Object applyToFluxPayload(Flux<?> flux) {
+    private Flux<?> applyToFluxPayload(Flux<?> flux) {
         return flux.concatMap(this::possiblyApplyToResponseDtoInsideResponseOrSSE);
     }
 

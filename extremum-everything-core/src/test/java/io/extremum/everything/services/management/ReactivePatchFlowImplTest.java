@@ -34,7 +34,10 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
@@ -183,7 +186,7 @@ class ReactivePatchFlowImplTest {
 
         patchFlow.patch(descriptor, anyPatch()).block();
 
-        verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any());
+        verify(patcherHooksCollection).afterPatchAppliedToDto(eq(TestModel.MODEL_NAME), any(), any());
         verify(patcherHooksCollection).beforeSave(eq(TestModel.MODEL_NAME), any());
         verify(patcherHooksCollection).afterSave(eq(TestModel.MODEL_NAME), any());
     }

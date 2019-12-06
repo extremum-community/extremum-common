@@ -1,9 +1,9 @@
 package io.extremum.everything.services.management;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.everything.services.PatchPersistenceContext;
 import io.extremum.everything.services.PatcherHooksService;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.dto.RequestDto;
 import lombok.RequiredArgsConstructor;
 
@@ -16,9 +16,9 @@ import java.util.List;
 public class PatcherHooksCollection {
     private final List<PatcherHooksService<?, ?>> patcherHooksServices;
 
-    public RequestDto afterPatchAppliedToDto(String modelName, RequestDto patchedDto) {
+    public RequestDto afterPatchAppliedToDto(String modelName, Model modelToPatch, RequestDto patchedDto) {
         PatcherHooks hooks = getHooks(modelName);
-        return hooks.afterPatchAppliedToDto(patchedDto);
+        return hooks.afterPatchAppliedToDto(modelToPatch, patchedDto);
     }
 
     private PatcherHooks getHooks(String modelName) {

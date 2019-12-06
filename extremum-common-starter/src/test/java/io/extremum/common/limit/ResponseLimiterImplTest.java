@@ -64,7 +64,7 @@ class ResponseLimiterImplTest {
     }
 
     @Test
-    void test() {
+    void givenEveryCollectionElementExceedsTheLimit_whenLimiting_thenOneElementShouldBeStillRetained() {
         List<TestResponseDto> dtos = Stream.of(1, 2)
                 .map(n -> nestedDtoWithTopOfSize3k())
                 .collect(Collectors.toList());
@@ -74,6 +74,14 @@ class ResponseLimiterImplTest {
         limiter.limit(outerDto);
 
         assertThat(outerDto.dtos.getTop(), hasSize(1));
+    }
+
+    @Test
+    void givenCollectionTopIsNull_whenLimiting_thenNoExceptionShouldBeThrown() {
+        CollectionReference<String> reference = CollectionReference.uninitialized();
+        TestResponseDto dto = new TestResponseDto(reference);
+
+        limiter.limit(dto);
     }
 
     @NotNull
