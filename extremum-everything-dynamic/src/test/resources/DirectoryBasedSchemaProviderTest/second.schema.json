@@ -1,0 +1,9 @@
+{
+  "$id": "an_id_for_second_schema_json",
+  "description": "schema is a ref for complex.schema.json. contains definition of the 'externalField' field",
+  "definitions": {
+    "externalField": {
+      "type": "string"
+    }
+  }
+}
