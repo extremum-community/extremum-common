@@ -11,4 +11,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>extremum-everything-dynamic</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>1.0.28</version>
+        </dependency>
+    </dependencies>
 </project>
