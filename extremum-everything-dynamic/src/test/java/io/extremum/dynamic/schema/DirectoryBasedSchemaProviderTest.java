@@ -53,6 +53,7 @@ class DirectoryBasedSchemaProviderTest {
         assertEquals("an_id_for_complex_schema_json", schema.getSchema().getSchemaNode().get("$id").textValue());
 
         ObjectMapper mapper = new ObjectMapper();
+
         JsonNode jsonNode = mapper.readValue("{\"field1\":\"sss\", \"field2\":33.2, \"field3\":23}", JsonNode.class);
         Set<ValidationMessage> violations = schema.getSchema().validate(jsonNode);
 
