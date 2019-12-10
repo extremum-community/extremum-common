@@ -7,6 +7,7 @@ import io.extremum.dynamic.resources.LocalResourceLoader;
 import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.schema.networknt.DirectoryBasedSchemaProvider;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +56,6 @@ class DirectoryBasedSchemaProviderTest {
         JsonNode jsonNode = mapper.readValue("{\"field1\":\"sss\", \"field2\":33.2, \"field3\":23}", JsonNode.class);
         Set<ValidationMessage> violations = schema.getSchema().validate(jsonNode);
 
-        System.out.println(violations);
+        Assertions.assertFalse(violations.isEmpty());
     }
 }
