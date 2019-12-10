@@ -8,6 +8,8 @@ import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.SchemaProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Slf4j
 @RequiredArgsConstructor
 public class DirectoryBasedSchemaProvider implements SchemaProvider<NetworkntSchema> {
     private final Path baseDirectory;
@@ -22,11 +25,13 @@ public class DirectoryBasedSchemaProvider implements SchemaProvider<NetworkntSch
     private final ResourceLoader resourceLoader;
 
     @Override
+    @SneakyThrows
     public NetworkntSchema loadSchema(String relativeSchemaPath) {
         JsonSchemaFactory factory = createFactory(type);
-        InputStream is = resourceLoader.loadAsInputStream(Paths.get(baseDirectory.toString(), relativeSchemaPath));
-        JsonSchema schema = factory.getSchema(is);
-        return new NetworkntSchema(schema);
+        try (InputStream is = resourceLoader.loadAsInputStream(Paths.get(baseDirectory.toString(), relativeSchemaPath))) {
+            JsonSchema schema = factory.getSchema(is);
+            return new NetworkntSchema(schema);
+        }
     }
 
     protected JsonSchemaFactory createFactory(JsonSchemaType type) {
