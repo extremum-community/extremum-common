@@ -3,6 +3,7 @@ package io.extremum.dynamic.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.ValidationMessage;
+import io.extremum.dynamic.DirectorySchemaPointer;
 import io.extremum.dynamic.resources.LocalResourceLoader;
 import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.schema.networknt.DirectoryBasedSchemaProvider;
@@ -25,30 +26,47 @@ class DirectoryBasedSchemaProviderTest {
 
     @BeforeAll
     static void before() {
-        String pathToFile = Thread.currentThread().getContextClassLoader().getResource("test.file.txt").getPath();
-        String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
-        Path directory = Paths.get(base, "DirectoryBasedSchemaProviderTest");
-        provider = new DirectoryBasedSchemaProvider(directory, JsonSchemaType.V2019_09, localResourceLoader);
+        provider = new DirectoryBasedSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader);
     }
 
     @Test
     void schemaLoadedFromLocalFileSystemOkTest() {
-        NetworkntSchema schema = provider.loadSchema("simple.schema.json");
+        Path directory = getBaseDirectoryFor("DirectoryBasedSchemaProviderTest");
+
+        String pathToSchema = Paths.get(directory.toString(), "simple.schema.json").toString();
+
+        DirectorySchemaPointer pointer = DirectorySchemaPointer.createFromString(pathToSchema);
+
+        NetworkntSchema schema = provider.loadSchema(pointer);
 
         assertNotNull(schema);
         assertNotNull(schema.getSchema());
     }
 
+    private Path getBaseDirectoryFor(String... additional) {
+        String pathToFile = Thread.currentThread().getContextClassLoader().getResource("test.file.txt").getPath();
+        String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
+        return Paths.get(base, additional);
+    }
+
     @Test
     void loadedSchemaContainsAJsonSchemaDataTest() {
-        NetworkntSchema schema = provider.loadSchema("simple.schema.json");
+        Path baseDirectory = getBaseDirectoryFor("DirectoryBasedSchemaProviderTest");
+        String pathToFile = Paths.get(baseDirectory.toString(), "simple.schema.json").toString();
+        DirectorySchemaPointer schemaPointer = DirectorySchemaPointer.createFromString(pathToFile);
+
+        NetworkntSchema schema = provider.loadSchema(schemaPointer);
 
         assertEquals("an_id_for_simple_schema_json", schema.getSchema().getSchemaNode().get("$id").textValue());
     }
 
     @Test
     void loadsSchemaWithRefsToAnotherSchemaInLocalFileSystemOkTest() throws IOException {
-        NetworkntSchema schema = provider.loadSchema("complex.schema.json");
+        Path baseDirectory = getBaseDirectoryFor("DirectoryBasedSchemaProviderTest");
+        String pathToFile = Paths.get(baseDirectory.toString(), "complex.schema.json").toString();
+        DirectorySchemaPointer schemaPointer = DirectorySchemaPointer.createFromString(pathToFile);
+
+        NetworkntSchema schema = provider.loadSchema(schemaPointer);
 
         assertEquals("an_id_for_complex_schema_json", schema.getSchema().getSchemaNode().get("$id").textValue());
 
