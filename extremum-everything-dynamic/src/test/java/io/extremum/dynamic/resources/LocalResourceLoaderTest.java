@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 class LocalResourceLoaderTest {
     @Test
-    void resourceLoadedTest() {
+    void loadLocalResources() {
         String path = Thread.currentThread().getContextClassLoader().getResource("test.file.txt").getPath();
 
         LocalResourceLoader resourceLoader = new LocalResourceLoader();
