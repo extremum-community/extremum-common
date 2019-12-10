@@ -1,15 +1,16 @@
 package io.extremum.dynamic;
 
+import lombok.AllArgsConstructor;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@AllArgsConstructor
 public class DirectorySchemaPointer implements SchemaPointer<Path> {
-    private Path pointer;
+    private final Path pointer;
 
     public static DirectorySchemaPointer createFromString(String pointer) {
-        DirectorySchemaPointer p = new DirectorySchemaPointer();
-        p.pointer = Paths.get(pointer);
-        return p;
+        return new DirectorySchemaPointer(Paths.get(pointer));
     }
 
     @Override
