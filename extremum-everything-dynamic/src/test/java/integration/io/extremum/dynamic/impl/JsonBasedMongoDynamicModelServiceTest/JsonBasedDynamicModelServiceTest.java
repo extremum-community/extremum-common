@@ -6,8 +6,9 @@ import io.extremum.dynamic.dao.impl.MongoDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonBasedDynamicModel;
 import io.extremum.dynamic.schema.networknt.MongoBasedSchemaProvider;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
-import io.extremum.dynamic.services.impl.JsonBasedMongoDynamicModelService;
-import io.extremum.dynamic.validator.services.impl.JsonBasedDynamicModelValidator;
+import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.dynamic.validator.exceptions.SchemaValidationException;
+import io.extremum.dynamic.validator.services.impl.networknt.NetworkntSchemaProviderBasedDynamicModelValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,24 +23,18 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 @SpringBootTest(classes = EmptyConfiguration.class)
-class JsonBasedMongoDynamicModelServiceTest {
+class JsonBasedDynamicModelServiceTest {
     @MockBean
     MongoBasedSchemaProvider schemaProvider;
 
     @MockBean
-    JsonBasedDynamicModelValidator modelValidator;
+    NetworkntSchemaProviderBasedDynamicModelValidator modelValidator;
 
     @MockBean
     MongoDynamicModelDao dao;
 
     @Captor
-    ArgumentCaptor<MongoSchemaPointer> pointerCaptor;
-
-    @Captor
     ArgumentCaptor<JsonBasedDynamicModel> modelCaptor;
-
-    @Captor
-    ArgumentCaptor<NetworkntSchema> schemaCaptor;
 
     @Test
     void saveModel() {
@@ -50,13 +45,12 @@ class JsonBasedMongoDynamicModelServiceTest {
 
         configureBehavior(pointer, model, schema);
 
-        JsonBasedMongoDynamicModelService service = new JsonBasedMongoDynamicModelService(dao, schemaProvider, modelValidator);
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
 
-        Mono<JsonBasedDynamicModel> saved = service.saveModel(pointer, model);
+        Mono<JsonBasedDynamicModel> saved = service.saveModel(model);
 
-        verify_SchemaProvider_HasAccept_SchemaPointer_1_times(pointer);
-        verify_Validator_HasAccept_Model_Schema_1_times(model, schema);
-        verify_DynamicModelDao_HasAccept_Pointer_Model_1_times(pointer, model);
+        verify_Validator_HasAccept_Model_1_times(model);
+        verify_DynamicModelDao_HasAccept_Model_1_times(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -65,30 +59,31 @@ class JsonBasedMongoDynamicModelServiceTest {
                 .verifyComplete();
     }
 
-    private void verify_DynamicModelDao_HasAccept_Pointer_Model_1_times(MongoSchemaPointer pointer, JsonBasedDynamicModel model) {
+    private void verify_DynamicModelDao_HasAccept_Model_1_times(JsonBasedDynamicModel model) {
         Mockito.verify(dao, Mockito.times(1)).save(modelCaptor.capture());
 
         Assertions.assertEquals(model, modelCaptor.getValue());
     }
 
-    private void verify_SchemaProvider_HasAccept_SchemaPointer_1_times(MongoSchemaPointer pointer) {
-        Mockito.verify(schemaProvider, Mockito.times(1)).loadSchema(pointerCaptor.capture());
-        MongoSchemaPointer value = pointerCaptor.getValue();
-        Assertions.assertEquals(value.getPointer(), pointer.getPointer());
-    }
+    private void verify_Validator_HasAccept_Model_1_times(JsonBasedDynamicModel model) {
+        try {
+            Mockito.verify(modelValidator, Mockito.times(1)).validate(modelCaptor.capture());
 
-    private void verify_Validator_HasAccept_Model_Schema_1_times(JsonBasedDynamicModel model, NetworkntSchema schema) {
-        Mockito.verify(modelValidator, Mockito.times(1)).validate(modelCaptor.capture(), schemaCaptor.capture());
-
-        Assertions.assertEquals(model, modelCaptor.getValue());
-        Assertions.assertEquals(schema, schemaCaptor.getValue());
+            Assertions.assertEquals(model, modelCaptor.getValue());
+        } catch (SchemaValidationException e) {
+            Assertions.fail("Unexpected exception " + e);
+        }
     }
 
     private void configureBehavior(MongoSchemaPointer pointer, JsonBasedDynamicModel model, NetworkntSchema schema) {
         Mockito.when(schemaProvider.loadSchema(pointer)).thenReturn(schema);
 
-        Mockito.doNothing().when(modelValidator).validate(model, schema);
+        try {
+            Mockito.doNothing().when(modelValidator).validate(model);
 
-        Mockito.when(dao.save(model)).thenReturn(Mono.just(model));
+            Mockito.when(dao.save(model)).thenReturn(Mono.just(model));
+        } catch (SchemaValidationException e) {
+            Assertions.fail("Unexpected exception " + e);
+        }
     }
 }
