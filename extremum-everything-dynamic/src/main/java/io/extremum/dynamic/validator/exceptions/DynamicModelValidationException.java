@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
-public class SchemaValidationException extends Exception {
+public class DynamicModelValidationException extends Exception {
     private final Set<Violation> violations;
 
     @Override

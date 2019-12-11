@@ -5,7 +5,7 @@ import io.extremum.dynamic.models.DynamicModel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class JsonBasedDynamicModel implements DynamicModel<JsonNode> {
+public class JsonDynamicModel implements DynamicModel<JsonNode> {
     private final String modelName;
     private final JsonNode data;
 

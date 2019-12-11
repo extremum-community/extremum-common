@@ -9,13 +9,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JsonBasedDynamicModelTest {
+class JsonDynamicModelTest {
     @Test
     void JsonBasedDynamicModel() throws IOException {
         String modelName = UUID.randomUUID().toString();
         JsonNode node = new ObjectMapper().readValue("{\"a\":\"b\"}", JsonNode.class);
 
-        JsonBasedDynamicModel model = new JsonBasedDynamicModel(modelName, node);
+        JsonDynamicModel model = new JsonDynamicModel(modelName, node);
 
         assertEquals(modelName, model.getModelName());
         assertEquals(node.toString(), model.getModelData().toString());
