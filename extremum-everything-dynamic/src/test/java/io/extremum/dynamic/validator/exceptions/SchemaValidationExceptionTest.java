@@ -20,4 +20,29 @@ class SchemaValidationExceptionTest {
 
         Assertions.assertTrue(toString.matches("^Violations: <violation \\d>; <violation \\d>; <violation \\d>$"));
     }
+
+    @Test
+    void getViolationsTest() {
+        Set<Violation> violations = Stream.of("violation 1", "violation 2", "violation 3")
+                .map(m -> (Violation) () -> m)
+                .collect(Collectors.toSet());
+
+        SchemaValidationException ex = new SchemaValidationException(violations);
+
+        Set<Violation> violationsFromEx = ex.getViolations();
+
+        Assertions.assertNotNull(violationsFromEx);
+        Assertions.assertEquals(3, violationsFromEx.size());
+
+        assertContainsViolation(violationsFromEx, "violation 1");
+        assertContainsViolation(violationsFromEx, "violation 2");
+        assertContainsViolation(violationsFromEx, "violation 3");
+    }
+
+    private void assertContainsViolation(Set<Violation> violationsFromEx, String expected) {
+        boolean matched = violationsFromEx.stream()
+                .anyMatch(v -> v.getMessage().equals(expected));
+
+        Assertions.assertTrue(matched, "Violation " + expected + "doesn't contains in violations set");
+    }
 }
