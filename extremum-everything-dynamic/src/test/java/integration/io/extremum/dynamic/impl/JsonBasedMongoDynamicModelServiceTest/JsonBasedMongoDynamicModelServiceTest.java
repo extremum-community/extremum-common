@@ -66,9 +66,8 @@ class JsonBasedMongoDynamicModelServiceTest {
     }
 
     private void verify_DynamicModelDao_HasAccept_Pointer_Model_1_times(MongoSchemaPointer pointer, JsonBasedDynamicModel model) {
-        Mockito.verify(dao, Mockito.times(1)).save(pointerCaptor.capture(), modelCaptor.capture());
+        Mockito.verify(dao, Mockito.times(1)).save(modelCaptor.capture());
 
-        Assertions.assertEquals(pointer, pointerCaptor.getValue());
         Assertions.assertEquals(model, modelCaptor.getValue());
     }
 
@@ -90,6 +89,6 @@ class JsonBasedMongoDynamicModelServiceTest {
 
         Mockito.doNothing().when(modelValidator).validate(model, schema);
 
-        Mockito.when(dao.save(pointer, model)).thenReturn(Mono.just(model));
+        Mockito.when(dao.save(model)).thenReturn(Mono.just(model));
     }
 }
