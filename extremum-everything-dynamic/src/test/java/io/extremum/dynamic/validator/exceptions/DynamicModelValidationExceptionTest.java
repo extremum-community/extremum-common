@@ -8,14 +8,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class SchemaValidationExceptionTest {
+class DynamicModelValidationExceptionTest {
     @Test
     void toStringTest() {
         Set<Violation> violations = Stream.of("violation 1", "violation 2", "violation 3")
                 .map(m -> (Violation) () -> m)
                 .collect(Collectors.toSet());
 
-        SchemaValidationException ex = new SchemaValidationException(violations);
+        DynamicModelValidationException ex = new DynamicModelValidationException(violations);
         String toString = ex.toString();
 
         Assertions.assertTrue(toString.matches("^Violations: <violation \\d>; <violation \\d>; <violation \\d>$"));
@@ -27,7 +27,7 @@ class SchemaValidationExceptionTest {
                 .map(m -> (Violation) () -> m)
                 .collect(Collectors.toSet());
 
-        SchemaValidationException ex = new SchemaValidationException(violations);
+        DynamicModelValidationException ex = new DynamicModelValidationException(violations);
 
         Set<Violation> violationsFromEx = ex.getViolations();
 
