@@ -16,7 +16,8 @@ public class SchemaValidationException extends Exception {
     public String toString() {
         String violationsString = violations.stream()
                 .map(Violation::getMessage)
-                .collect(Collectors.joining(";"));
+                .map(m -> String.format("<%s>", m))
+                .collect(Collectors.joining("; "));
 
         return "Violations: " + violationsString;
     }
