@@ -22,6 +22,6 @@ public class JsonBasedMongoDynamicModelService implements DynamicModelService<Js
 
         modelValidator.validate(model, schema);
 
-        return dao.save(pointer, model);
+        return dao.save(model);
     }
 }
