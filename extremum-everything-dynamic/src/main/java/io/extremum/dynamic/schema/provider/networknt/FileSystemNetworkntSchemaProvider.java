@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,7 +29,8 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
     public NetworkntSchema loadSchema(String schemaName) throws SchemaNotFoundException {
         JsonSchemaFactory factory = createFactory(type, schemaDirectory);
 
-        Path schemaPath = Paths.get(schemaDirectory.toString(), schemaName);
+        Path path = Paths.get(schemaDirectory.toString(), schemaName);
+        URI schemaPath = URI.create("file:/").resolve(path.toString());
 
         try (InputStream is = resourceLoader.loadAsInputStream(schemaPath)) {
             JsonSchema schema = factory.getSchema(is);
@@ -67,7 +69,8 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
                     .defaultMetaSchemaURI(metaSchema.getUri())
                     .uriFetcher(uri -> {
                         String fileName = uri.toString().substring(uri.getScheme().length() + 1);
-                        Path path = Paths.get(basicDirectory.toString(), fileName);
+                        URI path = URI.create("file:/")
+                                .resolve(Paths.get(basicDirectory.toString(), fileName).toString());
                         try {
                             return resourceLoader.loadAsInputStream(path);
                         } catch (ResourceNotFoundException e) {
@@ -79,5 +82,10 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
         } else {
             throw new RuntimeException("Only " + JsonSchemaType.V2019_09 + " schema version is supported");
         }
+    }
+
+    @Override
+    public JsonSchemaType getSchemaType() {
+        return type;
     }
 }

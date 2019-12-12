@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import static io.extremum.dynamic.Utils.loadResourceAsInputStream;
+import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = EmptyConfiguration.class)
