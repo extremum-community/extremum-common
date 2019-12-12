@@ -13,7 +13,7 @@
     <artifactId>extremum-everything-dynamic</artifactId>
 
     <properties>
-        <testcoverage.minimum>0.80</testcoverage.minimum>
+        <testcoverage.minimum>0.1</testcoverage.minimum>
     </properties>
 
     <dependencies>
