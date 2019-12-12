@@ -12,6 +12,10 @@
 
     <artifactId>extremum-everything-dynamic</artifactId>
 
+    <properties>
+        <testcoverage.minimum>0.1</testcoverage.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
