@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public class SchemaNotFoundException extends RuntimeException {
     @Getter
-    private String schemaName;
+    private final String schemaName;
 
     public SchemaNotFoundException(String schemaName) {
         super("Schema " + schemaName + " not found");
