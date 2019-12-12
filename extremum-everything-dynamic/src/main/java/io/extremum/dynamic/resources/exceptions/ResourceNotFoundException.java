@@ -9,12 +9,12 @@ public class ResourceNotFoundException extends Exception {
     private Path resourcePath;
 
     public ResourceNotFoundException(Path resourcePath) {
-        super("Resource doesn't found " + resourcePath.toString());
+        super("Resource wasn't found " + resourcePath.toString());
         this.resourcePath = resourcePath;
     }
 
     public ResourceNotFoundException(Path resourcePath, Throwable cause) {
-        super("Resource doesn't found " + resourcePath.toString(), cause);
+        super("Resource wasn't found " + resourcePath.toString(), cause);
         this.resourcePath = resourcePath;
     }
 }

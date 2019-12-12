@@ -20,6 +20,6 @@ class ResourceNotFoundExceptionTest {
         Path path = Paths.get("path");
         ResourceNotFoundException ex = new ResourceNotFoundException(path);
 
-        Assertions.assertEquals("Resource doesn't found " + path, ex.getMessage());
+        Assertions.assertEquals("Resource wasn't found " + path, ex.getMessage());
     }
 }

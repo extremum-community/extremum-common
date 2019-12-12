@@ -36,7 +36,7 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
             JsonSchema schema = factory.getSchema(is);
             return new NetworkntSchema(schema);
         } catch (ResourceNotFoundException e) {
-            log.error("Schema {} doesn't found in path {}", schemaName, schemaDirectory);
+            log.error("Schema {} wasn't found in path {}", schemaName, schemaDirectory);
             throw new SchemaNotFoundException(schemaName, e);
         } catch (JsonSchemaException e) {
             Throwable cause = e.getCause();
@@ -64,7 +64,7 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
                         try {
                             return resourceLoader.loadAsInputStream(path);
                         } catch (ResourceNotFoundException e) {
-                            log.error("Schema {} doesn't found in path {}", fileName, basicDirectory);
+                            log.error("Schema {} wasn't found in path {}", fileName, basicDirectory);
                             throw new SchemaNotFoundException(fileName, e);
                         }
                     }, "file")
