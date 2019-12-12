@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 class LocalResourceLoaderTest {
     @Test
     void loadLocalResources() throws ResourceNotFoundException {
-        String path = Thread.currentThread().getContextClassLoader().getResource("test.file.txt").getPath();
+        String path = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
 
         LocalResourceLoader resourceLoader = new LocalResourceLoader();
         InputStream inputStream = resourceLoader.loadAsInputStream(Paths.get(path));

@@ -27,7 +27,7 @@ class FileSystemNetworkntSchemaProviderTest {
 
     @BeforeAll
     static void before() {
-        String pathToFile = Thread.currentThread().getContextClassLoader().getResource("test.file.txt").getPath();
+        String pathToFile = FileSystemNetworkntSchemaProviderTest.class.getClassLoader().getResource("test.file.txt").getPath();
         String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
 
         provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader,
@@ -64,7 +64,7 @@ class FileSystemNetworkntSchemaProviderTest {
 
     @Test
     void schemaNotFoundException_fileBySchemaPath_isNotFound() {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("test.file.txt");
+        URL url = this.getClass().getClassLoader().getResource("test.file.txt");
 
         NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader, Paths.get(url.getPath()));
 
@@ -73,7 +73,7 @@ class FileSystemNetworkntSchemaProviderTest {
 
     @Test
     void schemaNotFoundException_fileByRefInSchema_isNotFound() {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("schemas");
+        URL url = this.getClass().getClassLoader().getResource("schemas");
 
         NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader, Paths.get(url.getPath()));
 

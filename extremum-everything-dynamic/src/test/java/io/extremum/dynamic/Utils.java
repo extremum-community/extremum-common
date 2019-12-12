@@ -8,8 +8,8 @@ import java.util.Scanner;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Utils {
-    public static InputStream loadResourceAsInputStream(String resourceName) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+    public static InputStream loadResourceAsInputStream(ClassLoader loader, String resourceName) {
+        return loader.getResourceAsStream(resourceName);
     }
 
     @SneakyThrows

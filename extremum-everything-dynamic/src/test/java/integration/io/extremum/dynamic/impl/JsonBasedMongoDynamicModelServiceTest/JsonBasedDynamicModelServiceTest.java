@@ -79,7 +79,7 @@ class JsonBasedDynamicModelServiceTest {
                 new ObjectMapper().readValue(invalidModelRawValue, JsonNode.class));
 
         JsonSchema schema = JsonSchemaFactory.getInstance()
-                .getSchema(loadResourceAsInputStream("schemas/simple.schema.json"));
+                .getSchema(loadResourceAsInputStream(this.getClass().getClassLoader(), "schemas/simple.schema.json"));
 
         when(schemaProvider.loadSchema(Mockito.any())).thenReturn(new NetworkntSchema(schema));
 
