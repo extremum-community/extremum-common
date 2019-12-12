@@ -58,7 +58,7 @@ class NetworkntJsonDynamicModelValidatorTest {
     }
 
     private Path makeBasicDirectory() {
-        String pathToFile = Thread.currentThread().getContextClassLoader().getResource("test.file.txt").getPath();
+        String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
         String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
         return Paths.get(base);
     }
