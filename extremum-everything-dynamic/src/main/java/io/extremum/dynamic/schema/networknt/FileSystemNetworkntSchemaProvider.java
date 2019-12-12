@@ -9,9 +9,9 @@ import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,15 +24,12 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
     private final Path schemaDirectory;
 
     @Override
-    @SneakyThrows
     public NetworkntSchema loadSchema(String schemaName) throws SchemaNotFoundException {
         JsonSchemaFactory factory = createFactory(type, schemaDirectory);
 
         Path schemaPath = Paths.get(schemaDirectory.toString(), schemaName);
 
-        InputStream is = null;
-        try {
-            is = resourceLoader.loadAsInputStream(schemaPath);
+        try (InputStream is = resourceLoader.loadAsInputStream(schemaPath)) {
             JsonSchema schema = factory.getSchema(is);
             return new NetworkntSchema(schema);
         } catch (ResourceNotFoundException e) {
@@ -41,14 +38,23 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
         } catch (JsonSchemaException e) {
             Throwable cause = e.getCause();
             if (cause instanceof SchemaNotFoundException) {
+                log.error("Schema " + schemaName + " isn't found");
                 throw new SchemaNotFoundException(schemaName, cause);
             } else {
+                String errMessage = "Unhandled " + e.getClass() + " exception was thrown and will be rethrown." +
+                        "Schema " + schemaName + " can't be provided";
+
+                log.error(errMessage);
+
                 throw new JsonSchemaException(e);
             }
-        } finally {
-            if (is != null) {
-                is.close();
-            }
+        } catch (IOException e) {
+            String errMessage = "Unhandled " + e.getClass() + " exception was thrown and will be rethrown as RuntimeException." +
+                    "Schema " + schemaName + " can't be provided";
+
+            log.error(errMessage, e);
+
+            throw new RuntimeException(errMessage, e);
         }
     }
 
