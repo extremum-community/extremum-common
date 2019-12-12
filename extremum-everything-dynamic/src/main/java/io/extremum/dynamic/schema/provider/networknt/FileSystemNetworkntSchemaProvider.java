@@ -1,4 +1,4 @@
-package io.extremum.dynamic.schema.networknt;
+package io.extremum.dynamic.schema.provider.networknt;
 
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
@@ -7,6 +7,7 @@ import com.networknt.schema.JsonSchemaFactory;
 import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import io.extremum.dynamic.schema.JsonSchemaType;
+import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

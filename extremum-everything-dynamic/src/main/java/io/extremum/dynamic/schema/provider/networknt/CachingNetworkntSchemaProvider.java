@@ -1,11 +1,12 @@
-package io.extremum.dynamic.schema.networknt;
+package io.extremum.dynamic.schema.provider.networknt;
 
+import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public abstract class CachedNetworkntSchemaProvider implements NetworkntSchemaProvider {
+public abstract class CachingNetworkntSchemaProvider implements NetworkntSchemaProvider {
     @Override
     public NetworkntSchema loadSchema(String schemaName) throws SchemaNotFoundException {
         Optional<NetworkntSchema> loaded = loadFromCache(schemaName);

@@ -1,13 +1,12 @@
-package io.extremum.dynamic.schema;
+package io.extremum.dynamic.schema.provider.networknt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.ValidationMessage;
 import io.extremum.dynamic.resources.LocalResourceLoader;
 import io.extremum.dynamic.resources.ResourceLoader;
-import io.extremum.dynamic.schema.networknt.FileSystemNetworkntSchemaProvider;
+import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
-import io.extremum.dynamic.schema.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
