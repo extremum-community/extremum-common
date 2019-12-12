@@ -5,9 +5,11 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaFactory;
 import io.extremum.dynamic.resources.ResourceLoader;
+import io.extremum.dynamic.resources.exceptions.ResourceLoadingException;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
+import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,7 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
     private final Path schemaDirectory;
 
     @Override
-    public NetworkntSchema loadSchema(String schemaName) throws SchemaNotFoundException {
+    public NetworkntSchema loadSchema(String schemaName) throws SchemaLoadingException {
         JsonSchemaFactory factory = createFactory(type, schemaDirectory);
 
         Path path = Paths.get(schemaDirectory.toString(), schemaName);
@@ -35,9 +37,13 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
         try (InputStream is = resourceLoader.loadAsInputStream(schemaPath)) {
             JsonSchema schema = factory.getSchema(is);
             return new NetworkntSchema(schema);
-        } catch (ResourceNotFoundException e) {
-            log.error("Schema {} wasn't found in path {}", schemaName, schemaDirectory);
-            throw new SchemaNotFoundException(schemaName, e);
+        } catch (ResourceLoadingException e) {
+            log.error("Unable to load schema {} from directory {}", schemaName, schemaDirectory);
+            if (e instanceof ResourceNotFoundException) {
+                throw new SchemaNotFoundException(schemaName, e);
+            } else {
+                throw new SchemaLoadingException(schemaName, e);
+            }
         } catch (JsonSchemaException e) {
             Throwable cause = e.getCause();
             if (cause instanceof SchemaNotFoundException) {
@@ -73,9 +79,14 @@ public class FileSystemNetworkntSchemaProvider implements NetworkntSchemaProvide
                                 .resolve(Paths.get(basicDirectory.toString(), fileName).toString());
                         try {
                             return resourceLoader.loadAsInputStream(path);
-                        } catch (ResourceNotFoundException e) {
-                            log.error("Schema {} wasn't found in path {}", fileName, basicDirectory);
-                            throw new SchemaNotFoundException(fileName, e);
+                        } catch (ResourceLoadingException e) {
+                            log.error("Unable to load schema {} from directory {}", fileName, basicDirectory);
+
+                            if (e instanceof ResourceNotFoundException) {
+                                throw new SchemaNotFoundException(fileName, e);
+                            } else {
+                                throw new SchemaLoadingException(fileName, e);
+                            }
                         }
                     }, "file")
                     .build();
