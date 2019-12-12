@@ -1,5 +1,6 @@
-package io.extremum.dynamic.schema.networknt;
+package io.extremum.dynamic.schema.provider.networknt;
 
+import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,10 +10,10 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
-class CachedNetworkntSchemaProviderTest {
+class CachingNetworkntSchemaProviderTest {
     @Test
     void schemaLoadsFromCacheFirst() {
-        CachedNetworkntSchemaProvider provider = spy(CachedNetworkntSchemaProvider.class);
+        CachingNetworkntSchemaProvider provider = spy(CachingNetworkntSchemaProvider.class);
         String schemaName = "schemaName";
 
         when(provider.loadFromCache(schemaName)).thenReturn(Optional.of(Mockito.mock(NetworkntSchema.class)));
@@ -25,7 +26,7 @@ class CachedNetworkntSchemaProviderTest {
 
     @Test
     void schemaLoadsFromSource_ifCacheDoesntContainASchema_and_schemaCached() {
-        CachedNetworkntSchemaProvider provider = spy(CachedNetworkntSchemaProvider.class);
+        CachingNetworkntSchemaProvider provider = spy(CachingNetworkntSchemaProvider.class);
         String schemaName = "schemaName";
 
         when(provider.loadFromCache(schemaName)).thenReturn(Optional.empty());
@@ -39,7 +40,7 @@ class CachedNetworkntSchemaProviderTest {
 
     @Test
     void exceptionThrown_when_schemaIsNotFound() {
-        CachedNetworkntSchemaProvider provider = spy(CachedNetworkntSchemaProvider.class);
+        CachingNetworkntSchemaProvider provider = spy(CachingNetworkntSchemaProvider.class);
         String schemaName = "schemaName";
 
         when(provider.loadFromCache(schemaName)).thenReturn(Optional.empty());
