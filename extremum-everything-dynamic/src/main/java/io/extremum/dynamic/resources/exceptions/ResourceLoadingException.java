@@ -4,7 +4,7 @@ import lombok.Getter;
 
 import java.net.URI;
 
-public class ResourceLoadingException extends Exception {
+public class ResourceLoadingException extends RuntimeException {
     @Getter
     private URI resourceUri;
 
