@@ -24,6 +24,8 @@ public class UnirestExternalResourceLoader implements ExternalResourceLoader {
     }
 
     public InputStream loadAsInputStream(URI uri, HttpMethod method) throws ResourceLoadingException {
+        log.debug("Trying to load resource {} using {} method", uri, method);
+
         HttpRequestWithBody request = unirest.request(method.name(), uri.toString());
 
         try {
