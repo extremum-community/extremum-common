@@ -14,20 +14,20 @@ public abstract class CachingNetworkntSchemaProvider implements NetworkntSchemaP
     private final NetworkntCacheManager cacheManager;
 
     @Override
-    public NetworkntSchema loadSchema(String schemaName) throws SchemaLoadingException {
-        Optional<NetworkntSchema> loaded = cacheManager.fetchFromCache(schemaName);
+    public NetworkntSchema loadSchema(String schemaPointer) throws SchemaLoadingException {
+        Optional<NetworkntSchema> loaded = cacheManager.fetchFromCache(schemaPointer);
 
-        return loaded.orElseGet(fetchSchemaFromSource(schemaName));
+        return loaded.orElseGet(fetchSchemaFromSource(schemaPointer));
     }
 
-    private Supplier<NetworkntSchema> fetchSchemaFromSource(String schemaName) {
-        return () -> fetchSchemaForcibly(schemaName)
-                .map(s -> {
-                    cacheManager.cacheSchema(s, schemaName);
-                    return s;
+    private Supplier<NetworkntSchema> fetchSchemaFromSource(String schemaPointer) {
+        return () -> fetchSchemaForcibly(schemaPointer)
+                .map(fetchedSchema -> {
+                    cacheManager.cacheSchema(fetchedSchema, schemaPointer);
+                    return fetchedSchema;
                 })
-                .orElseThrow(() -> new SchemaNotFoundException(schemaName));
+                .orElseThrow(() -> new SchemaNotFoundException(schemaPointer));
     }
 
-    abstract protected Optional<NetworkntSchema> fetchSchemaForcibly(String pointer);
+    abstract protected Optional<NetworkntSchema> fetchSchemaForcibly(String schemaPointer);
 }
