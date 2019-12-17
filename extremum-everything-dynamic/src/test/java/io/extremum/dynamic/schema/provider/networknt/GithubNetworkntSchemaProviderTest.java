@@ -7,6 +7,7 @@ import io.extremum.dynamic.resources.github.GithubAccessOptions;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
+import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
