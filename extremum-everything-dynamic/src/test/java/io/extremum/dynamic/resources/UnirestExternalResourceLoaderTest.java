@@ -2,6 +2,7 @@ package io.extremum.dynamic.resources;
 
 import io.extremum.dynamic.resources.exceptions.AccessForbiddenResourceLoadingException;
 import io.extremum.dynamic.resources.exceptions.ResourceLoadingException;
+import io.extremum.dynamic.resources.exceptions.ResourceLoadingTimeoutException;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import kong.unirest.Config;
 import org.junit.jupiter.api.Assertions;
@@ -19,6 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import static io.extremum.dynamic.TestUtils.convertInputStreamToString;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
@@ -125,6 +127,33 @@ class UnirestExternalResourceLoaderTest {
         ResourceLoader loader = new UnirestExternalResourceLoader(config);
         Assertions.assertThrows(AccessForbiddenResourceLoadingException.class,
                 () -> loader.loadAsInputStream(URI.create(uriToMockServer)));
+    }
+
+    @Test
+    void resourceLoadException_afterEndpointTimeout() {
+        String path = "/path/to/resource";
+
+        int socketTimeoutOverheadValue = 70;
+
+        msClient
+                .when(
+                        HttpRequest.request()
+                                .withPath(path)
+                ).respond(
+                HttpResponse.response()
+                        .withStatusCode(HttpStatus.OK.value())
+                        .withDelay(TimeUnit.SECONDS, socketTimeoutOverheadValue)
+        );
+
+        ResourceLoader loader = new UnirestExternalResourceLoader();
+
+        URI uri = URI.create(format("http://%s:%d",
+                mockServer.getContainerIpAddress(),
+                mockServer.getServerPort()
+        )).resolve(path);
+
+        Assertions.assertThrows(ResourceLoadingTimeoutException.class, () -> loader.loadAsInputStream(uri),
+                () -> format("Here is a logs of a MockServer %s", mockServer.getLogs()));
     }
 
     private String createUriToMockServer(String path) {

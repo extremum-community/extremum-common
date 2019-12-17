@@ -2,6 +2,7 @@ package io.extremum.dynamic.resources;
 
 import io.extremum.dynamic.resources.exceptions.AccessForbiddenResourceLoadingException;
 import io.extremum.dynamic.resources.exceptions.ResourceLoadingException;
+import io.extremum.dynamic.resources.exceptions.ResourceLoadingTimeoutException;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import kong.unirest.*;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,10 @@ import org.springframework.http.HttpStatus;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URI;
+
+import static java.lang.String.format;
 
 @Slf4j
 public class UnirestExternalResourceLoader implements ExternalResourceLoader {
@@ -46,8 +50,15 @@ public class UnirestExternalResourceLoader implements ExternalResourceLoader {
                 }
             }
         } catch (UnirestException e) {
-            log.error("Unable to load resource {}", uri, e);
-            throw new ResourceLoadingException("Unable to load resource " + uri, uri, e);
+            if (e.getCause() instanceof SocketTimeoutException) {
+                String msg = format("Unable to load resource %s, socket timeout", uri);
+                log.error(msg, e);
+
+                throw new ResourceLoadingTimeoutException(uri, e);
+            } else {
+                log.error("Unable to load resource {}", uri, e);
+                throw new ResourceLoadingException("Unable to load resource " + uri, uri, e);
+            }
         }
     }
 
