@@ -11,5 +11,5 @@ public class GithubResourceConfiguration {
     private final String schemaPath;
     private final String ref;
 
-    public final String githubApiBase = "https://api.github.com/";
+    private final String githubApiBase = "https://api.github.com/";
 }

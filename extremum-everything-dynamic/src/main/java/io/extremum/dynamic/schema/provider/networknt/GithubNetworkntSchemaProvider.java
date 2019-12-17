@@ -4,9 +4,10 @@ import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.uri.URIFactory;
+import com.networknt.schema.uri.URIFetcher;
 import io.extremum.dynamic.resources.github.GithubAccessOptions;
+import io.extremum.dynamic.resources.github.GithubContentsResourceLoader;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
-import io.extremum.dynamic.resources.github.GithubResourceLoader;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
@@ -31,9 +32,9 @@ public class GithubNetworkntSchemaProvider implements NetworkntSchemaProvider {
     public NetworkntSchema loadSchema(String schemaName) throws SchemaLoadingException {
         JsonMetaSchema metaSchema = JsonMetaSchema.getV201909();
 
-        GithubResourceLoader loader = new GithubResourceLoader(githubAccessOptions);
+        GithubContentsResourceLoader loader = new GithubContentsResourceLoader(githubAccessOptions);
 
-        ResourceLoaderBasedUriFetcher uriFetcher = new ResourceLoaderBasedUriFetcher(loader);
+        URIFetcher uriFetcher = new ResourceLoaderBasedUriFetcher(loader);
         URIFactory uriFactory = new QueryParamsPreservingURIFactory();
 
         JsonSchemaFactory factory = new JsonSchemaFactory.Builder()
