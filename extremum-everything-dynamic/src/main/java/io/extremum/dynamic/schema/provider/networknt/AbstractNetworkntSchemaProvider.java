@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import static java.lang.String.format;
+
 @Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractNetworkntSchemaProvider implements NetworkntSchemaProvider {
@@ -34,11 +36,11 @@ public abstract class AbstractNetworkntSchemaProvider implements NetworkntSchema
             JsonSchema schema = factory.getSchema(is);
             return new NetworkntSchema(schema);
         } catch (ResourceLoadingException e) {
-            log.error("Unable to load schema {} from uri {}", schemaName, schemaUri);
             if (e instanceof ResourceNotFoundException) {
+                log.error("Schema {} not found. Unable to load schema from uri {}", schemaName, schemaUri);
                 throw new SchemaNotFoundException(schemaName, e);
             } else {
-                throw new SchemaLoadingException(schemaName, e);
+                return unableToLoadSchemaThrow(schemaName, schemaUri, e);
             }
         } catch (JsonSchemaException e) {
             Throwable cause = e.getCause();
@@ -46,21 +48,20 @@ public abstract class AbstractNetworkntSchemaProvider implements NetworkntSchema
                 log.error("Schema " + schemaName + " isn't found");
                 throw new SchemaNotFoundException(schemaName, cause);
             } else {
-                String errMessage = "Unhandled " + e.getClass() + " exception was thrown and will be rethrown." +
-                        "Schema " + schemaName + " can't be provided";
-
-                log.error(errMessage);
-
-                throw new JsonSchemaException(e);
+                return unableToLoadSchemaThrow(schemaName, schemaUri, e);
             }
         } catch (IOException e) {
-            String errMessage = "Unhandled " + e.getClass() + " exception was thrown and will be rethrown as RuntimeException." +
-                    "Schema " + schemaName + " can't be provided";
-
-            log.error(errMessage, e);
-
-            throw new RuntimeException(errMessage, e);
+            return unableToLoadSchemaThrow(schemaName, schemaUri, e);
         }
+    }
+
+    protected NetworkntSchema unableToLoadSchemaThrow(String schemaName, URI schemaUri, Exception e) {
+        String errMessage = format("Schema %s can't be provided. Unable to load schema by uri %s",
+                schemaName, schemaUri);
+
+        log.error(errMessage);
+
+        throw new SchemaLoadingException(errMessage, e);
     }
 
     protected abstract ResourceLoader getResourceLoader();
