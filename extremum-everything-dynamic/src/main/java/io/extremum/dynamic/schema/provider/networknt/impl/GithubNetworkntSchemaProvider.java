@@ -1,4 +1,4 @@
-package io.extremum.dynamic.schema.provider.networknt;
+package io.extremum.dynamic.schema.provider.networknt.impl;
 
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
@@ -10,6 +10,9 @@ import io.extremum.dynamic.resources.github.GithubContentsResourceLoader;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
+import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
+import io.extremum.dynamic.schema.provider.networknt.QueryParamsPreservingURIFactory;
+import io.extremum.dynamic.schema.provider.networknt.ResourceLoaderBasedUriFetcher;
 import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
 import lombok.RequiredArgsConstructor;
 

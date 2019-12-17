@@ -1,9 +1,10 @@
-package io.extremum.dynamic.schema.provider.networknt;
+package io.extremum.dynamic.schema.provider.networknt.impl;
 
 import io.extremum.dynamic.resources.LocalResourceLoader;
 import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.schema.JsonSchemaType;
-import io.extremum.dynamic.schema.provider.networknt.impl.FileNetworkntURIFetcher;
+import io.extremum.dynamic.schema.provider.networknt.AbstractNetworkntSchemaProvider;
+import io.extremum.dynamic.schema.provider.networknt.NetworkntURIFetcher;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
