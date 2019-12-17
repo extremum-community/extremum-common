@@ -3,8 +3,6 @@ package io.extremum.dynamic.validator.services.impl.networknt;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.dynamic.resources.LocalResourceLoader;
-import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -19,9 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 class NetworkntJsonDynamicModelValidatorTest {
-    ResourceLoader resourceLoader = new LocalResourceLoader();
     NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
-            JsonSchemaType.V2019_09, resourceLoader, makeBasicDirectory());
+            JsonSchemaType.V2019_09, makeBasicDirectory());
 
     JsonDynamicModelValidator validator = new NetworkntJsonDynamicModelValidator(provider);
 
