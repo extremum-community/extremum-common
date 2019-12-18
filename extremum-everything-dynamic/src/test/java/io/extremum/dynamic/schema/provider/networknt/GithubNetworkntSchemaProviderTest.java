@@ -10,7 +10,7 @@ import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockserver.client.MockServerClient;
@@ -37,12 +37,12 @@ import static org.mockito.Mockito.when;
 @Testcontainers
 class GithubNetworkntSchemaProviderTest {
     @Container
-    MockServerContainer mockServerContainer = new MockServerContainer();
+    static MockServerContainer mockServerContainer = new MockServerContainer();
 
-    MockServerClient msClient;
+    static MockServerClient msClient;
 
-    @BeforeEach
-    void beforeEach() {
+    @BeforeAll
+    static void beforeAll() {
         msClient = new MockServerClient(
                 mockServerContainer.getContainerIpAddress(),
                 mockServerContainer.getServerPort()
