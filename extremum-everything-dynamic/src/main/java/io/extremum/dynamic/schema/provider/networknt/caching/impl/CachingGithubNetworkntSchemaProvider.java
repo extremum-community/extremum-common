@@ -31,6 +31,6 @@ public class CachingGithubNetworkntSchemaProvider extends CachingNetworkntSchema
 
     @Override
     public JsonSchemaType getSchemaType() {
-        return null;
+        return githuSchemaProvider.getSchemaType();
     }
 }

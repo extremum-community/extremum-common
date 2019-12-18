@@ -1,5 +1,6 @@
 package io.extremum.dynamic.schema.provider.networknt.caching.impl;
 
+import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.caching.CachingNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
@@ -67,5 +68,22 @@ class CachingGithubNetworkntSchemaProviderTest {
 
         verify(manager).fetchFromCache(pointer);
         verify(githuSchemaProvider).loadSchema(anyString());
+    }
+
+    @Test
+    void getSchemaTypeTest() {
+
+        GithubNetworkntSchemaProvider githubSchemaProvider = mock(GithubNetworkntSchemaProvider.class);
+
+        JsonSchemaType schemaType = JsonSchemaType.V2019_09;
+
+        when(githubSchemaProvider.getSchemaType()).thenReturn(schemaType);
+
+        CachingGithubNetworkntSchemaProvider provider = new CachingGithubNetworkntSchemaProvider(
+                mock(NetworkntCacheManager.class),
+                githubSchemaProvider
+        );
+
+        Assertions.assertEquals(schemaType, provider.getSchemaType());
     }
 }
