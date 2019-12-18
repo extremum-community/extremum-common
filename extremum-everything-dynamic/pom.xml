@@ -14,7 +14,6 @@
 
     <properties>
         <testcoverage.minimum>0.8</testcoverage.minimum>
-        <schemaValidator.version>1.0.28</schemaValidator.version>
         <unirest.version>3.3.00</unirest.version>
         <mockServer.Client.version>5.5.1</mockServer.Client.version>
     </properties>
@@ -27,12 +26,10 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>${schemaValidator.version}</version>
         </dependency>
         <dependency>
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
-            <version>${unirest.version}</version>
         </dependency>
 
         <!-- testing dependencies-->

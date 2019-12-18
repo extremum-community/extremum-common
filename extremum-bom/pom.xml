@@ -195,6 +195,18 @@
                 <artifactId>swagger-annotations</artifactId>
                 <version>1.5.23</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>1.0.28</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.konghq</groupId>
+                <artifactId>unirest-java</artifactId>
+                <version>3.3.00</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
