@@ -11,6 +11,10 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties("github")
 public class GithubSchemaProperties {
     @NotNull
+    private int webhookListenerPort;
+    @NotNull
+    private String webhookListenerServerContext;
+    @NotNull
     private String owner;
     @NotNull
     private String repo;

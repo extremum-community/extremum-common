@@ -25,4 +25,9 @@ public class MemoryNetworkntCacheManager implements NetworkntCacheManager {
     public void removeFromCache(String pointer) {
         cache.remove(pointer);
     }
+
+    @Override
+    public void clearCache() {
+        cache.clear();
+    }
 }
