@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MemoryNetworkntCacheManager implements NetworkntCacheManager {
-    private Map<String, NetworkntSchema> cache = new ConcurrentHashMap<>();
+    private final Map<String, NetworkntSchema> cache = new ConcurrentHashMap<>();
 
     @Override
     public void cacheSchema(NetworkntSchema schema, String pointer) {
