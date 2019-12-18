@@ -6,7 +6,7 @@ import io.extremum.dynamic.resources.exceptions.ResourceLoadingTimeoutException;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import kong.unirest.Config;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
@@ -29,12 +29,12 @@ import static java.lang.String.format;
 @Testcontainers
 class UnirestExternalResourceLoaderTest {
     @Container
-    MockServerContainer mockServer = new MockServerContainer();
+    static MockServerContainer mockServer = new MockServerContainer();
 
-    MockServerClient msClient;
+    static MockServerClient msClient;
 
-    @BeforeEach
-    void beforeAll() {
+    @BeforeAll
+    static void beforeAll() {
         msClient = new MockServerClient(
                 mockServer.getContainerIpAddress(),
                 mockServer.getServerPort()
@@ -47,6 +47,7 @@ class UnirestExternalResourceLoaderTest {
         InputStream is = loadResourceAsInputStream(this.getClass().getClassLoader(), "test.file.txt");
         String resource = convertInputStreamToString(is);
 
+        msClient.reset();
         msClient.when(
                 HttpRequest.request()
                         .withMethod(HttpMethod.GET.name())
@@ -70,6 +71,7 @@ class UnirestExternalResourceLoaderTest {
     void tryingToLoadUnknownResource_throwResourceNotFoundException() {
         String path = "/path/to/resource";
 
+        msClient.reset();
         msClient.when(
                 HttpRequest.request()
                         .withMethod(HttpMethod.GET.name())
@@ -88,6 +90,7 @@ class UnirestExternalResourceLoaderTest {
     void serverReceiveBasicAuth() {
         String path = "/path/to/resource";
 
+        msClient.reset();
         msClient.when(
                 HttpRequest.request()
                         .withMethod(HttpMethod.GET.name())
@@ -110,6 +113,7 @@ class UnirestExternalResourceLoaderTest {
     void serverReceiveBadBasicAuth_thrown_ForbiddenAccessResourceLoadingException() {
         String path = "/path/to/resource";
 
+        msClient.reset();
         msClient.when(
                 HttpRequest.request()
                         .withMethod(HttpMethod.GET.name())
@@ -135,6 +139,7 @@ class UnirestExternalResourceLoaderTest {
 
         int socketTimeoutOverheadValue = 70;
 
+        msClient.reset();
         msClient
                 .when(
                         HttpRequest.request()
