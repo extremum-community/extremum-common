@@ -8,4 +8,6 @@ public interface NetworkntCacheManager {
     void cacheSchema(NetworkntSchema schema, String pointer);
 
     Optional<NetworkntSchema> fetchFromCache(String pointer);
+
+    void removeFromCache(String pointer);
 }
