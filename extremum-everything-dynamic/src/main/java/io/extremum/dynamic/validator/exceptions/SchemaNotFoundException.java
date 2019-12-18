@@ -16,4 +16,3 @@ public class SchemaNotFoundException extends SchemaLoadingException {
         this.schemaName = schemaName;
     }
 }
-
