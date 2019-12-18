@@ -23,7 +23,7 @@ public class NetworkntUrlFetcherExternalResourceLoader implements ExternalResour
             throw new ResourceNotFoundException(uri, e);
         } catch (IOException e) {
             log.error("Unable to load resource {}", uri, e);
-            throw new ResourceLoadingException(uri);
+            throw new ResourceLoadingException(uri, e);
         }
     }
 }
