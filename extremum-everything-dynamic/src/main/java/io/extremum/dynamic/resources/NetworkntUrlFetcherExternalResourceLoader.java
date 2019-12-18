@@ -14,11 +14,7 @@ import static java.lang.String.format;
 
 @Slf4j
 public class NetworkntUrlFetcherExternalResourceLoader implements ExternalResourceLoader {
-    private final URLFetcher urlFetcher;
-
-    public NetworkntUrlFetcherExternalResourceLoader() {
-        urlFetcher = new URLFetcher();
-    }
+    private final URLFetcher urlFetcher = new URLFetcher();
 
     @Override
     public InputStream loadAsInputStream(URI uri) throws ResourceLoadingException {
