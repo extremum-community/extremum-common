@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-@ConfigurationProperties("github")
+@ConfigurationProperties("github.schema")
 public class GithubSchemaProperties {
     @NotNull
     private int webhookListenerPort;
