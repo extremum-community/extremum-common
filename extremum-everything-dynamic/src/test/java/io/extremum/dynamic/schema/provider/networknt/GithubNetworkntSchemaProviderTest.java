@@ -9,7 +9,6 @@ import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,6 +29,8 @@ import java.util.Set;
 import static io.extremum.dynamic.TestUtils.convertInputStreamToString;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -132,11 +133,11 @@ class GithubNetworkntSchemaProviderTest {
                             .readValue("{\"field1\": 12, \"field3\": {\"externalField\": 12}}", JsonNode.class)
             );
 
-            Assertions.assertEquals(2, messages.size());
+            assertEquals(2, messages.size());
         } catch (Exception e) {
             e.printStackTrace();
             log.warn("MockServer logs: {}", mockServerContainer.getLogs());
-            Assertions.fail("Something went wrong:(");
+            fail("Something went wrong:(");
         }
     }
 
@@ -150,6 +151,6 @@ class GithubNetworkntSchemaProviderTest {
                 mock(GithubAccessOptions.class)
         );
 
-        Assertions.assertEquals(type, provider.getSchemaType());
+        assertEquals(type, provider.getSchemaType());
     }
 }

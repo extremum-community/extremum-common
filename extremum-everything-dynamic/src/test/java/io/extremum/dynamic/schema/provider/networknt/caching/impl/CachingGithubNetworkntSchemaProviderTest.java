@@ -6,11 +6,11 @@ import io.extremum.dynamic.schema.provider.networknt.caching.CachingNetworkntSch
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CachingGithubNetworkntSchemaProviderTest {
@@ -31,7 +31,7 @@ class CachingGithubNetworkntSchemaProviderTest {
         verify(manager).fetchFromCache(pointer);
         verify(githuSchemaProvider, never()).loadSchema(anyString());
 
-        Assertions.assertNotNull(provided);
+        assertNotNull(provided);
     }
 
     @Test
@@ -50,7 +50,7 @@ class CachingGithubNetworkntSchemaProviderTest {
         verify(manager).fetchFromCache(pointer);
         verify(githuSchemaProvider).loadSchema(anyString());
 
-        Assertions.assertNotNull(provided);
+        assertNotNull(provided);
     }
 
     @Test
@@ -64,7 +64,7 @@ class CachingGithubNetworkntSchemaProviderTest {
         when(manager.fetchFromCache(pointer)).thenReturn(Optional.empty());
         when(githuSchemaProvider.loadSchema(pointer)).thenThrow(SchemaLoadingException.class);
 
-        Assertions.assertThrows(SchemaLoadingException.class, () -> provider.loadSchema(pointer));
+        assertThrows(SchemaLoadingException.class, () -> provider.loadSchema(pointer));
 
         verify(manager).fetchFromCache(pointer);
         verify(githuSchemaProvider).loadSchema(anyString());
@@ -84,6 +84,6 @@ class CachingGithubNetworkntSchemaProviderTest {
                 githubSchemaProvider
         );
 
-        Assertions.assertEquals(schemaType, provider.getSchemaType());
+        assertEquals(schemaType, provider.getSchemaType());
     }
 }

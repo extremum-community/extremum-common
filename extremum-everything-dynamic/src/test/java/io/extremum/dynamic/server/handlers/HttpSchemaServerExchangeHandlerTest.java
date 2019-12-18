@@ -3,7 +3,6 @@ package io.extremum.dynamic.server.handlers;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import io.extremum.dynamic.TestUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class HttpSchemaServerExchangeHandlerTest {
@@ -58,13 +58,13 @@ class HttpSchemaServerExchangeHandlerTest {
         // check response content
         String expectedContent = TestUtils.convertInputStreamToString(contentIs);
         String actualContent = new String(responseBody.toByteArray());
-        Assertions.assertEquals(expectedContent, actualContent);
+        assertEquals(expectedContent, actualContent);
 
         // check content-type
-        Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, responseHeaders.get(HttpHeaders.CONTENT_TYPE).get(0));
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, responseHeaders.get(HttpHeaders.CONTENT_TYPE).get(0));
 
         // check response code
-        Assertions.assertEquals(HttpStatus.OK.value(), (int) codeCaptor.getValue());
+        assertEquals(HttpStatus.OK.value(), (int) codeCaptor.getValue());
     }
 
     @Test
@@ -87,7 +87,7 @@ class HttpSchemaServerExchangeHandlerTest {
         ArgumentCaptor<Integer> captorCode = ArgumentCaptor.forClass(Integer.class);
         verify(exchange).sendResponseHeaders(captorCode.capture(), anyLong());
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), (int) captorCode.getValue());
+        assertEquals(HttpStatus.NOT_FOUND.value(), (int) captorCode.getValue());
         verify(responseOutputStream).close();
     }
 }

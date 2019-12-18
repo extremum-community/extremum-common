@@ -7,7 +7,6 @@ import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -16,8 +15,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FileSystemNetworkntSchemaProviderTest {
     static FileSystemNetworkntSchemaProvider provider;
@@ -57,7 +55,7 @@ class FileSystemNetworkntSchemaProviderTest {
         JsonNode jsonNode = mapper.readValue(modelData, JsonNode.class);
         Set<ValidationMessage> violations = schema.getSchema().validate(jsonNode);
 
-        Assertions.assertFalse(violations.isEmpty());
+        assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -67,7 +65,7 @@ class FileSystemNetworkntSchemaProviderTest {
         NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09,
                 Paths.get(url.getPath()));
 
-        Assertions.assertThrows(SchemaNotFoundException.class, () -> provider.loadSchema("unknownSchema"));
+        assertThrows(SchemaNotFoundException.class, () -> provider.loadSchema("unknownSchema"));
     }
 
     @Test
@@ -77,7 +75,7 @@ class FileSystemNetworkntSchemaProviderTest {
         NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09,
                 Paths.get(url.getPath()));
 
-        Assertions.assertThrows(SchemaNotFoundException.class,
+        assertThrows(SchemaNotFoundException.class,
                 () -> provider.loadSchema("complex_with_bad_ref.schema.json"));
     }
 }

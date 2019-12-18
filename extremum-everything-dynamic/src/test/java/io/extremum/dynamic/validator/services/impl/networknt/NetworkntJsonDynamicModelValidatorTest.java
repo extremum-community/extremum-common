@@ -9,12 +9,14 @@ import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSch
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NetworkntJsonDynamicModelValidatorTest {
     NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
@@ -27,7 +29,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"a\":\"b\"}");
         JsonDynamicModel model = new JsonDynamicModel("schemas/simple.schema.json", modelData);
 
-        Assertions.assertDoesNotThrow(() -> validator.validate(model));
+        assertDoesNotThrow(() -> validator.validate(model));
     }
 
     @Test
@@ -35,7 +37,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("schemas/simple.schema.json", modelData);
 
-        Assertions.assertThrows(DynamicModelValidationException.class, () -> validator.validate(model));
+        assertThrows(DynamicModelValidationException.class, () -> validator.validate(model));
     }
 
     @Test
@@ -43,7 +45,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("unknown_schema", modelData);
 
-        Assertions.assertThrows(SchemaNotFoundException.class, () -> validator.validate(model));
+        assertThrows(SchemaNotFoundException.class, () -> validator.validate(model));
     }
 
     @Test
@@ -51,7 +53,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("schemas/complex_with_bad_ref.schema.json", modelData);
 
-        Assertions.assertThrows(SchemaNotFoundException.class, () -> validator.validate(model));
+        assertThrows(SchemaNotFoundException.class, () -> validator.validate(model));
     }
 
     private Path makeBasicDirectory() {
