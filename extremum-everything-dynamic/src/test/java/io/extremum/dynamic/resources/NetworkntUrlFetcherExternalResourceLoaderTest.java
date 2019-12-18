@@ -1,7 +1,6 @@
 package io.extremum.dynamic.resources;
 
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -16,6 +15,8 @@ import java.net.URI;
 import static io.extremum.dynamic.TestUtils.convertInputStreamToString;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -56,7 +57,7 @@ class NetworkntUrlFetcherExternalResourceLoaderTest {
         InputStream is = loader.loadAsInputStream(URI.create(host).resolve(path));
         String receivedContent = convertInputStreamToString(is);
 
-        Assertions.assertEquals(localResourceContent, receivedContent);
+        assertEquals(localResourceContent, receivedContent);
     }
 
     @Test
@@ -75,7 +76,7 @@ class NetworkntUrlFetcherExternalResourceLoaderTest {
                         .withStatusCode(HttpStatus.NOT_FOUND.value())
         );
 
-        Assertions.assertThrows(ResourceNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> loader.loadAsInputStream(URI.create(host).resolve(path)));
     }
 }

@@ -5,7 +5,6 @@ import io.extremum.dynamic.resources.exceptions.ResourceLoadingException;
 import io.extremum.dynamic.resources.exceptions.ResourceLoadingTimeoutException;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import kong.unirest.Config;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -25,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import static io.extremum.dynamic.TestUtils.convertInputStreamToString;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 class UnirestExternalResourceLoaderTest {
@@ -64,7 +64,7 @@ class UnirestExternalResourceLoaderTest {
 
         String response = convertInputStreamToString(responseIS);
 
-        Assertions.assertEquals(resource, response);
+        assertEquals(resource, response);
     }
 
     @Test
@@ -83,7 +83,7 @@ class UnirestExternalResourceLoaderTest {
 
         String uriToMockServer = createUriToMockServer(path);
         ResourceLoader loader = new UnirestExternalResourceLoader();
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> loader.loadAsInputStream(URI.create(uriToMockServer)));
+        assertThrows(ResourceNotFoundException.class, () -> loader.loadAsInputStream(URI.create(uriToMockServer)));
     }
 
     @Test
@@ -106,7 +106,7 @@ class UnirestExternalResourceLoaderTest {
         Config config = new Config();
         config.setDefaultBasicAuth("aaa", "bbb");
         ResourceLoader loader = new UnirestExternalResourceLoader(config);
-        Assertions.assertDoesNotThrow(() -> loader.loadAsInputStream(URI.create(uriToMockServer)));
+        assertDoesNotThrow(() -> loader.loadAsInputStream(URI.create(uriToMockServer)));
     }
 
     @Test
@@ -129,7 +129,7 @@ class UnirestExternalResourceLoaderTest {
         Config config = new Config();
         config.setDefaultBasicAuth("aaa", "bbb");
         ResourceLoader loader = new UnirestExternalResourceLoader(config);
-        Assertions.assertThrows(AccessForbiddenResourceLoadingException.class,
+        assertThrows(AccessForbiddenResourceLoadingException.class,
                 () -> loader.loadAsInputStream(URI.create(uriToMockServer)));
     }
 
@@ -157,7 +157,7 @@ class UnirestExternalResourceLoaderTest {
                 mockServer.getServerPort()
         )).resolve(path);
 
-        Assertions.assertThrows(ResourceLoadingTimeoutException.class, () -> loader.loadAsInputStream(uri),
+        assertThrows(ResourceLoadingTimeoutException.class, () -> loader.loadAsInputStream(uri),
                 () -> format("Here is a logs of a MockServer %s", mockServer.getLogs()));
     }
 

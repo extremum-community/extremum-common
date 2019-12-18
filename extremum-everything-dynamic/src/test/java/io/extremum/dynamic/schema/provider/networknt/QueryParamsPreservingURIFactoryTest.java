@@ -1,12 +1,13 @@
 package io.extremum.dynamic.schema.provider.networknt;
 
 import com.networknt.schema.uri.URIFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class QueryParamsPreservingURIFactoryTest {
     @Test
@@ -15,7 +16,7 @@ class QueryParamsPreservingURIFactoryTest {
         String uriString = "http://localhost/path/to/resource?param=value&p2=v2";
         URI resultUri = factory.create(uriString);
 
-        Assertions.assertEquals(uriString, resultUri.toString());
+        assertEquals(uriString, resultUri.toString());
     }
 
     @Test
@@ -29,7 +30,7 @@ class QueryParamsPreservingURIFactoryTest {
 
         URI resultUri = factory.create(URI.create(uriString), pathToOtherResource);
 
-        Assertions.assertEquals(base + pathToOtherResource, resultUri.toString());
+        assertEquals(base + pathToOtherResource, resultUri.toString());
     }
 
     @Test
@@ -50,15 +51,15 @@ class QueryParamsPreservingURIFactoryTest {
 
         String resultQueryParams = resultUri.getQuery();
 
-        Assertions.assertNotNull(resultQueryParams);
+        assertNotNull(resultQueryParams);
 
         String[] splitted = resultQueryParams.split("&");
-        Assertions.assertEquals(3, splitted.length);
+        assertEquals(3, splitted.length);
 
         HashSet<String> params = new HashSet<>(Arrays.asList(splitted));
-        Assertions.assertTrue(params.contains(p1));
-        Assertions.assertTrue(params.contains(p2));
-        Assertions.assertTrue(params.contains(oP1));
+        assertTrue(params.contains(p1));
+        assertTrue(params.contains(p2));
+        assertTrue(params.contains(oP1));
     }
 
     @Test
@@ -75,13 +76,13 @@ class QueryParamsPreservingURIFactoryTest {
 
         String resultQueryParams = resultUri.getQuery();
 
-        Assertions.assertNotNull(resultQueryParams);
+        assertNotNull(resultQueryParams);
 
         String[] splitted = resultQueryParams.split("&");
-        Assertions.assertEquals(1, splitted.length);
+        assertEquals(1, splitted.length);
 
         HashSet<String> params = new HashSet<>(Arrays.asList(splitted));
-        Assertions.assertTrue(params.contains(oP1));
+        assertTrue(params.contains(oP1));
     }
 
     @Test
@@ -101,13 +102,13 @@ class QueryParamsPreservingURIFactoryTest {
 
         String resultQueryParams = resultUri.getQuery();
 
-        Assertions.assertNotNull(resultQueryParams);
+        assertNotNull(resultQueryParams);
 
         String[] splitted = resultQueryParams.split("&");
-        Assertions.assertEquals(2, splitted.length);
+        assertEquals(2, splitted.length);
 
         HashSet<String> params = new HashSet<>(Arrays.asList(splitted));
-        Assertions.assertTrue(params.contains(p1));
-        Assertions.assertTrue(params.contains(p2));
+        assertTrue(params.contains(p1));
+        assertTrue(params.contains(p2));
     }
 }

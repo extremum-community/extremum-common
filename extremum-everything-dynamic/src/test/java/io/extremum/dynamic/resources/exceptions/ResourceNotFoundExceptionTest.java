@@ -1,9 +1,10 @@
 package io.extremum.dynamic.resources.exceptions;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResourceNotFoundExceptionTest {
     @Test
@@ -11,7 +12,7 @@ class ResourceNotFoundExceptionTest {
         URI uri = URI.create("path");
         ResourceNotFoundException ex = new ResourceNotFoundException(uri);
 
-        Assertions.assertEquals(uri.toString(), ex.getResourceUri().toString());
+        assertEquals(uri.toString(), ex.getResourceUri().toString());
     }
 
     @Test
@@ -19,6 +20,6 @@ class ResourceNotFoundExceptionTest {
         URI uri = URI.create("path");
         ResourceNotFoundException ex = new ResourceNotFoundException(uri);
 
-        Assertions.assertEquals("Resource wasn't found " + uri, ex.getMessage());
+        assertEquals("Resource wasn't found " + uri, ex.getMessage());
     }
 }

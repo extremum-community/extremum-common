@@ -1,7 +1,8 @@
 package io.extremum.dynamic.resources.github;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GithubResourceConfigurationTest {
     @Test
@@ -18,9 +19,9 @@ class GithubResourceConfigurationTest {
                 ref
         );
 
-        Assertions.assertEquals(owner, opts.getOwner());
-        Assertions.assertEquals(repo, opts.getRepo());
-        Assertions.assertEquals(path, opts.getSchemaPath());
-        Assertions.assertEquals(ref, opts.getRef());
+        assertEquals(owner, opts.getOwner());
+        assertEquals(repo, opts.getRepo());
+        assertEquals(path, opts.getSchemaPath());
+        assertEquals(ref, opts.getRef());
     }
 }
