@@ -7,7 +7,6 @@
         <artifactId>extremum-module-parent</artifactId>
         <version>1.0.17-SNAPSHOT</version>
         <relativePath>../extremum-module-parent</relativePath>
-        <!-- testing dependencies-->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,7 +35,7 @@
             <version>${unirest.version}</version>
         </dependency>
 
-        <!-- testing -->
+        <!-- testing dependencies-->
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>

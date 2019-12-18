@@ -8,9 +8,11 @@ import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class JsonBasedDynamicModelService implements DynamicModelService<JsonDynamicModel> {
     private final MongoDynamicModelDao dao;
