@@ -37,7 +37,8 @@ public class HttpSchemaServer implements SchemaServer {
             server.start();
 
             serverRunning = true;
-            log.info("SchemaServer {} is running and ready to connect", this);
+            log.info("SchemaServer {} is running on context path {} and ready to connect on port {}",
+                    this, serverContextPath, serverPort);
         } catch (IOException e) {
             log.error("SchemaServer can't be initialized", e);
             throw new SchemaServerInitializationException("Initialization server error", e);

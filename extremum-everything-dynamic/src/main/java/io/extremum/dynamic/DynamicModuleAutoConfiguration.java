@@ -7,12 +7,16 @@ import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManag
 import io.extremum.dynamic.schema.provider.networknt.caching.impl.CachingGithubNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.impl.MemoryNetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
+import io.extremum.dynamic.server.impl.GithubWebhookListenerHttpSchemaServer;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Collection;
 
 @Configuration
 @EnableConfigurationProperties({GithubSchemaProperties.class})
@@ -41,12 +45,23 @@ public class DynamicModuleAutoConfiguration {
 
     @Bean
     public CachingGithubNetworkntSchemaProvider cachingGithubNetworkntSchemaProvider(NetworkntCacheManager schemaCacheManager,
-                                                                       GithubNetworkntSchemaProvider githubSchemaProvider) {
+                                                                                     GithubNetworkntSchemaProvider githubSchemaProvider) {
         return new CachingGithubNetworkntSchemaProvider(schemaCacheManager, githubSchemaProvider);
     }
 
     @Bean
     public JsonDynamicModelValidator jsonDynamicModelValidator(CachingGithubNetworkntSchemaProvider provider) {
         return new NetworkntJsonDynamicModelValidator(provider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public GithubWebhookListenerHttpSchemaServer githubWebhookListenerHttpSchemaServer(GithubSchemaProperties githubSchemaProperties,
+                                                                                       Collection<NetworkntCacheManager> cacheManagers) {
+        return new GithubWebhookListenerHttpSchemaServer(
+                githubSchemaProperties.getWebhookListenerPort(),
+                githubSchemaProperties.getWebhookListenerServerContext(),
+                cacheManagers
+        );
     }
 }
