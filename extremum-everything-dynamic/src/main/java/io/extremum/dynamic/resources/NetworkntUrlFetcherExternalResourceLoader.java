@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import static java.lang.String.format;
-
 @Slf4j
 public class NetworkntUrlFetcherExternalResourceLoader implements ExternalResourceLoader {
     private final URLFetcher urlFetcher = new URLFetcher();
@@ -21,9 +19,7 @@ public class NetworkntUrlFetcherExternalResourceLoader implements ExternalResour
         try {
             return urlFetcher.fetch(uri);
         } catch (FileNotFoundException e) {
-            String msg = format("Resource %s is not found", uri);
-
-            log.error(msg, e);
+            log.error("Resource {} is not found", uri, e);
             throw new ResourceNotFoundException(uri, e);
         } catch (IOException e) {
             log.error("Unable to load resource {}", uri, e);

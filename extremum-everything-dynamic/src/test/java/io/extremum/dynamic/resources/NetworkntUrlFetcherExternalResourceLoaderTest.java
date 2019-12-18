@@ -2,7 +2,7 @@ package io.extremum.dynamic.resources;
 
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.springframework.http.HttpStatus;
@@ -22,12 +22,12 @@ import static org.mockserver.model.HttpResponse.response;
 @Testcontainers
 class NetworkntUrlFetcherExternalResourceLoaderTest {
     @Container
-    MockServerContainer mockServerContainer = new MockServerContainer();
+    static MockServerContainer mockServerContainer = new MockServerContainer();
 
-    MockServerClient msClient;
+    static MockServerClient msClient;
 
-    @BeforeEach
-    void beforeEach() {
+    @BeforeAll
+    static void beforeAll() {
         msClient = new MockServerClient(
                 mockServerContainer.getContainerIpAddress(),
                 mockServerContainer.getServerPort()
