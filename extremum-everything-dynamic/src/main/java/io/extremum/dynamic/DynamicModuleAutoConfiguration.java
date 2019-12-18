@@ -36,11 +36,11 @@ public class DynamicModuleAutoConfiguration {
                 githubSchemaProperties.getRef()
         );
 
-        GithubAccessOptions gihubAccessOpts = new GithubAccessOptions(
+        GithubAccessOptions githubAccessOpts = new GithubAccessOptions(
                 githubSchemaProperties.getToken()
         );
 
-        return new GithubNetworkntSchemaProvider(JsonSchemaType.V2019_09, githubResConfig, gihubAccessOpts);
+        return new GithubNetworkntSchemaProvider(JsonSchemaType.V2019_09, githubResConfig, githubAccessOpts);
     }
 
     @Bean
