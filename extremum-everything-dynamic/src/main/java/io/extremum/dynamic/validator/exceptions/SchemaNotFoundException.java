@@ -2,7 +2,7 @@ package io.extremum.dynamic.validator.exceptions;
 
 import lombok.Getter;
 
-public class SchemaNotFoundException extends RuntimeException {
+public class SchemaNotFoundException extends SchemaLoadingException {
     @Getter
     private final String schemaName;
 
@@ -16,4 +16,3 @@ public class SchemaNotFoundException extends RuntimeException {
         this.schemaName = schemaName;
     }
 }
-

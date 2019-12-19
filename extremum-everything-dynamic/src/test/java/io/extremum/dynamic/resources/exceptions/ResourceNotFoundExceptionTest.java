@@ -1,25 +1,25 @@
 package io.extremum.dynamic.resources.exceptions;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResourceNotFoundExceptionTest {
     @Test
     void getResourcePath() {
-        Path path = Paths.get("path");
-        ResourceNotFoundException ex = new ResourceNotFoundException(path);
+        URI uri = URI.create("path");
+        ResourceNotFoundException ex = new ResourceNotFoundException(uri);
 
-        Assertions.assertEquals(path.toString(), ex.getResourcePath().toString());
+        assertEquals(uri.toString(), ex.getResourceUri().toString());
     }
 
     @Test
     void messageContainsAPath() {
-        Path path = Paths.get("path");
-        ResourceNotFoundException ex = new ResourceNotFoundException(path);
+        URI uri = URI.create("path");
+        ResourceNotFoundException ex = new ResourceNotFoundException(uri);
 
-        Assertions.assertEquals("Resource wasn't found " + path, ex.getMessage());
+        assertEquals("Resource wasn't found " + uri, ex.getMessage());
     }
 }

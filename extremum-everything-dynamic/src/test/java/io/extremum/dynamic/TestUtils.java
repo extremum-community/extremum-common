@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class Utils {
+public class TestUtils {
     public static InputStream loadResourceAsInputStream(ClassLoader loader, String resourceName) {
         return loader.getResourceAsStream(resourceName);
     }

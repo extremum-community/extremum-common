@@ -1,10 +1,10 @@
 package io.extremum.dynamic.resources;
 
-import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
+import io.extremum.dynamic.resources.exceptions.ResourceLoadingException;
 
 import java.io.InputStream;
-import java.nio.file.Path;
+import java.net.URI;
 
 public interface ResourceLoader {
-    InputStream loadAsInputStream(Path path) throws ResourceNotFoundException;
+    InputStream loadAsInputStream(URI uri) throws ResourceLoadingException;
 }

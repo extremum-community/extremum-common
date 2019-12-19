@@ -3,7 +3,7 @@ package io.extremum.dynamic.validator.services.impl.networknt;
 import com.networknt.schema.ValidationMessage;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
-import io.extremum.dynamic.schema.networknt.NetworkntSchemaProvider;
+import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.validator.Violation;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;

@@ -7,13 +7,12 @@ import com.networknt.schema.JsonSchemaFactory;
 import integration.io.extremum.dynamic.EmptyConfiguration;
 import io.extremum.dynamic.dao.impl.MongoDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.dynamic.schema.networknt.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
+import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -28,7 +27,9 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import static io.extremum.dynamic.Utils.loadResourceAsInputStream;
+import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = EmptyConfiguration.class)
@@ -65,7 +66,7 @@ class JsonBasedDynamicModelServiceTest {
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(saved)
-                .assertNext(resultModel -> Assertions.assertEquals(resultModel, model))
+                .assertNext(resultModel -> assertEquals(resultModel, model))
                 .verifyComplete();
     }
 
@@ -119,16 +120,16 @@ class JsonBasedDynamicModelServiceTest {
     private void verify_DynamicModelDao_HasAccept_Model_1_times(JsonDynamicModel model) {
         verify(dao, Mockito.times(1)).save(modelCaptor.capture());
 
-        Assertions.assertEquals(model, modelCaptor.getValue());
+        assertEquals(model, modelCaptor.getValue());
     }
 
     private void verify_Validator_HasAccept_Model_1_times(JsonDynamicModel model) {
         try {
             verify(modelValidator, Mockito.times(1)).validate(modelCaptor.capture());
 
-            Assertions.assertEquals(model, modelCaptor.getValue());
+            assertEquals(model, modelCaptor.getValue());
         } catch (DynamicModelValidationException | SchemaNotFoundException e) {
-            Assertions.fail("Unexpected exception " + e);
+            fail("Unexpected exception " + e);
         }
     }
 
@@ -140,7 +141,7 @@ class JsonBasedDynamicModelServiceTest {
 
             when(dao.save(model)).thenReturn(Mono.just(model));
         } catch (DynamicModelValidationException | SchemaNotFoundException e) {
-            Assertions.fail("Unexpected exception " + e);
+            fail("Unexpected exception " + e);
         }
     }
 }

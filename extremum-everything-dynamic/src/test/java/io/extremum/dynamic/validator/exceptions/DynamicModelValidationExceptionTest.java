@@ -1,12 +1,13 @@
 package io.extremum.dynamic.validator.exceptions;
 
 import io.extremum.dynamic.validator.Violation;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class DynamicModelValidationExceptionTest {
     @Test
@@ -18,7 +19,7 @@ class DynamicModelValidationExceptionTest {
         DynamicModelValidationException ex = new DynamicModelValidationException(violations);
         String toString = ex.toString();
 
-        Assertions.assertTrue(toString.matches("^Violations: <violation \\d>; <violation \\d>; <violation \\d>$"));
+        assertTrue(toString.matches("^Violations: <violation \\d>; <violation \\d>; <violation \\d>$"));
     }
 
     @Test
@@ -31,8 +32,8 @@ class DynamicModelValidationExceptionTest {
 
         Set<Violation> violationsFromEx = ex.getViolations();
 
-        Assertions.assertNotNull(violationsFromEx);
-        Assertions.assertEquals(3, violationsFromEx.size());
+        assertNotNull(violationsFromEx);
+        assertEquals(3, violationsFromEx.size());
 
         assertContainsViolation(violationsFromEx, "violation 1");
         assertContainsViolation(violationsFromEx, "violation 2");
@@ -43,6 +44,6 @@ class DynamicModelValidationExceptionTest {
         boolean matched = violationsFromEx.stream()
                 .anyMatch(v -> v.getMessage().equals(expected));
 
-        Assertions.assertTrue(matched, "Violation " + expected + "doesn't contains in violations set");
+        assertTrue(matched, "Violation " + expected + "doesn't contains in violations set");
     }
 }

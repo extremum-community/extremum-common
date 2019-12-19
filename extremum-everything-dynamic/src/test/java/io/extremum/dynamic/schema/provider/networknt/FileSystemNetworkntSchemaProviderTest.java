@@ -1,15 +1,12 @@
-package io.extremum.dynamic.schema;
+package io.extremum.dynamic.schema.provider.networknt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.ValidationMessage;
-import io.extremum.dynamic.resources.LocalResourceLoader;
-import io.extremum.dynamic.resources.ResourceLoader;
-import io.extremum.dynamic.schema.networknt.FileSystemNetworkntSchemaProvider;
+import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
-import io.extremum.dynamic.schema.networknt.NetworkntSchemaProvider;
+import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -18,19 +15,18 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FileSystemNetworkntSchemaProviderTest {
-    static ResourceLoader localResourceLoader = new LocalResourceLoader();
     static FileSystemNetworkntSchemaProvider provider;
 
     @BeforeAll
     static void before() {
-        String pathToFile = FileSystemNetworkntSchemaProviderTest.class.getClassLoader().getResource("test.file.txt").getPath();
+        String pathToFile = FileSystemNetworkntSchemaProviderTest.class.getClassLoader()
+                .getResource("test.file.txt").getPath();
         String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
 
-        provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader,
+        provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09,
                 Paths.get(base, "schemas"));
     }
 
@@ -59,24 +55,27 @@ class FileSystemNetworkntSchemaProviderTest {
         JsonNode jsonNode = mapper.readValue(modelData, JsonNode.class);
         Set<ValidationMessage> violations = schema.getSchema().validate(jsonNode);
 
-        Assertions.assertFalse(violations.isEmpty());
+        assertFalse(violations.isEmpty());
     }
 
     @Test
     void schemaNotFoundException_fileBySchemaPath_isNotFound() {
         URL url = this.getClass().getClassLoader().getResource("test.file.txt");
 
-        NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader, Paths.get(url.getPath()));
+        NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09,
+                Paths.get(url.getPath()));
 
-        Assertions.assertThrows(SchemaNotFoundException.class, () -> provider.loadSchema("unknownSchema"));
+        assertThrows(SchemaNotFoundException.class, () -> provider.loadSchema("unknownSchema"));
     }
 
     @Test
     void schemaNotFoundException_fileByRefInSchema_isNotFound() {
         URL url = this.getClass().getClassLoader().getResource("schemas");
 
-        NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09, localResourceLoader, Paths.get(url.getPath()));
+        NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(JsonSchemaType.V2019_09,
+                Paths.get(url.getPath()));
 
-        Assertions.assertThrows(SchemaNotFoundException.class, () -> provider.loadSchema("complex_with_bad_ref.schema.json"));
+        assertThrows(SchemaNotFoundException.class,
+                () -> provider.loadSchema("complex_with_bad_ref.schema.json"));
     }
 }
