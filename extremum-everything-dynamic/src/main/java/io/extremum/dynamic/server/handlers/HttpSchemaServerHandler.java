@@ -12,10 +12,10 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor
 public class HttpSchemaServerHandler implements HttpHandler {
     private final ExecutorService executor;
-    private final Path schemaCatalog;
+    private final Path schemaDirectory;
 
     @Override
     public void handle(HttpExchange httpExchange) {
-        executor.submit(new HttpSchemaServerExchangeHandler(httpExchange, schemaCatalog));
+        executor.submit(new HttpSchemaServerExchangeHandler(httpExchange, schemaDirectory));
     }
 }
