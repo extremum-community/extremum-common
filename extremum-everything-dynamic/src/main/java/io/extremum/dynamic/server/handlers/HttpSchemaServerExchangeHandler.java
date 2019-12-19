@@ -14,18 +14,18 @@ import java.nio.file.Paths;
 @Slf4j
 public class HttpSchemaServerExchangeHandler implements Runnable {
     private final HttpExchange exchange;
-    private final Path basicSchemaCatalog;
+    private final Path basicSchemaDirectory;
 
-    public HttpSchemaServerExchangeHandler(HttpExchange exchange, Path basicSchemaCatalog) {
+    public HttpSchemaServerExchangeHandler(HttpExchange exchange, Path basicSchemaDirectory) {
         this.exchange = exchange;
-        this.basicSchemaCatalog = basicSchemaCatalog;
+        this.basicSchemaDirectory = basicSchemaDirectory;
     }
 
     @Override
     public void run() {
         try {
             String path = exchange.getRequestURI().getPath();
-            Path schemaPath = Paths.get(basicSchemaCatalog.toString(), path);
+            Path schemaPath = Paths.get(basicSchemaDirectory.toString(), path);
 
             if (Files.exists(schemaPath)) {
                 respondStatus(HttpStatus.OK);

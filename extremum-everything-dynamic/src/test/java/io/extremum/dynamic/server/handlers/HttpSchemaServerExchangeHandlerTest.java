@@ -71,7 +71,7 @@ class HttpSchemaServerExchangeHandlerTest {
     void respond_404_ifRequestedResourceNotFound() throws IOException {
         HttpExchange exchange = mock(HttpExchange.class);
 
-        Path baseCatalog = Paths.get("unknown_catalog");
+        Path baseDirectory = Paths.get("unknown_directory");
 
         OutputStream responseOutputStream = mock(OutputStream.class);
 
@@ -81,7 +81,7 @@ class HttpSchemaServerExchangeHandlerTest {
         when(exchange.getResponseHeaders()).thenReturn(mock(Headers.class));
         when(exchange.getResponseBody()).thenReturn(responseOutputStream);
 
-        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, baseCatalog);
+        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, baseDirectory);
         handler.run();
 
         ArgumentCaptor<Integer> captorCode = ArgumentCaptor.forClass(Integer.class);
