@@ -1,6 +1,9 @@
 github:
-  owner: owner
-  ref: ref
-  repo: repoName
-  schema-path: /path/to/schemas
-  token: githubAccessToken
+  schema:
+    owner: owner
+    ref: ref
+    repo: repoName
+    schema-path: /path/to/schemas
+    token: githubAccessToken
+    webhook-listener-port: 0
+    webhook-listener-server-context: /webhooks/github/push/clear-caches
