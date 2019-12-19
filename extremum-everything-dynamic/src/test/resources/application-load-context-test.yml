@@ -1,6 +1,7 @@
 github:
-  owner: owner
-  ref: ref
-  repo: repoName
-  schema-path: /path/to/schemas
-  token: githubAccessToken
+  schema:
+    owner: owner
+    ref: ref
+    repo: repoName
+    schema-path: /path/to/schemas
+    token: githubAccessToken
