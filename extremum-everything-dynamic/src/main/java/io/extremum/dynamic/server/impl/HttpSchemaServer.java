@@ -18,7 +18,7 @@ public class HttpSchemaServer implements SchemaServer {
     private final HttpHandler httpHandler;
     private HttpServer server;
 
-    private boolean serverRunning = false;
+    private volatile boolean serverRunning = false;
 
     @Override
     public void launch() throws SchemaServerInitializationException {

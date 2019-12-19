@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GithubWebhookListenerLauncher implements ApplicationListener<ContextRefreshedEvent> {
     private final GithubWebhookListenerHttpSchemaServer server;
-    private boolean alreadyOccurred = false;
+    private volatile boolean alreadyOccurred = false;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
