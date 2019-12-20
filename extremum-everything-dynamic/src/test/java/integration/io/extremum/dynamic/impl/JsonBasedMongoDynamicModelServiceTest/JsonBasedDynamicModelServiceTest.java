@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import integration.io.extremum.dynamic.EmptyConfiguration;
-import io.extremum.dynamic.dao.impl.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
@@ -41,7 +41,7 @@ class JsonBasedDynamicModelServiceTest {
     NetworkntJsonDynamicModelValidator modelValidator;
 
     @MockBean
-    MongoDynamicModelDao dao;
+    MongoJsonDynamicModelDao dao;
 
     @Captor
     ArgumentCaptor<JsonDynamicModel> modelCaptor;
