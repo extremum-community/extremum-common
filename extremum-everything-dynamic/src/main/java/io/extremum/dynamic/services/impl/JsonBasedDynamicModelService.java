@@ -1,6 +1,8 @@
 package io.extremum.dynamic.services.impl;
 
+import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
+import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DynamicModelService;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
@@ -12,12 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import static reactor.core.publisher.Mono.error;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JsonBasedDynamicModelService implements DynamicModelService<JsonDynamicModel> {
     private final MongoJsonDynamicModelDao dao;
     private final JsonDynamicModelValidator modelValidator;
+    private final DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
@@ -29,16 +34,18 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
             return dao.save(model, collectionName);
         } catch (DynamicModelValidationException e) {
             log.error("Model {} is not valid", model, e);
-            return Mono.error(e);
+            return error(e);
         } catch (SchemaNotFoundException e) {
             log.error("Schema not found for model {}", model, e);
-            return Mono.error(e);
+            return error(e);
         }
     }
 
     @Override
     public Mono<JsonDynamicModel> findById(Descriptor id) {
-        return dao.getByIdFromCollection(id, getCollectionName(id));
+        return dao.getByIdFromCollection(id, getCollectionName(id))
+                .map(metadataProvider::provideMetadata)
+                .switchIfEmpty(error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
     }
 
     private String getCollectionName(Descriptor descr) {

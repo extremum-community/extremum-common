@@ -6,6 +6,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import integration.io.extremum.dynamic.EmptyConfiguration;
 import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
+import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
@@ -43,6 +44,9 @@ class JsonBasedDynamicModelServiceTest {
     @MockBean
     MongoJsonDynamicModelDao dao;
 
+    @MockBean
+    DefaultJsonDynamicModelMetadataProvider metadataProvider;
+
     @Captor
     ArgumentCaptor<JsonDynamicModel> modelCaptor;
 
@@ -56,7 +60,7 @@ class JsonBasedDynamicModelServiceTest {
 
         configureBehavior(schemaName, model, schema);
 
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
@@ -72,7 +76,7 @@ class JsonBasedDynamicModelServiceTest {
 
     @Test
     void notValidModelIsNotSaves() throws IOException {
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
         String invalidModelRawValue = "{\"field1\":1}";
 
@@ -97,7 +101,7 @@ class JsonBasedDynamicModelServiceTest {
 
     @Test
     void modelIsNotSaved_schemaDoesntExists() {
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
         String unknownModel = "unknownModel";
 

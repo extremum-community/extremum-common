@@ -4,17 +4,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
+import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.test.containers.MongoContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @ActiveProfiles("save-model-test")
@@ -22,6 +29,14 @@ import java.io.IOException;
 class MongoJsonDynamicModelDaoTest {
     @Autowired
     MongoJsonDynamicModelDao dao;
+
+    @MockBean
+    DefaultJsonDynamicModelMetadataProvider metadataProvider;
+
+    @BeforeEach
+    void beforeEach() {
+        when(metadataProvider.provideMetadata(any())).thenReturn(mock(JsonDynamicModel.class));
+    }
 
     static {
         new MongoContainer();
