@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.Success;
-import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -51,7 +50,7 @@ public class MongoJsonDynamicModelDao {
                     Descriptor descr = mongoDescriptorFacilities.fromInternalId(doc.getObjectId("_id").toString());
                     doc.remove("_id");
                     return new JsonDynamicModel(descr, descr.getModelType(), toNode(doc.toJson()));
-                }).switchIfEmpty(Mono.error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
+                });
     }
 
     private Function<MongoCollection<Document>, Mono<Success>> createDocumentInCollection(Document document) {

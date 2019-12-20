@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
+import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -17,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Mono;
@@ -29,6 +32,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +48,9 @@ class JsonBasedDynamicModelServiceWithDbTest {
 
     @Autowired
     NetworkntCacheManager networkntCacheManager;
+
+    @MockBean
+    DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
     static {
         new MongoContainer();
@@ -93,6 +100,11 @@ class JsonBasedDynamicModelServiceWithDbTest {
 
     @Test
     void getModelById() throws IOException {
+        when(metadataProvider.provideMetadata(any())).thenAnswer((Answer<JsonDynamicModel>) invocation -> {
+            Object[] args = invocation.getArguments();
+            return (JsonDynamicModel) args[0];
+        });
+
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
