@@ -2,20 +2,23 @@ package io.extremum.dynamic.models.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.extremum.dynamic.models.DynamicModel;
-import lombok.RequiredArgsConstructor;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import lombok.Getter;
 
-@RequiredArgsConstructor
+@Getter
 public class JsonDynamicModel implements DynamicModel<JsonNode> {
+    private Descriptor id;
     private final String modelName;
-    private final JsonNode data;
+    private final JsonNode modelData;
 
-    @Override
-    public String getModelName() {
-        return modelName;
+    public JsonDynamicModel(String modelName, JsonNode data) {
+        this.modelName = modelName;
+        this.modelData = data;
     }
 
-    @Override
-    public JsonNode getModelData() {
-        return data;
+    public JsonDynamicModel(Descriptor id, String modelName, JsonNode data) {
+        this.id = id;
+        this.modelName = modelName;
+        this.modelData = data;
     }
 }

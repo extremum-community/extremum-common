@@ -13,6 +13,11 @@ public class DynamicModelValidationException extends Exception {
     private final Set<Violation> violations;
 
     @Override
+    public String getMessage() {
+        return this.toString();
+    }
+
+    @Override
     public String toString() {
         String violationsString = violations.stream()
                 .map(Violation::getMessage)

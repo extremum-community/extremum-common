@@ -1,0 +1,14 @@
+mongo:
+  serviceDbUri: mongodb://localhost:27017
+  serviceDbName: dynmodel
+  descriptorsDbUri: mongodb://localhost:27017
+  descriptorsDbName: descriptors
+redis:
+  uri: redis://localhost:6379
+descriptors:
+  descriptorsMapName: descriptors
+  internalIdsMapName: descriptor_internal_idx
+logging:
+  level:
+    io.extremum: debug
+    org.springframework: debug

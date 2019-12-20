@@ -1,6 +1,6 @@
 package io.extremum.dynamic.services.impl;
 
-import io.extremum.dynamic.dao.impl.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DynamicModelService;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class JsonBasedDynamicModelService implements DynamicModelService<JsonDynamicModel> {
-    private final MongoDynamicModelDao dao;
+    private final MongoJsonDynamicModelDao dao;
     private final JsonDynamicModelValidator modelValidator;
 
     @Override
