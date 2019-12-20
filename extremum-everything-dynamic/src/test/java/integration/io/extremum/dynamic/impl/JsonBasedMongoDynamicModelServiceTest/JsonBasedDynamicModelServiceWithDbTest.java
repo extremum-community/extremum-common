@@ -2,17 +2,19 @@ package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTe
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
-import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.containers.MongoContainer;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @Slf4j
 @ActiveProfiles("save-model-test")
 @SpringBootTest(classes = DynamicModuleAutoConfiguration.class)
@@ -39,9 +44,6 @@ class JsonBasedDynamicModelServiceWithDbTest {
 
     @Autowired
     NetworkntCacheManager networkntCacheManager;
-
-    @Autowired
-    MongoJsonDynamicModelDao dao;
 
     static {
         new MongoContainer();
@@ -71,10 +73,7 @@ class JsonBasedDynamicModelServiceWithDbTest {
         networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
 
         String modelName = "complex.schema.json";
-        JsonNode modelData = new ObjectMapper().readValue(
-                "{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}",
-                JsonNode.class
-        );
+        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
@@ -107,16 +106,13 @@ class JsonBasedDynamicModelServiceWithDbTest {
         networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
 
         String modelName = "complex.schema.json";
-        JsonNode modelData = new ObjectMapper().readValue(
-                "{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}",
-                JsonNode.class
-        );
+        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        JsonDynamicModel found = dao.getById(saved.getId()).block();
+        JsonDynamicModel found = service.findById(saved.getId()).block();
 
         Assertions.assertNotNull(found);
         Assertions.assertNotNull(found.getId());
@@ -127,16 +123,51 @@ class JsonBasedDynamicModelServiceWithDbTest {
     }
 
     @Test
-    void sequentialCreationOfModels_createNewCollectionForAModelTest() throws IOException {
-        JsonNode data = new ObjectMapper().readValue("{\"a\":\"b\"}", JsonNode.class);
+    void findByIdReturnsException_when_modelNotFound_in_existingCollection() throws IOException {
+        String schemaName = "complex.schema.json";
 
-        JsonDynamicModel model = new JsonDynamicModel("Model1", data);
+        String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
+        String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
 
-        JsonDynamicModel saved1 = dao.save(model).block();
-        JsonDynamicModel saved2 = dao.save(model).block();
+        NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
+                JsonSchemaType.V2019_09,
+                Paths.get(base, "schemas/")
+        );
 
-        Assertions.assertNotNull(saved1.getId());
-        Assertions.assertNotNull(saved2.getId());
-        Assertions.assertNotEquals(saved1.getId(), saved2.getId());
+        networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
+
+        String modelName = "complex.schema.json";
+        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
+
+        JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
+
+        service.saveModel(model).block();
+
+        Descriptor mockDescriptor = mock(Descriptor.class);
+        when(mockDescriptor.getModelType()).thenReturn("complex.schema.json");
+        when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
+
+        Mono<JsonDynamicModel> result = service.findById(mockDescriptor);
+
+        StepVerifier.create(result)
+                .expectError(ModelNotFoundException.class)
+                .verify();
+    }
+
+    @Test
+    void findByIdReturnsException_when_modelNotFound_in_nonExistentCollection() throws IOException {
+        Descriptor mockDescriptor = mock(Descriptor.class);
+        when(mockDescriptor.getModelType()).thenReturn("non-model-type");
+        when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
+
+        Mono<JsonDynamicModel> result = service.findById(mockDescriptor);
+
+        StepVerifier.create(result)
+                .expectError(ModelNotFoundException.class)
+                .verify();
+    }
+
+    private JsonNode toJsonNode(String stringData) throws IOException {
+        return new ObjectMapper().readValue(stringData, JsonNode.class);
     }
 }
