@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.Success;
+import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -27,32 +28,21 @@ public class MongoJsonDynamicModelDao {
     private final ReactiveMongoOperations mongoOperations;
     private final MongoDescriptorFacilities mongoDescriptorFacilities;
 
-    public Mono<JsonDynamicModel> save(JsonDynamicModel model) {
+    public Mono<JsonDynamicModel> save(JsonDynamicModel model, String collectionName) {
         final Descriptor modelDescriptor = Optional.ofNullable(model.getId())
                 .orElseGet(() -> createNewDescriptor(model));
 
         Document newDocument = Document.parse(model.getModelData().toString())
                 .append("_id", new ObjectId(modelDescriptor.getInternalId()));
 
-        String collectionName = getCollectionName(model);
-
-        return mongoOperations.collectionExists(collectionName)
-                .flatMap(exists -> {
-                    if (exists) {
-                        return Mono.just(mongoOperations.getCollection(collectionName));
-                    } else {
-                        return mongoOperations.createCollection(collectionName);
-                    }
-                })
+        return Mono.just(mongoOperations.getCollection(collectionName))
                 .flatMap(createDocumentInCollection(newDocument))
                 .doOnNext(successPublisher ->
                         log.info("Document {} saved", modelDescriptor.getInternalId()))
                 .map(_it -> new JsonDynamicModel(modelDescriptor, model.getModelName(), model.getModelData()));
     }
 
-    public Mono<JsonDynamicModel> getById(Descriptor id) {
-        String collectionName = getCollectionName(id);
-
+    public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
         FindPublisher<Document> p = mongoOperations.getCollection(collectionName)
                 .find(new Document("_id", new ObjectId(id.getInternalId())));
 
@@ -61,25 +51,8 @@ public class MongoJsonDynamicModelDao {
                     Descriptor descr = mongoDescriptorFacilities.fromInternalId(doc.getObjectId("_id").toString());
                     doc.remove("_id");
                     return new JsonDynamicModel(descr, descr.getModelType(), toNode(doc.toJson()));
-                });
+                }).switchIfEmpty(Mono.error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
     }
-
-    private String getCollectionName(JsonDynamicModel model) {
-        if (model.getId() != null) {
-            return getCollectionName(model.getId());
-        } else {
-            return normalizeStringToCollectionName(model.getModelName());
-        }
-    }
-
-    private String getCollectionName(Descriptor descr) {
-        return normalizeStringToCollectionName(descr.getModelType());
-    }
-
-    private String normalizeStringToCollectionName(String str) {
-        return str.toLowerCase().replaceAll("[\\W]", "_");
-    }
-
 
     private Function<MongoCollection<Document>, Mono<Success>> createDocumentInCollection(Document document) {
         return collection -> Mono.from(collection.insertOne(document));

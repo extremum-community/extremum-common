@@ -86,7 +86,7 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).save(model);
+        verify(dao, never()).save(eq(model), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -107,7 +107,7 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).save(model);
+        verify(dao, never()).save(eq(model), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -116,9 +116,8 @@ class JsonBasedDynamicModelServiceTest {
                 .verify();
     }
 
-
     private void verify_DynamicModelDao_HasAccept_Model_1_times(JsonDynamicModel model) {
-        verify(dao, Mockito.times(1)).save(modelCaptor.capture());
+        verify(dao, Mockito.times(1)).save(modelCaptor.capture(), anyString());
 
         assertEquals(model, modelCaptor.getValue());
     }
@@ -135,11 +134,12 @@ class JsonBasedDynamicModelServiceTest {
 
     private void configureBehavior(String schemaName, JsonDynamicModel model, NetworkntSchema schema) {
         when(schemaProvider.loadSchema(schemaName)).thenReturn(schema);
+        when(model.getModelName()).thenReturn(schemaName);
 
         try {
             Mockito.doNothing().when(modelValidator).validate(model);
 
-            when(dao.save(model)).thenReturn(Mono.just(model));
+            when(dao.save(eq(model), anyString())).thenReturn(Mono.just(model));
         } catch (DynamicModelValidationException | SchemaNotFoundException e) {
             fail("Unexpected exception " + e);
         }
