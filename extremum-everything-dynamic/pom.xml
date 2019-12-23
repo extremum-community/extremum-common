@@ -29,6 +29,10 @@
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.atlassian.fugue</groupId>
+            <artifactId>fugue</artifactId>
+        </dependency>
 
         <!-- extremum deps -->
         <dependency>
