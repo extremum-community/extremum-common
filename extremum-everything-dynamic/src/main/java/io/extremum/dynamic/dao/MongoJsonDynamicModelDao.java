@@ -13,33 +13,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Function;
 
+import static reactor.core.publisher.Mono.*;
+
 @Slf4j
-@Component
+@Repository
 @RequiredArgsConstructor
 public class MongoJsonDynamicModelDao {
     private final ReactiveMongoOperations mongoOperations;
     private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
 
     public Mono<JsonDynamicModel> save(JsonDynamicModel model, String collectionName) {
-        final Mono<Descriptor> modelDescriptor = Optional.ofNullable(model.getId())
-                .map(Mono::just)
-                .orElseGet(() -> createNewDescriptor(model));
-
-        return modelDescriptor
+        return justOrEmpty(model.getId())
+                .switchIfEmpty(createNewDescriptor(model))
                 .map(descriptor -> {
                             Document doc = Document.parse(model.getModelData().toString())
                                     .append("_id", new ObjectId(descriptor.getInternalId()));
                             return Tuples.of(doc, descriptor);
                         }
-                ).flatMap(tuple2 -> Mono.just(mongoOperations.getCollection(collectionName))
+                ).flatMap(tuple2 -> just(mongoOperations.getCollection(collectionName))
                         .flatMap(createDocumentInCollection(tuple2.getT1()))
                         .doOnNext(successPublisher ->
                                 log.info("Document {} saved", tuple2.getT2().getInternalId()))
@@ -51,7 +49,7 @@ public class MongoJsonDynamicModelDao {
         FindPublisher<Document> p = mongoOperations.getCollection(collectionName)
                 .find(new Document("_id", new ObjectId(id.getInternalId())));
 
-        return Mono.from(p)
+        return from(p)
                 .flatMap(doc ->
                         mongoDescriptorFacilities
                                 .fromInternalId(doc.getObjectId("_id"))
@@ -63,7 +61,7 @@ public class MongoJsonDynamicModelDao {
     }
 
     private Function<MongoCollection<Document>, Mono<Success>> createDocumentInCollection(Document document) {
-        return collection -> Mono.from(collection.insertOne(document));
+        return collection -> from(collection.insertOne(document));
     }
 
     private Mono<Descriptor> createNewDescriptor(JsonDynamicModel model) {
