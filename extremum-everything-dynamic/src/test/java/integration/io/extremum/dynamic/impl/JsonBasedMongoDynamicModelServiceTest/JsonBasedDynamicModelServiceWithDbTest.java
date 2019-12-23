@@ -2,8 +2,8 @@ package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTe
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import integration.SpringBootTestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
@@ -13,18 +13,14 @@ import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManag
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.starter.CommonConfiguration;
-import io.extremum.test.containers.CoreServices;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -39,9 +35,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ActiveProfiles("save-model-test")
-@ContextConfiguration(classes = {CommonConfiguration.class, DynamicModuleAutoConfiguration.class})
-@SpringBootTest
-class JsonBasedDynamicModelServiceWithDbTest extends CoreServices {
+class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices {
     @Autowired
     JsonBasedDynamicModelService service;
 
