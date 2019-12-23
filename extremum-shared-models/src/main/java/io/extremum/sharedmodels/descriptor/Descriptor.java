@@ -223,7 +223,7 @@ public class Descriptor implements Serializable {
         } else if (this.externalId != null) {
             return fillSingleByExternalIdReactively();
         } else {
-            return Mono.empty();
+            return Mono.error(new RuntimeException("Unable to fill ids: internalId && externalId are null"));
         }
     }
 
