@@ -6,7 +6,7 @@ import com.mongodb.reactivestreams.client.FindPublisher;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.Success;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -25,20 +26,25 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class MongoJsonDynamicModelDao {
     private final ReactiveMongoOperations mongoOperations;
-    private final MongoDescriptorFacilities mongoDescriptorFacilities;
+    private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
 
     public Mono<JsonDynamicModel> save(JsonDynamicModel model, String collectionName) {
-        final Descriptor modelDescriptor = Optional.ofNullable(model.getId())
+        final Mono<Descriptor> modelDescriptor = Optional.ofNullable(model.getId())
+                .map(Mono::just)
                 .orElseGet(() -> createNewDescriptor(model));
 
-        Document newDocument = Document.parse(model.getModelData().toString())
-                .append("_id", new ObjectId(modelDescriptor.getInternalId()));
-
-        return Mono.just(mongoOperations.getCollection(collectionName))
-                .flatMap(createDocumentInCollection(newDocument))
-                .doOnNext(successPublisher ->
-                        log.info("Document {} saved", modelDescriptor.getInternalId()))
-                .map(_it -> new JsonDynamicModel(modelDescriptor, model.getModelName(), model.getModelData()));
+        return modelDescriptor
+                .map(descriptor -> {
+                            Document doc = Document.parse(model.getModelData().toString())
+                                    .append("_id", new ObjectId(descriptor.getInternalId()));
+                            return Tuples.of(doc, descriptor);
+                        }
+                ).flatMap(tuple2 -> Mono.just(mongoOperations.getCollection(collectionName))
+                        .flatMap(createDocumentInCollection(tuple2.getT1()))
+                        .doOnNext(successPublisher ->
+                                log.info("Document {} saved", tuple2.getT2().getInternalId()))
+                        .map(_it -> new JsonDynamicModel(tuple2.getT2(), model.getModelName(), model.getModelData()))
+                );
     }
 
     public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
@@ -46,18 +52,21 @@ public class MongoJsonDynamicModelDao {
                 .find(new Document("_id", new ObjectId(id.getInternalId())));
 
         return Mono.from(p)
-                .map(doc -> {
-                    Descriptor descr = mongoDescriptorFacilities.fromInternalId(doc.getObjectId("_id").toString());
-                    doc.remove("_id");
-                    return new JsonDynamicModel(descr, descr.getModelType(), toNode(doc.toJson()));
-                });
+                .flatMap(doc ->
+                        mongoDescriptorFacilities
+                                .fromInternalId(doc.getObjectId("_id"))
+                                .map(descr -> {
+                                    doc.remove("_id");
+                                    return new JsonDynamicModel(descr, descr.getModelType(), toNode(doc.toJson()));
+                                })
+                );
     }
 
     private Function<MongoCollection<Document>, Mono<Success>> createDocumentInCollection(Document document) {
         return collection -> Mono.from(collection.insertOne(document));
     }
 
-    private Descriptor createNewDescriptor(JsonDynamicModel model) {
+    private Mono<Descriptor> createNewDescriptor(JsonDynamicModel model) {
         return mongoDescriptorFacilities.create(ObjectId.get(), model.getModelName());
     }
 
