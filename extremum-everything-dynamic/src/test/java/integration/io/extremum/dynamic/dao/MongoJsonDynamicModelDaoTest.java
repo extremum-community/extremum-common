@@ -2,12 +2,12 @@ package integration.io.extremum.dynamic.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import integration.TestWithServices;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.starter.CommonConfiguration;
-import io.extremum.test.containers.MongoContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
 
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("save-model-test")
 @ContextConfiguration(classes = {CommonConfiguration.class, DynamicModuleAutoConfiguration.class})
 @SpringBootTest
-class MongoJsonDynamicModelDaoTest {
+class MongoJsonDynamicModelDaoTest extends TestWithServices {
     @Autowired
     MongoJsonDynamicModelDao dao;
 
@@ -39,19 +38,6 @@ class MongoJsonDynamicModelDaoTest {
     @BeforeEach
     void beforeEach() {
         when(metadataProvider.provideMetadata(any())).thenReturn(mock(JsonDynamicModel.class));
-    }
-
-    static {
-        new MongoContainer();
-
-        GenericContainer redis = new GenericContainer("redis:5.0.4")
-                .withExposedPorts(6379);
-        redis.start();
-
-        String redisUri = String.format("redis://%s:%d", redis.getContainerIpAddress(), redis.getFirstMappedPort());
-        System.setProperty("redis.uri", redisUri);
-
-        log.info("Redis uri is {}", redisUri);
     }
 
     @Test
