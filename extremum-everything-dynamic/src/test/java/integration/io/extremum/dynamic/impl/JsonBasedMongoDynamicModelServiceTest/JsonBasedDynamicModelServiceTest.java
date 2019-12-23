@@ -17,6 +17,7 @@ import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynami
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,10 +42,10 @@ class JsonBasedDynamicModelServiceTest {
     @SpyBean
     NetworkntJsonDynamicModelValidator modelValidator;
 
-    @MockBean
+    @Mock
     MongoJsonDynamicModelDao dao;
 
-    @MockBean
+    @Mock
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
     @Captor
