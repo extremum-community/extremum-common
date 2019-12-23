@@ -5,8 +5,6 @@ import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DynamicModelService;
-import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
-import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +24,18 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
 
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
-        try {
-            modelValidator.validate(model);
+        return modelValidator.validate(model)
+                .flatMap(either -> {
+                    if (either.isRight()) {
+                        return saveValidatedModel(model);
+                    } else {
+                        return Mono.error(either.left().get());
+                    }
+                });
+    }
 
-            return getCollectionName(model)
-                .flatMap(cName -> dao.save(model, cName));
-        } catch (DynamicModelValidationException e) {
-            log.error("Model {} is not valid", model, e);
-            return error(e);
-        } catch (SchemaNotFoundException e) {
-            log.error("Schema not found for model {}", model, e);
-            return error(e);
-        }
+    private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model) {
+        return getCollectionName(model).flatMap(cName -> dao.save(model, cName));
     }
 
     @Override
