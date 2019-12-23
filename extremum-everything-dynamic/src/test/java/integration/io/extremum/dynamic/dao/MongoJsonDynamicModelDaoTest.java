@@ -6,6 +6,7 @@ import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
+import io.extremum.starter.CommonConfiguration;
 import io.extremum.test.containers.MongoContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
@@ -25,7 +27,8 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ActiveProfiles("save-model-test")
-@SpringBootTest(classes = DynamicModuleAutoConfiguration.class)
+@ContextConfiguration(classes = {CommonConfiguration.class, DynamicModuleAutoConfiguration.class})
+@SpringBootTest
 class MongoJsonDynamicModelDaoTest {
     @Autowired
     MongoJsonDynamicModelDao dao;
