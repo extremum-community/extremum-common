@@ -64,14 +64,14 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
-        verify_Validator_HasAccept_Model_1_times(model);
-        verify_DynamicModelDao_HasAccept_Model_1_times(model);
-
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(saved)
                 .assertNext(resultModel -> assertEquals(resultModel, model))
                 .verifyComplete();
+
+        verify_Validator_HasAccept_Model_1_times(model);
+        verify_DynamicModelDao_HasAccept_Model_1_times(model);
     }
 
     @Test

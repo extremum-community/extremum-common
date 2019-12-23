@@ -29,9 +29,8 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
         try {
             modelValidator.validate(model);
 
-            String collectionName = getCollectionName(model);
-
-            return dao.save(model, collectionName);
+            return getCollectionName(model)
+                .flatMap(cName -> dao.save(model, cName));
         } catch (DynamicModelValidationException e) {
             log.error("Model {} is not valid", model, e);
             return error(e);
@@ -43,20 +42,22 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
 
     @Override
     public Mono<JsonDynamicModel> findById(Descriptor id) {
-        return dao.getByIdFromCollection(id, getCollectionName(id))
+        return getCollectionName(id)
+                .flatMap(cName -> dao.getByIdFromCollection(id, cName))
                 .map(metadataProvider::provideMetadata)
                 .switchIfEmpty(error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
     }
 
-    private String getCollectionName(Descriptor descr) {
-        return normalizeStringToCollectionName(descr.getModelType());
+    private Mono<String> getCollectionName(Descriptor descr) {
+        return descr.getModelTypeReactively().map(this::normalizeStringToCollectionName);
     }
 
-    private String getCollectionName(JsonDynamicModel model) {
+    private Mono<String> getCollectionName(JsonDynamicModel model) {
         if (model.getId() != null) {
             return getCollectionName(model.getId());
         } else {
-            return normalizeStringToCollectionName(model.getModelName());
+            return Mono.just(model.getModelName())
+                    .map(this::normalizeStringToCollectionName);
         }
     }
 
