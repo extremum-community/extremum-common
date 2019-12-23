@@ -2,6 +2,7 @@ package io.extremum.dynamic.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.Success;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static reactor.core.publisher.Mono.*;
@@ -29,7 +31,7 @@ public class MongoJsonDynamicModelDao {
     private final ReactiveMongoOperations mongoOperations;
     private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
 
-    public Mono<JsonDynamicModel> save(JsonDynamicModel model, String collectionName) {
+    public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
         return justOrEmpty(model.getId())
                 .switchIfEmpty(createNewDescriptor(model))
                 .map(descriptor -> {
@@ -41,6 +43,23 @@ public class MongoJsonDynamicModelDao {
                         .flatMap(createDocumentInCollection(tuple2.getT1()))
                         .doOnNext(successPublisher ->
                                 log.info("Document {} saved", tuple2.getT2().getInternalId()))
+                        .map(_it -> new JsonDynamicModel(tuple2.getT2(), model.getModelName(), model.getModelData()))
+                );
+    }
+
+    public Mono<JsonDynamicModel> replace(JsonDynamicModel model, String collectionName) {
+        Objects.requireNonNull(model.getId(), "ID of a model can't be null");
+
+        return just(model.getId())
+                .map(descriptor -> {
+                            Document doc = Document.parse(model.getModelData().toString())
+                                    .append("_id", new ObjectId(descriptor.getInternalId()));
+                            return Tuples.of(doc, descriptor);
+                        }
+                ).flatMap(tuple2 -> just(mongoOperations.getCollection(collectionName))
+                        .flatMap(replaceDocumentInCollection(tuple2.getT1()))
+                        .doOnNext(updatePublisher ->
+                                log.info("Document {} updated", tuple2.getT2().getInternalId()))
                         .map(_it -> new JsonDynamicModel(tuple2.getT2(), model.getModelName(), model.getModelData()))
                 );
     }
@@ -58,6 +77,13 @@ public class MongoJsonDynamicModelDao {
                                     return new JsonDynamicModel(descr, descr.getModelType(), toNode(doc.toJson()));
                                 })
                 );
+    }
+
+    private Function<MongoCollection<Document>, Mono<UpdateResult>> replaceDocumentInCollection(Document doc) {
+        return collection -> from(collection.replaceOne(
+                new Document("_id", doc.getObjectId("_id")),
+                doc
+        ));
     }
 
     private Function<MongoCollection<Document>, Mono<Success>> createDocumentInCollection(Document document) {
