@@ -13,6 +13,7 @@ import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManag
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.starter.CommonConfiguration;
 import io.extremum.test.containers.MongoContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -38,7 +40,8 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ActiveProfiles("save-model-test")
-@SpringBootTest(classes = DynamicModuleAutoConfiguration.class)
+@ContextConfiguration(classes = {CommonConfiguration.class, DynamicModuleAutoConfiguration.class})
+@SpringBootTest
 class JsonBasedDynamicModelServiceWithDbTest {
     @Autowired
     JsonBasedDynamicModelService service;

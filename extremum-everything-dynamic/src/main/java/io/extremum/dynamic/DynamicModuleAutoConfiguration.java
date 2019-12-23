@@ -10,19 +10,16 @@ import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaP
 import io.extremum.dynamic.server.impl.GithubWebhookListenerHttpSchemaServer;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
-import io.extremum.starter.CommonConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 import java.util.Collection;
 
 @Configuration
 @EnableConfigurationProperties({GithubSchemaProperties.class})
-@Import({CommonConfiguration.class})
 @ComponentScan(basePackages = "io.extremum.dynamic")
 public class DynamicModuleAutoConfiguration {
     @Bean
