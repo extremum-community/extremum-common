@@ -159,7 +159,7 @@ class JsonBasedDynamicModelServiceWithDbTest {
         service.saveModel(model).block();
 
         Descriptor mockDescriptor = mock(Descriptor.class);
-        when(mockDescriptor.getModelType()).thenReturn("complex.schema.json");
+        when(mockDescriptor.getModelTypeReactively()).thenReturn(Mono.just("complex.schema.json"));
         when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
 
         Mono<JsonDynamicModel> result = service.findById(mockDescriptor);
@@ -172,7 +172,7 @@ class JsonBasedDynamicModelServiceWithDbTest {
     @Test
     void findByIdReturnsException_when_modelNotFound_in_nonExistentCollection() throws IOException {
         Descriptor mockDescriptor = mock(Descriptor.class);
-        when(mockDescriptor.getModelType()).thenReturn("non-model-type");
+        when(mockDescriptor.getModelTypeReactively()).thenReturn(Mono.just("non-model-type"));
         when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
 
         Mono<JsonDynamicModel> result = service.findById(mockDescriptor);
