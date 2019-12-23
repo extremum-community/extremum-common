@@ -34,6 +34,12 @@
         <dependency>
             <groupId>io.extremum</groupId>
             <artifactId>extremum-common-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.fge</groupId>
+                    <artifactId>jackson-coreutils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- testing dependencies-->
