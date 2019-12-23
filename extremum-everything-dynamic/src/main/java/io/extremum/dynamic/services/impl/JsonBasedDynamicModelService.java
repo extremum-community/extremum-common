@@ -25,13 +25,12 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
         return modelValidator.validate(model)
-                .flatMap(either -> {
-                    if (either.isRight()) {
-                        return saveValidatedModel(model);
-                    } else {
-                        return Mono.error(either.left().get());
-                    }
-                });
+                .flatMap(either ->
+                        either.fold(
+                                Mono::error,
+                                _it -> saveValidatedModel(model)
+                        )
+                );
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model) {
