@@ -203,9 +203,10 @@ public class Descriptor implements Serializable {
 
     public Mono<String> getModelTypeReactively() {
         if (this.modelType == null) {
-            fillByIdsReactively();
+            return fillByIdsReactively().map(Descriptor::getModelType);
+        } else {
+            return Mono.just(this.modelType);
         }
-        return Mono.just(this.modelType);
     }
 
     private void fillByIds() {
