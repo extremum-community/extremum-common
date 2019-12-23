@@ -2,7 +2,6 @@ package io.extremum.dynamic.validator.services.impl.networknt;
 
 import com.networknt.schema.ValidationMessage;
 import io.atlassian.fugue.Either;
-import io.atlassian.fugue.Try;
 import io.atlassian.fugue.Unit;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
@@ -32,14 +31,13 @@ public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValid
             if (!validationMessages.isEmpty()) {
                 DynamicModelValidationException ex = new DynamicModelValidationException(toViolationSet(validationMessages));
                 log.warn("Model {} is invalid", model, ex);
-                return Mono.just(Try.<Unit>failure(ex).toEither());
+                return Mono.just(Either.left(ex));
             } else {
                 return Mono.just(Either.right(Unit.Unit()));
             }
         } catch (SchemaLoadingException e) {
             log.error("Unable to validate a model {}: schema not found", model, e);
-            Try<Unit> failure = Try.failure(e);
-            return Mono.just(failure.toEither());
+            return Mono.just(Either.left(e));
         }
     }
 
