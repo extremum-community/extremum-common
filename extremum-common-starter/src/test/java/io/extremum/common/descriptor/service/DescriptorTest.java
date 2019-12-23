@@ -30,7 +30,9 @@ class DescriptorTest {
             .externalId("external-id")
             .internalId("internal-id")
             .storageType(Descriptor.StorageType.MONGO)
+            .modelType("modelType")
             .build();
+
     private final Descriptor collectionDescriptorInDb = Descriptor.forCollection("external-id",
             CollectionDescriptor.forFree("free"));
 
@@ -352,5 +354,23 @@ class DescriptorTest {
                 .build();
 
         assertThat(descriptor.hasInternalId(), is(true));
+    }
+
+    @Test
+    void getModelTypeReactivelyTest() {
+        Descriptor descriptor = Descriptor.builder()
+                .externalId("external-id")
+                .internalId("internal-id")
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
+
+        when(descriptorLoader.loadByInternalIdReactively("internal-id"))
+                .thenReturn(Mono.just(descriptorInDb));
+
+        Mono<String> modelTypeResult = descriptor.getModelTypeReactively();
+
+        StepVerifier.create(modelTypeResult)
+                .expectNext("modelType")
+                .verifyComplete();
     }
 }
