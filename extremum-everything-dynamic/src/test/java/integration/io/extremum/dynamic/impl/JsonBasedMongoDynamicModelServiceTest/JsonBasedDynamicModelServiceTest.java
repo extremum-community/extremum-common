@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import integration.io.extremum.dynamic.EmptyConfiguration;
-import io.extremum.dynamic.dao.impl.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
+import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
@@ -16,7 +17,7 @@ import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynami
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -27,10 +28,12 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+import static io.atlassian.fugue.Either.right;
+import static io.atlassian.fugue.Unit.Unit;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(classes = EmptyConfiguration.class)
 class JsonBasedDynamicModelServiceTest {
@@ -40,39 +43,47 @@ class JsonBasedDynamicModelServiceTest {
     @SpyBean
     NetworkntJsonDynamicModelValidator modelValidator;
 
-    @MockBean
-    MongoDynamicModelDao dao;
+    @Mock
+    MongoJsonDynamicModelDao dao;
+
+    @Mock
+    DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
     @Captor
     ArgumentCaptor<JsonDynamicModel> modelCaptor;
 
     @Test
     void saveModel() {
-        final JsonDynamicModel model = Mockito.mock(JsonDynamicModel.class);
+        final JsonDynamicModel model = mock(JsonDynamicModel.class);
 
-        NetworkntSchema schema = Mockito.mock(NetworkntSchema.class);
+        NetworkntSchema schema = mock(NetworkntSchema.class);
 
         String schemaName = "test_schema";
 
-        configureBehavior(schemaName, model, schema);
+        when(schemaProvider.loadSchema(schemaName)).thenReturn(schema);
+        when(model.getModelName()).thenReturn(schemaName);
 
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
+        doReturn(just(right(Unit()))).when(modelValidator).validate(any());
+
+        when(dao.save(eq(model), anyString())).thenReturn(just(model));
+
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
         Mono<JsonDynamicModel> saved = service.saveModel(model);
-
-        verify_Validator_HasAccept_Model_1_times(model);
-        verify_DynamicModelDao_HasAccept_Model_1_times(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(saved)
                 .assertNext(resultModel -> assertEquals(resultModel, model))
                 .verifyComplete();
+
+        verify_Validator_HasAccept_Model_1_times(model);
+        verify_DynamicModelDao_HasAccept_Model_1_times(model);
     }
 
     @Test
     void notValidModelIsNotSaves() throws IOException {
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
         String invalidModelRawValue = "{\"field1\":1}";
 
@@ -82,11 +93,11 @@ class JsonBasedDynamicModelServiceTest {
         JsonSchema schema = JsonSchemaFactory.getInstance()
                 .getSchema(loadResourceAsInputStream(this.getClass().getClassLoader(), "schemas/simple.schema.json"));
 
-        when(schemaProvider.loadSchema(Mockito.any())).thenReturn(new NetworkntSchema(schema));
+        when(schemaProvider.loadSchema(any())).thenReturn(new NetworkntSchema(schema));
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).save(model);
+        verify(dao, never()).save(eq(model), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -97,7 +108,7 @@ class JsonBasedDynamicModelServiceTest {
 
     @Test
     void modelIsNotSaved_schemaDoesntExists() {
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator);
+        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
         String unknownModel = "unknownModel";
 
@@ -107,7 +118,7 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).save(model);
+        verify(dao, never()).save(eq(model), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -116,32 +127,15 @@ class JsonBasedDynamicModelServiceTest {
                 .verify();
     }
 
-
     private void verify_DynamicModelDao_HasAccept_Model_1_times(JsonDynamicModel model) {
-        verify(dao, Mockito.times(1)).save(modelCaptor.capture());
+        verify(dao, times(1)).save(modelCaptor.capture(), anyString());
 
         assertEquals(model, modelCaptor.getValue());
     }
 
     private void verify_Validator_HasAccept_Model_1_times(JsonDynamicModel model) {
-        try {
-            verify(modelValidator, Mockito.times(1)).validate(modelCaptor.capture());
+        verify(modelValidator, times(1)).validate(modelCaptor.capture());
 
-            assertEquals(model, modelCaptor.getValue());
-        } catch (DynamicModelValidationException | SchemaNotFoundException e) {
-            fail("Unexpected exception " + e);
-        }
-    }
-
-    private void configureBehavior(String schemaName, JsonDynamicModel model, NetworkntSchema schema) {
-        when(schemaProvider.loadSchema(schemaName)).thenReturn(schema);
-
-        try {
-            Mockito.doNothing().when(modelValidator).validate(model);
-
-            when(dao.save(model)).thenReturn(Mono.just(model));
-        } catch (DynamicModelValidationException | SchemaNotFoundException e) {
-            fail("Unexpected exception " + e);
-        }
+        assertEquals(model, modelCaptor.getValue());
     }
 }

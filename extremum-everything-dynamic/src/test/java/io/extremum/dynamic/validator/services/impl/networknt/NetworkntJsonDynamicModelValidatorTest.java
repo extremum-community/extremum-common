@@ -2,6 +2,8 @@ package io.extremum.dynamic.validator.services.impl.networknt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.atlassian.fugue.Either;
+import io.atlassian.fugue.Unit;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -10,13 +12,16 @@ import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NetworkntJsonDynamicModelValidatorTest {
     NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
@@ -37,7 +42,13 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("schemas/simple.schema.json", modelData);
 
-        assertThrows(DynamicModelValidationException.class, () -> validator.validate(model));
+        Mono<Either<Exception, Unit>> validationResult = validator.validate(model);
+
+        StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
+        StepVerifier.create(validationResult)
+                .expectNextMatches(either -> either.isLeft() &&
+                        either.left().get() instanceof DynamicModelValidationException)
+                .verifyComplete();
     }
 
     @Test
@@ -45,7 +56,14 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("unknown_schema", modelData);
 
-        assertThrows(SchemaNotFoundException.class, () -> validator.validate(model));
+        Mono<Either<Exception, Unit>> validationResult = validator.validate(model);
+
+        StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
+
+        StepVerifier.create(validationResult)
+                .expectNextMatches(either -> either.isLeft() &&
+                        either.left().get() instanceof SchemaNotFoundException)
+                .verifyComplete();
     }
 
     @Test
@@ -53,7 +71,14 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("schemas/complex_with_bad_ref.schema.json", modelData);
 
-        assertThrows(SchemaNotFoundException.class, () -> validator.validate(model));
+        Mono<Either<Exception, Unit>> validationResult = validator.validate(model);
+
+        StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
+
+        StepVerifier.create(validationResult)
+                .expectNextMatches(either -> either.isLeft() &&
+                        either.left().get() instanceof SchemaNotFoundException)
+                .verifyComplete();
     }
 
     private Path makeBasicDirectory() {

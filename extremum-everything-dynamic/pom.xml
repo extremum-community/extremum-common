@@ -29,6 +29,22 @@
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.atlassian.fugue</groupId>
+            <artifactId>fugue</artifactId>
+        </dependency>
+
+        <!-- extremum deps -->
+        <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-common-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.fge</groupId>
+                    <artifactId>jackson-coreutils</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- testing dependencies-->
         <dependency>
@@ -67,6 +83,12 @@
                     <artifactId>activation</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-test-harness</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
