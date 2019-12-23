@@ -2,6 +2,7 @@ package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTe
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import integration.TestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
@@ -14,7 +15,6 @@ import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSch
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
-import io.extremum.test.containers.MongoContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -42,7 +41,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("save-model-test")
 @ContextConfiguration(classes = {CommonConfiguration.class, DynamicModuleAutoConfiguration.class})
 @SpringBootTest
-class JsonBasedDynamicModelServiceWithDbTest {
+class JsonBasedDynamicModelServiceWithDbTest extends TestWithServices {
     @Autowired
     JsonBasedDynamicModelService service;
 
@@ -54,19 +53,6 @@ class JsonBasedDynamicModelServiceWithDbTest {
 
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
-
-    static {
-        new MongoContainer();
-
-        GenericContainer redis = new GenericContainer("redis:5.0.4")
-                .withExposedPorts(6379);
-        redis.start();
-
-        String redisUri = String.format("redis://%s:%d", redis.getContainerIpAddress(), redis.getFirstMappedPort());
-        System.setProperty("redis.uri", redisUri);
-
-        log.info("Redis uri is {}", redisUri);
-    }
 
     @Test
     void validModelSavedInMongo() throws IOException {
