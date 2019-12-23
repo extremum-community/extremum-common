@@ -15,7 +15,6 @@ import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -109,13 +110,57 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
 
         JsonDynamicModel found = service.findById(saved.getId()).block();
 
-        Assertions.assertNotNull(found);
-        Assertions.assertNotNull(found.getId());
-        Assertions.assertNotNull(model.getModelName(), found.getId().getModelType());
-        Assertions.assertEquals(saved.getId(), found.getId());
-        Assertions.assertEquals(model.getModelName(), found.getModelName());
-        Assertions.assertEquals(model.getModelData(), found.getModelData());
+        assertNotNull(found);
+        assertNotNull(found.getId());
+        assertNotNull(model.getModelName(), found.getId().getModelType());
+        assertEquals(saved.getId(), found.getId());
+        assertEquals(model.getModelName(), found.getModelName());
+        assertEquals(model.getModelData(), found.getModelData());
     }
+
+    @Test
+    void updateModelTest() throws IOException {
+        when(metadataProvider.provideMetadata(any())).thenAnswer((Answer<JsonDynamicModel>) invocation -> {
+            Object[] args = invocation.getArguments();
+            return (JsonDynamicModel) args[0];
+        });
+
+        String schemaName = "complex.schema.json";
+
+        String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
+        String base = pathToFile.substring(0, pathToFile.lastIndexOf("/"));
+
+        NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
+                JsonSchemaType.V2019_09,
+                Paths.get(base, "schemas/")
+        );
+
+        networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
+
+        String modelName = "complex.schema.json";
+        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
+
+        JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
+
+        JsonDynamicModel saved = service.saveModel(model).block();
+
+        JsonDynamicModel found = service.findById(saved.getId()).block();
+
+        Descriptor idOfTheFoundModel = found.getId();
+        assertEquals(saved.getId(), idOfTheFoundModel);
+
+        JsonNode modelData_updated = toJsonNode("{\"field1\":\"bbb\", \"field3\":{\"externalField\":\"bbb\"}}");
+        JsonDynamicModel updatedModel = new JsonDynamicModel(idOfTheFoundModel, found.getModelName(), modelData_updated);
+        JsonDynamicModel updatedResult = service.saveModel(updatedModel).block();
+
+        assertEquals(idOfTheFoundModel, updatedResult.getId());
+
+        JsonDynamicModel foundUpdated = service.findById(idOfTheFoundModel).block();
+
+        assertEquals("bbb", foundUpdated.getModelData().get("field1").textValue());
+    }
+
+    // negative tests
 
     @Test
     void findByIdReturnsException_when_modelNotFound_in_existingCollection() throws IOException {

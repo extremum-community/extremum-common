@@ -42,8 +42,8 @@ class MongoJsonDynamicModelDaoTest extends SpringBootTestWithServices {
 
         String collectionName = "model1";
 
-        JsonDynamicModel saved1 = dao.save(model, collectionName).block();
-        JsonDynamicModel saved2 = dao.save(model, collectionName).block();
+        JsonDynamicModel saved1 = dao.create(model, collectionName).block();
+        JsonDynamicModel saved2 = dao.create(model, collectionName).block();
 
         Assertions.assertNotNull(saved1.getId());
         Assertions.assertNotNull(saved2.getId());
