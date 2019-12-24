@@ -1,5 +1,6 @@
 package io.extremum.common.secondaryds;
 
+import io.extremum.common.annotation.SecondaryDatasource;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -8,8 +9,8 @@ import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ModelOnSecondaryDatasourceFilterTest {
-    private final ModelOnSecondaryDatasourceFilter filter = new ModelOnSecondaryDatasourceFilter();
+class ModelAnnotatedFilterTest {
+    private final ModelAnnotatedFilter filter = new ModelAnnotatedFilter(SecondaryDatasource.class);
     private final MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
 
     @Test
@@ -34,4 +35,5 @@ class ModelOnSecondaryDatasourceFilterTest {
 
         assertFalse(filter.match(metadataReader, metadataReaderFactory));
     }
+
 }
