@@ -65,7 +65,7 @@ class JsonBasedDynamicModelServiceTest {
 
         doReturn(just(right(Unit()))).when(modelValidator).validate(any());
 
-        when(dao.save(eq(model), anyString())).thenReturn(just(model));
+        when(dao.create(eq(model), anyString())).thenReturn(just(model));
 
         JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider);
 
@@ -97,7 +97,7 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).save(eq(model), anyString());
+        verify(dao, never()).create(eq(model), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -118,7 +118,7 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).save(eq(model), anyString());
+        verify(dao, never()).create(eq(model), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -128,7 +128,7 @@ class JsonBasedDynamicModelServiceTest {
     }
 
     private void verify_DynamicModelDao_HasAccept_Model_1_times(JsonDynamicModel model) {
-        verify(dao, times(1)).save(modelCaptor.capture(), anyString());
+        verify(dao, times(1)).create(modelCaptor.capture(), anyString());
 
         assertEquals(model, modelCaptor.getValue());
     }

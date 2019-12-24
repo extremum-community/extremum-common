@@ -34,7 +34,14 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model) {
-        return getCollectionName(model).flatMap(cName -> dao.save(model, cName));
+        return getCollectionName(model)
+                .flatMap(cName -> {
+                    if (model.getId() != null) {
+                        return dao.replace(model, cName);
+                    } else {
+                        return dao.create(model, cName);
+                    }
+                });
     }
 
     @Override
