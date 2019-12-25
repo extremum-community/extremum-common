@@ -49,4 +49,42 @@ class MongoJsonDynamicModelDaoTest extends SpringBootTestWithServices {
         Assertions.assertNotNull(saved2.getId());
         Assertions.assertNotEquals(saved1.getId(), saved2.getId());
     }
+
+    @Test
+    void saveModelTest() throws IOException {
+        String collectionName = "model1";
+
+        JsonNode data = new ObjectMapper().readValue("{\"a\":\"b\"}", JsonNode.class);
+
+        JsonDynamicModel model = new JsonDynamicModel("Model1", data);
+
+        JsonDynamicModel saved = dao.create(model, collectionName).block();
+
+        JsonDynamicModel found = dao.getByIdFromCollection(saved.getId(), collectionName).block();
+
+        Assertions.assertNotNull(found);
+        Assertions.assertEquals(saved.getId(), found.getId());
+        Assertions.assertEquals(saved.getModelName(), found.getModelName());
+        Assertions.assertEquals(saved.getModelData().toString(), found.getModelData().toString());
+    }
+
+    @Test
+    void removeModelTest() throws IOException {
+        JsonNode data = new ObjectMapper().readValue("{\"a\":\"b\"}", JsonNode.class);
+
+        JsonDynamicModel model = new JsonDynamicModel("Model1", data);
+
+        String collectionName = "model1";
+
+        JsonDynamicModel saved = dao.create(model, collectionName).block();
+        JsonDynamicModel found = dao.getByIdFromCollection(saved.getId(), collectionName).block();
+
+        Assertions.assertNotNull(found);
+
+        dao.remove(saved.getId(), collectionName).block();
+
+        JsonDynamicModel foundAfterRemoving = dao.getByIdFromCollection(saved.getId(), collectionName).block();
+
+        Assertions.assertNull(foundAfterRemoving);
+    }
 }
