@@ -36,6 +36,7 @@
         <module>extremum-watch-starter</module>
         <module>extremum-batch-service</module>
         <module>extremum-jackson-mapper</module>
+        <module>extremum-annotations</module>
     </modules>
 
 
