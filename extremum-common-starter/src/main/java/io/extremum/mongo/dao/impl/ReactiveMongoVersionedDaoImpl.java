@@ -84,7 +84,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     private boolean isNew(M model) {
-        return model.getLineageId() == null;
+        return model.getVersion() == null;
     }
 
     private <N extends M> Mono<? extends N> addFirstSnapshot(N model) {
