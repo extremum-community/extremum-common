@@ -37,7 +37,7 @@
         <!-- extremum deps -->
         <dependency>
             <groupId>io.extremum</groupId>
-            <artifactId>extremum-common-starter</artifactId>
+            <artifactId>extremum-everything-core</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.fge</groupId>
