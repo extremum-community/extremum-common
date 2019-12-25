@@ -52,6 +52,12 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
                 .switchIfEmpty(error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
     }
 
+    @Override
+    public Mono<Void> remove(Descriptor id) {
+        return getCollectionName(id)
+                .flatMap(cName -> dao.remove(id, cName));
+    }
+
     private Mono<String> getCollectionName(Descriptor descr) {
         return descr.getModelTypeReactively().map(this::normalizeStringToCollectionName);
     }

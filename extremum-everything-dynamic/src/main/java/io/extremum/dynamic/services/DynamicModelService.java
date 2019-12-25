@@ -8,4 +8,6 @@ public interface DynamicModelService<Model extends DynamicModel<?>> {
     Mono<Model> saveModel(Model model);
 
     Mono<Model> findById(Descriptor id);
+
+    Mono<Void> remove(Descriptor descriptor);
 }

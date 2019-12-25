@@ -6,5 +6,5 @@ import io.extremum.sharedmodels.dto.ResponseDto;
 import reactor.core.publisher.Mono;
 
 public interface DynamicModelDtoConversionService {
-    Mono<ResponseDto> convertToResponseDtoReactively(Model model, ConversionConfig defaults);
+    Mono<ResponseDto> convertToResponseDtoReactively(Model model, ConversionConfig config);
 }
