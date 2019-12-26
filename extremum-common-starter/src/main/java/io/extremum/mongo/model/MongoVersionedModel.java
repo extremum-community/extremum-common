@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -38,7 +37,7 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     @Indexed
     private boolean currentSnapshot;
 
-    private long version;
+    private Long version;
 
     @Indexed
     private Boolean deleted = false;
@@ -51,14 +50,5 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     @Override
     public void setId(ObjectId id) {
         setLineageId(id);
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        Objects.requireNonNull(version, "version cannot be null");
-        this.version = version;
     }
 }
