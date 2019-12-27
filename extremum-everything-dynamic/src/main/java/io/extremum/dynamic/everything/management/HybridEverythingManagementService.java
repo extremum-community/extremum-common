@@ -22,20 +22,20 @@ public class HybridEverythingManagementService implements ReactiveEverythingMana
 
     @Override
     public Mono<ResponseDto> get(Descriptor id, boolean expand) {
-        return determineDescriptorAndProcessOperation(id, service -> service.get(id, expand));
+        return determineDescriptorAndPerformOperation(id, service -> service.get(id, expand));
     }
 
     @Override
     public Mono<ResponseDto> patch(Descriptor id, JsonPatch patch, boolean expand) {
-        return determineDescriptorAndProcessOperation(id, service -> service.patch(id, patch, expand));
+        return determineDescriptorAndPerformOperation(id, service -> service.patch(id, patch, expand));
     }
 
     @Override
     public Mono<Void> remove(Descriptor id) {
-        return determineDescriptorAndProcessOperation(id, service -> service.remove(id));
+        return determineDescriptorAndPerformOperation(id, service -> service.remove(id));
     }
 
-    private <R> Mono<R> determineDescriptorAndProcessOperation(Descriptor descr, Function<ReactiveEverythingManagementService, Mono<R>> performer) {
+    private <R> Mono<R> determineDescriptorAndPerformOperation(Descriptor descr, Function<ReactiveEverythingManagementService, Mono<R>> performer) {
         return reactiveDescriptorDeterminator.isDescriptorForDynamicModel(descr)
                 .flatMap(isDynamic -> {
                     if (isDynamic) {
