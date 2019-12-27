@@ -67,7 +67,7 @@ public class DynamicModuleAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DescriptorDeterminator descriptorDeterminator() {
-        return new DefaultDescriptorDeterminator();
+    public ReactiveDescriptorDeterminator descriptorDeterminator() {
+        return new DefaultReactiveDescriptorDeterminator();
     }
 }

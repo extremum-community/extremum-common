@@ -2,12 +2,13 @@ package io.extremum.dynamic;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
-public class DefaultDescriptorDeterminator implements DescriptorDeterminator {
+public class DefaultReactiveDescriptorDeterminator implements ReactiveDescriptorDeterminator {
     private Set<String> dynamicModelNames = ConcurrentHashMap.newKeySet();
 
     public void registerDynamicModel(String modelName) {
@@ -15,7 +16,8 @@ public class DefaultDescriptorDeterminator implements DescriptorDeterminator {
     }
 
     @Override
-    public boolean isDescriptorForDynamicModel(Descriptor id) {
-        return dynamicModelNames.contains(id.getModelType());
+    public Mono<Boolean> isDescriptorForDynamicModel(Descriptor id) {
+        return id.getModelTypeReactively()
+                .map(dynamicModelNames::contains);
     }
 }

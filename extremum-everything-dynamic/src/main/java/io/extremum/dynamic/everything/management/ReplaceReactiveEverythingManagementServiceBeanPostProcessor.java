@@ -1,7 +1,7 @@
 package io.extremum.dynamic.everything.management;
 
 import io.extremum.common.dto.converters.services.DynamicModelDtoConversionService;
-import io.extremum.dynamic.DescriptorDeterminator;
+import io.extremum.dynamic.ReactiveDescriptorDeterminator;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.everything.services.management.ReactiveEverythingManagementService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class ReplaceReactiveEverythingManagementServiceBeanPostProcessor impleme
         return new HybridEverythingManagementService(
                 defaultManagementService,
                 createDynamicModelEverythingServiceInstance(),
-                ctx.getBean(DescriptorDeterminator.class)
+                ctx.getBean(ReactiveDescriptorDeterminator.class)
         );
     }
 
