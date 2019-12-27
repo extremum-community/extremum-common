@@ -23,7 +23,7 @@ public class CommonException extends RuntimeException {
         this.alerts.add(Alert.errorAlert(message, null, String.valueOf(status)));
     }
 
-    public CommonException(String message, Integer status, Throwable cause) {
+    public CommonException(String message, int status, Throwable cause) {
         super(message, cause);
         this.code = status;
         this.alerts.add(Alert.errorAlert(message, null, String.valueOf(status)));
