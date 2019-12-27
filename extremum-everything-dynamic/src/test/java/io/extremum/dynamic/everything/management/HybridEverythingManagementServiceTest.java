@@ -1,7 +1,7 @@
 package io.extremum.dynamic.everything.management;
 
-import io.extremum.dynamic.DefaultDescriptorDeterminator;
-import io.extremum.dynamic.DescriptorDeterminator;
+import io.extremum.dynamic.DefaultReactiveDescriptorDeterminator;
+import io.extremum.dynamic.ReactiveDescriptorDeterminator;
 import io.extremum.everything.services.management.ReactiveEverythingManagementService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -21,7 +21,7 @@ class HybridEverythingManagementServiceTest {
 
     ReactiveEverythingManagementService defaultModelEvrService;
     ReactiveDynamicModelEverythingManagementService dynModelEvrService;
-    static DescriptorDeterminator descriptorDeterminator;
+    static ReactiveDescriptorDeterminator reactiveDescriptorDeterminator;
 
     @BeforeAll
     static void beforeAll() {
@@ -37,8 +37,8 @@ class HybridEverythingManagementServiceTest {
                 .modelType("StandardModel")
                 .build();
 
-        descriptorDeterminator = new DefaultDescriptorDeterminator();
-        ((DefaultDescriptorDeterminator) descriptorDeterminator)
+        reactiveDescriptorDeterminator = new DefaultReactiveDescriptorDeterminator();
+        ((DefaultReactiveDescriptorDeterminator) reactiveDescriptorDeterminator)
                 .registerDynamicModel(DYNAMIC_MODEL_DESCRIPTOR.getModelType());
     }
 
@@ -47,7 +47,7 @@ class HybridEverythingManagementServiceTest {
         defaultModelEvrService = mock(ReactiveEverythingManagementService.class);
         dynModelEvrService = mock(ReactiveDynamicModelEverythingManagementService.class);
 
-        service = new HybridEverythingManagementService(defaultModelEvrService, dynModelEvrService, descriptorDeterminator);
+        service = new HybridEverythingManagementService(defaultModelEvrService, dynModelEvrService, reactiveDescriptorDeterminator);
 
         doReturn(just(mock(ResponseDto.class)))
                 .when(defaultModelEvrService).get(any(), anyBoolean());

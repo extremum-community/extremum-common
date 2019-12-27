@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class DefaultDescriptorDeterminatorTest {
+class DefaultReactiveDescriptorDeterminatorTest {
     private static String modelNameOfADynamicModel = "DynamicModel";
 
-    static DefaultDescriptorDeterminator determinator = new DefaultDescriptorDeterminator();
+    static DefaultReactiveDescriptorDeterminator determinator = new DefaultReactiveDescriptorDeterminator();
 
     @BeforeAll
     static void beforeAll() {
@@ -23,7 +23,7 @@ class DefaultDescriptorDeterminatorTest {
                 .modelType(modelNameOfADynamicModel)
                 .build();
 
-        boolean result = determinator.isDescriptorForDynamicModel(descriptorForADynamicModel);
+        boolean result = determinator.isDescriptorForDynamicModel(descriptorForADynamicModel).block();
 
         Assertions.assertTrue(result);
     }
@@ -36,7 +36,7 @@ class DefaultDescriptorDeterminatorTest {
                 .modelType("NotDynamicModel")
                 .build();
 
-        boolean result = determinator.isDescriptorForDynamicModel(descriptorForANonDynamicModel);
+        boolean result = determinator.isDescriptorForDynamicModel(descriptorForANonDynamicModel).block();
 
         Assertions.assertFalse(result);
     }
