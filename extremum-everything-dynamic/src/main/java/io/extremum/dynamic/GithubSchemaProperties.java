@@ -22,6 +22,7 @@ public class GithubSchemaProperties {
     private String repo;
     @NotNull
     private String schemaPath;
+    private String schemaName;
     @NotNull
     private String ref;
     @NotNull
