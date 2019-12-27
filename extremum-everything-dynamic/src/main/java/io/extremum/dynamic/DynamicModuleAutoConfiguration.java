@@ -64,4 +64,10 @@ public class DynamicModuleAutoConfiguration {
                 cacheManagers
         );
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DescriptorDeterminator descriptorDeterminator() {
+        return new DefaultDescriptorDeterminator();
+    }
 }
