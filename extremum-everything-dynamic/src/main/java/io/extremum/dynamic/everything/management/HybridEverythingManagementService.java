@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Function;
-
 @Slf4j
 @Getter
 @RequiredArgsConstructor
@@ -22,30 +20,30 @@ public class HybridEverythingManagementService implements ReactiveEverythingMana
 
     @Override
     public Mono<ResponseDto> get(Descriptor id, boolean expand) {
-        return determineDescriptorAndPerformOperation(id, service -> service.get(id, expand));
+        return findService(id).flatMap(service -> service.get(id, expand));
     }
 
     @Override
     public Mono<ResponseDto> patch(Descriptor id, JsonPatch patch, boolean expand) {
-        return determineDescriptorAndPerformOperation(id, service -> service.patch(id, patch, expand));
+        return findService(id).flatMap(service -> service.patch(id, patch, expand));
     }
 
     @Override
     public Mono<Void> remove(Descriptor id) {
-        return determineDescriptorAndPerformOperation(id, service -> service.remove(id));
+        return findService(id).flatMap(service -> service.remove(id));
     }
 
-    private <R> Mono<R> determineDescriptorAndPerformOperation(Descriptor descr, Function<ReactiveEverythingManagementService, Mono<R>> performer) {
-        return reactiveDescriptorDeterminator.isDescriptorForDynamicModel(descr)
-                .flatMap(isDynamic -> {
+    private Mono<ReactiveEverythingManagementService> findService(Descriptor id) {
+        return reactiveDescriptorDeterminator.isDescriptorForDynamicModel(id)
+                .map(isDynamic -> {
                     if (isDynamic) {
                         log.debug("Descriptor {} determined as a descriptor for a dynamic-model and will be processed with {} service",
-                                descr, dynamicModelEverythingManagementService.getClass());
-                        return performer.apply(dynamicModelEverythingManagementService);
+                                id, dynamicModelEverythingManagementService.getClass());
+                        return dynamicModelEverythingManagementService;
                     } else {
                         log.debug("Descriptor {} determined as a descriptor for a standard-model and will be processed with {} service",
-                                descr, defaultModelEverythingManagementService.getClass());
-                        return performer.apply(defaultModelEverythingManagementService);
+                                id, defaultModelEverythingManagementService.getClass());
+                        return defaultModelEverythingManagementService;
                     }
                 });
     }
