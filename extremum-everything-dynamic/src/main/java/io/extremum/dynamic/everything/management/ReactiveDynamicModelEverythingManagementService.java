@@ -32,16 +32,11 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
         return dynamicModelService.findById(id)
                 .onErrorMap(DescriptorNotFoundException.class,
                         cause -> newModelNotFoundException(id, cause))
-                .flatMap(this::convertDynamicModelToResponseDto)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(newModelNotFoundException(id))));
+                .flatMap(this::convertDynamicModelToResponseDto);
     }
 
     private ModelNotFoundException newModelNotFoundException(Descriptor id, Throwable cause) {
         return new ModelNotFoundException(format("Nothing was found by '%s'", id.getExternalId()), cause);
-    }
-
-    private ModelNotFoundException newModelNotFoundException(Descriptor id) {
-        return newModelNotFoundException(id, null);
     }
 
     private Mono<ResponseDto> convertDynamicModelToResponseDto(Model model) {

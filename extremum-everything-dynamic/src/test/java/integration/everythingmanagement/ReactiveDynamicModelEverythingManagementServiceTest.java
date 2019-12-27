@@ -44,7 +44,7 @@ import static reactor.core.publisher.Mono.just;
         ReactiveEverythingConfiguration.class,
         DynamicModuleAutoConfiguration.class
 })
-public class DefaultReactiveDynamicModelEverythingManagementServiceTest extends SpringBootTestWithServices {
+public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringBootTestWithServices {
     private static final Descriptor NOT_EXISTENT_DESCRIPTOR = Descriptor.builder()
             .internalId("000000000000000000000000")
             .externalId("00000000-0000-0000-0000-000000000000")
