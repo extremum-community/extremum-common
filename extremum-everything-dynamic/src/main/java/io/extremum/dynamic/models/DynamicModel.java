@@ -1,6 +1,8 @@
 package io.extremum.dynamic.models;
 
-public interface DynamicModel<ModelData> {
+import io.extremum.sharedmodels.basic.Model;
+
+public interface DynamicModel<ModelData> extends Model {
     String getModelName();
 
     ModelData getModelData();

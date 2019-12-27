@@ -2,6 +2,7 @@ package io.extremum.dynamic.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.reactivestreams.Publisher;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
@@ -77,6 +79,13 @@ public class MongoJsonDynamicModelDao {
                                     return new JsonDynamicModel(descr, descr.getModelType(), toNode(doc.toJson()));
                                 })
                 );
+    }
+
+    public Mono<Void> remove(Descriptor id, String collectionName) {
+        Publisher<DeleteResult> deleteResultPublisher = mongoOperations.getCollection(collectionName)
+                .deleteOne(new Document("_id", new ObjectId(id.getInternalId())));
+
+        return Mono.from(deleteResultPublisher).then();
     }
 
     private Function<MongoCollection<Document>, Mono<UpdateResult>> replaceDocumentInCollection(Document doc) {
