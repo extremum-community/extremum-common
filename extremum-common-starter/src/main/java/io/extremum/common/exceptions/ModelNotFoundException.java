@@ -7,6 +7,10 @@ public class ModelNotFoundException extends CommonException {
     private Class<? extends Model> modelClass;
     private String modelId;
 
+    public ModelNotFoundException(String message, Throwable t) {
+        super(message, HttpStatus.NOT_FOUND.value(), t);
+    }
+
     public ModelNotFoundException(String message) {
         super(message, HttpStatus.NOT_FOUND.value());
     }
