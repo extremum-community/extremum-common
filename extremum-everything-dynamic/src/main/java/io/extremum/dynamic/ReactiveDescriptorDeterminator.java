@@ -1,13 +1,14 @@
 package io.extremum.dynamic;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Set;
+
 public interface ReactiveDescriptorDeterminator {
-    Mono<String> registerModelName(String modelName);
+    void registerModelName(String modelName);
 
     Mono<Boolean> isDynamic(Descriptor id);
 
-    Flux<String> getRegisteredModelNames();
+    Set<String> getRegisteredModelNames();
 }

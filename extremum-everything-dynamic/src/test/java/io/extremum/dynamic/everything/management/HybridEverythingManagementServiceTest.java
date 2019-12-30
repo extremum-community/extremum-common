@@ -39,7 +39,7 @@ class HybridEverythingManagementServiceTest {
 
         reactiveDescriptorDeterminator = new DefaultReactiveDescriptorDeterminator();
         reactiveDescriptorDeterminator
-                .registerModelName(DYNAMIC_MODEL_DESCRIPTOR.getModelType()).block();
+                .registerModelName(DYNAMIC_MODEL_DESCRIPTOR.getModelType());
     }
 
     @BeforeEach
