@@ -19,7 +19,7 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
     private final ReactiveDescriptorDeterminator descriptorDeterminator;
     private final GithubSchemaProperties githubSchemaProperties;
 
-    private boolean alreadyHeated = false;
+    private volatile boolean alreadyHeated = false;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
