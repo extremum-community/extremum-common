@@ -34,7 +34,7 @@ public class HybridEverythingManagementService implements ReactiveEverythingMana
     }
 
     private Mono<ReactiveEverythingManagementService> findService(Descriptor id) {
-        return reactiveDescriptorDeterminator.isDescriptorForDynamicModel(id)
+        return reactiveDescriptorDeterminator.isDynamic(id)
                 .map(isDynamic -> {
                     if (isDynamic) {
                         log.debug("Descriptor {} determined as a descriptor for a dynamic-model and will be processed with {} service",
