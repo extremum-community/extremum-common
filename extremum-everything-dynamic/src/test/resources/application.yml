@@ -1,3 +1,6 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
 mongo:
   serviceDbUri: mongodb://localhost:27017
   serviceDbName: dynmodel

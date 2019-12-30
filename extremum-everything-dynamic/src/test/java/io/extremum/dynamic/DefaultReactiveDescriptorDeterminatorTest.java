@@ -12,7 +12,7 @@ class DefaultReactiveDescriptorDeterminatorTest {
 
     @BeforeAll
     static void beforeAll() {
-        determinator.registerDynamicModel(modelNameOfADynamicModel);
+        determinator.registerModelName(modelNameOfADynamicModel);
     }
 
     @Test
@@ -23,7 +23,7 @@ class DefaultReactiveDescriptorDeterminatorTest {
                 .modelType(modelNameOfADynamicModel)
                 .build();
 
-        boolean result = determinator.isDescriptorForDynamicModel(descriptorForADynamicModel).block();
+        boolean result = determinator.isDynamic(descriptorForADynamicModel).block();
 
         Assertions.assertTrue(result);
     }
@@ -36,7 +36,7 @@ class DefaultReactiveDescriptorDeterminatorTest {
                 .modelType("NotDynamicModel")
                 .build();
 
-        boolean result = determinator.isDescriptorForDynamicModel(descriptorForANonDynamicModel).block();
+        boolean result = determinator.isDynamic(descriptorForANonDynamicModel).block();
 
         Assertions.assertFalse(result);
     }
