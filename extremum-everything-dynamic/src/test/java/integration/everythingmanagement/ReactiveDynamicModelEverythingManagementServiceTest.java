@@ -104,7 +104,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException {
         String modelName = "PatchingDynamicModel";
 
-        reactiveDescriptorDeterminator.registerModelName(modelName).block();
+        reactiveDescriptorDeterminator.registerModelName(modelName);
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
         JsonDynamicModel saved = dynamicModelService.saveModel(patchingModel).block();

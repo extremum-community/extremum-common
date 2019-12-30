@@ -12,7 +12,7 @@ class DefaultReactiveDescriptorDeterminatorTest {
 
     @BeforeAll
     static void beforeAll() {
-        determinator.registerModelName(modelNameOfADynamicModel).block();
+        determinator.registerModelName(modelNameOfADynamicModel);
     }
 
     @Test

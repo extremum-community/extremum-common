@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -38,8 +37,7 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
                     log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
                             "in a descriptor determinator", loaded.getSchema());
                 } else {
-                    Mono<String> pipe = descriptorDeterminator.registerModelName(title.textValue());
-                    completeMono(pipe);
+                    descriptorDeterminator.registerModelName(title.textValue());
                 }
             }
         }
@@ -47,9 +45,5 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
 
     private boolean isTextNode(JsonNode title) {
         return title instanceof TextNode;
-    }
-
-    private void completeMono(Mono<String> pipe) {
-        pipe.toProcessor().block();
     }
 }

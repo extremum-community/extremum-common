@@ -1,16 +1,14 @@
 package io.extremum.dynamic;
 
-import com.google.common.collect.ImmutableSet;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static reactor.core.publisher.Mono.just;
+import static com.google.common.collect.ImmutableSet.copyOf;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,13 +16,9 @@ public class DefaultReactiveDescriptorDeterminator implements ReactiveDescriptor
     private Set<String> dynamicModelNames = ConcurrentHashMap.newKeySet();
 
     @Override
-    public Mono<String> registerModelName(String modelName) {
-        return Mono.defer(() -> {
-            dynamicModelNames.add(modelName);
-            log.info("Registered new model name {}", modelName);
-
-            return just(modelName);
-        });
+    public void registerModelName(String modelName) {
+        dynamicModelNames.add(modelName);
+        log.info("Registered new model name {}", modelName);
     }
 
     @Override
@@ -34,7 +28,7 @@ public class DefaultReactiveDescriptorDeterminator implements ReactiveDescriptor
     }
 
     @Override
-    public Flux<String> getRegisteredModelNames() {
-        return Flux.defer(() -> Flux.fromIterable(ImmutableSet.copyOf(dynamicModelNames)));
+    public Set<String> getRegisteredModelNames() {
+        return copyOf(dynamicModelNames);
     }
 }

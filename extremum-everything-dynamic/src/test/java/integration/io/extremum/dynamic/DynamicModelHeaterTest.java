@@ -3,14 +3,15 @@ package integration.io.extremum.dynamic;
 import integration.SpringBootTestWithServices;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
+
+import java.util.Set;
 
 @MockBeans({
         @MockBean(DefaultJsonDynamicModelMetadataProvider.class)
@@ -23,11 +24,9 @@ public class DynamicModelHeaterTest extends SpringBootTestWithServices {
 
     @Test
     void heaterLoadSchemaAndRegisterModelInADescriptorDeterminator() {
-        Flux<String> registeredModelNames = descriptorDeterminator.getRegisteredModelNames();
+        Set<String> registeredModelNames = descriptorDeterminator.getRegisteredModelNames();
 
-        StepVerifier.create(registeredModelNames)
-                .expectNext("DynamicModelName")
-                .thenCancel()
-                .verify();
+        Assertions.assertEquals(1, registeredModelNames.size());
+        Assertions.assertTrue(registeredModelNames.contains("DynamicModelName"));
     }
 }
