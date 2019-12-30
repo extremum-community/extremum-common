@@ -7,7 +7,6 @@ import integration.SpringBootTestWithServices;
 import io.atlassian.fugue.Either;
 import io.atlassian.fugue.Unit;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.dynamic.DefaultReactiveDescriptorDeterminator;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
 import io.extremum.dynamic.everything.dto.JsonDynamicModelResponseDto;
@@ -105,7 +104,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException {
         String modelName = "PatchingDynamicModel";
 
-        ((DefaultReactiveDescriptorDeterminator) reactiveDescriptorDeterminator).registerDynamicModel(modelName);
+        reactiveDescriptorDeterminator.registerModelName(modelName).block();
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
         JsonDynamicModel saved = dynamicModelService.saveModel(patchingModel).block();
