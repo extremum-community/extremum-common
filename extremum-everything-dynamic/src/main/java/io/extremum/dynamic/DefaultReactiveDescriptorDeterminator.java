@@ -1,5 +1,6 @@
 package io.extremum.dynamic;
 
+import com.google.common.collect.ImmutableSet;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,6 @@ public class DefaultReactiveDescriptorDeterminator implements ReactiveDescriptor
 
     @Override
     public Flux<String> getRegisteredModelNames() {
-        return Flux.defer(() -> Flux.fromArray(dynamicModelNames.toArray(new String[]{})));
+        return Flux.defer(() -> Flux.fromIterable(ImmutableSet.copyOf(dynamicModelNames)));
     }
 }
