@@ -12,6 +12,19 @@
     },
     "field3": {
       "$ref": "file:second.schema.json"
+    },
+    "fieldObject": {
+      "type": "object",
+      "properties": {
+        "fieldDate1": {
+          "type": "string",
+          "format": "cybernated-date-time"
+        },
+        "fieldDate2": {
+          "type": "string",
+          "format": "cybernated-date-time"
+        }
+      }
     }
   }
 }

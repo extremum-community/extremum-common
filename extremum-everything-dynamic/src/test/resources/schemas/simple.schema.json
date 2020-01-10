@@ -8,6 +8,17 @@
     },
     "field2": {
       "type": "number"
+    },
+    "fieldDate1": {
+      "type": "string",
+      "format": "cybernated-date-time"
+    },
+    "fieldDate2": {
+      "type": "string",
+      "format": "cybernated-date-time"
+    },
+    "fieldDate3_noCybernatedDate": {
+      "type": "string"
     }
   }
 }

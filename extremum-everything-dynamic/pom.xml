@@ -24,6 +24,7 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
+            <version>1.0.29_patch_1</version>
         </dependency>
         <dependency>
             <groupId>com.konghq</groupId>
@@ -32,6 +33,10 @@
         <dependency>
             <groupId>io.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
         </dependency>
 
         <!-- extremum deps -->
