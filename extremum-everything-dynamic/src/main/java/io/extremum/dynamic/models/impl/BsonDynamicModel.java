@@ -1,24 +1,24 @@
 package io.extremum.dynamic.models.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.extremum.dynamic.models.DynamicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.Data;
 import lombok.Getter;
+import org.bson.Document;
 
 @Data
 @Getter
-public class JsonDynamicModel implements DynamicModel<JsonNode> {
+public class BsonDynamicModel implements DynamicModel<Document> {
     private Descriptor id;
     private final String modelName;
-    private final JsonNode modelData;
+    private final Document modelData;
 
-    public JsonDynamicModel(String modelName, JsonNode data) {
+    public BsonDynamicModel(String modelName, Document data) {
         this.modelName = modelName;
         this.modelData = data;
     }
 
-    public JsonDynamicModel(Descriptor id, String modelName, JsonNode data) {
+    public BsonDynamicModel(Descriptor id, String modelName, Document data) {
         this.id = id;
         this.modelName = modelName;
         this.modelData = data;

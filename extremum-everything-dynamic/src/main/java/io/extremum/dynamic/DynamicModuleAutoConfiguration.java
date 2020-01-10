@@ -8,8 +8,13 @@ import io.extremum.dynamic.schema.provider.networknt.caching.impl.CachingGithubN
 import io.extremum.dynamic.schema.provider.networknt.caching.impl.MemoryNetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import io.extremum.dynamic.server.impl.GithubWebhookListenerHttpSchemaServer;
+import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.DatesProcessor;
+import io.extremum.dynamic.services.impl.DefaultDateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.impl.DefaultDatesProcessor;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Collection;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableConfigurationProperties({GithubSchemaProperties.class})
 @ComponentScan(basePackages = "io.extremum.dynamic")
 public class DynamicModuleAutoConfiguration {
@@ -69,5 +75,17 @@ public class DynamicModuleAutoConfiguration {
     @ConditionalOnMissingBean
     public ReactiveDescriptorDeterminator descriptorDeterminator() {
         return new DefaultReactiveDescriptorDeterminator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DateDocumentTypesNormalizer dateDocumentTypesNormalizer() {
+        return new DefaultDateDocumentTypesNormalizer();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DatesProcessor datesProcessor() {
+        return new DefaultDatesProcessor();
     }
 }

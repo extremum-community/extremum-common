@@ -1,9 +1,6 @@
 package io.extremum.dynamic.schema.provider.networknt;
 
-import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaException;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.*;
 import io.extremum.dynamic.resources.ResourceLoader;
 import io.extremum.dynamic.resources.exceptions.ResourceLoadingException;
 import io.extremum.dynamic.resources.exceptions.ResourceNotFoundException;
@@ -17,8 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static io.extremum.dynamic.DynamicModelConstants.CYBERNATED_DATE_TIME_FORMAT_NAME;
+import static io.extremum.dynamic.DynamicModelConstants.DATE_FORMAT_PATTERN;
 import static java.lang.String.format;
 
 @Slf4j
@@ -72,7 +73,8 @@ public abstract class AbstractNetworkntSchemaProvider implements NetworkntSchema
 
     private JsonSchemaFactory createFactory(JsonSchemaType type, List<NetworkntURIFetcher> uriFetchers) {
         if (JsonSchemaType.V2019_09.equals(type)) {
-            JsonMetaSchema metaSchema = JsonMetaSchema.getV201909();
+            JsonMetaSchema metaSchema = buildMetaSchema();
+
             JsonSchemaFactory.Builder builder = new JsonSchemaFactory.Builder()
                     .addMetaSchema(metaSchema)
                     .defaultMetaSchemaURI(metaSchema.getUri());
@@ -84,6 +86,24 @@ public abstract class AbstractNetworkntSchemaProvider implements NetworkntSchema
         } else {
             throw new RuntimeException("Only " + JsonSchemaType.V2019_09 + " schema version is supported");
         }
+    }
+
+    private JsonMetaSchema buildMetaSchema() {
+        return new JsonMetaSchema.Builder(JsonMetaSchema.getV201909().getUri())
+                .idKeyword("$id")
+                .addFormats(new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS))
+                .addFormat(new PatternFormat(CYBERNATED_DATE_TIME_FORMAT_NAME, DATE_FORMAT_PATTERN))
+                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
+                .addKeywords(Arrays.asList(
+                        new NonValidationKeyword("$schema"),
+                        new NonValidationKeyword("$id"),
+                        new NonValidationKeyword("title"),
+                        new NonValidationKeyword("description"),
+                        new NonValidationKeyword("default"),
+                        new NonValidationKeyword("definitions"),
+                        new NonValidationKeyword("$defs")  // newly added in 2018-09 release.
+                ))
+                .build();
     }
 
     @Override

@@ -16,13 +16,16 @@ import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -30,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -50,6 +55,9 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
     @Autowired
     NetworkntCacheManager networkntCacheManager;
 
+    @Autowired
+    ReactiveMongoOperations operations;
+
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
@@ -62,13 +70,23 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
 
         NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
                 JsonSchemaType.V2019_09,
-                Paths.get(base, "schemas/")
+                Paths.get(base, "schemas")
         );
 
         networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
 
         String modelName = "complex.schema.json";
-        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
+        JsonNode modelData = toJsonNode("{\n" +
+                "  \"field1\": \"aaa\",\n" +
+                "  \"field3\": {\n" +
+                "    \"externalField\": \"bbb\"\n" +
+                "  " +
+                "},\n" +
+                "  \"fieldObject\": {\n" +
+                "    \"fieldDate1\": \"2013-01-09T09:31:26.111111-0500\",\n" +
+                "    \"fieldDate2\": \"2014-01-09T09:31:26.111111-0500\"\n" +
+                "  }\n" +
+                "}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
@@ -77,13 +95,25 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(saved)
-                .expectNextMatches(m ->
-                        m.getModelName().equals(model.getModelName()) &&
-                                m.getModelData().toString().equals(model.getModelData().toString()) &&
-                                m.getId() != null &&
-                                model.getModelName().equals(m.getId().getModelType())
+                .assertNext(m -> {
+                            assertEquals(model.getModelName(), m.getModelName());
+
+                            assertEquals(model.getModelData().get("field1").toString(), m.getModelData().get("field1").toString());
+                            assertEquals(model.getModelData().get("field3").toString(), m.getModelData().get("field3").toString());
+
+                            assertNotNull(m.getId());
+                            assertEquals(model.getModelName(), m.getId().getModelType());
+                        }
                 )
                 .verifyComplete();
+
+        for (String dateField : Arrays.asList("fieldObject.fieldDate1", "fieldObject.fieldDate2")) {
+            Iterable<Document> documents = Flux.from(operations.getCollection("complex_schema_json")
+                    .find(new Document(dateField, new Document("$type", "date")))
+                    .limit(2)).toIterable();
+
+            assertEquals(1, StreamSupport.stream(documents.spliterator(), false).count());
+        }
     }
 
     @Test

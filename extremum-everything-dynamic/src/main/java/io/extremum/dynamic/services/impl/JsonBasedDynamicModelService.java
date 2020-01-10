@@ -1,26 +1,40 @@
 package io.extremum.dynamic.services.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.dynamic.dao.MongoJsonDynamicModelDao;
+import io.extremum.dynamic.dao.DynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.dynamic.models.impl.BsonDynamicModel;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
+import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.DynamicModelService;
+import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
-import static reactor.core.publisher.Mono.error;
+import java.io.IOException;
+import java.util.Map;
+
+import static reactor.core.publisher.Mono.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JsonBasedDynamicModelService implements DynamicModelService<JsonDynamicModel> {
-    private final MongoJsonDynamicModelDao dao;
+    private final DynamicModelDao<BsonDynamicModel> dao;
     private final JsonDynamicModelValidator modelValidator;
     private final DefaultJsonDynamicModelMetadataProvider metadataProvider;
+    private final DateDocumentTypesNormalizer dateDocumentTypesNormalizer;
+    private final DatesProcessor datesProcessor;
+    private final ObjectMapper mapper;
 
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
@@ -28,26 +42,56 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
                 .flatMap(either ->
                         either.fold(
                                 Mono::error,
-                                _it -> saveValidatedModel(model)
+                                ctx -> saveValidatedModel(model, ctx)
                         )
                 );
     }
 
-    private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model) {
-        return getCollectionName(model)
-                .flatMap(cName -> {
-                    if (model.getId() != null) {
-                        return dao.replace(model, cName);
-                    } else {
-                        return dao.create(model, cName);
-                    }
-                });
+    private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
+        return Mono.fromSupplier(() -> {
+            Document doc = Document.parse(model.getModelData().toString());
+            Document normalized = dateDocumentTypesNormalizer.normalize(doc, ctx.getPaths());
+
+            return new BsonDynamicModel(model.getId(), model.getModelName(), normalized);
+        })
+                .flatMap(bModel -> getCollectionName(model).map(cName -> Tuples.of(bModel, cName)))
+                .flatMap(tuple -> defer(() -> {
+                            BsonDynamicModel bModel = tuple.getT1();
+                            String collectionName = tuple.getT2();
+
+                            if (bModel.getId() != null) {
+                                return dao.replace(bModel, collectionName);
+                            } else {
+                                return dao.create(bModel, collectionName);
+                            }
+                        })
+                ).map(this::toJsonDynamicModel);
+    }
+
+    private JsonDynamicModel toJsonDynamicModel(BsonDynamicModel bModel) {
+        Document modelData = bModel.getModelData();
+
+        Document documentWithReplacedDates = datesProcessor.processDates(modelData);
+
+        return new JsonDynamicModel(bModel.getId(), bModel.getModelName(), toJson(documentWithReplacedDates));
+    }
+
+    private JsonNode toJson(Document modelData) {
+        try {
+            String json = mapper.writerFor(Map.class).writeValueAsString(modelData);
+
+            return mapper.readValue(json, JsonNode.class);
+        } catch (IOException e) {
+            log.error("Unable to convert string to json from {}", modelData, e);
+            throw new RuntimeException("Unable to parse json", e);
+        }
     }
 
     @Override
     public Mono<JsonDynamicModel> findById(Descriptor id) {
         return getCollectionName(id)
                 .flatMap(cName -> dao.getByIdFromCollection(id, cName))
+                .map(this::toJsonDynamicModel)
                 .map(metadataProvider::provideMetadata)
                 .switchIfEmpty(error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
     }
@@ -66,7 +110,7 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
         if (model.getId() != null) {
             return getCollectionName(model.getId());
         } else {
-            return Mono.just(model.getModelName())
+            return just(model.getModelName())
                     .map(this::normalizeStringToCollectionName);
         }
     }

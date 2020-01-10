@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import integration.SpringBootTestWithServices;
 import io.atlassian.fugue.Either;
-import io.atlassian.fugue.Unit;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
@@ -15,6 +14,7 @@ import io.extremum.dynamic.everything.management.ReactiveDynamicModelEverythingM
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.everything.reactive.config.ReactiveEverythingConfiguration;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -68,7 +68,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @BeforeEach
     void beforeEach() {
-        doReturn(just(Either.right(Unit.Unit())))
+        doReturn(just(Either.right(mock(ValidationContext.class))))
                 .when(jsonDynamicModelValidator).validate(any());
 
         doAnswer(new ReturnsArgumentAt(0))
