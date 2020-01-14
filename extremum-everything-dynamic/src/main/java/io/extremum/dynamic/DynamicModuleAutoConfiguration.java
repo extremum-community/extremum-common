@@ -8,9 +8,9 @@ import io.extremum.dynamic.schema.provider.networknt.caching.impl.CachingGithubN
 import io.extremum.dynamic.schema.provider.networknt.caching.impl.MemoryNetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import io.extremum.dynamic.server.impl.GithubWebhookListenerHttpSchemaServer;
-import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
-import io.extremum.dynamic.services.impl.DefaultDateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.impl.DefaultDateTypesNormalizer;
 import io.extremum.dynamic.services.impl.DefaultDatesProcessor;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
@@ -79,8 +79,8 @@ public class DynamicModuleAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DateDocumentTypesNormalizer dateDocumentTypesNormalizer() {
-        return new DefaultDateDocumentTypesNormalizer();
+    public DateTypesNormalizer dateDocumentTypesNormalizer() {
+        return new DefaultDateTypesNormalizer();
     }
 
     @Bean

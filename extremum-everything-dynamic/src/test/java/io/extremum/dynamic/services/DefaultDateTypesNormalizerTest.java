@@ -1,7 +1,7 @@
 package io.extremum.dynamic.services;
 
 import com.jayway.jsonpath.JsonPath;
-import io.extremum.dynamic.services.impl.DefaultDateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.impl.DefaultDateTypesNormalizer;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +9,13 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DefaultDateDocumentTypesNormalizerTest {
+class DefaultDateTypesNormalizerTest {
     @Test
     void normalizeDatesInDocument_allPathsExists() {
         Set<String> datePaths = new HashSet<>();
@@ -45,10 +46,10 @@ class DefaultDateDocumentTypesNormalizerTest {
 
         Document doc = Document.parse(json);
 
-        DateDocumentTypesNormalizer normalizer = new DefaultDateDocumentTypesNormalizer();
-        Document normalized = normalizer.normalize(doc, datePaths);
+        DateTypesNormalizer normalizer = new DefaultDateTypesNormalizer();
+        Map<String, Object> normalizedMap = normalizer.normalize(doc, datePaths);
 
-        Function<String, ZonedDateTime> byPath = path -> getDateByPath(normalized, path);
+        Function<String, ZonedDateTime> byPath = path -> getDateByPath(normalizedMap, path);
 
         assertEquals(2010, byPath.apply("$.peoples[0].birth").getYear());
         assertEquals(2011, byPath.apply("$.peoples[1].birth").getYear());
@@ -62,13 +63,13 @@ class DefaultDateDocumentTypesNormalizerTest {
         Set<String> datePaths = new HashSet<>();
         datePaths.add("$.a.b.c");
 
-        DateDocumentTypesNormalizer normalizer = new DefaultDateDocumentTypesNormalizer();
-        Document normalized = normalizer.normalize(doc, datePaths);
+        DateTypesNormalizer normalizer = new DefaultDateTypesNormalizer();
+        Map<String, Object> normalizedMap = normalizer.normalize(doc, datePaths);
 
-        assertEquals(doc.toJson(), normalized.toJson());
+        assertEquals(doc.toJson(), new Document(normalizedMap).toJson());
     }
 
-    private ZonedDateTime getDateByPath(Document doc, String path) {
+    private ZonedDateTime getDateByPath(Map<String, Object> doc, String path) {
         Date date = JsonPath.read(doc, path);
         return ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"));
     }
