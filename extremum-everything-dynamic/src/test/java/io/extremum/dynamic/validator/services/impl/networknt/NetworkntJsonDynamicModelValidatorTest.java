@@ -2,7 +2,7 @@ package io.extremum.dynamic.validator.services.impl.networknt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.atlassian.fugue.Either;
+import io.atlassian.fugue.Try;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -47,14 +47,21 @@ class NetworkntJsonDynamicModelValidatorTest {
 
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
-        Mono<Either<Exception, ValidationContext>> result = validator.validate(model);
+        Mono<Try<ValidationContext>> result = validator.validate(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30L, ChronoUnit.SECONDS));
 
         StepVerifier.create(result)
-                .assertNext(either -> {
-                    assertTrue(either.isRight(), () -> either.left().get().toString());
-                    assertEquals(2, either.right().get().getPaths().size());
+                .assertNext(tryInstance -> {
+                    assertTrue(tryInstance.isSuccess(), "Try must contains a ValidationContext value");
+
+                    tryInstance.fold(
+                            e -> fail("Try must contains a ValidationContext instance nut contains an exception", e),
+                            ctx -> {
+                                assertEquals(2, ctx.getPaths().size());
+                                return null;
+                            }
+                    );
                 }).verifyComplete();
     }
 
@@ -63,12 +70,18 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"fieldDate1\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
-        Mono<Either<Exception, ValidationContext>> validationResult = validator.validate(model);
+        Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
         StepVerifier.create(validationResult)
-                .expectNextMatches(either -> either.isLeft() &&
-                        either.left().get() instanceof DynamicModelValidationException)
+                .assertNext(tryInstance -> {
+                    assertTrue(tryInstance.isFailure());
+
+                    tryInstance.recover(e -> {
+                        assertTrue(e instanceof DynamicModelValidationException);
+                        return null;
+                    });
+                })
                 .verifyComplete();
     }
 
@@ -77,13 +90,19 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("unknown_schema", modelData);
 
-        Mono<Either<Exception, ValidationContext>> validationResult = validator.validate(model);
+        Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(validationResult)
-                .expectNextMatches(either -> either.isLeft() &&
-                        either.left().get() instanceof SchemaNotFoundException)
+                .assertNext(tryInstance -> {
+                    assertTrue(tryInstance.isFailure());
+
+                    tryInstance.recover(e -> {
+                        assertTrue(e instanceof SchemaNotFoundException);
+                        return null;
+                    });
+                })
                 .verifyComplete();
     }
 
@@ -92,13 +111,19 @@ class NetworkntJsonDynamicModelValidatorTest {
         JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("complex_with_bad_ref.schema.json", modelData);
 
-        Mono<Either<Exception, ValidationContext>> validationResult = validator.validate(model);
+        Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(validationResult)
-                .expectNextMatches(either -> either.isLeft() &&
-                        either.left().get() instanceof SchemaNotFoundException)
+                .assertNext(tryInstance -> {
+                    assertTrue(tryInstance.isFailure());
+
+                    tryInstance.recover(e -> {
+                        assertTrue(e instanceof SchemaNotFoundException);
+                        return null;
+                    });
+                })
                 .verifyComplete();
     }
 
