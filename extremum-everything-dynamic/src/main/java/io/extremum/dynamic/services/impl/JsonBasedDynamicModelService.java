@@ -7,7 +7,7 @@ import io.extremum.dynamic.dao.DynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.BsonDynamicModel;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.DynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
@@ -32,7 +32,7 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     private final DynamicModelDao<BsonDynamicModel> dao;
     private final JsonDynamicModelValidator modelValidator;
     private final DefaultJsonDynamicModelMetadataProvider metadataProvider;
-    private final DateDocumentTypesNormalizer dateDocumentTypesNormalizer;
+    private final DateTypesNormalizer dateTypesNormalizer;
     private final DatesProcessor datesProcessor;
     private final ObjectMapper mapper;
 
@@ -50,7 +50,9 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
         return Mono.fromSupplier(() -> {
             Document doc = Document.parse(model.getModelData().toString());
-            Document normalized = dateDocumentTypesNormalizer.normalize(doc, ctx.getPaths());
+            Map<String, Object> normalizedMap = dateTypesNormalizer.normalize(doc, ctx.getPaths());
+
+            Document normalized = new Document(normalizedMap);
 
             return new BsonDynamicModel(model.getId(), model.getModelName(), normalized);
         })

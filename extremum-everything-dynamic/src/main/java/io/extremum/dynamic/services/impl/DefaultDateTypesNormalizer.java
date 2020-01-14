@@ -3,22 +3,22 @@ package io.extremum.dynamic.services.impl;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.sharedmodels.constants.DateConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultDateDocumentTypesNormalizer implements DateDocumentTypesNormalizer {
+public class DefaultDateTypesNormalizer implements DateTypesNormalizer {
     @Override
-    public Document normalize(Document doc, Collection<String> datePaths) {
+    public Map<String, Object> normalize(Map<String, Object> doc, Collection<String> datePaths) {
         for (String path : datePaths) {
             try {
                 Object value = JsonPath.read(doc, path);
@@ -28,7 +28,7 @@ public class DefaultDateDocumentTypesNormalizer implements DateDocumentTypesNorm
                             .set(doc, Date.from(zdt.toInstant()), Configuration.builder().build());
                 }
             } catch (PathNotFoundException e) {
-                log.warn("Path {} wasn't found in doc {}", path, doc.toJson());
+                log.warn("Path {} wasn't found in doc {}", path, doc);
             }
         }
 

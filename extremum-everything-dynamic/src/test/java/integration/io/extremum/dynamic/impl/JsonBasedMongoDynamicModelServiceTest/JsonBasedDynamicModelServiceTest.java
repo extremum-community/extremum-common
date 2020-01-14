@@ -10,7 +10,7 @@ import io.extremum.dynamic.models.impl.BsonDynamicModel;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
-import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
@@ -48,7 +48,7 @@ class JsonBasedDynamicModelServiceTest {
     NetworkntJsonDynamicModelValidator modelValidator;
 
     @Autowired
-    DateDocumentTypesNormalizer normalizer;
+    DateTypesNormalizer normalizer;
 
     @Autowired
     DatesProcessor datesProcessor;
