@@ -1,7 +1,5 @@
 package io.extremum.dynamic.everything;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.dynamic.everything.dto.JsonDynamicModelResponseDto;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
@@ -13,6 +11,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 class DefaultDynamicModelDtoConversionServiceTest {
     @Test
@@ -25,8 +25,13 @@ class DefaultDynamicModelDtoConversionServiceTest {
                 .modelType("DynModel_A")
                 .build();
 
-        JsonNode data = new ObjectMapper()
-                .readValue("{\"a\":\"b\"}", JsonNode.class);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("a", "b");
+        data.put("created", "2020-01-15T09:10:34.849000+0300");
+        data.put("modified", "2020-01-15T09:10:34.849000+0300");
+        data.put("version", 1);
+        data.put("model", "DynModel_A");
 
         JsonDynamicModel model = new JsonDynamicModel(descriptor, "DynModel_A", data);
         Mono<ResponseDto> result = service.convertToResponseDtoReactively(model, ConversionConfig.defaults());

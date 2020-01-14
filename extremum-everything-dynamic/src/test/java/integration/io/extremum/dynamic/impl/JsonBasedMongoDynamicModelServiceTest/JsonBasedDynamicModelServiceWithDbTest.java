@@ -1,7 +1,9 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchema;
 import integration.SpringBootTestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
@@ -9,6 +11,7 @@ import io.extremum.dynamic.GithubSchemaProperties;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
+import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
@@ -18,10 +21,12 @@ import io.extremum.starter.CommonConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,13 +39,15 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static io.extremum.common.utils.DateUtils.parseZonedDateTimeFromISO_8601;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 @ActiveProfiles("save-model-test")
@@ -52,11 +59,15 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
     @Autowired
     GithubSchemaProperties githubSchemaProperties;
 
-    @Autowired
-    NetworkntCacheManager networkntCacheManager;
 
     @Autowired
     ReactiveMongoOperations operations;
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    @SpyBean
+    NetworkntCacheManager networkntCacheManager;
 
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
@@ -76,7 +87,7 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
 
         String modelName = "complex.schema.json";
-        JsonNode modelData = toJsonNode("{\n" +
+        Map<String, Object> modelData = toMap("{\n" +
                 "  \"field1\": \"aaa\",\n" +
                 "  \"field3\": {\n" +
                 "    \"externalField\": \"bbb\"\n" +
@@ -99,7 +110,11 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
                             assertEquals(model.getModelName(), m.getModelName());
 
                             assertEquals(model.getModelData().get("field1").toString(), m.getModelData().get("field1").toString());
-                            assertEquals(model.getModelData().get("field3").toString(), m.getModelData().get("field3").toString());
+
+                            Map<String, Object> map = ((Map) m.getModelData().get("field3"));
+
+                            assertTrue(map.containsKey("externalField"));
+                            assertEquals(((Map) model.getModelData().get("field3")).get("externalField"), map.get("externalField"));
 
                             assertNotNull(m.getId());
                             assertEquals(model.getModelName(), m.getId().getModelType());
@@ -136,7 +151,7 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
 
         String modelName = "complex.schema.json";
-        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
+        Map<String, Object> modelData = toMap("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
@@ -149,7 +164,8 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         assertNotNull(model.getModelName(), found.getId().getModelType());
         assertEquals(saved.getId(), found.getId());
         assertEquals(model.getModelName(), found.getModelName());
-        assertEquals(model.getModelData(), found.getModelData());
+        assertEquals(model.getModelData().get("field1"), found.getModelData().get("field1"));
+        assertEquals(model.getModelData().get("field3"), found.getModelData().get("field3"));
     }
 
     @Test
@@ -169,10 +185,11 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
                 Paths.get(base, "schemas/")
         );
 
-        networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
+        String modelName = "complexModel";
 
-        String modelName = "complex.schema.json";
-        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
+        networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), modelName);
+
+        Map<String, Object> modelData = toMap("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
@@ -183,7 +200,11 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         Descriptor idOfTheFoundModel = found.getId();
         assertEquals(saved.getId(), idOfTheFoundModel);
 
-        JsonNode modelData_updated = toJsonNode("{\"field1\":\"bbb\", \"field3\":{\"externalField\":\"bbb\"}}");
+        Map<String, Object> modelData_updated = toMap("{\"field1\":\"bbb\", \"field3\":{\"externalField\":\"bbb\"}, \n" +
+                "\"created\":\"blablabla\",\n" +
+                "\"modified\": \"blababla\",\n" +
+                "\"model\": \"complexModel\",\n" +
+                "\"version\": 1}");
         JsonDynamicModel updatedModel = new JsonDynamicModel(idOfTheFoundModel, found.getModelName(), modelData_updated);
         JsonDynamicModel updatedResult = service.saveModel(updatedModel).block();
 
@@ -191,7 +212,7 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
 
         JsonDynamicModel foundUpdated = service.findById(idOfTheFoundModel).block();
 
-        assertEquals("bbb", foundUpdated.getModelData().get("field1").textValue());
+        assertEquals("bbb", foundUpdated.getModelData().get("field1"));
     }
 
     // negative tests
@@ -211,7 +232,7 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         networkntCacheManager.cacheSchema(provider.loadSchema(schemaName), schemaName);
 
         String modelName = "complex.schema.json";
-        JsonNode modelData = toJsonNode("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
+        Map<String, Object> modelData = toMap("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
@@ -229,7 +250,7 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
     }
 
     @Test
-    void findByIdReturnsException_when_modelNotFound_in_nonExistentCollection() throws IOException {
+    void findByIdReturnsException_when_modelNotFound_in_nonExistentCollection() {
         Descriptor mockDescriptor = mock(Descriptor.class);
         when(mockDescriptor.getModelTypeReactively()).thenReturn(Mono.just("non-model-type"));
         when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
@@ -241,7 +262,88 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
                 .verify();
     }
 
-    private JsonNode toJsonNode(String stringData) throws IOException {
-        return new ObjectMapper().readValue(stringData, JsonNode.class);
+    @Test
+    void modelSaved_withFields_create_modified_version() throws IOException {
+        NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
+        JsonSchema jsonSchemaMock = mock(JsonSchema.class);
+
+        doReturn(Collections.emptySet())
+                .when(jsonSchemaMock).validate(any(), any());
+
+        doReturn(jsonSchemaMock)
+                .when(networkntSchemaMock).getSchema();
+
+        doReturn(Optional.of(networkntSchemaMock))
+                .when(networkntCacheManager).fetchFromCache(anyString());
+
+        Map<String, Object> data = toMap("{\"a\":  \"b\"}");
+
+        JsonDynamicModel model = new JsonDynamicModel("modelName", data);
+
+        JsonDynamicModel saved = service.saveModel(model).block();
+
+        String created = (String) saved.getModelData().get("created");
+        String modified = (String) saved.getModelData().get("modified");
+
+        assertNotNull(created);
+        assertNotNull(modified);
+        assertNotNull(saved.getModelData().get("version"));
+
+        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(created));
+        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(modified));
+
+        assertEquals("modelName", saved.getModelData().get("model"));
+        assertEquals(1L, (long) saved.getModelData().get("version"));
+    }
+
+    @Test
+    void modelUpdated_withFields_modified_changed__version_incremented() throws IOException {
+        NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
+        JsonSchema jsonSchemaMock = mock(JsonSchema.class);
+
+        doReturn(Collections.emptySet())
+                .when(jsonSchemaMock).validate(any(), any());
+
+        doReturn(jsonSchemaMock)
+                .when(networkntSchemaMock).getSchema();
+
+        doReturn(Optional.of(networkntSchemaMock))
+                .when(networkntCacheManager).fetchFromCache(anyString());
+
+        Map<String, Object> data = toMap("{\"a\":  \"b\"}");
+
+        JsonDynamicModel model = new JsonDynamicModel("modelName", data);
+
+        JsonDynamicModel saved = service.saveModel(model).block();
+
+
+        String created = (String) saved.getModelData().get("created");
+        String modifiedWhenCreated = (String) saved.getModelData().get("modified");
+
+        assertNotNull(created);
+        assertNotNull(modifiedWhenCreated);
+        assertNotNull(saved.getModelData().get("version"));
+
+        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(created));
+        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(modifiedWhenCreated));
+        assertEquals("modelName", saved.getModelData().get("model"));
+
+        JsonDynamicModel updated = service.saveModel(saved).block();
+
+        assertEquals(2, updated.getModelData().get("version"));
+
+        String modifiedWhenUpdated = (String) updated.getModelData().get("modified");
+        assertTrue(
+                parseZonedDateTimeFromISO_8601(modifiedWhenCreated).isBefore(
+                        parseZonedDateTimeFromISO_8601(modifiedWhenUpdated)
+                )
+        );
+    }
+
+
+    private Map<String, Object> toMap(@Language("JSON") String stringData) throws IOException {
+        JsonNode node = mapper.readValue(stringData, JsonNode.class);
+        return mapper.convertValue(node, new TypeReference<Map<String, Object>>() {
+        });
     }
 }

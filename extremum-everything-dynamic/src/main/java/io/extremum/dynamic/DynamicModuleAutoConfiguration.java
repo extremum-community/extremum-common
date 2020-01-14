@@ -1,5 +1,6 @@
 package io.extremum.dynamic;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.dynamic.resources.github.GithubAccessOptions;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
 import io.extremum.dynamic.schema.JsonSchemaType;
@@ -56,8 +57,8 @@ public class DynamicModuleAutoConfiguration {
     }
 
     @Bean
-    public JsonDynamicModelValidator jsonDynamicModelValidator(CachingGithubNetworkntSchemaProvider provider) {
-        return new NetworkntJsonDynamicModelValidator(provider);
+    public JsonDynamicModelValidator jsonDynamicModelValidator(CachingGithubNetworkntSchemaProvider provider, ObjectMapper mapper) {
+        return new NetworkntJsonDynamicModelValidator(provider, mapper);
     }
 
     @Bean

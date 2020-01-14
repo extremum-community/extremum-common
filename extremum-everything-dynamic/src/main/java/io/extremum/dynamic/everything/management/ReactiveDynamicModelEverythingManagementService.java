@@ -1,6 +1,8 @@
 package io.extremum.dynamic.everything.management;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import io.extremum.common.dto.converters.ConversionConfig;
@@ -19,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 import static java.lang.String.format;
 
 @Slf4j
@@ -26,6 +30,7 @@ import static java.lang.String.format;
 public class ReactiveDynamicModelEverythingManagementService implements ReactiveEverythingManagementService {
     private final JsonBasedDynamicModelService dynamicModelService;
     private final DynamicModelDtoConversionService dynamicModelDtoConversionService;
+    private final ObjectMapper mapper;
 
     @Override
     public Mono<ResponseDto> get(Descriptor id, boolean expand) {
@@ -58,9 +63,12 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
                 });
     }
 
-    private JsonNode applyPatch(JsonPatch patch, JsonNode node) {
+    private Map<String, Object> applyPatch(JsonPatch patch, Map<String, Object> map) {
+        JsonNode node = mapper.convertValue(map, JsonNode.class);
         try {
-            return patch.apply(node);
+            JsonNode patched = patch.apply(node);
+            return mapper.convertValue(patched, new TypeReference<Map<String, Object>>() {
+            });
         } catch (JsonPatchException e) {
             String msg = format("Unable to apply patch %s with node %s", patch, node);
             log.error(msg, e);

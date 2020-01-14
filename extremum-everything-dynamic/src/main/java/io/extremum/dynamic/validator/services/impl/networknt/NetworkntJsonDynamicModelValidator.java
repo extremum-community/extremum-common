@@ -1,5 +1,7 @@
 package io.extremum.dynamic.validator.services.impl.networknt;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.ImpermanentValidationContext;
 import com.networknt.schema.ValidationMessage;
 import io.atlassian.fugue.Try;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,7 @@ import static reactor.core.publisher.Mono.just;
 @RequiredArgsConstructor
 public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValidator {
     private final NetworkntSchemaProvider schemaProvider;
+    private final ObjectMapper mapper;
 
     @Override
     public Mono<Try<ValidationContext>> validate(JsonDynamicModel model) {
@@ -36,7 +40,7 @@ public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValid
             Set<String> paths = new HashSet<>();
 
             Set<ValidationMessage> validationMessages = schema.getSchema().validate(
-                    model.getModelData(), createCtx(paths));
+                    toJsonNode(model.getModelData()), createCtx(paths));
 
             if (!validationMessages.isEmpty()) {
                 DynamicModelValidationException ex = new DynamicModelValidationException(toViolationSet(validationMessages));
@@ -49,6 +53,10 @@ public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValid
             log.error("Unable to validate a model {}: schema not found", model, e);
             return just(failure(e));
         }
+    }
+
+    private JsonNode toJsonNode(Map<String, Object> data) {
+        return mapper.convertValue(data, JsonNode.class);
     }
 
     private ImpermanentValidationContext createCtx(Set<String> paths) {

@@ -20,7 +20,6 @@ public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoC
                 JsonDynamicModelResponseDto dto = new JsonDynamicModelResponseDto();
                 dto.setData(dModel.getModelData());
                 dto.setId(dModel.getId());
-                dto.setModel(dModel.getModelName());
 
                 return dto;
             });

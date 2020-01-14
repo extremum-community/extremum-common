@@ -1,6 +1,5 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
@@ -32,6 +31,8 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.atlassian.fugue.Try.successful;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
@@ -78,7 +79,7 @@ class JsonBasedDynamicModelServiceTest {
         String schemaName = "test_schema";
 
         when(schemaProvider.loadSchema(schemaName)).thenReturn(schema);
-        when(jModel.getModelData()).thenReturn(new ObjectMapper().readValue("{}", JsonNode.class));
+        when(jModel.getModelData()).thenReturn(new HashMap<>());
         when(bModel.getModelData()).thenReturn(new Document());
         when(jModel.getModelName()).thenReturn(schemaName);
         when(bModel.getModelName()).thenReturn(schemaName);
@@ -98,7 +99,6 @@ class JsonBasedDynamicModelServiceTest {
                 .assertNext(resultModel -> {
                     assertEquals(resultModel.getId(), jModel.getId());
                     assertEquals(resultModel.getModelName(), jModel.getModelName());
-                    assertEquals(resultModel.getModelData(), jModel.getModelData());
                 })
                 .verifyComplete();
 
@@ -112,10 +112,10 @@ class JsonBasedDynamicModelServiceTest {
         JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
                 normalizer, datesProcessor, mapper);
 
-        String invalidModelRawValue = "{\"field1\":1}";
+        Map<String, Object> invalidModelRawValue = new HashMap<>();
+        invalidModelRawValue.put("field1", 1);
 
-        JsonDynamicModel model = new JsonDynamicModel("model",
-                new ObjectMapper().readValue(invalidModelRawValue, JsonNode.class));
+        JsonDynamicModel model = new JsonDynamicModel("model", invalidModelRawValue);
 
         JsonSchema schema = JsonSchemaFactory.getInstance()
                 .getSchema(loadResourceAsInputStream(this.getClass().getClassLoader(), "schemas/simple.schema.json"));
@@ -165,6 +165,11 @@ class JsonBasedDynamicModelServiceTest {
         BsonDynamicModel capturedModel = bModelCaptor.getValue();
         assertEquals(model.getId(), capturedModel.getId());
         assertEquals(model.getModelName(), capturedModel.getModelName());
+
+        capturedModel.getModelData().remove("created");
+        capturedModel.getModelData().remove("modified");
+        capturedModel.getModelData().remove("model");
+        capturedModel.getModelData().remove("version");
         assertEquals(model.getModelData(), capturedModel.getModelData());
     }
 
