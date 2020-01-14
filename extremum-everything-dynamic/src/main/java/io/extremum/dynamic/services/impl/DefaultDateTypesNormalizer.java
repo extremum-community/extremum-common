@@ -22,7 +22,7 @@ public class DefaultDateTypesNormalizer implements DateTypesNormalizer {
         for (String path : datePaths) {
             try {
                 Object value = JsonPath.read(doc, path);
-                if (value != null) {
+                if (value instanceof String) {
                     ZonedDateTime zdt = toZonedDateTime((String) value);
                     JsonPath.compile(path)
                             .set(doc, Date.from(zdt.toInstant()), Configuration.builder().build());
