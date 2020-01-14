@@ -3,8 +3,8 @@ package io.extremum.dynamic.services.impl;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import io.extremum.dynamic.DynamicModelConstants;
 import io.extremum.dynamic.services.DateDocumentTypesNormalizer;
+import io.extremum.sharedmodels.constants.DateConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -36,6 +36,6 @@ public class DefaultDateDocumentTypesNormalizer implements DateDocumentTypesNorm
     }
 
     private ZonedDateTime toZonedDateTime(String value) {
-        return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(DynamicModelConstants.DATE_FORMAT));
+        return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(DateConstants.FORMAT));
     }
 }
