@@ -1,5 +1,6 @@
 package io.extremum.dynamic.services.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.exceptions.ModelNotFoundException;
@@ -23,8 +24,7 @@ import reactor.util.function.Tuples;
 import java.io.IOException;
 import java.util.Map;
 
-import static reactor.core.publisher.Mono.error;
-import static reactor.core.publisher.Mono.just;
+import static reactor.core.publisher.Mono.*;
 
 @Slf4j
 @Service
@@ -49,8 +49,16 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
-        return Mono.fromSupplier(() -> {
-            Document doc = Document.parse(model.getModelData().toString());
+        return fromSupplier(() -> {
+            Document doc;
+            try {
+                doc = Document.parse(mapper.writeValueAsString(model.getModelData()));
+            } catch (JsonProcessingException e) {
+                String msg = String.format("Unable to read document as json %s", model.getModelData());
+                log.error(msg, e);
+                throw new RuntimeException(msg, e);
+            }
+
             Map<String, Object> normalizedMap = dateTypesNormalizer.normalize(doc, ctx.getPaths());
 
             Document normalized = new Document(normalizedMap);
