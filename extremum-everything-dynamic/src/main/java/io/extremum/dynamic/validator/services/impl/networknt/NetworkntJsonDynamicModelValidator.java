@@ -2,7 +2,7 @@ package io.extremum.dynamic.validator.services.impl.networknt;
 
 import com.networknt.schema.ImpermanentValidationContext;
 import com.networknt.schema.ValidationMessage;
-import io.atlassian.fugue.Either;
+import io.atlassian.fugue.Try;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -19,13 +19,17 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.atlassian.fugue.Try.failure;
+import static io.atlassian.fugue.Try.successful;
+import static reactor.core.publisher.Mono.just;
+
 @Slf4j
 @RequiredArgsConstructor
 public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValidator {
     private final NetworkntSchemaProvider schemaProvider;
 
     @Override
-    public Mono<Either<Exception, ValidationContext>> validate(JsonDynamicModel model) {
+    public Mono<Try<ValidationContext>> validate(JsonDynamicModel model) {
         try {
             NetworkntSchema schema = schemaProvider.loadSchema(model.getModelName());
 
@@ -37,13 +41,13 @@ public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValid
             if (!validationMessages.isEmpty()) {
                 DynamicModelValidationException ex = new DynamicModelValidationException(toViolationSet(validationMessages));
                 log.warn("Model {} is invalid", model, ex);
-                return Mono.just(Either.left(ex));
+                return just(failure(ex));
             } else {
-                return Mono.just(Either.right(new ValidationContext(paths)));
+                return just(successful(new ValidationContext(paths)));
             }
         } catch (SchemaLoadingException e) {
             log.error("Unable to validate a model {}: schema not found", model, e);
-            return Mono.just(Either.left(e));
+            return just(failure(e));
         }
     }
 
