@@ -23,7 +23,8 @@ import reactor.util.function.Tuples;
 import java.io.IOException;
 import java.util.Map;
 
-import static reactor.core.publisher.Mono.*;
+import static reactor.core.publisher.Mono.error;
+import static reactor.core.publisher.Mono.just;
 
 @Slf4j
 @Service
@@ -57,7 +58,7 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
             return new BsonDynamicModel(model.getId(), model.getModelName(), normalized);
         })
                 .flatMap(bModel -> getCollectionName(model).map(cName -> Tuples.of(bModel, cName)))
-                .flatMap(tuple -> defer(() -> {
+                .flatMap(tuple -> {
                             BsonDynamicModel bModel = tuple.getT1();
                             String collectionName = tuple.getT2();
 
@@ -66,7 +67,7 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
                             } else {
                                 return dao.create(bModel, collectionName);
                             }
-                        })
+                        }
                 ).map(this::toJsonDynamicModel);
     }
 
