@@ -15,31 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DefaultDatesProcessorTest {
     @Test
-    void replaceDateWithZonedDateTime() {
+    void replaceDateWithZonedDateTime_firstLevel() {
         Map<String, Object> map = new LinkedHashMap<>();
 
         map.put("strField", "simpleString");
         map.put("dateField", new Date());
-        map.put("objField",
-                createMap("dateField", new Date()));
-
-        List<Object> list = new ArrayList<>();
-        list.add(createMap("objField",
-                createMap("dateField", new Date())));
-        list.add(createMap("strField", "simpleString"));
-        list.add(createMap("objField2",
-                createMap("dateField", new Date())));
-        list.add(createMap("mapInListField", createMap("intValue", 1)));
-        list.add(new Date());
-
-        Set<Object> set = new HashSet<>();
-        set.add("stringItem");
-        set.add(new Date());
-        set.add(1);
-
-        list.add(createMap("setField", set));
-
-        map.put("arrayField", list);
 
         Document document = new Document(map);
 
@@ -50,8 +30,62 @@ class DefaultDatesProcessorTest {
 
         assertThat(processed.get("dateField"), instanceOf(ZonedDateTime.class));
 
+        // assert others
+        assertEquals("simpleString", processed.getString("strField"));
+    }
+
+    @Test
+    void replaceDateWithZonedDateTime_secondLevelInMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        map.put("strField", "simpleString");
+        map.put("objField",
+                createMap("dateField", new Date()));
+
+        Document document = new Document(map);
+
+        DefaultDatesProcessor processor = new DefaultDatesProcessor();
+        Document processed = processor.processDates(document);
+
+        // assert dates
+
         assertThat(processed.get("objField", Map.class)
                 .get("dateField"), instanceOf(ZonedDateTime.class));
+
+        // assert others
+        assertEquals("simpleString", processed.getString("strField"));
+    }
+
+    @Test
+    void replaceDateWithZonedDateTime_fieldsInNestedList() {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        map.put("strField", "simpleString");
+
+        List<Object> list = new ArrayList<>();
+        list.add(createMap("objField",
+                createMap("dateField", new Date())));
+        list.add(createMap("strField", "simpleString"));
+        list.add(createMap("objField2",
+                createMap("dateField", new Date())));
+        list.add(createMap("mapInListField", createMap("intValue", 1)));
+        list.add(new Date());
+
+        map.put("arrayField", list);
+
+        Set<Object> set = new HashSet<>();
+        set.add("stringItem");
+        set.add(new Date());
+        set.add(1);
+
+        list.add(createMap("setField", set));
+
+        Document document = new Document(map);
+
+        DefaultDatesProcessor processor = new DefaultDatesProcessor();
+        Document processed = processor.processDates(document);
+
+        // assert dates
 
         assertThat(of(processed.get("arrayField", List.class))
                         .map(m -> m.get(0))
