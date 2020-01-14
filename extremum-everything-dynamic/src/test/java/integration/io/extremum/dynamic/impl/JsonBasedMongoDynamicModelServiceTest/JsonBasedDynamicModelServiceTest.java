@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import static io.atlassian.fugue.Either.right;
+import static io.atlassian.fugue.Try.successful;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -83,7 +83,7 @@ class JsonBasedDynamicModelServiceTest {
         when(jModel.getModelName()).thenReturn(schemaName);
         when(bModel.getModelName()).thenReturn(schemaName);
 
-        doReturn(just(right(mock(ValidationContext.class)))).when(modelValidator).validate(any());
+        doReturn(just(successful(mock(ValidationContext.class)))).when(modelValidator).validate(any());
 
         when(dao.create(any(), anyString())).thenReturn(just(bModel));
 
