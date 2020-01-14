@@ -29,12 +29,9 @@ public class CollectionVisitDriver {
 
     public void visitCollectionsInResponseDto(ResponseDto dto) {
         walkResponseDtoWithoutRecursion(dto);
-        visitCollectionsInNonResponseDto(dto);
-    }
 
-    public void visitCollectionsInNonResponseDto(Object root) {
         ObjectVisitor dtoVisitor = this::walkResponseDtoInAttribute;
-        deepWalker.walk(root, new IsResponseDto(dtoVisitor));
+        deepWalker.walk(dto, new IsResponseDto(dtoVisitor));
     }
 
     private void walkResponseDtoInAttribute(Object object) {
