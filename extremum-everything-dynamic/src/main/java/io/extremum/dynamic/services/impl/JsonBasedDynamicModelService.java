@@ -3,7 +3,6 @@ package io.extremum.dynamic.services.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.utils.DateUtils;
 import io.extremum.dynamic.dao.DynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.BsonDynamicModel;
@@ -13,7 +12,6 @@ import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.DynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +22,10 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
-import static java.lang.String.format;
 import static reactor.core.publisher.Mono.*;
 
 @Slf4j
@@ -73,43 +68,6 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
         };
     }
 
-    private void updateModified(Document doc) {
-        doc.replace("modified", getCurrentDateTimeAsString());
-    }
-
-    private void updateVersion(Document doc) {
-        Object version = doc.get("version");
-        if (version instanceof Integer) {
-            doc.append("version", ((int) version) + 1);
-        } else {
-            log.error("Unknown version. Unable to determine version {}. Unable to update document {}",
-                    version, doc);
-            throw new RuntimeException("Unable to determine version of a document. Unable to update a document");
-        }
-
-        doc.remove("modified");
-        doc.append("modified", getCurrentDateTimeAsString());
-    }
-
-    private void checkModelAttribute(JsonDynamicModel model, Document doc) {
-        if (!doc.containsKey("model")) {
-            throw new RuntimeException(format("Field %s must be defined", "model"));
-        }
-
-        if (!doc.getString("model").equals(model.getModelName())) {
-            throw new RuntimeException(format("Field %s doesn't equal with %s", "model", model.getModelName()));
-        }
-    }
-
-    private void initializeServiceFields(JsonDynamicModel model, Document doc) {
-        String now = getCurrentDateTimeAsString();
-
-        doc.append(created.name(), now);
-        doc.append(modified.name(), now);
-        doc.append(Model.FIELDS.model.name(), model.getModelName());
-        doc.append(version.name(), 1L);
-    }
-
     private Function<Tuple2<BsonDynamicModel, String>, Mono<? extends BsonDynamicModel>> processWithDao() {
         return tuple -> {
             BsonDynamicModel bModel = tuple.getT1();
@@ -138,28 +96,12 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
                 throw new RuntimeException(msg, e);
             }
 
-            if (isNewModel(model)) {
-                initializeServiceFields(model, doc);
-            } else {
-                checkModelAttribute(model, doc);
-                updateModified(doc);
-                updateVersion(doc);
-            }
-
             Map<String, Object> normalizedMap = dateTypesNormalizer.normalize(doc, ctx.getPaths());
 
             Document normalized = new Document(normalizedMap);
 
             return new BsonDynamicModel(model.getId(), model.getModelName(), normalized);
         };
-    }
-
-    private String getCurrentDateTimeAsString() {
-        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
-    }
-
-    private boolean isNewModel(JsonDynamicModel model) {
-        return model.getId() == null;
     }
 
     private boolean isNewModel(BsonDynamicModel model) {

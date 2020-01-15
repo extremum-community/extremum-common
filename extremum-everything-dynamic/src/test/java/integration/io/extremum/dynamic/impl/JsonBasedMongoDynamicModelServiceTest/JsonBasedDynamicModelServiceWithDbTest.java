@@ -28,6 +28,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -331,7 +332,7 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
 
         JsonDynamicModel updated = service.saveModel(saved).block();
 
-        assertEquals(2, updated.getModelData().get(Model.FIELDS.version.name()));
+        assertEquals(2, (long) updated.getModelData().get(Model.FIELDS.version.name()));
 
         String modifiedWhenUpdated = (String) updated.getModelData().get(Model.FIELDS.modified.name());
         assertTrue(
@@ -341,6 +342,32 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         );
     }
 
+    @Test
+    void modelUpdated_throws_OptimisticLockException() throws IOException {
+        NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
+        JsonSchema jsonSchemaMock = mock(JsonSchema.class);
+
+        doReturn(Collections.emptySet())
+                .when(jsonSchemaMock).validate(any(), any());
+
+        doReturn(jsonSchemaMock)
+                .when(networkntSchemaMock).getSchema();
+
+        doReturn(Optional.of(networkntSchemaMock))
+                .when(networkntCacheManager).fetchFromCache(anyString());
+
+        Map<String, Object> data = toMap("{\"a\":  \"b\"}");
+
+        JsonDynamicModel model = new JsonDynamicModel("modelName", data);
+
+        JsonDynamicModel saved = service.saveModel(model).block();
+        saved.getModelData().replace(Model.FIELDS.version.name(), 3);
+
+        Mono<JsonDynamicModel> updated = service.saveModel(saved);
+        StepVerifier.create(updated)
+                .expectError(OptimisticLockingFailureException.class)
+                .verify();
+    }
 
     private Map<String, Object> toMap(@Language("JSON") String stringData) throws IOException {
         JsonNode node = mapper.readValue(stringData, JsonNode.class);
