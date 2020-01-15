@@ -36,7 +36,7 @@ public class JsonDynamicModelResponseDto implements DynamicModelResponseDto<Map<
 
     @JsonIgnore
     public ZonedDateTime getModified() {
-        return extract("model", String.class)
+        return extract("modified", String.class)
                 .map(DateUtils::parseZonedDateTimeFromISO_8601).orElse(null);
     }
 
