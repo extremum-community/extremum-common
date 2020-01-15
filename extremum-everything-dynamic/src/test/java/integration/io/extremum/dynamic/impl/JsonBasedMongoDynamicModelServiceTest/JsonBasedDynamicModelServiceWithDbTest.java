@@ -16,6 +16,7 @@ import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -282,18 +283,18 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        String created = (String) saved.getModelData().get("created");
-        String modified = (String) saved.getModelData().get("modified");
+        String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
+        String modified = (String) saved.getModelData().get(Model.FIELDS.model.name());
 
         assertNotNull(created);
         assertNotNull(modified);
-        assertNotNull(saved.getModelData().get("version"));
+        assertNotNull(saved.getModelData().get(Model.FIELDS.version.name()));
 
         assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(created));
         assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(modified));
 
-        assertEquals("modelName", saved.getModelData().get("model"));
-        assertEquals(1L, (long) saved.getModelData().get("version"));
+        assertEquals("modelName", saved.getModelData().get(Model.FIELDS.model.name()));
+        assertEquals(1L, (long) saved.getModelData().get(Model.FIELDS.version.name()));
     }
 
     @Test
@@ -317,22 +318,22 @@ class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices 
         JsonDynamicModel saved = service.saveModel(model).block();
 
 
-        String created = (String) saved.getModelData().get("created");
-        String modifiedWhenCreated = (String) saved.getModelData().get("modified");
+        String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
+        String modifiedWhenCreated = (String) saved.getModelData().get(Model.FIELDS.modified.name());
 
         assertNotNull(created);
         assertNotNull(modifiedWhenCreated);
-        assertNotNull(saved.getModelData().get("version"));
+        assertNotNull(saved.getModelData().get(Model.FIELDS.version.name()));
 
         assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(created));
         assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(modifiedWhenCreated));
-        assertEquals("modelName", saved.getModelData().get("model"));
+        assertEquals("modelName", saved.getModelData().get(Model.FIELDS.model.name()));
 
         JsonDynamicModel updated = service.saveModel(saved).block();
 
-        assertEquals(2, updated.getModelData().get("version"));
+        assertEquals(2, updated.getModelData().get(Model.FIELDS.version.name()));
 
-        String modifiedWhenUpdated = (String) updated.getModelData().get("modified");
+        String modifiedWhenUpdated = (String) updated.getModelData().get(Model.FIELDS.modified.name());
         assertTrue(
                 parseZonedDateTimeFromISO_8601(modifiedWhenCreated).isBefore(
                         parseZonedDateTimeFromISO_8601(modifiedWhenUpdated)

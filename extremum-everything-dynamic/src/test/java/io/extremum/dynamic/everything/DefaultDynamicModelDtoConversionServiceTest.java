@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
+
 class DefaultDynamicModelDtoConversionServiceTest {
     @Test
     void convertToResponseDtoReactively() throws IOException {
@@ -28,10 +30,10 @@ class DefaultDynamicModelDtoConversionServiceTest {
 
         Map<String, Object> data = new HashMap<>();
         data.put("a", "b");
-        data.put("created", "2020-01-15T09:10:34.849000+0300");
-        data.put("modified", "2020-01-15T09:10:34.849000+0300");
-        data.put("version", 1);
-        data.put("model", "DynModel_A");
+        data.put(created.name(), "2020-01-15T09:10:34.849000+0300");
+        data.put(modified.name(), "2020-01-15T09:10:34.849000+0300");
+        data.put(version.name(), 1);
+        data.put(model.name(), "DynModel_A");
 
         JsonDynamicModel model = new JsonDynamicModel(descriptor, "DynModel_A", data);
         Mono<ResponseDto> result = service.convertToResponseDtoReactively(model, ConversionConfig.defaults());

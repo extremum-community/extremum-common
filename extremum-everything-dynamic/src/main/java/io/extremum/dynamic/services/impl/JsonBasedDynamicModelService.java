@@ -13,6 +13,7 @@ import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.DynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static reactor.core.publisher.Mono.*;
 
@@ -102,10 +104,10 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     private void initializeServiceFields(JsonDynamicModel model, Document doc) {
         String now = getCurrentDateTimeAsString();
 
-        doc.append("created", now);
-        doc.append("modified", now);
-        doc.append("model", model.getModelName());
-        doc.append("version", 1L);
+        doc.append(created.name(), now);
+        doc.append(modified.name(), now);
+        doc.append(Model.FIELDS.model.name(), model.getModelName());
+        doc.append(version.name(), 1L);
     }
 
     private Function<Tuple2<BsonDynamicModel, String>, Mono<? extends BsonDynamicModel>> processWithDao() {
