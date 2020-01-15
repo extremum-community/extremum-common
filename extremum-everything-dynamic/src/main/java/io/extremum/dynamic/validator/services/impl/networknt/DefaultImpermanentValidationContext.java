@@ -11,7 +11,7 @@ import java.util.Set;
 import static io.extremum.dynamic.DynamicModelConstants.CYBERNATED_DATE_TIME_FORMAT_NAME;
 
 @RequiredArgsConstructor
-public class CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContext implements ImpermanentValidationContext {
+public class DefaultImpermanentValidationContext implements ImpermanentValidationContext {
     private final Set<String> paths;
 
     @Override
