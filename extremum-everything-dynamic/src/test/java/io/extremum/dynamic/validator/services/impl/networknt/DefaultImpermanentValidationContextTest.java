@@ -14,12 +14,12 @@ import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 
-class CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContextTest {
+class DefaultImpermanentValidationContextTest {
     @Test
     void isValidatorSupported_true() throws IOException {
         Set<String> accumulator = new HashSet<>();
 
-        ImpermanentValidationContext ctx = new CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContext(accumulator);
+        ImpermanentValidationContext ctx = new DefaultImpermanentValidationContext(accumulator);
 
         JsonValidator validator = mock(TypeValidator.class);
         JsonNode node = new ObjectMapper().readValue("\"text\"", JsonNode.class);
@@ -34,7 +34,7 @@ class CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContextTest {
     void isValidatorSupported_false() throws IOException {
         Set<String> accumulator = new HashSet<>();
 
-        ImpermanentValidationContext ctx = new CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContext(accumulator);
+        ImpermanentValidationContext ctx = new DefaultImpermanentValidationContext(accumulator);
 
         JsonValidator validator = mock(TypeValidator.class);
         JsonNode node = new ObjectMapper().readValue("\"text\"", JsonNode.class);
@@ -49,7 +49,7 @@ class CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContextTest {
     void applyContext() {
         Set<String> accumulator = new HashSet<>();
 
-        ImpermanentValidationContext ctx = new CybernatedDateTimeJsonPathsAccumulatorImpermanentValidationContext(accumulator);
+        ImpermanentValidationContext ctx = new DefaultImpermanentValidationContext(accumulator);
         ctx.applyContext(null, null, null, "$.data");
 
         Assertions.assertEquals(1, accumulator.size());
