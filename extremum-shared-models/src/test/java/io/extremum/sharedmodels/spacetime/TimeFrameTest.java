@@ -23,8 +23,10 @@ class TimeFrameTest {
     void javaDuration() {
         TimeFrame tf = new TimeFrame();
         assertNull(tf.javaDuration());
+
         tf.setDuration(new IntegerOrString(12345));
         assertEquals(Duration.ofMillis(12345), tf.javaDuration());
+
         tf.setDuration(new IntegerOrString("4h2m5s"));
         assertEquals(Duration.ofHours(4).plusMinutes(2).plusSeconds(5), tf.javaDuration());
     }
