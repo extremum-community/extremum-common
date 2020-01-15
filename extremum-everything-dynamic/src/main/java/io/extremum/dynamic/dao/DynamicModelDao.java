@@ -4,12 +4,12 @@ import io.extremum.dynamic.models.DynamicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 
-public interface DynamicModelDao<Model extends DynamicModel<?>> {
-    Mono<Model> create(Model model, String collectionName);
+public interface DynamicModelDao<T extends DynamicModel<?>> {
+    Mono<T> create(T model, String collectionName);
 
-    Mono<Model> replace(Model model, String collectionName);
+    Mono<T> replace(T model, String collectionName);
 
-    Mono<Model> getByIdFromCollection(Descriptor id, String collectionName);
+    Mono<T> getByIdFromCollection(Descriptor id, String collectionName);
 
     Mono<Void> remove(Descriptor id, String collectionName);
 }
