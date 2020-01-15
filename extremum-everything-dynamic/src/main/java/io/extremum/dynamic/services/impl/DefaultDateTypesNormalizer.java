@@ -3,13 +3,12 @@ package io.extremum.dynamic.services.impl;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import io.extremum.common.utils.DateUtils;
 import io.extremum.dynamic.services.DateTypesNormalizer;
-import io.extremum.sharedmodels.constants.DateConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -36,6 +35,6 @@ public class DefaultDateTypesNormalizer implements DateTypesNormalizer {
     }
 
     private ZonedDateTime toZonedDateTime(String value) {
-        return ZonedDateTime.parse(value, DateTimeFormatter.ofPattern(DateConstants.FORMAT));
+        return DateUtils.parseZonedDateTimeFromISO_8601(value);
     }
 }
