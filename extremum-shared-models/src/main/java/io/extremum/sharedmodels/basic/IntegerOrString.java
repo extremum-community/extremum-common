@@ -5,11 +5,13 @@ import lombok.*;
 
 import java.io.Serializable;
 
+import static lombok.AccessLevel.*;
+
 @Getter
-@Setter
-@NoArgsConstructor
+@Setter(PRIVATE)
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor(access = PRIVATE)
 public class IntegerOrString implements Serializable {
     @JsonProperty("type")
     private Type type;

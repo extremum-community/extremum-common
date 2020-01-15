@@ -1,5 +1,6 @@
 package io.extremum.sharedmodels.converter;
 
+import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.spacetime.TimeFrame;
 import io.extremum.sharedmodels.spacetime.TimeFrameDocument;
 
@@ -9,7 +10,7 @@ public class TimeFrameConverter {
 
         timeFrame.setStart(document.getStart());
         timeFrame.setEnd(document.getEnd());
-        timeFrame.setDuration(document.getDuration());
+        timeFrame.setDuration(new IntegerOrString(document.getDuration()));
 
         return timeFrame;
     }
@@ -19,13 +20,9 @@ public class TimeFrameConverter {
 
         document.setStart(timeFrame.getStart());
         document.setEnd(timeFrame.getEnd());
-        document.setDuration(timeFrame.getDuration());
+
         if (timeFrame.getDuration() != null) {
-            if (timeFrame.getDuration().getIntegerValue() != null) {
-                document.setDurationMillis(timeFrame.getDuration().getIntegerValue());
-            } else if (timeFrame.getDuration().getStringValue() != null) {
-                document.setDurationMillis((int) timeFrame.javaDuration().toMillis());
-            }
+            document.setDuration((int) timeFrame.javaDuration().toMillis());
         }
 
         return document;
