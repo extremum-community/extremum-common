@@ -10,7 +10,7 @@ public class TimeFrameConverter {
 
         timeFrame.setStart(document.getStart());
         timeFrame.setEnd(document.getEnd());
-        timeFrame.setDuration(new IntegerOrString(document.getDuration()));
+        timeFrame.setDuration(new IntegerOrString(document.getDurationMs()));
 
         return timeFrame;
     }
@@ -22,7 +22,7 @@ public class TimeFrameConverter {
         document.setEnd(timeFrame.getEnd());
 
         if (timeFrame.getDuration() != null) {
-            document.setDuration((int) timeFrame.javaDuration().toMillis());
+            document.setDurationMs((int) timeFrame.javaDuration().toMillis());
         }
 
         return document;

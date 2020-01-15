@@ -15,14 +15,14 @@ import java.time.ZonedDateTime;
  */
 @Getter
 @Setter
-@RequiredArgsConstructor
 @ToString
+@RequiredArgsConstructor
 @DocumentationName("Timeframe")
 public class TimeFrameDocument {
 
     private ZonedDateTime start;
     private ZonedDateTime end;
-    private int duration;
+    private int durationMs;
 
     public enum FIELDS {
         start, end, duration

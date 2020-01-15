@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -26,7 +25,7 @@ class TimeFrameConverterTest {
         TimeFrameDocument document = new TimeFrameDocument();
         document.setStart(start);
         document.setEnd(end);
-        document.setDuration(millis);
+        document.setDurationMs(millis);
 
         TimeFrame timeFrame = converter.documentToDto(document);
 
@@ -47,7 +46,7 @@ class TimeFrameConverterTest {
 
         assertThat(document.getStart(), is(start));
         assertThat(document.getEnd(), is(end));
-        assertThat(document.getDuration(), is(millis));
+        assertThat(document.getDurationMs(), is(millis));
     }
 
     @Test
@@ -57,7 +56,7 @@ class TimeFrameConverterTest {
 
         TimeFrameDocument document = converter.dtoToDocument(timeFrame);
 
-        assertThat(document.getDuration(), is(500));
+        assertThat(document.getDurationMs(), is(500));
     }
 
     @Test
@@ -68,7 +67,7 @@ class TimeFrameConverterTest {
         TimeFrameDocument document = converter.dtoToDocument(timeFrame);
 
         int fiveHoursInMillis = (int) Duration.ofHours(5).toMillis();
-        assertThat(document.getDuration(), is(fiveHoursInMillis));
+        assertThat(document.getDurationMs(), is(fiveHoursInMillis));
     }
 
 }
