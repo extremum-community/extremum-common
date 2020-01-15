@@ -17,12 +17,16 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static reactor.core.publisher.Mono.*;
 
@@ -49,7 +53,54 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
-        return fromSupplier(() -> {
+        return fromSupplier(toBsonDynamicModel(model, ctx))
+                .flatMap(findCollection(model))
+                .flatMap(processWithDao())
+                .map(toJsonDynamicModel());
+    }
+
+    @NotNull
+    private Function<BsonDynamicModel, JsonDynamicModel> toJsonDynamicModel() {
+        return bModel -> {
+            Document modelData = bModel.getModelData();
+
+            Document documentWithReplacedDates = datesProcessor.processDates(modelData);
+
+            return new JsonDynamicModel(bModel.getId(), bModel.getModelName(), toJson(documentWithReplacedDates));
+        };
+    }
+
+    private JsonNode toJson(Document modelData) {
+        try {
+            String json = mapper.writerFor(Map.class).writeValueAsString(modelData);
+
+            return mapper.readValue(json, JsonNode.class);
+        } catch (IOException e) {
+            log.error("Unable to convert string to json from {}", modelData, e);
+            throw new RuntimeException("Unable to parse json", e);
+        }
+    }
+
+    @NotNull
+    private Function<Tuple2<BsonDynamicModel, String>, Mono<? extends BsonDynamicModel>> processWithDao() {
+        return tuple -> {
+            BsonDynamicModel bModel = tuple.getT1();
+            String collectionName = tuple.getT2();
+
+            if (bModel.getId() != null) {
+                return dao.replace(bModel, collectionName);
+            } else {
+                return dao.create(bModel, collectionName);
+            }
+        };
+    }
+
+    private Function<BsonDynamicModel, Mono<? extends Tuple2<BsonDynamicModel, String>>> findCollection(JsonDynamicModel model) {
+        return bModel -> getCollectionName(model).map(cName -> Tuples.of(bModel, cName));
+    }
+
+    private Supplier<BsonDynamicModel> toBsonDynamicModel(JsonDynamicModel model, ValidationContext ctx) {
+        return () -> {
             Document doc;
             try {
                 doc = Document.parse(mapper.writeValueAsString(model.getModelData()));
@@ -64,45 +115,14 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
             Document normalized = new Document(normalizedMap);
 
             return new BsonDynamicModel(model.getId(), model.getModelName(), normalized);
-        })
-                .flatMap(bModel -> getCollectionName(model).map(cName -> Tuples.of(bModel, cName)))
-                .flatMap(tuple -> {
-                            BsonDynamicModel bModel = tuple.getT1();
-                            String collectionName = tuple.getT2();
-
-                            if (bModel.getId() != null) {
-                                return dao.replace(bModel, collectionName);
-                            } else {
-                                return dao.create(bModel, collectionName);
-                            }
-                        }
-                ).map(this::toJsonDynamicModel);
-    }
-
-    private JsonDynamicModel toJsonDynamicModel(BsonDynamicModel bModel) {
-        Document modelData = bModel.getModelData();
-
-        Document documentWithReplacedDates = datesProcessor.processDates(modelData);
-
-        return new JsonDynamicModel(bModel.getId(), bModel.getModelName(), toJson(documentWithReplacedDates));
-    }
-
-    private JsonNode toJson(Document modelData) {
-        try {
-            String json = mapper.writerFor(Map.class).writeValueAsString(modelData);
-
-            return mapper.readValue(json, JsonNode.class);
-        } catch (IOException e) {
-            log.error("Unable to convert string to json from {}", modelData, e);
-            throw new RuntimeException("Unable to parse json", e);
-        }
+        };
     }
 
     @Override
     public Mono<JsonDynamicModel> findById(Descriptor id) {
         return getCollectionName(id)
                 .flatMap(cName -> dao.getByIdFromCollection(id, cName))
-                .map(this::toJsonDynamicModel)
+                .map(toJsonDynamicModel())
                 .map(metadataProvider::provideMetadata)
                 .switchIfEmpty(error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
     }
