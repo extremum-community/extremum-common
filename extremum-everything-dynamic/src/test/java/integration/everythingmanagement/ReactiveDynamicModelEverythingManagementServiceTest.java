@@ -35,6 +35,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.Map;
 
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -104,10 +105,10 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     }
 
     private void checkServiceFields(JsonNode deserialized) {
-        assertTrue(deserialized.has("created"));
-        assertTrue(deserialized.has("modified"));
-        assertTrue(deserialized.has("version"));
-        assertTrue(deserialized.has("model"));
+        assertTrue(deserialized.has(created.name()));
+        assertTrue(deserialized.has(model.name()));
+        assertTrue(deserialized.has(version.name()));
+        assertTrue(deserialized.has(model.name()));
     }
 
     private JsonNode deserializeToNode(String serialized) throws IOException {

@@ -16,6 +16,7 @@ import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
+import io.extremum.sharedmodels.basic.Model;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 import static io.atlassian.fugue.Try.successful;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static reactor.core.publisher.Mono.just;
@@ -101,14 +103,13 @@ class JsonBasedDynamicModelServiceTest {
                     assertEquals(resultModel.getModelName(), jModel.getModelName());
                 })
                 .verifyComplete();
-        JsonDynamicModelResponseDto.java
         verify_Validator_HasAccept_Model_1_times(jModel);
         verify_Normalizer_HasAccept_Model_1_times();
         verify_DynamicModelDao_HasAccept_Model_1_times(bModel);
     }
 
     @Test
-    void notValidModelIsNotSaves() throws IOException {
+    void notValidModelIsNotSaves() {
         JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
                 normalizer, datesProcessor, mapper);
 
@@ -166,10 +167,10 @@ class JsonBasedDynamicModelServiceTest {
         assertEquals(model.getId(), capturedModel.getId());
         assertEquals(model.getModelName(), capturedModel.getModelName());
 
-        capturedModel.getModelData().remove("created");
-        capturedModel.getModelData().remove("modified");
-        capturedModel.getModelData().remove("model");
-        capturedModel.getModelData().remove("version");
+        capturedModel.getModelData().remove(created.name());
+        capturedModel.getModelData().remove(modified.name());
+        capturedModel.getModelData().remove(Model.FIELDS.model.name());
+        capturedModel.getModelData().remove(version.name());
         assertEquals(model.getModelData(), capturedModel.getModelData());
     }
 
