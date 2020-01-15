@@ -85,8 +85,8 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
             throw new RuntimeException("Unable to determine version of a document. Unable to update a document");
         }
 
-        doc.remove("updated");
-        doc.append("updated", getCurrentDateTimeAsString());
+        doc.remove("modified");
+        doc.append("modified", getCurrentDateTimeAsString());
     }
 
     private void checkModelAttribute(JsonDynamicModel model, Document doc) {
