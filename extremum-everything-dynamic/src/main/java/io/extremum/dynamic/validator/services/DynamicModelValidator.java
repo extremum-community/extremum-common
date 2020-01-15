@@ -9,7 +9,8 @@ import reactor.core.publisher.Mono;
 
 public interface DynamicModelValidator<Model extends DynamicModel<?>> {
     /**
-     * Mono can contains {@link DynamicModelValidationException}, {@link SchemaNotFoundException}
+     * Mono cat contains a Try object with {@link DynamicModelValidationException}, {@link SchemaNotFoundException}
+     * or with {@link ValidationContext} value
      */
     Mono<Try<ValidationContext>> validate(Model model);
 }
