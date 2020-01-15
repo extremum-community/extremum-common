@@ -101,7 +101,7 @@ class JsonBasedDynamicModelServiceTest {
                     assertEquals(resultModel.getModelName(), jModel.getModelName());
                 })
                 .verifyComplete();
-
+        JsonDynamicModelResponseDto.java
         verify_Validator_HasAccept_Model_1_times(jModel);
         verify_Normalizer_HasAccept_Model_1_times();
         verify_DynamicModelDao_HasAccept_Model_1_times(bModel);
