@@ -1,6 +1,5 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
@@ -17,6 +16,7 @@ import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
+import io.extremum.sharedmodels.basic.Model;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -32,9 +32,12 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.atlassian.fugue.Try.successful;
 import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static reactor.core.publisher.Mono.just;
@@ -78,7 +81,7 @@ class JsonBasedDynamicModelServiceTest {
         String schemaName = "test_schema";
 
         when(schemaProvider.loadSchema(schemaName)).thenReturn(schema);
-        when(jModel.getModelData()).thenReturn(new ObjectMapper().readValue("{}", JsonNode.class));
+        when(jModel.getModelData()).thenReturn(new HashMap<>());
         when(bModel.getModelData()).thenReturn(new Document());
         when(jModel.getModelName()).thenReturn(schemaName);
         when(bModel.getModelName()).thenReturn(schemaName);
@@ -98,24 +101,22 @@ class JsonBasedDynamicModelServiceTest {
                 .assertNext(resultModel -> {
                     assertEquals(resultModel.getId(), jModel.getId());
                     assertEquals(resultModel.getModelName(), jModel.getModelName());
-                    assertEquals(resultModel.getModelData(), jModel.getModelData());
                 })
                 .verifyComplete();
-
         verify_Validator_HasAccept_Model_1_times(jModel);
         verify_Normalizer_HasAccept_Model_1_times();
         verify_DynamicModelDao_HasAccept_Model_1_times(bModel);
     }
 
     @Test
-    void notValidModelIsNotSaves() throws IOException {
+    void notValidModelIsNotSaves() {
         JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
                 normalizer, datesProcessor, mapper);
 
-        String invalidModelRawValue = "{\"field1\":1}";
+        Map<String, Object> invalidModelRawValue = new HashMap<>();
+        invalidModelRawValue.put("field1", 1);
 
-        JsonDynamicModel model = new JsonDynamicModel("model",
-                new ObjectMapper().readValue(invalidModelRawValue, JsonNode.class));
+        JsonDynamicModel model = new JsonDynamicModel("model", invalidModelRawValue);
 
         JsonSchema schema = JsonSchemaFactory.getInstance()
                 .getSchema(loadResourceAsInputStream(this.getClass().getClassLoader(), "schemas/simple.schema.json"));
@@ -165,6 +166,11 @@ class JsonBasedDynamicModelServiceTest {
         BsonDynamicModel capturedModel = bModelCaptor.getValue();
         assertEquals(model.getId(), capturedModel.getId());
         assertEquals(model.getModelName(), capturedModel.getModelName());
+
+        capturedModel.getModelData().remove(created.name());
+        capturedModel.getModelData().remove(modified.name());
+        capturedModel.getModelData().remove(Model.FIELDS.model.name());
+        capturedModel.getModelData().remove(version.name());
         assertEquals(model.getModelData(), capturedModel.getModelData());
     }
 

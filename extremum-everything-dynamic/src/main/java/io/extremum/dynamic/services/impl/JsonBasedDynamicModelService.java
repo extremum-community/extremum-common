@@ -1,7 +1,6 @@
 package io.extremum.dynamic.services.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.dao.DynamicModelDao;
@@ -23,7 +22,6 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -66,31 +64,19 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
 
             Document documentWithReplacedDates = datesProcessor.processDates(modelData);
 
-            return new JsonDynamicModel(bModel.getId(), bModel.getModelName(), toJson(documentWithReplacedDates));
+            return new JsonDynamicModel(bModel.getId(), bModel.getModelName(), documentWithReplacedDates);
         };
     }
 
-    private JsonNode toJson(Document modelData) {
-        try {
-            String json = mapper.writerFor(Map.class).writeValueAsString(modelData);
-
-            return mapper.readValue(json, JsonNode.class);
-        } catch (IOException e) {
-            log.error("Unable to convert string to json from {}", modelData, e);
-            throw new RuntimeException("Unable to parse json", e);
-        }
-    }
-
-    @NotNull
     private Function<Tuple2<BsonDynamicModel, String>, Mono<? extends BsonDynamicModel>> processWithDao() {
         return tuple -> {
             BsonDynamicModel bModel = tuple.getT1();
             String collectionName = tuple.getT2();
 
-            if (bModel.getId() != null) {
-                return dao.replace(bModel, collectionName);
-            } else {
+            if (isNewModel(bModel)) {
                 return dao.create(bModel, collectionName);
+            } else {
+                return dao.replace(bModel, collectionName);
             }
         };
     }
@@ -116,6 +102,10 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
 
             return new BsonDynamicModel(model.getId(), model.getModelName(), normalized);
         };
+    }
+
+    private boolean isNewModel(BsonDynamicModel model) {
+        return model.getId() == null;
     }
 
     @Override

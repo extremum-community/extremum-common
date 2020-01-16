@@ -1,5 +1,7 @@
 package integration.everythingmanagement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -31,7 +33,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.Map;
 
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -66,6 +70,9 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     ReactiveDynamicModelEverythingManagementService dynamicModelEverythingManagementService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     @BeforeEach
     void beforeEach() {
         doReturn(just(Try.successful(mock(ValidationContext.class))))
@@ -79,7 +86,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     }
 
     @Test
-    void getOperation_shouldReturn_model() {
+    void getOperation_shouldReturn_model() throws IOException {
         JsonDynamicModel model = createModel("TestDynamicModel", "{\"a\":\"b\"}");
         JsonDynamicModel savedModel = dynamicModelService.saveModel(model).block();
 
@@ -88,7 +95,28 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         assertNotNull(found);
         assertEquals(savedModel.getId(), found.getId());
         assertEquals(model.getModelName(), found.getModel());
-        assertEquals(model.getModelData().toString(), ((JsonDynamicModelResponseDto) found).getData().toString());
+        assertTrue(((JsonDynamicModelResponseDto) found).getData().containsKey("a"));
+        assertEquals("b", ((JsonDynamicModelResponseDto) found).getData().get("a"));
+
+        String serialized = serialize(found);
+        JsonNode deserialized = deserializeToNode(serialized);
+
+        checkServiceFields(deserialized);
+    }
+
+    private void checkServiceFields(JsonNode deserialized) {
+        assertTrue(deserialized.has(created.name()));
+        assertTrue(deserialized.has(model.name()));
+        assertTrue(deserialized.has(version.name()));
+        assertTrue(deserialized.has(model.name()));
+    }
+
+    private JsonNode deserializeToNode(String serialized) throws IOException {
+        return mapper.readValue(serialized, JsonNode.class);
+    }
+
+    private String serialize(ResponseDto found) throws JsonProcessingException {
+        return mapper.writeValueAsString(found);
     }
 
     @Test
@@ -117,7 +145,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                 .assertNext(patched -> {
                     assertEquals(saved.getId(), patched.getId());
                     assertEquals(patchingModel.getModelName(), patched.getModel());
-                    assertEquals("c", ((JsonDynamicModelResponseDto) patched).getData().get("a").textValue());
+                    assertEquals("c", ((JsonDynamicModelResponseDto) patched).getData().get("a"));
                 }).verifyComplete();
 
         Mono<JsonDynamicModel> foundPatchedModel = dynamicModelService.findById(saved.getId());
@@ -125,7 +153,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                 .assertNext(patched -> {
                     assertEquals(saved.getId(), patched.getId());
                     assertEquals(patchingModel.getModelName(), patched.getModelName());
-                    assertEquals("c", patched.getModelData().get("a").textValue());
+                    assertEquals("c", patched.getModelData().get("a"));
                 }).verifyComplete();
     }
 
@@ -159,12 +187,18 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     private JsonDynamicModel createModel(String modelName, String stringModelData) {
         JsonNode modelData = createJsonNodeForString(stringModelData);
-        return new JsonDynamicModel(modelName, modelData);
+        return new JsonDynamicModel(modelName, convertToMap(modelData));
+    }
+
+    private Map<String, Object> convertToMap(JsonNode modelData) {
+        return new ObjectMapper().convertValue(modelData, new TypeReference<Map<String, Object>>() {
+        });
     }
 
     private JsonNode createJsonNodeForString(String stringModelData) {
         try {
-            return new ObjectMapper().readValue(stringModelData, JsonNode.class);
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(stringModelData, JsonNode.class);
         } catch (IOException e) {
             String msg = format("Unable to create JsonNode from source %s: %s", stringModelData, e);
             fail(msg);

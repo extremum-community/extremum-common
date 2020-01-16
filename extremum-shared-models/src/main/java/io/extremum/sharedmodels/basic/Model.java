@@ -9,4 +9,8 @@ public interface Model extends Serializable {
     default void copyServiceFieldsTo(Model to) {
         // nothing to copy here
     }
+
+    enum FIELDS {
+        created, modified, version, model
+    }
 }

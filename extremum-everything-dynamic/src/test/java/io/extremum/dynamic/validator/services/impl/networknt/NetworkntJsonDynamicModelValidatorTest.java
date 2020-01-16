@@ -1,5 +1,6 @@
 package io.extremum.dynamic.validator.services.impl.networknt;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.atlassian.fugue.Try;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,11 +30,13 @@ class NetworkntJsonDynamicModelValidatorTest {
     NetworkntSchemaProvider provider = new FileSystemNetworkntSchemaProvider(
             JsonSchemaType.V2019_09, makeBasicDirectory());
 
-    JsonDynamicModelValidator validator = new NetworkntJsonDynamicModelValidator(provider);
+    private ObjectMapper mapper = new ObjectMapper();
+
+    JsonDynamicModelValidator validator = new NetworkntJsonDynamicModelValidator(provider, mapper);
 
     @Test
     void validate_ok() throws IOException {
-        JsonNode modelData = stringToJsonNode("{\"a\":\"b\", \"fieldDate1\": \"2013-01-09T09:31:26.111111-0500\"}");
+        Map<String, Object> modelData = stringToMap("{\"a\":\"b\", \"fieldDate1\": \"2013-01-09T09:31:26.111111-0500\"}");
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
         assertDoesNotThrow(() -> validator.validate(model));
@@ -40,7 +44,7 @@ class NetworkntJsonDynamicModelValidatorTest {
 
     @Test
     void validate_ok_validationContextContainsAPathsToDateFields() throws IOException {
-        JsonNode modelData = stringToJsonNode("{\"a\":\"b\", " +
+        Map<String, Object> modelData = stringToMap("{\"a\":\"b\", " +
                 "\"fieldDate1\": \"2013-01-09T09:31:26.111111-0500\", " +
                 "\"fieldDate2\": \"2014-01-09T09:31:26.111111-0500\", " +
                 "\"fieldDate3_noCybernatedDate\": \"2014-01-09T09:31:26.111111-0500\"}");
@@ -67,7 +71,7 @@ class NetworkntJsonDynamicModelValidatorTest {
 
     @Test
     void validate_violations_throws() throws IOException {
-        JsonNode modelData = stringToJsonNode("{\"fieldDate1\":\"string\"}");
+        Map<String, Object> modelData = stringToMap("{\"fieldDate1\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
@@ -87,7 +91,7 @@ class NetworkntJsonDynamicModelValidatorTest {
 
     @Test
     void validate_simple_schema_not_found() throws IOException {
-        JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
+        Map<String, Object> modelData = stringToMap("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("unknown_schema", modelData);
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
@@ -108,7 +112,7 @@ class NetworkntJsonDynamicModelValidatorTest {
 
     @Test
     void validate_complex_schema_by_ref_not_found() throws IOException {
-        JsonNode modelData = stringToJsonNode("{\"field2\":\"string\"}");
+        Map<String, Object> modelData = stringToMap("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("complex_with_bad_ref.schema.json", modelData);
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
@@ -133,7 +137,9 @@ class NetworkntJsonDynamicModelValidatorTest {
         return Paths.get(base, "schemas");
     }
 
-    private JsonNode stringToJsonNode(@Language("JSON") String value) throws IOException {
-        return new ObjectMapper().readValue(value, JsonNode.class);
+    private Map<String, Object> stringToMap(@Language("JSON") String value) throws IOException {
+        JsonNode node = mapper.readValue(value, JsonNode.class);
+        return mapper.convertValue(node, new TypeReference<Map<String, Object>>() {
+        });
     }
 }

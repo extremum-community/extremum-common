@@ -1,5 +1,6 @@
 package io.extremum.dynamic.everything.management;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.common.dto.converters.services.DynamicModelDtoConversionService;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
 import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
@@ -40,7 +41,8 @@ public class ReplaceReactiveEverythingManagementServiceBeanPostProcessor impleme
     private ReactiveDynamicModelEverythingManagementService createDynamicModelEverythingServiceInstance() {
         return new ReactiveDynamicModelEverythingManagementService(
                 ctx.getBean(JsonBasedDynamicModelService.class),
-                ctx.getBean(DynamicModelDtoConversionService.class)
+                ctx.getBean(DynamicModelDtoConversionService.class),
+                ctx.getBean(ObjectMapper.class)
         );
     }
 }
