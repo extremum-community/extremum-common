@@ -24,14 +24,14 @@ class DefaultDatesProcessorTest {
         Document document = new Document(map);
 
         DefaultDatesProcessor processor = new DefaultDatesProcessor();
-        Document processed = processor.processDates(document);
+        Map<String, Object> processed = processor.processDates(document);
 
         // assert dates
 
         assertThat(processed.get("dateField"), instanceOf(ZonedDateTime.class));
 
         // assert others
-        assertEquals("simpleString", processed.getString("strField"));
+        assertEquals("simpleString", processed.get("strField"));
     }
 
     @Test
@@ -45,15 +45,15 @@ class DefaultDatesProcessorTest {
         Document document = new Document(map);
 
         DefaultDatesProcessor processor = new DefaultDatesProcessor();
-        Document processed = processor.processDates(document);
+        Map<String, Object> processed = processor.processDates(document);
 
         // assert dates
 
-        assertThat(processed.get("objField", Map.class)
+        assertThat(of(processed.get("objField")).map(Map.class::cast).get()
                 .get("dateField"), instanceOf(ZonedDateTime.class));
 
         // assert others
-        assertEquals("simpleString", processed.getString("strField"));
+        assertEquals("simpleString", processed.get("strField"));
     }
 
     @Test
@@ -83,11 +83,11 @@ class DefaultDatesProcessorTest {
         Document document = new Document(map);
 
         DefaultDatesProcessor processor = new DefaultDatesProcessor();
-        Document processed = processor.processDates(document);
+        Map<String, Object> processed = processor.processDates(document);
 
         // assert dates
 
-        assertThat(of(processed.get("arrayField", List.class))
+        assertThat(of(processed.get("arrayField")).map(List.class::cast)
                         .map(m -> m.get(0))
                         .map(Map.class::cast)
                         .map(m -> m.get("objField"))
@@ -95,7 +95,7 @@ class DefaultDatesProcessorTest {
                         .map(m -> m.get("dateField")).orElse(null),
                 instanceOf(ZonedDateTime.class));
 
-        assertThat(of(processed.get("arrayField", List.class))
+        assertThat(of(processed.get("arrayField")).map(List.class::cast)
                         .map(l -> l.get(2))
                         .map(Map.class::cast)
                         .map(m -> m.get("objField2"))
@@ -103,12 +103,12 @@ class DefaultDatesProcessorTest {
                         .map(m -> m.get("dateField")).orElse(null),
                 instanceOf(ZonedDateTime.class));
 
-        assertThat(of(processed.get("arrayField", List.class))
+        assertThat(of(processed.get("arrayField")).map(List.class::cast)
                         .map(l -> l.get(4))
                         .orElse(null),
                 instanceOf(ZonedDateTime.class));
 
-        assertTrue(of(processed.get("arrayField", List.class))
+        assertTrue(of(processed.get("arrayField")).map(List.class::cast)
                 .map(l -> l.get(5))
                 .map(Map.class::cast)
                 .map(m -> m.get("setField"))
@@ -118,7 +118,7 @@ class DefaultDatesProcessorTest {
 
 
         // assert others
-        assertEquals("simpleString", processed.getString("strField"));
+        assertEquals("simpleString", processed.get("strField"));
         assertThat("simpleString", CoreMatchers.is(
                 of(processed.get("arrayField"))
                         .map(List.class::cast)

@@ -1,7 +1,6 @@
 package io.extremum.dynamic.services.impl;
 
 import io.extremum.dynamic.services.DatesProcessor;
-import org.bson.Document;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -9,7 +8,7 @@ import java.util.*;
 
 public class DefaultDatesProcessor implements DatesProcessor {
     @Override
-    public Document processDates(Document modelData) {
+    public Map<String, Object> processDates(Map<String, Object> modelData) {
         Set<Map.Entry<String, Object>> entries = modelData.entrySet();
 
         replaceInEntries(entries);

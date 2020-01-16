@@ -4,7 +4,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.utils.DateUtils;
-import io.extremum.dynamic.models.impl.BsonDynamicModel;
+import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.constant.HttpStatus;
@@ -22,9 +22,11 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static com.mongodb.client.model.Filters.eq;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -33,39 +35,40 @@ import static reactor.core.publisher.Mono.*;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicModel> {
+public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
     private static final long INITIAL_VERSION_VALUE = 1L;
 
     private final ReactiveMongoOperations mongoOperations;
     private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
 
     @Override
-    public Mono<BsonDynamicModel> create(BsonDynamicModel model, String collectionName) {
+    public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
         return justOrEmpty(model.getId())
                 .switchIfEmpty(createNewDescriptor(model))
                 .map(descriptor -> {
-                            Document doc = model.getModelData()
-                                    .append("_id", new ObjectId(descriptor.getInternalId()));
-                            provideServiceFields(doc, model);
-                            return Tuples.of(doc, descriptor);
+                            Map<String, Object> modelData = model.getModelData();
+
+                            modelData.put("_id", new ObjectId(descriptor.getInternalId()));
+                            provideServiceFields(modelData, model);
+                            return Tuples.of(modelData, descriptor);
                         }
                 ).flatMap(tuple2 -> mongoOperations.save(tuple2.getT1(), collectionName)
                         .doOnNext(successPublisher ->
                                 log.info("Document {} saved", tuple2.getT2().getInternalId()))
-                        .map(_it -> new BsonDynamicModel(tuple2.getT2(), model.getModelName(), tuple2.getT1()))
+                        .map(_it -> new JsonDynamicModel(tuple2.getT2(), model.getModelName(), tuple2.getT1()))
                 );
     }
 
-    private void provideServiceFields(Document doc, BsonDynamicModel model) {
+    private void provideServiceFields(Map<String, Object> doc, JsonDynamicModel model) {
         String now = getNowDateAsString();
-        doc.append(created.name(), now);
-        doc.append(modified.name(), now);
-        doc.append(version.name(), INITIAL_VERSION_VALUE);
-        doc.append(Model.FIELDS.model.name(), model.getModelName());
+        doc.put(created.name(), now);
+        doc.put(modified.name(), now);
+        doc.put(version.name(), INITIAL_VERSION_VALUE);
+        doc.put(Model.FIELDS.model.name(), model.getModelName());
     }
 
     @Override
-    public Mono<BsonDynamicModel> replace(BsonDynamicModel model, String collectionName) {
+    public Mono<JsonDynamicModel> replace(JsonDynamicModel model, String collectionName) {
         Objects.requireNonNull(model.getId(), "ID of a model can't be null");
 
         return just(model.getId())
@@ -73,18 +76,19 @@ public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicMode
                 .flatMap(doUpdate(model, collectionName));
     }
 
-    protected Function<String, Mono<BsonDynamicModel>> doUpdate(BsonDynamicModel model, String collectionName) {
+    protected Function<String, Mono<JsonDynamicModel>> doUpdate(JsonDynamicModel model, String collectionName) {
         return modelId -> {
             ObjectId modelObjectId = new ObjectId(modelId);
 
-            Document doc = model.getModelData()
-                    .append("_id", modelObjectId);
+            Map<String, Object> modelData = model.getModelData();
 
-            validateServiceFields(doc, model);
+            modelData.put("_id", modelObjectId);
 
-            Long oldDocVersion = extractVersion(doc);
+            validateServiceFields(modelData, model);
 
-            updateServiceFields(doc);
+            Long oldDocVersion = extractVersion(modelData);
+
+            updateServiceFields(modelData);
 
             Query query = Query.query(
                     where("_id").is(modelObjectId)
@@ -94,14 +98,14 @@ public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicMode
 
             String msg = format("Unable to update document %s", model.getId());
 
-            return mongoOperations.findAndReplace(query, doc, collectionName)
+            return mongoOperations.findAndReplace(query, modelData, collectionName)
                     .doOnNext(updatedDoc -> log.info("Document {} updated", model.getId()))
-                    .map(_it -> new BsonDynamicModel(model.getId(), model.getModelName(), doc))
+                    .map(_it -> new JsonDynamicModel(model.getId(), model.getModelName(), modelData))
                     .switchIfEmpty(error(new OptimisticLockingFailureException(msg)));
         };
     }
 
-    private void validateServiceFields(Document doc, BsonDynamicModel mo) {
+    private void validateServiceFields(Map<String, Object> doc, JsonDynamicModel mo) {
         if (!doc.containsKey(created.name())) {
             throw new CommonException(format("Field %s is not presented", created.name()), HttpStatus.BAD_REQUEST.value());
         }
@@ -129,12 +133,12 @@ public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicMode
         }
     }
 
-    private void updateServiceFields(Document doc) {
+    private void updateServiceFields(Map<String, Object> doc) {
         doc.replace(modified.name(), getNowDateAsString());
         doc.replace(version.name(), extractVersion(doc) + 1);
     }
 
-    private Long extractVersion(Document doc) {
+    private Long extractVersion(Map<String, Object> doc) {
         return Long.valueOf(doc.get(version.name()).toString());
     }
 
@@ -143,9 +147,9 @@ public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicMode
     }
 
     @Override
-    public Mono<BsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
+    public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
         FindPublisher<Document> p = mongoOperations.getCollection(collectionName)
-                .find(new Document("_id", new ObjectId(id.getInternalId())));
+                .find(eq("_id", new ObjectId(id.getInternalId())));
 
         return from(p)
                 .flatMap(doc ->
@@ -153,7 +157,7 @@ public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicMode
                                 .fromInternalId(doc.getObjectId("_id"))
                                 .map(descr -> {
                                     doc.remove("_id");
-                                    return new BsonDynamicModel(descr, descr.getModelType(), doc);
+                                    return new JsonDynamicModel(descr, descr.getModelType(), doc);
                                 })
                 );
     }
@@ -161,12 +165,12 @@ public class MongoBsonDynamicModelDao implements DynamicModelDao<BsonDynamicMode
     @Override
     public Mono<Void> remove(Descriptor id, String collectionName) {
         Publisher<DeleteResult> deleteResultPublisher = mongoOperations.getCollection(collectionName)
-                .deleteOne(new Document("_id", new ObjectId(id.getInternalId())));
+                .deleteOne(eq("_id", new ObjectId(id.getInternalId())));
 
         return Mono.from(deleteResultPublisher).then();
     }
 
-    private Mono<Descriptor> createNewDescriptor(BsonDynamicModel model) {
+    private Mono<Descriptor> createNewDescriptor(JsonDynamicModel model) {
         return mongoDescriptorFacilities.create(ObjectId.get(), model.getModelName());
     }
 }

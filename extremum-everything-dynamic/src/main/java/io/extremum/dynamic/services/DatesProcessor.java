@@ -1,7 +1,7 @@
 package io.extremum.dynamic.services;
 
-import org.bson.Document;
+import java.util.Map;
 
 public interface DatesProcessor {
-    Document processDates(Document modelData);
+    Map<String, Object> processDates(Map<String, Object> modelData);
 }
