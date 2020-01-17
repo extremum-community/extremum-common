@@ -1,0 +1,24 @@
+{
+  "$id": "an_id_for_simple_schema_json",
+  "description": "simple schema for testing the DirectoryBasedSchemaProvider in the DirectoryBasedSchemaProviderTest test",
+  "type": "object",
+  "properties": {
+    "field1": {
+      "type": "string"
+    },
+    "field2": {
+      "type": "number"
+    },
+    "fieldDate1": {
+      "type": "string",
+      "format": "cybernated-date-time"
+    },
+    "fieldDate2": {
+      "type": "string",
+      "format": "cybernated-date-time"
+    },
+    "fieldDate3_noCybernatedDate": {
+      "type": "string"
+    }
+  }
+}

@@ -201,11 +201,29 @@ public class Descriptor implements Serializable {
         return this.modelType;
     }
 
+    public Mono<String> getModelTypeReactively() {
+        if (this.modelType == null) {
+            return fillByIdsReactively().map(Descriptor::getModelType);
+        } else {
+            return Mono.just(this.modelType);
+        }
+    }
+
     private void fillByIds() {
         if (this.internalId != null) {
             fillByInternalId();
         } else if (this.externalId != null) {
             fillSingleByExternalId();
+        }
+    }
+
+    private Mono<Descriptor> fillByIdsReactively() {
+        if (this.internalId != null) {
+            return fillByInternalIdReactively();
+        } else if (this.externalId != null) {
+            return fillSingleByExternalIdReactively();
+        } else {
+            return Mono.error(new RuntimeException("Unable to fill ids: internalId && externalId are null"));
         }
     }
 
@@ -217,6 +235,16 @@ public class Descriptor implements Serializable {
                 .filter(d -> d.externalId != null)
                 .orElseThrow(this::newDescriptorNotFoundByInternalIdException);
     }
+
+    @UsesStaticDependencies
+    private Mono<Descriptor> fillByInternalIdReactively() {
+        //noinspection deprecation
+        return StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByInternalIdReactively(internalId)
+                .map(this::copyFieldsFromAnotherDescriptor)
+                .filter(d -> d.externalId != null)
+                .switchIfEmpty(Mono.error(newDescriptorNotFoundByInternalIdException()));
+    }
+
 
     private DescriptorNotFoundException newDescriptorNotFoundByInternalIdException() {
         return new DescriptorNotFoundException(
@@ -231,6 +259,15 @@ public class Descriptor implements Serializable {
                 .map(this::copyFieldsFromAnotherDescriptor)
                 .filter(d -> d.internalId != null)
                 .orElseThrow(this::newDescriptorNotFoundByExternalIdException);
+    }
+
+    @UsesStaticDependencies
+    private Mono<Descriptor> fillSingleByExternalIdReactively() {
+        //noinspection deprecation
+        return StaticDescriptorLoaderAccessor.getDescriptorLoader().loadByExternalIdReactively(this.externalId)
+                .map(this::copyFieldsFromAnotherDescriptor)
+                .filter(d -> d.internalId != null)
+                .switchIfEmpty(Mono.error(newDescriptorNotFoundByExternalIdException()));
     }
 
     private DescriptorNotFoundException newDescriptorNotFoundByExternalIdException() {
