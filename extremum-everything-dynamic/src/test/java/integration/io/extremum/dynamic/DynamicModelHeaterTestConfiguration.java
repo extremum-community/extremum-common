@@ -5,8 +5,14 @@ import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import io.extremum.everything.reactive.config.ReactiveEverythingConfiguration;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.PrincipalSource;
+import io.extremum.security.RoleSecurity;
 import io.extremum.starter.CommonConfiguration;
+import io.extremum.watch.config.WatchConfiguration;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -18,9 +24,17 @@ import java.nio.file.Paths;
 
 import static org.mockito.Mockito.doReturn;
 
-@Import({CommonConfiguration.class,
+@Import({
+        WatchConfiguration.class,
+        CommonConfiguration.class,
         ReactiveEverythingConfiguration.class,
-        DynamicModuleAutoConfiguration.class})
+        DynamicModuleAutoConfiguration.class
+})
+@MockBeans({
+        @MockBean(RoleSecurity.class),
+        @MockBean(DataSecurity.class),
+        @MockBean(PrincipalSource.class)
+})
 @Configuration
 public class DynamicModelHeaterTestConfiguration {
     @Bean

@@ -10,7 +10,8 @@ import io.extremum.common.dto.converters.services.DynamicModelDtoConversionServi
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.dynamic.services.JsonBasedDynamicModelService;
+import io.extremum.dynamic.watch.DynamicModelWatchService;
 import io.extremum.everything.services.management.ReactiveEverythingManagementService;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.constant.HttpStatus;
@@ -31,6 +32,7 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
     private final JsonBasedDynamicModelService dynamicModelService;
     private final DynamicModelDtoConversionService dynamicModelDtoConversionService;
     private final ObjectMapper mapper;
+    private final DynamicModelWatchService watchService;
 
     @Override
     public Mono<ResponseDto> get(Descriptor id, boolean expand) {
@@ -55,6 +57,7 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
                 .map(data -> applyPatch(patch, data))
                 .map(applied -> new JsonDynamicModel(id, id.getModelType(), applied))
                 .flatMap(dynamicModelService::saveModel)
+                .flatMap(saved -> watchService.watchPatchOperation(patch, saved).thenReturn(saved))
                 .flatMap(this::convertDynamicModelToResponseDto)
                 .onErrorMap(DescriptorNotFoundException.class, cause -> {
                     String msg = format("Model with id %s not found; nothing to patch with %s", id, patch);
@@ -79,6 +82,7 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
     @Override
     public Mono<Void> remove(Descriptor id) {
         return dynamicModelService.remove(id)
-                .onErrorResume(DescriptorNotFoundException.class, _it -> Mono.empty());
+                .onErrorResume(DescriptorNotFoundException.class, _it -> Mono.empty())
+                .then();
     }
 }

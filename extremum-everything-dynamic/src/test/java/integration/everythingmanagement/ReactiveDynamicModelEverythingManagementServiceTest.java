@@ -15,19 +15,25 @@ import io.extremum.dynamic.everything.management.HybridEverythingManagementServi
 import io.extremum.dynamic.everything.management.ReactiveDynamicModelEverythingManagementService;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
+import io.extremum.dynamic.watch.DynamicModelWatchService;
 import io.extremum.everything.reactive.config.ReactiveEverythingConfiguration;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.PrincipalSource;
+import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.starter.CommonConfiguration;
+import io.extremum.watch.config.WatchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -39,13 +45,20 @@ import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
 @ActiveProfiles("everything-test")
 @SpringBootTest(classes = {
+        WatchConfiguration.class,
         CommonConfiguration.class,
         ReactiveEverythingConfiguration.class,
         DynamicModuleAutoConfiguration.class
+})
+@MockBeans({
+        @MockBean(RoleSecurity.class),
+        @MockBean(DataSecurity.class),
+        @MockBean(PrincipalSource.class)
 })
 public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringBootTestWithServices {
     private static final Descriptor NOT_EXISTENT_DESCRIPTOR = Descriptor.builder()
@@ -68,6 +81,9 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
+    @MockBean
+    DynamicModelWatchService watchService;
+
     ReactiveDynamicModelEverythingManagementService dynamicModelEverythingManagementService;
 
     @Autowired
@@ -83,6 +99,10 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
         dynamicModelEverythingManagementService =
                 hybridEverythingManagementService.getDynamicModelEverythingManagementService();
+
+        when(watchService.watchSaveOperation(any())).thenReturn(empty());
+        when(watchService.watchPatchOperation(any(), any())).thenReturn(empty());
+        when(watchService.watchDeleteOperation(any())).thenReturn(empty());
     }
 
     @Test
@@ -155,6 +175,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                     assertEquals(patchingModel.getModelName(), patched.getModelName());
                     assertEquals("c", patched.getModelData().get("a"));
                 }).verifyComplete();
+
+        verify(watchService, times(1)).watchPatchOperation(any(), any());
     }
 
     @Test
@@ -166,6 +188,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         StepVerifier.create(result)
                 .expectError(ModelNotFoundException.class)
                 .verify();
+
+        verify(watchService, never()).watchPatchOperation(any(), any());
     }
 
     @Test
@@ -176,6 +200,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         Mono<Void> result = dynamicModelEverythingManagementService.remove(savedModel.getId());
 
         StepVerifier.create(result).verifyComplete();
+
+        verify(watchService, times(1)).watchDeleteOperation(any());
     }
 
     @Test
@@ -183,6 +209,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         Mono<Void> result = dynamicModelEverythingManagementService.remove(NOT_EXISTENT_DESCRIPTOR);
 
         StepVerifier.create(result).verifyComplete();
+
+        verify(watchService, never()).watchDeleteOperation(any());
     }
 
     private JsonDynamicModel createModel(String modelName, String stringModelData) {

@@ -1,6 +1,9 @@
 package integration;
 
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.PrincipalSource;
+import io.extremum.security.RoleSecurity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
@@ -11,6 +14,15 @@ import org.springframework.test.context.ContextConfiguration;
 public class ContextLoadsTest extends SpringBootTestWithServices {
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
+
+    @MockBean
+    RoleSecurity roleSecurity;
+
+    @MockBean
+    DataSecurity dataSecurity;
+
+    @MockBean
+    PrincipalSource principalSource;
 
     @Test
     void contextLoads() {
