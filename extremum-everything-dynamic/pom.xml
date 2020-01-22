@@ -96,6 +96,10 @@
                     <groupId>javax.activation</groupId>
                     <artifactId>activation</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.github.java-json-tools</groupId>
+                    <artifactId>jackson-coreutils</artifactId>
+                </exclusion>
             </exclusions>
             <scope>test</scope>
         </dependency>
