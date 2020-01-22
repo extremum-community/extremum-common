@@ -28,17 +28,17 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
     private final ObjectMapper objectMapper;
 
     @Override
-    public Mono<Void> watchPatchOperation(JsonPatch patch, JsonDynamicModel patched) {
+    public Mono<Void> registerPatchOperation(JsonPatch patch, JsonDynamicModel patched) {
         return processPatchInvocation(patch, patched);
     }
 
     @Override
-    public Mono<Void> watchSaveOperation(JsonDynamicModel saved) {
+    public Mono<Void> registerSaveOperation(JsonDynamicModel saved) {
         return processSaveInvocation(saved);
     }
 
     @Override
-    public Mono<Void> watchDeleteOperation(JsonDynamicModel model) {
+    public Mono<Void> registerDeleteOperation(JsonDynamicModel model) {
         return processDeleteInvocation(model);
     }
 

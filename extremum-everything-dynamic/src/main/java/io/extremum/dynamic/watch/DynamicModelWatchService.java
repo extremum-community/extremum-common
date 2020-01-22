@@ -5,9 +5,9 @@ import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import reactor.core.publisher.Mono;
 
 public interface DynamicModelWatchService {
-    Mono<Void> watchSaveOperation(JsonDynamicModel saved);
+    Mono<Void> registerSaveOperation(JsonDynamicModel saved);
 
-    Mono<Void> watchDeleteOperation(JsonDynamicModel model);
+    Mono<Void> registerDeleteOperation(JsonDynamicModel model);
 
-    Mono<Void> watchPatchOperation(JsonPatch patch, JsonDynamicModel mdoel);
+    Mono<Void> registerPatchOperation(JsonPatch patch, JsonDynamicModel mdoel);
 }

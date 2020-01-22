@@ -87,7 +87,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
         doReturn(just(successful(mock(ValidationContext.class)))).when(modelValidator).validate(any());
 
         when(dao.create(any(), anyString())).thenReturn(just(model));
-        when(watchService.watchSaveOperation(any())).thenReturn(empty());
+        when(watchService.registerSaveOperation(any())).thenReturn(empty());
 
         DefaultJsonBasedDynamicModelService service = new DefaultJsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
                 normalizer, datesProcessor, watchService);
@@ -106,7 +106,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
         verify_Normalizer_HasAccept_Model_1_times();
         verify_DynamicModelDao_HasAccept_Model_1_times(model);
 
-        verify(watchService, times(1)).watchSaveOperation(any());
+        verify(watchService, times(1)).registerSaveOperation(any());
     }
 
     @Test
@@ -134,7 +134,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
                 .expectError(DynamicModelValidationException.class)
                 .verify();
 
-        verify(watchService, Mockito.never()).watchSaveOperation(any());
+        verify(watchService, Mockito.never()).registerSaveOperation(any());
     }
 
     @Test
@@ -158,7 +158,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
                 .expectError(SchemaNotFoundException.class)
                 .verify();
 
-        verify(watchService, Mockito.never()).watchSaveOperation(any());
+        verify(watchService, Mockito.never()).registerSaveOperation(any());
     }
 
     @Test
@@ -177,12 +177,12 @@ class DefaultJsonBasedDynamicModelServiceTest {
         doReturn(just(jModel)).when(dao).getByIdFromCollection(id, "model");
         doReturn(just(jModel)).when(dao).remove(id, "model");
         doAnswer(new ReturnsArgumentAt(0)).when(metadataProvider).provideMetadata(any());
-        when(watchService.watchDeleteOperation(any())).thenReturn(empty());
+        when(watchService.registerDeleteOperation(any())).thenReturn(empty());
 
         service.remove(id).block();
 
         verify(dao, times(1)).remove(id, "model");
-        verify(watchService, times(1)).watchDeleteOperation(any());
+        verify(watchService, times(1)).registerDeleteOperation(any());
     }
 
     private void verify_Normalizer_HasAccept_Model_1_times() {

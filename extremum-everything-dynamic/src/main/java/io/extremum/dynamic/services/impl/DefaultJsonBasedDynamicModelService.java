@@ -44,7 +44,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
                         )
-                ).doOnNext(savedModel -> watchService.watchSaveOperation(savedModel).thenReturn(savedModel));
+                ).doOnNext(savedModel -> watchService.registerSaveOperation(savedModel).thenReturn(savedModel));
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
@@ -106,7 +106,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                         getCollectionName(id)
                                 .flatMap(cName -> dao.remove(id, cName)
                                         .thenReturn(found))
-                        .doOnNext(model -> watchService.watchDeleteOperation(model).thenReturn(model))
+                        .doOnNext(model -> watchService.registerDeleteOperation(model).thenReturn(model))
                 );
     }
 

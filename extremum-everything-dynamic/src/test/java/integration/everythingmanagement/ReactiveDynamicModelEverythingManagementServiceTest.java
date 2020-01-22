@@ -100,9 +100,9 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         dynamicModelEverythingManagementService =
                 hybridEverythingManagementService.getDynamicModelEverythingManagementService();
 
-        when(watchService.watchSaveOperation(any())).thenReturn(empty());
-        when(watchService.watchPatchOperation(any(), any())).thenReturn(empty());
-        when(watchService.watchDeleteOperation(any())).thenReturn(empty());
+        when(watchService.registerSaveOperation(any())).thenReturn(empty());
+        when(watchService.registerPatchOperation(any(), any())).thenReturn(empty());
+        when(watchService.registerDeleteOperation(any())).thenReturn(empty());
     }
 
     @Test
@@ -176,7 +176,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                     assertEquals("c", patched.getModelData().get("a"));
                 }).verifyComplete();
 
-        verify(watchService, times(1)).watchPatchOperation(any(), any());
+        verify(watchService, times(1)).registerPatchOperation(any(), any());
     }
 
     @Test
@@ -189,7 +189,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                 .expectError(ModelNotFoundException.class)
                 .verify();
 
-        verify(watchService, never()).watchPatchOperation(any(), any());
+        verify(watchService, never()).registerPatchOperation(any(), any());
     }
 
     @Test
@@ -201,7 +201,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
         StepVerifier.create(result).verifyComplete();
 
-        verify(watchService, times(1)).watchDeleteOperation(any());
+        verify(watchService, times(1)).registerDeleteOperation(any());
     }
 
     @Test
@@ -210,7 +210,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
         StepVerifier.create(result).verifyComplete();
 
-        verify(watchService, never()).watchDeleteOperation(any());
+        verify(watchService, never()).registerDeleteOperation(any());
     }
 
     private JsonDynamicModel createModel(String modelName, String stringModelData) {

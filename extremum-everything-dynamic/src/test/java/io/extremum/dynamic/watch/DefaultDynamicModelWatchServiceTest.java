@@ -55,7 +55,7 @@ class DefaultDynamicModelWatchServiceTest {
         JsonNode node = mapper.readValue("[{\"op\":\"add\",\"path\":\"/tags/-\",\"value\": \"v\"}]", JsonNode.class);
 
         JsonPatch patch = JsonPatch.fromJson(node);
-        watchService.watchPatchOperation(patch, model).block();
+        watchService.registerPatchOperation(patch, model).block();
 
         ArgumentCaptor<TextWatchEvent> captor = ArgumentCaptor.forClass(TextWatchEvent.class);
 
@@ -80,7 +80,7 @@ class DefaultDynamicModelWatchServiceTest {
     void watchSaveOperation() throws JSONException {
         JsonDynamicModel model = new JsonDynamicModel(DESCRIPTOR, MODEL_NAME, modelData);
 
-        watchService.watchSaveOperation(model).block();
+        watchService.registerSaveOperation(model).block();
 
         ArgumentCaptor<TextWatchEvent> captor = ArgumentCaptor.forClass(TextWatchEvent.class);
 
@@ -105,7 +105,7 @@ class DefaultDynamicModelWatchServiceTest {
     void watchDeleteOperation() throws JSONException {
         JsonDynamicModel model = new JsonDynamicModel(DESCRIPTOR, MODEL_NAME, modelData);
 
-        watchService.watchDeleteOperation(model).block();
+        watchService.registerDeleteOperation(model).block();
 
         ArgumentCaptor<TextWatchEvent> captor = ArgumentCaptor.forClass(TextWatchEvent.class);
 
