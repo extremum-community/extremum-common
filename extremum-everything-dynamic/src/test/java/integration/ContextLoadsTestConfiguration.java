@@ -6,6 +6,7 @@ import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSch
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
 import io.extremum.everything.reactive.config.ReactiveEverythingConfiguration;
 import io.extremum.starter.CommonConfiguration;
+import io.extremum.watch.config.WatchConfiguration;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,8 @@ import static org.mockito.Mockito.doReturn;
 @Import({
         CommonConfiguration.class,
         ReactiveEverythingConfiguration.class,
-        DynamicModuleAutoConfiguration.class
+        DynamicModuleAutoConfiguration.class,
+        WatchConfiguration.class
 })
 @Configuration
 public class ContextLoadsTestConfiguration {

@@ -1,18 +1,17 @@
 package io.extremum.dynamic;
 
+import io.extremum.dynamic.models.DynamicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class DefaultReactiveDescriptorDeterminatorTest {
-    private static String modelNameOfADynamicModel = "DynamicModel";
-
     static DefaultReactiveDescriptorDeterminator determinator = new DefaultReactiveDescriptorDeterminator();
 
     @BeforeAll
     static void beforeAll() {
-        determinator.registerModelName(modelNameOfADynamicModel);
+        determinator.registerModelName(DynamicModel.MODEL_TYPE);
     }
 
     @Test
@@ -20,7 +19,7 @@ class DefaultReactiveDescriptorDeterminatorTest {
         Descriptor descriptorForADynamicModel = Descriptor.builder()
                 .internalId("i-id")
                 .externalId("e-id")
-                .modelType(modelNameOfADynamicModel)
+                .modelType(DynamicModel.MODEL_TYPE)
                 .build();
 
         boolean result = determinator.isDynamic(descriptorForADynamicModel).block();

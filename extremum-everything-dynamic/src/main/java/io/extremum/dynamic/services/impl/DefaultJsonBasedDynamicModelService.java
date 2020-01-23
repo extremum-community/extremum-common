@@ -6,9 +6,10 @@ import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
-import io.extremum.dynamic.services.DynamicModelService;
+import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
+import io.extremum.dynamic.watch.DynamicModelWatchService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,13 @@ import static reactor.core.publisher.Mono.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JsonBasedDynamicModelService implements DynamicModelService<JsonDynamicModel> {
+public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicModelService {
     private final DynamicModelDao<JsonDynamicModel> dao;
     private final JsonDynamicModelValidator modelValidator;
     private final DefaultJsonDynamicModelMetadataProvider metadataProvider;
     private final DateTypesNormalizer dateTypesNormalizer;
     private final DatesProcessor datesProcessor;
+    private final DynamicModelWatchService watchService;
 
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
@@ -42,7 +44,7 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
                         )
-                );
+                ).doOnNext(savedModel -> watchService.registerSaveOperation(savedModel).thenReturn(savedModel));
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
@@ -98,9 +100,14 @@ public class JsonBasedDynamicModelService implements DynamicModelService<JsonDyn
     }
 
     @Override
-    public Mono<Void> remove(Descriptor id) {
-        return getCollectionName(id)
-                .flatMap(cName -> dao.remove(id, cName));
+    public Mono<JsonDynamicModel> remove(Descriptor id) {
+        return findById(id)
+                .flatMap(found ->
+                        getCollectionName(id)
+                                .flatMap(cName -> dao.remove(id, cName)
+                                        .thenReturn(found))
+                        .doOnNext(model -> watchService.registerDeleteOperation(model).thenReturn(model))
+                );
     }
 
     private Mono<String> getCollectionName(Descriptor descr) {

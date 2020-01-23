@@ -15,10 +15,14 @@ import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
-import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.dynamic.services.impl.DefaultJsonBasedDynamicModelService;
+import io.extremum.security.DataSecurity;
+import io.extremum.security.PrincipalSource;
+import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
+import io.extremum.watch.config.WatchConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -27,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -53,10 +58,20 @@ import static org.mockito.Mockito.*;
 
 @Slf4j
 @ActiveProfiles("save-model-test")
-@ContextConfiguration(classes = {CommonConfiguration.class, DynamicModuleAutoConfiguration.class})
-class JsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices {
+@ContextConfiguration(classes = {
+        WatchConfiguration.class,
+        CommonConfiguration.class,
+        DynamicModuleAutoConfiguration.class,
+        WatchConfiguration.class
+})
+@MockBeans({
+        @MockBean(RoleSecurity.class),
+        @MockBean(DataSecurity.class),
+        @MockBean(PrincipalSource.class)
+})
+class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices {
     @Autowired
-    JsonBasedDynamicModelService service;
+    DefaultJsonBasedDynamicModelService service;
 
     @Autowired
     GithubSchemaProperties githubSchemaProperties;

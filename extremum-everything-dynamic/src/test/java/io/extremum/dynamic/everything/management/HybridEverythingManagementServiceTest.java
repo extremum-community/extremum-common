@@ -2,6 +2,7 @@ package io.extremum.dynamic.everything.management;
 
 import io.extremum.dynamic.DefaultReactiveDescriptorDeterminator;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
+import io.extremum.dynamic.models.DynamicModel;
 import io.extremum.everything.services.management.ReactiveEverythingManagementService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
@@ -28,7 +29,7 @@ class HybridEverythingManagementServiceTest {
         DYNAMIC_MODEL_DESCRIPTOR = Descriptor.builder()
                 .internalId("i-id_d")
                 .externalId("e-id_d")
-                .modelType("DynamicModel")
+                .modelType(DynamicModel.MODEL_TYPE)
                 .build();
 
         STANDARD_MODEL_DESCRIPTOR = Descriptor.builder()

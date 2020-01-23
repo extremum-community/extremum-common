@@ -10,16 +10,19 @@ import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
-import io.extremum.dynamic.services.impl.JsonBasedDynamicModelService;
+import io.extremum.dynamic.services.impl.DefaultJsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
+import io.extremum.dynamic.watch.DefaultDynamicModelWatchService;
 import io.extremum.sharedmodels.basic.Model;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,10 +40,11 @@ import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(classes = JsonBasedDynamicModelServiceTestConfiguration.class)
-class JsonBasedDynamicModelServiceTest {
+class DefaultJsonBasedDynamicModelServiceTest {
     @MockBean
     FileSystemNetworkntSchemaProvider schemaProvider;
 
@@ -56,11 +60,14 @@ class JsonBasedDynamicModelServiceTest {
     @Autowired
     ObjectMapper mapper;
 
-    @Mock
+    @MockBean
     MongoDynamicModelDao dao;
 
-    @Mock
+    @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
+
+    @MockBean
+    DefaultDynamicModelWatchService watchService;
 
     @Captor
     ArgumentCaptor<JsonDynamicModel> modelCaptor;
@@ -80,9 +87,10 @@ class JsonBasedDynamicModelServiceTest {
         doReturn(just(successful(mock(ValidationContext.class)))).when(modelValidator).validate(any());
 
         when(dao.create(any(), anyString())).thenReturn(just(model));
+        when(watchService.registerSaveOperation(any())).thenReturn(empty());
 
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
-                normalizer, datesProcessor);
+        DefaultJsonBasedDynamicModelService service = new DefaultJsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
+                normalizer, datesProcessor, watchService);
 
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
@@ -97,12 +105,14 @@ class JsonBasedDynamicModelServiceTest {
         verify_Validator_HasAccept_Model_1_times(model);
         verify_Normalizer_HasAccept_Model_1_times();
         verify_DynamicModelDao_HasAccept_Model_1_times(model);
+
+        verify(watchService, times(1)).registerSaveOperation(any());
     }
 
     @Test
     void notValidModelIsNotSaves() {
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
-                normalizer, datesProcessor);
+        DefaultJsonBasedDynamicModelService service = new DefaultJsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
+                normalizer, datesProcessor, watchService);
 
         Map<String, Object> invalidModelRawValue = new HashMap<>();
         invalidModelRawValue.put("field1", 1);
@@ -116,19 +126,21 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
-        verify(dao, never()).create(any(), anyString());
+        verify(dao, Mockito.never()).create(any(), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(result)
                 .expectError(DynamicModelValidationException.class)
                 .verify();
+
+        verify(watchService, Mockito.never()).registerSaveOperation(any());
     }
 
     @Test
     void modelIsNotSaved_schemaDoesntExists() {
-        JsonBasedDynamicModelService service = new JsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
-                normalizer, datesProcessor);
+        DefaultJsonBasedDynamicModelService service = new DefaultJsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
+                normalizer, datesProcessor, watchService);
 
         String unknownModel = "unknownModel";
 
@@ -138,13 +150,39 @@ class JsonBasedDynamicModelServiceTest {
 
         Mono<JsonDynamicModel> result = service.saveModel(jModel);
 
-        verify(dao, never()).create(any(), anyString());
+        verify(dao, Mockito.never()).create(any(), anyString());
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
         StepVerifier.create(result)
                 .expectError(SchemaNotFoundException.class)
                 .verify();
+
+        verify(watchService, Mockito.never()).registerSaveOperation(any());
+    }
+
+    @Test
+    void removeModel_callWatch_Test() {
+        DefaultJsonBasedDynamicModelService service = new DefaultJsonBasedDynamicModelService(dao, modelValidator, metadataProvider,
+                normalizer, datesProcessor, watchService);
+
+        Descriptor id = Descriptor.builder()
+                .internalId("int")
+                .externalId("ext")
+                .storageType(Descriptor.StorageType.MONGO)
+                .modelType("model")
+                .build();
+
+        JsonDynamicModel jModel = mock(JsonDynamicModel.class);
+        doReturn(just(jModel)).when(dao).getByIdFromCollection(id, "model");
+        doReturn(just(jModel)).when(dao).remove(id, "model");
+        doAnswer(new ReturnsArgumentAt(0)).when(metadataProvider).provideMetadata(any());
+        when(watchService.registerDeleteOperation(any())).thenReturn(empty());
+
+        service.remove(id).block();
+
+        verify(dao, times(1)).remove(id, "model");
+        verify(watchService, times(1)).registerDeleteOperation(any());
     }
 
     private void verify_Normalizer_HasAccept_Model_1_times() {

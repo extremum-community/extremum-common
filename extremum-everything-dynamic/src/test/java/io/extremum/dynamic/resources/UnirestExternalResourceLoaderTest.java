@@ -137,7 +137,7 @@ class UnirestExternalResourceLoaderTest {
     void resourceLoadException_afterEndpointTimeout() {
         String path = "/path/to/resource";
 
-        int socketTimeoutOverheadValue = 70;
+        int socketTimeoutOverheadValue = 3;
 
         msClient.reset();
         msClient
@@ -150,7 +150,11 @@ class UnirestExternalResourceLoaderTest {
                         .withDelay(TimeUnit.SECONDS, socketTimeoutOverheadValue)
         );
 
-        ResourceLoader loader = new UnirestExternalResourceLoader();
+        Config unirestConfig = new Config();
+        unirestConfig.socketTimeout(1000);
+        unirestConfig.connectTimeout(1000);
+
+        ResourceLoader loader = new UnirestExternalResourceLoader(unirestConfig);
 
         URI uri = URI.create(format("http://%s:%d",
                 mockServer.getContainerIpAddress(),

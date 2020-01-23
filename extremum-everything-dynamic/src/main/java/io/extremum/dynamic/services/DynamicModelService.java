@@ -9,5 +9,5 @@ public interface DynamicModelService<Model extends DynamicModel<?>> {
 
     Mono<Model> findById(Descriptor id);
 
-    Mono<Void> remove(Descriptor descriptor);
+    Mono<Model> remove(Descriptor descriptor);
 }

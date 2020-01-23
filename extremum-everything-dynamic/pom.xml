@@ -50,6 +50,16 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-watch-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-patch</artifactId>
+        </dependency>
+
         <!-- testing dependencies-->
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -85,6 +95,10 @@
                 <exclusion>
                     <groupId>javax.activation</groupId>
                     <artifactId>activation</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.java-json-tools</groupId>
+                    <artifactId>jackson-coreutils</artifactId>
                 </exclusion>
             </exclusions>
             <scope>test</scope>
