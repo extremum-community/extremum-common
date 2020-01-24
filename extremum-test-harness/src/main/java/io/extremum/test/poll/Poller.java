@@ -22,7 +22,16 @@ public class Poller {
         return poll(new CombiningProbe<T>(sampler, finisher));
     }
 
+    public <T> T poll(String pollTimedOutMessage, Supplier<? extends T> sampler, Predicate<? super T> finisher)
+            throws InterruptedException {
+        return poll(pollTimedOutMessage, new CombiningProbe<T>(sampler, finisher));
+    }
+
     public <T> T poll(Probe<T> probe) throws InterruptedException {
+        return poll("Did not sample anything matching in " + maxPollDuration, probe);
+    }
+
+    public <T> T poll(String pollTimedOutMessage, Probe<T> probe) throws InterruptedException {
         Instant endTime = now().plus(maxPollDuration);
 
         while (now().isBefore(endTime)) {
@@ -34,7 +43,7 @@ public class Poller {
             Thread.sleep(sleepDuration.toMillis());
         }
 
-        throw new RuntimeException("Did not sample anything matching in " + maxPollDuration);
+        throw new PollTimedOutException(pollTimedOutMessage);
     }
 
     private static class CombiningProbe<T> implements Probe<T> {
