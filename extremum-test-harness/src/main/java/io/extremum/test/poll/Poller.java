@@ -2,6 +2,7 @@ package io.extremum.test.poll;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -44,6 +45,10 @@ public class Poller {
         }
 
         throw new PollTimedOutException(pollTimedOutMessage);
+    }
+
+    public void pollTill(String pollTimedOutMessage, BooleanSupplier supplier) throws InterruptedException {
+        poll(pollTimedOutMessage, supplier::getAsBoolean, booleanValue -> booleanValue);
     }
 
     private static class CombiningProbe<T> implements Probe<T> {
