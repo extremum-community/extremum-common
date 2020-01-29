@@ -1,7 +1,9 @@
 package io.extremum.dynamic.everything.management;
 
 import io.extremum.dynamic.DefaultReactiveDescriptorDeterminator;
+import io.extremum.dynamic.DefaultSchemaMetaService;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
+import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.models.DynamicModel;
 import io.extremum.everything.services.management.ReactiveEverythingManagementService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -22,6 +24,7 @@ class HybridEverythingManagementServiceTest {
 
     ReactiveEverythingManagementService defaultModelEvrService;
     ReactiveDynamicModelEverythingManagementService dynModelEvrService;
+    static SchemaMetaService schemaMetaService;
     static ReactiveDescriptorDeterminator reactiveDescriptorDeterminator;
 
     @BeforeAll
@@ -38,9 +41,9 @@ class HybridEverythingManagementServiceTest {
                 .modelType("StandardModel")
                 .build();
 
-        reactiveDescriptorDeterminator = new DefaultReactiveDescriptorDeterminator();
-        reactiveDescriptorDeterminator
-                .registerModelName(DYNAMIC_MODEL_DESCRIPTOR.getModelType());
+        schemaMetaService = new DefaultSchemaMetaService();
+        reactiveDescriptorDeterminator = new DefaultReactiveDescriptorDeterminator(schemaMetaService);
+        schemaMetaService.registerMapping(DYNAMIC_MODEL_DESCRIPTOR.getModelType(), DYNAMIC_MODEL_DESCRIPTOR.getModelType());
     }
 
     @BeforeEach

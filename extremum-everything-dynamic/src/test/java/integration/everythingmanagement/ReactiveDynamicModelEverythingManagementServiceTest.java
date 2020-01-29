@@ -10,6 +10,7 @@ import io.atlassian.fugue.Try;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
+import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.everything.dto.JsonDynamicModelResponseDto;
 import io.extremum.dynamic.everything.management.HybridEverythingManagementService;
 import io.extremum.dynamic.everything.management.ReactiveDynamicModelEverythingManagementService;
@@ -74,6 +75,9 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @Autowired
     ReactiveDescriptorDeterminator reactiveDescriptorDeterminator;
+
+    @MockBean
+    SchemaMetaService schemaMetaService;
 
     @MockBean
     JsonDynamicModelValidator jsonDynamicModelValidator;
@@ -152,7 +156,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException {
         String modelName = "PatchingDynamicModel";
 
-        reactiveDescriptorDeterminator.registerModelName(modelName);
+        doReturn(modelName).when(schemaMetaService).getSchemaNameByModel(modelName);
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
         JsonDynamicModel saved = dynamicModelService.saveModel(patchingModel).block();

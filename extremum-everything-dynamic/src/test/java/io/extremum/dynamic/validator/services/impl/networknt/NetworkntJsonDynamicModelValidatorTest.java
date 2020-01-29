@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.atlassian.fugue.Try;
+import io.extremum.dynamic.DefaultSchemaMetaService;
+import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -32,7 +34,9 @@ class NetworkntJsonDynamicModelValidatorTest {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    JsonDynamicModelValidator validator = new NetworkntJsonDynamicModelValidator(provider, mapper);
+    private SchemaMetaService schemaMetaService = new DefaultSchemaMetaService();
+
+    JsonDynamicModelValidator validator = new NetworkntJsonDynamicModelValidator(provider, mapper, schemaMetaService);
 
     @Test
     void validate_ok() throws IOException {
@@ -50,6 +54,8 @@ class NetworkntJsonDynamicModelValidatorTest {
                 "\"fieldDate3_noCybernatedDate\": \"2014-01-09T09:31:26.111111-0500\"}");
 
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         Mono<Try<ValidationContext>> result = validator.validate(model);
 
@@ -74,6 +80,8 @@ class NetworkntJsonDynamicModelValidatorTest {
         Map<String, Object> modelData = stringToMap("{\"fieldDate1\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
@@ -93,6 +101,8 @@ class NetworkntJsonDynamicModelValidatorTest {
     void validate_simple_schema_not_found() throws IOException {
         Map<String, Object> modelData = stringToMap("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("unknown_schema", modelData);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
@@ -114,6 +124,8 @@ class NetworkntJsonDynamicModelValidatorTest {
     void validate_complex_schema_by_ref_not_found() throws IOException {
         Map<String, Object> modelData = stringToMap("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("complex_with_bad_ref.schema.json", modelData);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 

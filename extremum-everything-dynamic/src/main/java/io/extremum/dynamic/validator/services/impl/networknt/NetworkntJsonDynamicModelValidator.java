@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.ImpermanentValidationContext;
 import com.networknt.schema.ValidationMessage;
 import io.atlassian.fugue.Try;
+import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
@@ -31,11 +32,18 @@ import static reactor.core.publisher.Mono.just;
 public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValidator {
     private final NetworkntSchemaProvider schemaProvider;
     private final ObjectMapper mapper;
+    private final SchemaMetaService schemaMetaService;
 
     @Override
     public Mono<Try<ValidationContext>> validate(JsonDynamicModel model) {
         try {
-            NetworkntSchema schema = schemaProvider.loadSchema(model.getModelName());
+            String schemaName = schemaMetaService.getSchemaNameByModel(model.getModelName());
+
+            if (schemaName == null) {
+                throw new SchemaLoadingException("Unable to determine a schema name for model " + model.getModelName());
+            }
+
+            NetworkntSchema schema = schemaProvider.loadSchema(schemaName);
 
             Set<String> paths = new HashSet<>();
 
