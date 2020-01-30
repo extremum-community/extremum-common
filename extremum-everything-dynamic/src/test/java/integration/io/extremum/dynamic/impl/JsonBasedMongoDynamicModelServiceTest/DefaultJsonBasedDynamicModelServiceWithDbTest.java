@@ -8,6 +8,7 @@ import integration.SpringBootTestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
+import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
@@ -23,11 +24,17 @@ import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
 import io.extremum.watch.config.WatchConfiguration;
+import io.extremum.watch.models.TextWatchEvent;
+import io.extremum.watch.processor.WatchEventConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -76,7 +83,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     @Autowired
     GithubSchemaProperties githubSchemaProperties;
 
-
     @Autowired
     ReactiveMongoOperations operations;
 
@@ -89,8 +95,14 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
+    @Autowired
+    SchemaMetaService schemaMetaService;
+
+    @MockBean
+    WatchEventConsumer watchConsumer;
+
     @Test
-    void validModelSavedInMongo() throws IOException {
+    void validModelSavedInMongo() throws IOException, JSONException {
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -118,6 +130,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
@@ -138,6 +152,15 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                         }
                 )
                 .verifyComplete();
+
+        ArgumentCaptor<TextWatchEvent> eventCaptor = ArgumentCaptor.forClass(TextWatchEvent.class);
+        verify(watchConsumer, times(1)).consume(eventCaptor.capture());
+
+        JSONArray jsonArray = new JSONArray(eventCaptor.getValue().getJsonPatch());
+        assertEquals(1, jsonArray.length());
+        JSONObject json = jsonArray.getJSONObject(0);
+        assertEquals("replace", json.getString("op"));
+        assertEquals("/", json.getString("path"));
 
         for (String dateField : Arrays.asList("fieldObject.fieldDate1", "fieldObject.fieldDate2")) {
             Iterable<Document> documents = Flux.from(operations.getCollection("complex_schema_json")
@@ -171,6 +194,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         Map<String, Object> modelData = toMap("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -209,6 +234,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         Map<String, Object> modelData = toMap("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -252,6 +279,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         Map<String, Object> modelData = toMap("{\"field1\":\"aaa\", \"field3\":{\"externalField\":\"bbb\"}}");
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
+
+        schemaMetaService.registerMapping(modelName, modelName);
 
         service.saveModel(model).block();
 
@@ -297,6 +326,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
 
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+
         JsonDynamicModel saved = service.saveModel(model).block();
 
         String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
@@ -330,6 +361,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         Map<String, Object> data = toMap("{\"a\":  \"b\"}");
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -374,6 +407,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         Map<String, Object> data = toMap("{\"a\":  \"b\"}");
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         JsonDynamicModel saved = service.saveModel(model).block();
         saved.getModelData().replace(Model.FIELDS.version.name(), 3);

@@ -37,14 +37,22 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     private final DynamicModelWatchService watchService;
 
     @Override
-    public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
+    public Mono<JsonDynamicModel> saveModelWithoutNotifications(JsonDynamicModel model) {
         return modelValidator.validate(model)
-                .flatMap(either ->
-                        either.fold(
+                .flatMap(validated ->
+                        validated.fold(
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
                         )
-                ).doOnNext(savedModel -> watchService.registerSaveOperation(savedModel).thenReturn(savedModel));
+                );
+    }
+
+    @Override
+    public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
+        return saveModelWithoutNotifications(model)
+                .flatMap(savedModel ->
+                        watchService.registerSaveOperation(savedModel)
+                                .thenReturn(savedModel));
     }
 
     private Mono<JsonDynamicModel> saveValidatedModel(JsonDynamicModel model, ValidationContext ctx) {
@@ -106,7 +114,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                         getCollectionName(id)
                                 .flatMap(cName -> dao.remove(id, cName)
                                         .thenReturn(found))
-                        .doOnNext(model -> watchService.registerDeleteOperation(model).thenReturn(model))
+                                .flatMap(model -> watchService.registerDeleteOperation(model).thenReturn(model))
                 );
     }
 

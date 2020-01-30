@@ -7,11 +7,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class DefaultReactiveDescriptorDeterminatorTest {
-    static DefaultReactiveDescriptorDeterminator determinator = new DefaultReactiveDescriptorDeterminator();
+    static SchemaMetaService schemaMetaService = new DefaultSchemaMetaService();
+    static DefaultReactiveDescriptorDeterminator determinator = new DefaultReactiveDescriptorDeterminator(schemaMetaService);
 
     @BeforeAll
     static void beforeAll() {
-        determinator.registerModelName(DynamicModel.MODEL_TYPE);
+        schemaMetaService.registerMapping(DynamicModel.MODEL_TYPE, DynamicModel.MODEL_TYPE);
     }
 
     @Test

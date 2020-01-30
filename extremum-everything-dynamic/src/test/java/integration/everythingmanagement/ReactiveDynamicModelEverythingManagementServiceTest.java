@@ -10,6 +10,8 @@ import io.atlassian.fugue.Try;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
+import io.extremum.dynamic.SchemaMetaService;
+import io.extremum.dynamic.dao.MongoDynamicModelDao;
 import io.extremum.dynamic.everything.dto.JsonDynamicModelResponseDto;
 import io.extremum.dynamic.everything.management.HybridEverythingManagementService;
 import io.extremum.dynamic.everything.management.ReactiveDynamicModelEverythingManagementService;
@@ -18,7 +20,6 @@ import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
-import io.extremum.dynamic.watch.DynamicModelWatchService;
 import io.extremum.everything.reactive.config.ReactiveEverythingConfiguration;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.PrincipalSource;
@@ -27,13 +28,21 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.starter.CommonConfiguration;
 import io.extremum.watch.config.WatchConfiguration;
+import io.extremum.watch.models.TextWatchEvent;
+import io.extremum.watch.processor.WatchEventConsumer;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -45,7 +54,6 @@ import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
 @ActiveProfiles("everything-test")
@@ -70,10 +78,19 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     HybridEverythingManagementService hybridEverythingManagementService;
 
     @Autowired
+    ApplicationContext ctx;
+
+    @Autowired
     JsonBasedDynamicModelService dynamicModelService;
 
     @Autowired
+    MongoDynamicModelDao dynamicModelDao;
+
+    @Autowired
     ReactiveDescriptorDeterminator reactiveDescriptorDeterminator;
+
+    @MockBean
+    SchemaMetaService schemaMetaService;
 
     @MockBean
     JsonDynamicModelValidator jsonDynamicModelValidator;
@@ -81,8 +98,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
-    @MockBean
-    DynamicModelWatchService watchService;
+    @SpyBean
+    WatchEventConsumer watchEventConsumer;
 
     ReactiveDynamicModelEverythingManagementService dynamicModelEverythingManagementService;
 
@@ -99,10 +116,6 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
         dynamicModelEverythingManagementService =
                 hybridEverythingManagementService.getDynamicModelEverythingManagementService();
-
-        when(watchService.registerSaveOperation(any())).thenReturn(empty());
-        when(watchService.registerPatchOperation(any(), any())).thenReturn(empty());
-        when(watchService.registerDeleteOperation(any())).thenReturn(empty());
     }
 
     @Test
@@ -149,13 +162,13 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     }
 
     @Test
-    void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException {
+    void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException, JSONException {
         String modelName = "PatchingDynamicModel";
 
-        reactiveDescriptorDeterminator.registerModelName(modelName);
+        doReturn(modelName).when(schemaMetaService).getSchemaNameByModel(modelName);
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
-        JsonDynamicModel saved = dynamicModelService.saveModel(patchingModel).block();
+        JsonDynamicModel saved = dynamicModelDao.create(patchingModel, patchingModel.getModelName().toLowerCase()).block();
 
         JsonNode nodePatch = createJsonNodeForString("[{\"op\":\"replace\", \"path\":\"/a\", \"value\":\"c\"}]");
         JsonPatch patch = JsonPatch.fromJson(nodePatch);
@@ -176,7 +189,14 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                     assertEquals("c", patched.getModelData().get("a"));
                 }).verifyComplete();
 
-        verify(watchService, times(1)).registerPatchOperation(any(), any());
+        ArgumentCaptor<TextWatchEvent> eventCaptor = ArgumentCaptor.forClass(TextWatchEvent.class);
+        verify(watchEventConsumer, times(1)).consume(eventCaptor.capture());
+
+        JSONArray jArray = new JSONArray(eventCaptor.getValue().getJsonPatch());
+        assertEquals(1, jArray.length());
+        assertEquals("replace", jArray.getJSONObject(0).getString("op"));
+        assertEquals("/a", jArray.getJSONObject(0).getString("path"));
+        assertEquals("c", jArray.getJSONObject(0).getString("value"));
     }
 
     @Test
@@ -189,19 +209,29 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
                 .expectError(ModelNotFoundException.class)
                 .verify();
 
-        verify(watchService, never()).registerPatchOperation(any(), any());
+        verify(watchEventConsumer, never()).consume(any());
     }
 
     @Test
-    void removeOperation_shouldRemoveModel_andReturnsWithEmptyPipe() {
+    void removeOperation_shouldRemoveModel_andReturnsWithEmptyPipe() throws JSONException {
         JsonDynamicModel model = createModel("ModelForRemove", "{\"a\":\"b\"}");
-        JsonDynamicModel savedModel = dynamicModelService.saveModel(model).block();
+        JsonDynamicModel savedModel = dynamicModelDao.create(model, model.getModelName().toLowerCase()).block();
 
         Mono<Void> result = dynamicModelEverythingManagementService.remove(savedModel.getId());
 
         StepVerifier.create(result).verifyComplete();
 
-        verify(watchService, times(1)).registerDeleteOperation(any());
+        ArgumentCaptor<TextWatchEvent> eventCaptor = ArgumentCaptor.forClass(TextWatchEvent.class);
+        verify(watchEventConsumer, times(1)).consume(eventCaptor.capture());
+
+        assertNotNull(eventCaptor.getValue());
+
+        JSONArray jArray = new JSONArray(eventCaptor.getValue().getJsonPatch());
+        assertEquals(1, jArray.length());
+
+        JSONObject op = jArray.getJSONObject(0);
+        assertEquals("remove", op.get("op"));
+        assertEquals("/", op.get("path"));
     }
 
     @Test
@@ -210,7 +240,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
         StepVerifier.create(result).verifyComplete();
 
-        verify(watchService, never()).registerDeleteOperation(any());
+        verify(watchEventConsumer, never()).consume(any());
     }
 
     private JsonDynamicModel createModel(String modelName, String stringModelData) {

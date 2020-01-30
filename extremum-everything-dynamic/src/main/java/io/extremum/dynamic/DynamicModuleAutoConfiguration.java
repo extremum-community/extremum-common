@@ -57,8 +57,9 @@ public class DynamicModuleAutoConfiguration {
     }
 
     @Bean
-    public JsonDynamicModelValidator jsonDynamicModelValidator(CachingGithubNetworkntSchemaProvider provider, ObjectMapper mapper) {
-        return new NetworkntJsonDynamicModelValidator(provider, mapper);
+    public JsonDynamicModelValidator jsonDynamicModelValidator(CachingGithubNetworkntSchemaProvider provider,
+                                                               ObjectMapper mapper, SchemaMetaService schemaMetaService) {
+        return new NetworkntJsonDynamicModelValidator(provider, mapper, schemaMetaService);
     }
 
     @Bean
@@ -74,8 +75,8 @@ public class DynamicModuleAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ReactiveDescriptorDeterminator descriptorDeterminator() {
-        return new DefaultReactiveDescriptorDeterminator();
+    public ReactiveDescriptorDeterminator descriptorDeterminator(SchemaMetaService schemaMetaService) {
+        return new DefaultReactiveDescriptorDeterminator(schemaMetaService);
     }
 
     @Bean

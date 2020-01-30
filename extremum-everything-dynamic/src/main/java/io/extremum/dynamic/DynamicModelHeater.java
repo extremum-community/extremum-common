@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DynamicModelHeater implements ApplicationListener<ContextRefreshedEvent> {
     private final CachingGithubNetworkntSchemaProvider schemaProvider;
-    private final ReactiveDescriptorDeterminator descriptorDeterminator;
     private final GithubSchemaProperties githubSchemaProperties;
 
     private volatile boolean alreadyHeated = false;
+    private final SchemaMetaService schemaMetaService;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -37,7 +37,7 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
                     log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
                             "in a descriptor determinator", loaded.getSchema());
                 } else {
-                    descriptorDeterminator.registerModelName(title.textValue());
+                    schemaMetaService.registerMapping(title.textValue(), schemaName);
                 }
             }
         }

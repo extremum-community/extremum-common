@@ -1,6 +1,8 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.dynamic.DefaultSchemaMetaService;
+import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.impl.DefaultDateTypesNormalizer;
@@ -34,5 +36,10 @@ public class JsonBasedDynamicModelServiceTestConfiguration {
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
+    }
+
+    @Bean
+    public SchemaMetaService schemaMetaService() {
+        return new DefaultSchemaMetaService();
     }
 }
