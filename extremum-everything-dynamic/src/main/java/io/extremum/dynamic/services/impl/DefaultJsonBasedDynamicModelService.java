@@ -39,8 +39,8 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     @Override
     public Mono<JsonDynamicModel> saveModelWithoutNotifications(JsonDynamicModel model) {
         return modelValidator.validate(model)
-                .flatMap(tryValidated ->
-                        tryValidated.fold(
+                .flatMap(validated ->
+                        validated.fold(
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
                         )
