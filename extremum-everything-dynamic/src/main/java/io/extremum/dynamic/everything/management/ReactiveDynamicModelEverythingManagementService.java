@@ -56,7 +56,7 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
                 .map(JsonDynamicModel::getModelData)
                 .map(data -> applyPatch(patch, data))
                 .map(applied -> new JsonDynamicModel(id, id.getModelType(), applied))
-                .flatMap(dynamicModelService::saveModel)
+                .flatMap(dynamicModelService::saveModelWithoutNotifications)
                 .flatMap(saved -> watchService.registerPatchOperation(patch, saved).thenReturn(saved))
                 .flatMap(this::convertDynamicModelToResponseDto)
                 .onErrorMap(DescriptorNotFoundException.class, cause -> {

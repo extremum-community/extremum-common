@@ -24,11 +24,17 @@ import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
 import io.extremum.watch.config.WatchConfiguration;
+import io.extremum.watch.models.TextWatchEvent;
+import io.extremum.watch.processor.WatchEventConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -89,11 +95,14 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     @MockBean
     DefaultJsonDynamicModelMetadataProvider metadataProvider;
 
-    @SpyBean
+    @Autowired
     SchemaMetaService schemaMetaService;
 
+    @MockBean
+    WatchEventConsumer watchConsumer;
+
     @Test
-    void validModelSavedInMongo() throws IOException {
+    void validModelSavedInMongo() throws IOException, JSONException {
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -121,11 +130,11 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
-
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         StepVerifier.create(saved)
                 .assertNext(m -> {
@@ -143,6 +152,15 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                         }
                 )
                 .verifyComplete();
+
+        ArgumentCaptor<TextWatchEvent> eventCaptor = ArgumentCaptor.forClass(TextWatchEvent.class);
+        verify(watchConsumer, times(1)).consume(eventCaptor.capture());
+
+        JSONArray jsonArray = new JSONArray(eventCaptor.getValue().getJsonPatch());
+        assertEquals(1, jsonArray.length());
+        JSONObject json = jsonArray.getJSONObject(0);
+        assertEquals("replace", json.getString("op"));
+        assertEquals("/", json.getString("path"));
 
         for (String dateField : Arrays.asList("fieldObject.fieldDate1", "fieldObject.fieldDate2")) {
             Iterable<Document> documents = Flux.from(operations.getCollection("complex_schema_json")
