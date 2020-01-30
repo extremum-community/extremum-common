@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static io.atlassian.fugue.Try.failure;
 import static io.atlassian.fugue.Try.successful;
+import static reactor.core.publisher.Mono.defer;
 import static reactor.core.publisher.Mono.just;
 
 @Slf4j
@@ -36,31 +37,33 @@ public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValid
 
     @Override
     public Mono<Try<ValidationContext>> validate(JsonDynamicModel model) {
-        try {
-            String schemaName = schemaMetaService.getSchemaNameByModel(model.getModelName());
+        return defer(() -> {
+            try {
+                String schemaName = schemaMetaService.getSchemaNameByModel(model.getModelName());
 
-            if (schemaName == null) {
-                throw new SchemaLoadingException("Unable to determine a schema name for model " + model.getModelName());
+                if (schemaName == null) {
+                    throw new SchemaLoadingException("Unable to determine a schema name for model " + model.getModelName());
+                }
+
+                NetworkntSchema schema = schemaProvider.loadSchema(schemaName);
+
+                Set<String> paths = new HashSet<>();
+
+                Set<ValidationMessage> validationMessages = schema.getSchema().validate(
+                        toJsonNode(model.getModelData()), createCtx(paths));
+
+                if (!validationMessages.isEmpty()) {
+                    DynamicModelValidationException ex = new DynamicModelValidationException(toViolationSet(validationMessages));
+                    log.warn("Model {} is invalid", model, ex);
+                    return just(failure(ex));
+                } else {
+                    return just(successful(new ValidationContext(paths)));
+                }
+            } catch (SchemaLoadingException e) {
+                log.error("Unable to validate a model {}: schema not found", model, e);
+                return just(failure(e));
             }
-
-            NetworkntSchema schema = schemaProvider.loadSchema(schemaName);
-
-            Set<String> paths = new HashSet<>();
-
-            Set<ValidationMessage> validationMessages = schema.getSchema().validate(
-                    toJsonNode(model.getModelData()), createCtx(paths));
-
-            if (!validationMessages.isEmpty()) {
-                DynamicModelValidationException ex = new DynamicModelValidationException(toViolationSet(validationMessages));
-                log.warn("Model {} is invalid", model, ex);
-                return just(failure(ex));
-            } else {
-                return just(successful(new ValidationContext(paths)));
-            }
-        } catch (SchemaLoadingException e) {
-            log.error("Unable to validate a model {}: schema not found", model, e);
-            return just(failure(e));
-        }
+        });
     }
 
     private JsonNode toJsonNode(Map<String, Object> data) {
