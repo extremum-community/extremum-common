@@ -82,8 +82,6 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
 
             Map<String, Object> modelData = model.getModelData();
 
-            modelData.put("_id", modelObjectId);
-
             validateServiceFields(modelData, model);
 
             Long oldDocVersion = extractVersion(modelData);
