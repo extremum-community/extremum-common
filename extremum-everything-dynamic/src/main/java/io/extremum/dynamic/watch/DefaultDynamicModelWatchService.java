@@ -81,7 +81,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
                     }
 
                     try {
-                        String jsonPatchString = constructFullReplaceJsonPatch(model);
+                        String jsonPatchString = constructFullReplaceJsonPatch(model.getModelData());
                         TextWatchEvent event = new TextWatchEvent(jsonPatchString, internalId, model);
                         watchEventConsumer.consume(event);
                     } catch (Exception e) {
@@ -95,7 +95,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
         return serializeSingleOperationPatch(operation);
     }
 
-    private String constructFullReplaceJsonPatch(JsonDynamicModel model) throws JsonProcessingException {
+    private String constructFullReplaceJsonPatch(Object model) throws JsonProcessingException {
         ReplaceOperation operation = new ReplaceOperation(rootPointer(), new POJONode(model));
         return serializeSingleOperationPatch(operation);
     }
