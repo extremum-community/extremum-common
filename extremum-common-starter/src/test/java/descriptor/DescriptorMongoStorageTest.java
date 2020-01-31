@@ -1,10 +1,10 @@
 package descriptor;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.test.TestWithServices;
 import com.mongodb.client.model.Filters;
 import config.DescriptorConfiguration;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.common.test.TestWithServices;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -50,12 +50,6 @@ class DescriptorMongoStorageTest extends TestWithServices {
 
         Document document = findDescriptorDocument(descriptor);
         assertThat(document.get("_id"), is(descriptor.getExternalId()));
-    }
-
-    @Test
-    void xxx() {
-        mongoOperations.createCollection("abc");
-        mongoOperations.createCollection("abc");
     }
 
     private Document findDescriptorDocument(Descriptor descriptor) {
