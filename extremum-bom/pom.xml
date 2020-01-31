@@ -96,6 +96,11 @@
                 <artifactId>extremum-annotations</artifactId>
                 <version>1.0.17-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-everything-dynamic</artifactId>
+                <version>1.0.17-SNAPSHOT</version>
+            </dependency>
 
             <!-- Adding this BEFORE importing spring-boot-dependencies so that our versions win -->
             <dependency>
