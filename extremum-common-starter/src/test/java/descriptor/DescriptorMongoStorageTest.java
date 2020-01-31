@@ -52,6 +52,12 @@ class DescriptorMongoStorageTest extends TestWithServices {
         assertThat(document.get("_id"), is(descriptor.getExternalId()));
     }
 
+    @Test
+    void xxx() {
+        mongoOperations.createCollection("abc");
+        mongoOperations.createCollection("abc");
+    }
+
     private Document findDescriptorDocument(Descriptor descriptor) {
         List<Document> documents = mongoOperations.getCollection(EXPECTED_DESCRIPTOR_COLLECTION)
                 .find(Filters.eq("_id", descriptor.getExternalId()))
