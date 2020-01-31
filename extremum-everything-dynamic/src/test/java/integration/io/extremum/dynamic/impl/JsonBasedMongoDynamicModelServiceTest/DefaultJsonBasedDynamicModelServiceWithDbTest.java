@@ -452,7 +452,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         StepVerifier.create(presentedInDb)
                 .assertNext(removed -> {
-                    assertEquals(1, (int) removed.get(deleted.name()));
+                    assertTrue(removed.getBoolean(deleted.name()));
                 }).verifyComplete();
 
         Mono<JsonDynamicModel> findById = service.findById(saved.getId());

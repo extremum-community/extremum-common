@@ -152,7 +152,7 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
                         and(
                                 eq("_id", new ObjectId(id.getInternalId())),
                                 or(
-                                        eq(deleted.name(), 0),
+                                        eq(deleted.name(), false),
                                         exists(deleted.name(), false)
                                 )
                         )
@@ -176,11 +176,11 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
                         and(
                                 eq("_id", new ObjectId(id.getInternalId())),
                                 or(
-                                        eq(deleted.name(), 0),
+                                        eq(deleted.name(), false),
                                         exists(deleted.name(), false)
                                 )
                         ),
-                        set(deleted.name(), 1)
+                        set(deleted.name(), true)
                 );
 
         return Mono.from(result).then();
