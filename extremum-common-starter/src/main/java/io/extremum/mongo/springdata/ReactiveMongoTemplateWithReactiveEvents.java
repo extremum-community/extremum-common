@@ -6,6 +6,7 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.Document;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.FindPublisherPreparer;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoWriter;
@@ -13,7 +14,6 @@ import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.MongoMappingEvent;
-import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
@@ -117,8 +117,8 @@ public class ReactiveMongoTemplateWithReactiveEvents extends ReactiveMongoTempla
 
     @Override
     protected <T> Mono<T> doFindOne(String collectionName, Document query, @Nullable Document fields,
-                                    Class<T> entityClass, @Nullable Collation collation) {
-        Mono<T> result = super.doFindOne(collectionName, query, fields, entityClass, collation);
+                                    Class<T> entityClass, FindPublisherPreparer preparer) {
+        Mono<T> result = super.doFindOne(collectionName, query, fields, entityClass, preparer);
         return wrapOneInAfterConvertEvent(result, collectionName);
     }
 
