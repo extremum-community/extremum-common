@@ -36,12 +36,24 @@ public class SpringDataUniversalDao implements UniversalDao {
 
     @Override
     public <T> CollectionFragment<T> retrieveByIds(List<?> ids, Class<T> classOfElement, Projection projection) {
-        Query query = criteriaToSearchByIds(ids, projection);
-
-        List<T> elements = mongoOperations.find(query, classOfElement);
-        long count = mongoOperations.count(query, classOfElement);
+        List<T> elements = mongoOperations.find(criteriaToSearchByIdsWithSortAndPaging(ids, projection), classOfElement);
+        long count = mongoOperations.count(criteriaToSearchByIds(ids, projection), classOfElement);
 
         return CollectionFragment.forFragment(elements, count);
+    }
+
+    private Query criteriaToSearchByIdsWithSortAndPaging(List<?> ids, Projection projection) {
+        Query query = criteriaToSearchByIds(ids, projection);
+
+        projection.getLimit().ifPresent(query::limit);
+        projection.getOffset().ifPresent(query::skip);
+
+        query.with(Sort.by(
+                Order.by(CREATED),
+                Order.by(PersistableCommonModel.FIELDS.id.name())
+        ));
+
+        return query;
     }
 
     private Query criteriaToSearchByIds(List<?> ids, Projection projection) {
@@ -53,20 +65,12 @@ public class SpringDataUniversalDao implements UniversalDao {
         projection.getSince().ifPresent(since -> criteria.add(where(CREATED).gte(since)));
         projection.getUntil().ifPresent(until -> criteria.add(where(CREATED).lte(until)));
 
-        Query query = new Query(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
-        projection.getLimit().ifPresent(query::limit);
-        projection.getOffset().ifPresent(query::skip);
-
-        query.with(Sort.by(
-                Order.by(CREATED),
-                Order.by(PersistableCommonModel.FIELDS.id.name())
-        ));
-        return query;
+        return new Query(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
     }
 
     @Override
     public <T> Flux<T> streamByIds(List<?> ids, Class<T> classOfElement, Projection projection) {
-        Query query = criteriaToSearchByIds(ids, projection);
+        Query query = criteriaToSearchByIdsWithSortAndPaging(ids, projection);
         return reactiveMongoOperations.find(query, classOfElement);
     }
 }
