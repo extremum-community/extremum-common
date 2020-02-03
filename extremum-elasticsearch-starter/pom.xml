@@ -69,6 +69,14 @@
                     <groupId>net.java.dev.jna</groupId>
                     <artifactId>jna</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
     </dependencies>

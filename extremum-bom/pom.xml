@@ -213,9 +213,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>javax.el</artifactId>
-                <version>3.0.0</version>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>17.0.0</version>
             </dependency>
 
             <dependency>
