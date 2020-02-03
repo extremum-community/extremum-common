@@ -1,6 +1,6 @@
 package io.extremum.dynamic.dao;
 
-import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.utils.DateUtils;
@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.set;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -147,7 +148,15 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
     @Override
     public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
         FindPublisher<Document> p = mongoOperations.getCollection(collectionName)
-                .find(eq("_id", new ObjectId(id.getInternalId())));
+                .find(
+                        and(
+                                eq("_id", new ObjectId(id.getInternalId())),
+                                or(
+                                        eq(deleted.name(), false),
+                                        exists(deleted.name(), false)
+                                )
+                        )
+                );
 
         return from(p)
                 .flatMap(doc ->
@@ -162,10 +171,19 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
 
     @Override
     public Mono<Void> remove(Descriptor id, String collectionName) {
-        Publisher<DeleteResult> deleteResultPublisher = mongoOperations.getCollection(collectionName)
-                .deleteOne(eq("_id", new ObjectId(id.getInternalId())));
+        Publisher<UpdateResult> result = mongoOperations.getCollection(collectionName)
+                .updateOne(
+                        and(
+                                eq("_id", new ObjectId(id.getInternalId())),
+                                or(
+                                        eq(deleted.name(), false),
+                                        exists(deleted.name(), false)
+                                )
+                        ),
+                        set(deleted.name(), true)
+                );
 
-        return Mono.from(deleteResultPublisher).then();
+        return Mono.from(result).then();
     }
 
     private Mono<Descriptor> createNewDescriptor(JsonDynamicModel model) {

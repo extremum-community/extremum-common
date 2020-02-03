@@ -32,10 +32,11 @@ import org.bson.types.ObjectId;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.stubbing.Answer;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
@@ -59,6 +60,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import static io.extremum.common.utils.DateUtils.parseZonedDateTimeFromISO_8601;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -309,7 +311,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void modelSaved_withFields_create_modified_version() throws IOException {
+    void modelSaved_withFields_create_modified_version__and__without_deleted() throws IOException {
         NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
         JsonSchema jsonSchemaMock = mock(JsonSchema.class);
 
@@ -333,6 +335,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
         String modified = (String) saved.getModelData().get(Model.FIELDS.model.name());
 
+        assertFalse(saved.getModelData().containsKey(deleted.name()));
         assertNotNull(created);
         assertNotNull(modified);
         assertNotNull(saved.getModelData().get(Model.FIELDS.version.name()));
@@ -365,7 +368,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
 
         JsonDynamicModel saved = service.saveModel(model).block();
-
 
         String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
         String modifiedWhenCreated = (String) saved.getModelData().get(Model.FIELDS.modified.name());
@@ -419,7 +421,48 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                 .verify();
     }
 
-    private Map<String, Object> toMap(@Language("JSON") String stringData) throws IOException {
+    @Test
+    void deleteModel_changeDeletedFlagOnly() throws IOException {
+        doAnswer(new ReturnsArgumentAt(0)).when(metadataProvider).provideMetadata(any());
+        NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
+        JsonSchema jsonSchemaMock = mock(JsonSchema.class);
+
+        doReturn(Collections.emptySet())
+                .when(jsonSchemaMock).validate(any(), any());
+
+        doReturn(jsonSchemaMock)
+                .when(networkntSchemaMock).getSchema();
+
+        doReturn(Optional.of(networkntSchemaMock))
+                .when(networkntCacheManager).fetchFromCache(anyString());
+
+        Map<String, Object> data = toMap("{\"a\":  \"b\"}");
+
+        JsonDynamicModel model = new JsonDynamicModel("dynmodel", data);
+
+        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        JsonDynamicModel saved = service.saveModel(model).block();
+
+        JsonDynamicModel removedModel = service.remove(saved.getId()).block();
+        assertNotNull(removedModel);
+
+        Publisher<Document> presentedInDb = operations.getCollection("dynmodel")
+                .find(new Document("_id", new ObjectId(saved.getId().getInternalId())))
+                .first();
+
+        StepVerifier.create(presentedInDb)
+                .assertNext(removed -> {
+                    assertTrue(removed.getBoolean(deleted.name()));
+                }).verifyComplete();
+
+        Mono<JsonDynamicModel> findById = service.findById(saved.getId());
+
+        StepVerifier.create(findById)
+                .expectError(ModelNotFoundException.class)
+                .verify();
+    }
+
+    private Map<String, Object> toMap(String stringData) throws IOException {
         JsonNode node = mapper.readValue(stringData, JsonNode.class);
         return mapper.convertValue(node, new TypeReference<Map<String, Object>>() {
         });

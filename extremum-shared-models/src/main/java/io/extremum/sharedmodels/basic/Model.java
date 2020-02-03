@@ -11,6 +11,6 @@ public interface Model extends Serializable {
     }
 
     enum FIELDS {
-        created, modified, version, model
+        created, modified, version, model, deleted
     }
 }

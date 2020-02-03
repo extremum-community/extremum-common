@@ -17,6 +17,7 @@ import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,6 +27,7 @@ import java.util.Collection;
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty("github.schema.owner")
 @EnableConfigurationProperties({GithubSchemaProperties.class})
 @ComponentScan(basePackages = "io.extremum.dynamic")
 public class DynamicModuleAutoConfiguration {
