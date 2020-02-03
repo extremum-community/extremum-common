@@ -1,6 +1,7 @@
 package io.extremum.common.repository;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
@@ -23,9 +24,11 @@ class ExpressionsSupportingAnnotationRepositoryConfigurationSource extends Annot
 
     private final Environment environment;
 
-    ExpressionsSupportingAnnotationRepositoryConfigurationSource(AnnotationMetadata metadata, Class<? extends Annotation> annotation,
-            ResourceLoader resourceLoader, Environment environment, BeanDefinitionRegistry registry) {
-        super(metadata, annotation, resourceLoader, environment, registry);
+    ExpressionsSupportingAnnotationRepositoryConfigurationSource(
+            AnnotationMetadata metadata, Class<? extends Annotation> annotation,
+            ResourceLoader resourceLoader, Environment environment, BeanDefinitionRegistry registry,
+            BeanNameGenerator generator) {
+        super(metadata, annotation, resourceLoader, environment, registry, generator);
 
         this.environment = environment;
     }

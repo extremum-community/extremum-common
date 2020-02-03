@@ -18,7 +18,7 @@
     </description>
 
     <properties>
-        <spring-boot-dependencies.version>2.1.3.RELEASE</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>2.2.4.RELEASE</spring-boot-dependencies.version>
         <elasticsearch.version>7.1.0</elasticsearch.version>
         <testcontainers.version>1.11.3</testcontainers.version>
         <mock-server.client.version>5.5.1</mock-server.client.version>
@@ -103,16 +103,20 @@
             </dependency>
 
             <!-- Adding this BEFORE importing spring-boot-dependencies so that our versions win -->
+<!--
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>
                 <version>3.2.0.RELEASE</version>
             </dependency>
+-->
+<!--
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>
                 <version>2.1.5.RELEASE</version>
             </dependency>
+-->
 
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
@@ -185,6 +189,36 @@
             </dependency>
 
             <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.23</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>1.0.29_patch_1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.konghq</groupId>
+                <artifactId>unirest-java</artifactId>
+                <version>3.3.00</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.atlassian.fugue</groupId>
+                <artifactId>fugue</artifactId>
+                <version>4.7.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
@@ -212,30 +246,6 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${testcontainers.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>1.5.23</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>json-schema-validator</artifactId>
-                <version>1.0.29_patch_1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.konghq</groupId>
-                <artifactId>unirest-java</artifactId>
-                <version>3.3.00</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.atlassian.fugue</groupId>
-                <artifactId>fugue</artifactId>
-                <version>4.7.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

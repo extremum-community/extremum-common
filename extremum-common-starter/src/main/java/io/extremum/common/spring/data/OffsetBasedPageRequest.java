@@ -48,7 +48,7 @@ public class OffsetBasedPageRequest implements Pageable, Serializable {
      * @param properties the properties to sort by, must not be {@literal null} or empty.
      */
     public OffsetBasedPageRequest(long offset, int limit, Sort.Direction direction, String... properties) {
-        this(offset, limit, new Sort(direction, properties));
+        this(offset, limit, Sort.by(direction, properties));
     }
 
     /**
@@ -58,7 +58,7 @@ public class OffsetBasedPageRequest implements Pageable, Serializable {
      * @param limit  the size of the elements to be returned.
      */
     public OffsetBasedPageRequest(long offset, int limit) {
-        this(offset, limit, new Sort(Sort.Direction.ASC,"id"));
+        this(offset, limit, Sort.by(Sort.Direction.ASC, "id"));
     }
 
     @Override

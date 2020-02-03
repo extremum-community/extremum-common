@@ -55,7 +55,7 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
             QueryMethodEvaluationContextProvider evaluationContextProvider) {
         if (isSoftDelete()) {
             Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
-            return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy);
+            return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy, evaluationContextProvider);
         } else {
             return super.getQueryLookupStrategy(key, evaluationContextProvider);
         }

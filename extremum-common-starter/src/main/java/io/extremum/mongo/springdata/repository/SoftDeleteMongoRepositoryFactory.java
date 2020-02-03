@@ -28,7 +28,7 @@ public class SoftDeleteMongoRepositoryFactory extends MongoRepositoryFactory {
     protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
             QueryMethodEvaluationContextProvider evaluationContextProvider) {
         Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
-        return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy);
+        return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy, evaluationContextProvider);
     }
 
 }
