@@ -191,7 +191,9 @@ class MongoCommonDaoTest extends TestWithServices {
 
         assertThat(dao.findAll(Sort.by("id")), hasSize(count));
 
-        assertThat(dao.findAll(Pageable.unpaged()).getTotalElements(), is((long) count));
+        Page<TestMongoModel> page = dao.findAll(Pageable.unpaged());
+        assertThat(page.getTotalElements(), is((long) count));
+        assertThat(page.getContent(), hasSize(count));
     }
 
     @Test
