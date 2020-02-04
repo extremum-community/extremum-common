@@ -7,6 +7,7 @@ import io.extremum.elasticsearch.SoftDeletion;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
@@ -15,6 +16,7 @@ import org.springframework.data.elasticsearch.repository.support.ElasticsearchEn
 import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,6 +57,16 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     @Override
     public Page<T> search(SearchQuery query) {
         return super.search(new NonDeletedSearchQuery(query));
+    }
+
+    @Override
+    public Page<T> searchSimilar(T entity, String[] fields, Pageable pageable) {
+        // TODO: can we do it better to filter on the server side?
+        Page<T> page = super.searchSimilar(entity, fields, pageable);
+        List<T> list = page.stream()
+                .filter(PersistableCommonModel::isNotDeleted)
+                .collect(Collectors.toList());
+        return new PageImpl<T>(list, page.getPageable(), page.getTotalElements());
     }
 
     @Override
