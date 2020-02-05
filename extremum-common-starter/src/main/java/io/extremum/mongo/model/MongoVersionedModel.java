@@ -18,9 +18,12 @@ import java.time.ZonedDateTime;
 @CompoundIndexes({
         @CompoundIndex(def = "{'lineageId': 1, 'start': 1, 'end': 1}", name = "lineageId_start_end"),
         @CompoundIndex(def = "{'lineageId': 1, 'currentSnapshot': 1}", name = "lineageId_currentSnapshot"),
-        @CompoundIndex(def = "{'lineageId': 1, 'version': 1}", unique = true, name = "lineageId_version")
+        @CompoundIndex(def = "{'lineageId': 1, 'version': 1}", unique = true,
+                name = MongoVersionedModel.INDEX_BY_LINEAGEID_VERSION)
 })
 public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
+    public static final String INDEX_BY_LINEAGEID_VERSION = "lineageId_version";
+
     @Transient
     private Descriptor uuid;
 
