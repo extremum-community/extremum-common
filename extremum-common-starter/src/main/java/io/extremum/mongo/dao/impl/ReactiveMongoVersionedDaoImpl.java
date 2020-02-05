@@ -6,6 +6,7 @@ import io.extremum.mongo.MongoConstants;
 import io.extremum.mongo.dao.ReactiveMongoVersionedDao;
 import io.extremum.mongo.model.MongoVersionedModel;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
@@ -108,7 +109,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
 
     private <N extends M> Mono<N> addNextSnapshot(N newSnapshot, M currentSnapshot) {
         if (versionDiffers(newSnapshot, currentSnapshot)) {
-            return Mono.error(versionDiffersOptimistickLockingException(newSnapshot, currentSnapshot));
+            return Mono.error(versionDiffersOptimisticLockingException(newSnapshot, currentSnapshot));
         }
 
         prepareCurrentAndNextSnapshots(newSnapshot, currentSnapshot);
@@ -120,7 +121,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
         return !Objects.equals(currentSnapshot.getVersion(), model.getVersion());
     }
 
-    private <N extends M> Exception versionDiffersOptimistickLockingException(N newSnapshot, M currentSnapshot) {
+    private <N extends M> Exception versionDiffersOptimisticLockingException(N newSnapshot, M currentSnapshot) {
         return new OptimisticLockingFailureException(
                 String.format("Trying to save a model with lineageId '%s' and version '%s' while it's already '%s'",
                         newSnapshot.getLineageId(), newSnapshot.getVersion(), currentSnapshot.getVersion()));
@@ -145,10 +146,27 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     private <N extends M> Mono<N> saveOldSnapshotAndInsertNewSnapshot(N nextSnapshot, M currentSnapshot) {
-        return reactiveMongoOperations.inTransaction().execute(sessionBound -> {
-            return sessionBound.save(currentSnapshot)
-                    .then(sessionBound.insert(nextSnapshot));
-        }).then(Mono.just(nextSnapshot));
+        return reactiveMongoOperations.inTransaction()
+                .execute(sessionBound -> {
+                    return sessionBound.save(currentSnapshot)
+                            .then(sessionBound.insert(nextSnapshot));
+                })
+                .then(Mono.just(nextSnapshot))
+                .onErrorMap(DuplicateKeyException.class, e -> {
+                    if (e.getMessage() != null
+                            && e.getMessage().contains(MongoVersionedModel.INDEX_BY_LINEAGEID_VERSION)) {
+                        return versionAlreadyExistsOptimisticLockingException(nextSnapshot, e);
+                    }
+                    return e;
+                });
+    }
+
+    private <N extends M> Throwable versionAlreadyExistsOptimisticLockingException(N nextSnapshot,
+            DuplicateKeyException ex) {
+        String format = "Trying to save a model with lineageId '%s' and version '%s' while someone has already " +
+                "created this version";
+        return new OptimisticLockingFailureException(
+                String.format(format, nextSnapshot.getLineageId(), nextSnapshot.getVersion()), ex);
     }
 
     @Override

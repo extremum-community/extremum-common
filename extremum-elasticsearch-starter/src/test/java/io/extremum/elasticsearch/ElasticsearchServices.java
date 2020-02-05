@@ -35,12 +35,19 @@ class ElasticsearchServices extends CoreServices {
 
     private static void startElasticsearch() {
         ElasticsearchContainer elasticSearch = new ElasticsearchContainer("elasticsearch:7.1.0");
+        defineMildFloodingRestrictions(elasticSearch);
         elasticSearch.start();
 
         setElasticsearchEndpointProperties(elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
 
         LOGGER.info("Elasticsearch host:port are {}:{}",
                 elasticSearch.getContainerIpAddress(), elasticSearch.getFirstMappedPort());
+    }
+
+    private static void defineMildFloodingRestrictions(ElasticsearchContainer elasticSearch) {
+        elasticSearch.withEnv("cluster.routing.allocation.disk.watermark.low", "1gb");
+        elasticSearch.withEnv("cluster.routing.allocation.disk.watermark.high", "1gb");
+        elasticSearch.withEnv("cluster.routing.allocation.disk.watermark.flood_stage", "1gb");
     }
 
     private static void setElasticsearchEndpointProperties(String host, Integer port) {
