@@ -2,7 +2,7 @@ package io.extremum.dynamic.services.impl;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.dao.DynamicModelDao;
-import io.extremum.dynamic.metadata.MetadataProviderService;
+import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
@@ -31,7 +31,7 @@ import static reactor.core.publisher.Mono.*;
 public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicModelService {
     private final DynamicModelDao<JsonDynamicModel> dao;
     private final JsonDynamicModelValidator modelValidator;
-    private final MetadataProviderService metadataProvider;
+    private final DefaultJsonDynamicModelMetadataProvider metadataProvider;
     private final DateTypesNormalizer dateTypesNormalizer;
     private final DatesProcessor datesProcessor;
     private final DynamicModelWatchService watchService;
@@ -43,8 +43,9 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                         validated.fold(
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
-                        )
-                ).map(m -> {
+                        ))
+                .map(this::removeSensetive)
+                .map(m -> {
                     datesProcessor.processDates(m.getModelData());
                     return m;
                 });
@@ -53,6 +54,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
         return saveModelWithoutNotifications(model)
+                .map(this::removeSensetive)
                 .flatMap(savedModel ->
                         watchService.registerSaveOperation(savedModel)
                                 .thenReturn(savedModel));
@@ -106,8 +108,16 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
         return getCollectionName(id)
                 .flatMap(cName -> dao.getByIdFromCollection(id, cName))
                 .map(normalize())
-                .doOnNext(metadataProvider::provideMetadata)
+                .map(metadataProvider::provideMetadata)
                 .switchIfEmpty(defer(() -> error(new ModelNotFoundException("DynamicModel with id " + id + " not found"))));
+    }
+
+    private JsonDynamicModel removeSensetive(JsonDynamicModel model) {
+        if (model.getModelData() != null) {
+            model.getModelData().remove("_id");
+        }
+
+        return model;
     }
 
     @Override
