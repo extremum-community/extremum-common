@@ -11,7 +11,9 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
+import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import java.lang.reflect.Method;
 
@@ -21,12 +23,16 @@ import java.lang.reflect.Method;
 public class SoftDeleteReactiveMongoQueryLookupStrategy implements QueryLookupStrategy {
     private final QueryLookupStrategy strategy;
     private final ReactiveMongoOperations mongoOperations;
+    private final QueryMethodEvaluationContextProvider evaluationContextProvider;
     private final SoftDeletion softDeletion = new SoftDeletion();
 
+    private static final SpelExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
+
     public SoftDeleteReactiveMongoQueryLookupStrategy(QueryLookupStrategy strategy,
-                                                      ReactiveMongoOperations mongoOperations) {
+            ReactiveMongoOperations mongoOperations, QueryMethodEvaluationContextProvider evaluationContextProvider) {
         this.strategy = strategy;
         this.mongoOperations = mongoOperations;
+        this.evaluationContextProvider = evaluationContextProvider;
     }
 
     @Override
@@ -48,7 +54,8 @@ public class SoftDeleteReactiveMongoQueryLookupStrategy implements QueryLookupSt
 
     private class SoftDeleteReactivePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
         SoftDeleteReactivePartTreeMongoQuery(ReactivePartTreeMongoQuery partTreeQuery) {
-            super((ReactiveMongoQueryMethod) partTreeQuery.getQueryMethod(), mongoOperations);
+            super((ReactiveMongoQueryMethod) partTreeQuery.getQueryMethod(), mongoOperations,
+                    EXPRESSION_PARSER, evaluationContextProvider);
         }
 
         @Override

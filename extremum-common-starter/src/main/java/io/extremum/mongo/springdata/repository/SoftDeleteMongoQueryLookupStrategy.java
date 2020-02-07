@@ -10,7 +10,9 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
+import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import java.lang.reflect.Method;
 
@@ -20,12 +22,18 @@ import java.lang.reflect.Method;
 public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
     private final QueryLookupStrategy strategy;
     private final MongoOperations mongoOperations;
+    private final QueryMethodEvaluationContextProvider evaluationContextProvider;
+
     private final SoftDeletion softDeletion = new SoftDeletion();
 
+    private static final SpelExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
+
     public SoftDeleteMongoQueryLookupStrategy(QueryLookupStrategy strategy,
-            MongoOperations mongoOperations) {
+            MongoOperations mongoOperations,
+            QueryMethodEvaluationContextProvider evaluationContextProvider) {
         this.strategy = strategy;
         this.mongoOperations = mongoOperations;
+        this.evaluationContextProvider = evaluationContextProvider;
     }
 
     @Override
@@ -47,7 +55,7 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
 
     private class SoftDeletePartTreeMongoQuery extends PartTreeMongoQuery {
         SoftDeletePartTreeMongoQuery(PartTreeMongoQuery partTreeQuery) {
-            super(partTreeQuery.getQueryMethod(), mongoOperations);
+            super(partTreeQuery.getQueryMethod(), mongoOperations, EXPRESSION_PARSER, evaluationContextProvider);
         }
 
         @Override

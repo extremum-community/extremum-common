@@ -22,9 +22,10 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import static io.extremum.dynamic.TestUtils.convertInputStreamToString;
-import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
 class UnirestExternalResourceLoaderTest {
@@ -44,8 +45,6 @@ class UnirestExternalResourceLoaderTest {
     @Test
     void loadResource() throws ResourceLoadingException {
         String path = "/path/to/resource";
-        InputStream is = loadResourceAsInputStream(this.getClass().getClassLoader(), "test.file.txt");
-        String resource = convertInputStreamToString(is);
 
         msClient.reset();
         msClient.when(
@@ -54,7 +53,7 @@ class UnirestExternalResourceLoaderTest {
                         .withPath(path)
         ).respond(
                 HttpResponse.response()
-                        .withBody(resource)
+                        .withBody("abcd")
         );
 
         ResourceLoader loader = new UnirestExternalResourceLoader();
@@ -64,7 +63,7 @@ class UnirestExternalResourceLoaderTest {
 
         String response = convertInputStreamToString(responseIS);
 
-        assertEquals(resource, response);
+        assertEquals("abcd", response);
     }
 
     @Test
@@ -166,7 +165,7 @@ class UnirestExternalResourceLoaderTest {
     }
 
     private String createUriToMockServer(String path) {
-        return format("http://%s:%d/%s",
+        return format("http://%s:%d%s",
                 mockServer.getContainerIpAddress(), mockServer.getServerPort(), path);
     }
 }

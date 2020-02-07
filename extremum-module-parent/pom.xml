@@ -52,6 +52,20 @@
                 <configuration>
                     <rules>
                         <banDuplicatePomDependencyVersions />
+                        <bannedDependencies>
+                            <excludes>
+                                <!-- because it is now jakarta.annotation:jakarta.annotation-api -->
+                                <exclude>javax.annotation:javax.annotation-api</exclude>
+                                <!-- because it is now jakarta.activation:jakarta.activation-api -->
+                                <exclude>javax.activation:javax.activation-api</exclude>
+                                <!-- because it is now jakarta.xml.bind:jakarta.xml.bind-api -->
+                                <exclude>javax.xml.bind:jaxb-api</exclude>
+                                <!-- because it is now jakarta.validation:jakarta.validation-api -->
+                                <exclude>javax.validation:validation-api</exclude>
+                                <!-- because it is now org.glassfish:jakarta.el -->
+                                <exclude>org.glassfish:javax.el</exclude>
+                            </excludes>
+                        </bannedDependencies>
                         <banDuplicateClasses>
                             <findAllDuplicates>true</findAllDuplicates>
                             <dependencies />

@@ -6,10 +6,7 @@ import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.mongo.SoftDeletion;
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -106,6 +103,13 @@ public class SoftDeleteMongoRepository<T extends MongoCommonModel> extends BaseM
     @Override
     public List<T> findAll(Sort sort) {
         return findAllByQuery(notDeletedQuery().with(sort));
+    }
+
+    @Override
+    public Page<T> findAll(Pageable pageable) {
+        List<T> list = findAllByQuery(notDeletedQuery().with(pageable));
+        long count = count();
+        return new PageImpl<>(list, pageable, count);
     }
 
     @Override

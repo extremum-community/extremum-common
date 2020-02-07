@@ -58,6 +58,11 @@
             <artifactId>json-patch</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
         <!-- testing dependencies-->
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -74,6 +79,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -97,6 +103,10 @@
                 <exclusion>
                     <groupId>com.github.java-json-tools</groupId>
                     <artifactId>jackson-coreutils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
                 </exclusion>
             </exclusions>
             <scope>test</scope>
