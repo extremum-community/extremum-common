@@ -16,7 +16,7 @@ import java.util.Map;
 public class ReactiveDynamicModelRestController implements DynamicModelRestController {
     private final JsonBasedDynamicModelService dynamicModelService;
 
-    @PostMapping("{modelName}")
+    @PostMapping("/{modelName}")
     public Mono<Response> createDynamicModel(@PathVariable String modelName, @RequestBody Map<String, Object> data) {
         return dynamicModelService.saveModel(new JsonDynamicModel(modelName, data))
                 .map(Response::ok)

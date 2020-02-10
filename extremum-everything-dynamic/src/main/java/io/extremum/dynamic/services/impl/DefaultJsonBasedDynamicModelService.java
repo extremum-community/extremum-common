@@ -2,7 +2,7 @@ package io.extremum.dynamic.services.impl;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.dao.DynamicModelDao;
-import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
+import io.extremum.dynamic.metadata.MetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
@@ -31,7 +31,7 @@ import static reactor.core.publisher.Mono.*;
 public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicModelService {
     private final DynamicModelDao<JsonDynamicModel> dao;
     private final JsonDynamicModelValidator modelValidator;
-    private final DefaultDynamicModelMetadataProviderService metadataProvider;
+    private final MetadataProviderService metadataProvider;
     private final DateTypesNormalizer dateTypesNormalizer;
     private final DatesProcessor datesProcessor;
     private final DynamicModelWatchService watchService;

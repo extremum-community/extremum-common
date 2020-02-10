@@ -3,7 +3,7 @@ package io.extremum.dynamic;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
-import io.extremum.dynamic.schema.provider.networknt.caching.impl.CachingGithubNetworkntSchemaProvider;
+import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class DynamicModelHeater implements ApplicationListener<ContextRefreshedEvent> {
-    private final CachingGithubNetworkntSchemaProvider schemaProvider;
+    private final NetworkntSchemaProvider schemaProvider;
     private final GithubSchemaProperties githubSchemaProperties;
 
     private volatile boolean alreadyHeated = false;

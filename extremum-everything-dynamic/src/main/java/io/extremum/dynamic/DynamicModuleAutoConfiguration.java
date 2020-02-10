@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.dynamic.resources.github.GithubAccessOptions;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
 import io.extremum.dynamic.schema.JsonSchemaType;
+import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.caching.impl.CachingGithubNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.impl.MemoryNetworkntCacheManager;
@@ -32,12 +33,14 @@ import java.util.Collection;
 @ComponentScan(basePackages = "io.extremum.dynamic")
 public class DynamicModuleAutoConfiguration {
     @Bean
+    @ConditionalOnMissingBean
     public NetworkntCacheManager networkntCacheManager() {
         return new MemoryNetworkntCacheManager();
     }
 
     @Bean
-    public GithubNetworkntSchemaProvider githubNetworkntSchemaProvider(GithubSchemaProperties githubSchemaProperties) {
+    @ConditionalOnMissingBean
+    public NetworkntSchemaProvider networkntSchemaProvider(GithubSchemaProperties githubSchemaProperties, NetworkntCacheManager cacheManager) {
         GithubResourceConfiguration githubResConfig = new GithubResourceConfiguration(
                 githubSchemaProperties.getOwner(),
                 githubSchemaProperties.getRepo(),
@@ -49,17 +52,20 @@ public class DynamicModuleAutoConfiguration {
                 githubSchemaProperties.getToken()
         );
 
-        return new GithubNetworkntSchemaProvider(JsonSchemaType.V2019_09, githubResConfig, githubAccessOpts);
+        GithubNetworkntSchemaProvider githubNetworkntSchemaProvider = new GithubNetworkntSchemaProvider(JsonSchemaType.V2019_09, githubResConfig, githubAccessOpts);
+
+        return new CachingGithubNetworkntSchemaProvider(cacheManager, githubNetworkntSchemaProvider);
     }
 
     @Bean
-    public CachingGithubNetworkntSchemaProvider cachingGithubNetworkntSchemaProvider(NetworkntCacheManager schemaCacheManager,
-                                                                                     GithubNetworkntSchemaProvider githubSchemaProvider) {
-        return new CachingGithubNetworkntSchemaProvider(schemaCacheManager, githubSchemaProvider);
+    @ConditionalOnMissingBean
+    public SchemaMetaService schemaMetaService() {
+        return new DefaultSchemaMetaService();
     }
 
     @Bean
-    public JsonDynamicModelValidator jsonDynamicModelValidator(CachingGithubNetworkntSchemaProvider provider,
+    @ConditionalOnMissingBean
+    public JsonDynamicModelValidator jsonDynamicModelValidator(NetworkntSchemaProvider provider,
                                                                ObjectMapper mapper, SchemaMetaService schemaMetaService) {
         return new NetworkntJsonDynamicModelValidator(provider, mapper, schemaMetaService);
     }

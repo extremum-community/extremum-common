@@ -9,7 +9,7 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
 import io.extremum.dynamic.SchemaMetaService;
-import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
+import io.extremum.dynamic.metadata.MetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
@@ -93,7 +93,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     NetworkntCacheManager networkntCacheManager;
 
     @MockBean
-    DefaultDynamicModelMetadataProviderService metadataProvider;
+    MetadataProviderService metadataProvider;
 
     @Autowired
     SchemaMetaService schemaMetaService;
