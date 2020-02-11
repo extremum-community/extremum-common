@@ -4,7 +4,6 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.MongoConstants;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
