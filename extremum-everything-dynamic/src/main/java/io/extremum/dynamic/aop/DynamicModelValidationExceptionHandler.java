@@ -14,7 +14,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @RestControllerAdvice
-public class ValidationExceptionHandler {
+public class DynamicModelValidationExceptionHandler {
     @ExceptionHandler(DynamicModelValidationException.class)
     public Mono<Response> handleDynamicModelValidationException(DynamicModelValidationException e) {
         List<Alert> alerts = e.getViolations().stream()
