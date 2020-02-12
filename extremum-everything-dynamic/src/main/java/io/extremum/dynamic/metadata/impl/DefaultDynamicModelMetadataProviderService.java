@@ -16,7 +16,7 @@ public class DefaultDynamicModelMetadataProviderService implements MetadataProvi
     @Override
     public <T> void provideMetadata(DynamicModel<T> dynamicModel) {
         metadataSuppliers.stream()
-                .filter(u -> u.isSupports(dynamicModel.getModelName()))
+                .filter(u -> u.supports(dynamicModel.getModelName()))
                 .forEach(u -> u.process(dynamicModel));
     }
 }

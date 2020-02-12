@@ -25,8 +25,8 @@ class DefaultDynamicModelMetadataSupplierServiceTest {
 
         providerService.provideMetadata(model);
 
-        verify(validSupplier, times(1)).isSupports(eq(model.getModelName()));
-        verify(notValidSupplier, times(1)).isSupports(eq(model.getModelName()));
+        verify(validSupplier, times(1)).supports(eq(model.getModelName()));
+        verify(notValidSupplier, times(1)).supports(eq(model.getModelName()));
 
         verify(validSupplier, times(1)).process(eq(model));
         verify(notValidSupplier, never()).process(any());
@@ -43,7 +43,7 @@ class DefaultDynamicModelMetadataSupplierServiceTest {
     private MetadataSupplier createSupplier(boolean supports) {
         MetadataSupplier supplier = mock(MetadataSupplier.class);
 
-        doReturn(supports).when(supplier).isSupports(any());
+        doReturn(supports).when(supplier).supports(any());
 
         return supplier;
     }
