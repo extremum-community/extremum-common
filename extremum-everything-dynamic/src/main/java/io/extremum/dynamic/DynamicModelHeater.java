@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
+import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
@@ -31,13 +32,17 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
             if (schemaName == null) {
                 log.warn("Schema name does not provided; DynamicModelHeater can't warm up a dynamic model system");
             } else {
-                NetworkntSchema loaded = schemaProvider.loadSchema(schemaName);
-                JsonNode title = loaded.getSchema().getSchemaNode().get("title");
-                if (!isTextNode(title)) {
-                    log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
-                            "in a descriptor determinator", loaded.getSchema());
-                } else {
-                    schemaMetaService.registerMapping(title.textValue(), schemaName);
+                try {
+                    NetworkntSchema loaded = schemaProvider.loadSchema(schemaName);
+                    JsonNode title = loaded.getSchema().getSchemaNode().get("title");
+                    if (!isTextNode(title)) {
+                        log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
+                                "in a descriptor determinator", loaded.getSchema());
+                    } else {
+                        schemaMetaService.registerMapping(title.textValue(), schemaName);
+                    }
+                } catch (SchemaLoadingException e) {
+                    log.error("Unable to load schema {}", schemaName, e);
                 }
             }
         }
