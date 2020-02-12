@@ -9,19 +9,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @RestControllerAdvice
 public class ValidationExceptionHandler {
     @ExceptionHandler(DynamicModelValidationException.class)
     public Mono<Response> handleDynamicModelValidationException(DynamicModelValidationException e) {
-        List<Alert> alerts = new ArrayList<>();
-
-        e.getViolations().stream()
+        List<Alert> alerts = e.getViolations().stream()
                 .map(Violation::getMessage)
                 .map(Alert::errorAlert)
-                .forEach(alerts::add);
+                .collect(toList());
 
         return Mono.just(Response.fail(alerts, HttpStatus.BAD_REQUEST.value()));
     }
