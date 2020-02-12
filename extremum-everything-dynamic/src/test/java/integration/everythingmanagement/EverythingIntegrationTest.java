@@ -1,12 +1,12 @@
 package integration.everythingmanagement;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import integration.SpringBootTestWithServices;
 import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.dao.MongoDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.constant.HttpStatus;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -127,12 +127,9 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
                 .jsonPath("$.code").isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
+    @SneakyThrows
     private Map<String, Object> toMap(String raw) {
-        try {
-            return new ObjectMapper().readerFor(Map.class).readValue(raw);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return new ObjectMapper().readerFor(Map.class).readValue(raw);
     }
 
     private JsonDynamicModel buildModel(String name, Map<String, Object> data) {
