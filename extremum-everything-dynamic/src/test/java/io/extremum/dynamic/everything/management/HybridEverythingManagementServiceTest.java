@@ -43,7 +43,7 @@ class HybridEverythingManagementServiceTest {
 
         schemaMetaService = new DefaultSchemaMetaService();
         reactiveDescriptorDeterminator = new DefaultReactiveDescriptorDeterminator(schemaMetaService);
-        schemaMetaService.registerMapping(DYNAMIC_MODEL_DESCRIPTOR.getModelType(), DYNAMIC_MODEL_DESCRIPTOR.getModelType());
+        schemaMetaService.registerMapping(DYNAMIC_MODEL_DESCRIPTOR.getModelType(), "empty.schema.json");
     }
 
     @BeforeEach

@@ -1,6 +1,7 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import configurations.FileSystemSchemaProviderConfiguration;
 import io.extremum.dynamic.DefaultSchemaMetaService;
 import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.services.DateTypesNormalizer;
@@ -9,10 +10,12 @@ import io.extremum.dynamic.services.impl.DefaultDateTypesNormalizer;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import static org.mockito.Mockito.*;
 
 @Configuration
+@Import(FileSystemSchemaProviderConfiguration.class)
 public class JsonBasedDynamicModelServiceTestConfiguration {
     @Bean
     public DateTypesNormalizer dateDocumentTypesNormalizer() {

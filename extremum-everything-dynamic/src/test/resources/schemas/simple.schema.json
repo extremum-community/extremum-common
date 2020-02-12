@@ -1,6 +1,7 @@
 {
   "$id": "an_id_for_simple_schema_json",
   "description": "simple schema for testing the DirectoryBasedSchemaProvider in the DirectoryBasedSchemaProviderTest test",
+  "title": "TestDynamicModel",
   "type": "object",
   "properties": {
     "field1": {

@@ -1,6 +1,8 @@
 package io.extremum.dynamic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.dynamic.dao.DynamicModelRemoveStrategy;
+import io.extremum.dynamic.dao.SoftDeleteRemoveStrategy;
 import io.extremum.dynamic.resources.github.GithubAccessOptions;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
 import io.extremum.dynamic.schema.JsonSchemaType;
@@ -23,6 +25,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 import java.util.Collection;
 
@@ -97,5 +100,11 @@ public class DynamicModuleAutoConfiguration {
     @ConditionalOnMissingBean
     public DatesProcessor datesProcessor() {
         return new DefaultDatesProcessor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DynamicModelRemoveStrategy dynamicModelRemoveStrategy(ReactiveMongoOperations mongoOperations) {
+        return new SoftDeleteRemoveStrategy(mongoOperations);
     }
 }

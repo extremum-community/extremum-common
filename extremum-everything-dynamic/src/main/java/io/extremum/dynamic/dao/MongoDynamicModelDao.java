@@ -1,6 +1,5 @@
 package io.extremum.dynamic.dao;
 
-import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.utils.DateUtils;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.reactivestreams.Publisher;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
@@ -27,7 +25,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.set;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -41,6 +38,7 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
 
     private final ReactiveMongoOperations mongoOperations;
     private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
+    private final DynamicModelRemoveStrategy removeStrategy;
 
     @Override
     public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
@@ -171,19 +169,7 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
 
     @Override
     public Mono<Void> remove(Descriptor id, String collectionName) {
-        Publisher<UpdateResult> result = mongoOperations.getCollection(collectionName)
-                .updateOne(
-                        and(
-                                eq("_id", new ObjectId(id.getInternalId())),
-                                or(
-                                        eq(deleted.name(), false),
-                                        exists(deleted.name(), false)
-                                )
-                        ),
-                        set(deleted.name(), true)
-                );
-
-        return Mono.from(result).then();
+        return removeStrategy.remove(id, collectionName);
     }
 
     private Mono<Descriptor> createNewDescriptor(JsonDynamicModel model) {

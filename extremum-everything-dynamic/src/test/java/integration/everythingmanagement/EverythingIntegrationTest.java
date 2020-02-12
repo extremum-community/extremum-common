@@ -1,12 +1,10 @@
 package integration.everythingmanagement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import integration.SpringBootTestWithServices;
 import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.dao.MongoDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.constant.HttpStatus;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -15,8 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -117,7 +114,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
                 .exchange()
                 .expectStatus().isOk();
 
-        dao.getByIdFromCollection(persisted.getId(), normalizeCollectionName(modelName));
+        dao.getByIdFromCollection(persisted.getId(), modelNameToCollectionName(modelName));
 
         webTestClient.get()
                 .uri("/v1/" + persisted.getId().getExternalId())
@@ -127,20 +124,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
                 .jsonPath("$.code").isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
-    @SneakyThrows
-    private Map<String, Object> toMap(String raw) {
-        return new ObjectMapper().readerFor(Map.class).readValue(raw);
-    }
-
-    private JsonDynamicModel buildModel(String name, Map<String, Object> data) {
-        return new JsonDynamicModel(name, data);
-    }
-
     private Mono<JsonDynamicModel> persistModel(JsonDynamicModel model) {
-        return dao.create(model, normalizeCollectionName(model.getModelName()));
-    }
-
-    private String normalizeCollectionName(String nameOfCollection) {
-        return nameOfCollection.toLowerCase().replaceAll("[\\W]", "_");
+        return dao.create(model, modelNameToCollectionName(model.getModelName()));
     }
 }
