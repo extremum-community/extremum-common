@@ -103,11 +103,8 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
         return getCollectionName(id)
                 .flatMap(cName -> dao.getByIdFromCollection(id, cName))
                 .map(normalize())
-                .map(m -> {
-                    metadataProvider.provideMetadata(m);
-                    return m;
-                })
-                .switchIfEmpty(error(new ModelNotFoundException("DynamicModel with id " + id + " not found")));
+                .doOnNext(metadataProvider::provideMetadata)
+                .switchIfEmpty(defer(() -> error(new ModelNotFoundException("DynamicModel with id " + id + " not found"))));
     }
 
     @Override
