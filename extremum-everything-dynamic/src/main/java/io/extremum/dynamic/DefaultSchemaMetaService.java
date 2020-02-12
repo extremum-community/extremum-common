@@ -1,13 +1,11 @@
 package io.extremum.dynamic;
 
 import com.google.common.collect.ImmutableSet;
-import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
 public class DefaultSchemaMetaService implements SchemaMetaService {
     private final Map<String, String> map = new ConcurrentHashMap<>();
 

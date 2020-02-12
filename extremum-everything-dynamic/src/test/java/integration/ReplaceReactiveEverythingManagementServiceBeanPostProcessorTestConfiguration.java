@@ -1,7 +1,7 @@
 package integration;
 
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
-import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.impl.GithubNetworkntSchemaProvider;
@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 import static org.mockito.Mockito.doReturn;
 
 
-@MockBean(DefaultJsonDynamicModelMetadataProvider.class)
+@MockBean(DefaultDynamicModelMetadataProviderService.class)
 @Import({
         WatchConfiguration.class,
         CommonConfiguration.class,

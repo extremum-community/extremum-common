@@ -5,7 +5,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.dao.MongoDynamicModelDao;
-import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -69,7 +68,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
     MongoDynamicModelDao dao;
 
     @MockBean
-    DefaultJsonDynamicModelMetadataProvider metadataProvider;
+    DefaultDynamicModelMetadataProviderService metadataProvider;
 
     @MockBean
     DefaultDynamicModelWatchService watchService;
@@ -185,7 +184,6 @@ class DefaultJsonBasedDynamicModelServiceTest {
         JsonDynamicModel jModel = mock(JsonDynamicModel.class);
         doReturn(just(jModel)).when(dao).getByIdFromCollection(id, "model");
         doReturn(just(jModel)).when(dao).remove(id, "model");
-        doAnswer(new ReturnsArgumentAt(0)).when(metadataProvider).provideMetadata(any());
         when(watchService.registerDeleteOperation(any())).thenReturn(empty());
 
         service.remove(id).block();

@@ -18,11 +18,11 @@
       "properties": {
         "fieldDate1": {
           "type": "string",
-          "format": "cybernated-date-time"
+          "format": "extremum-date-time"
         },
         "fieldDate2": {
           "type": "string",
-          "format": "cybernated-date-time"
+          "format": "extremum-date-time"
         }
       }
     }

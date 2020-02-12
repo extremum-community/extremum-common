@@ -9,7 +9,7 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.GithubSchemaProperties;
 import io.extremum.dynamic.SchemaMetaService;
-import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.dynamic.metadata.MetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.schema.JsonSchemaType;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
@@ -34,8 +34,6 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
-import org.mockito.stubbing.Answer;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -95,7 +93,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     NetworkntCacheManager networkntCacheManager;
 
     @MockBean
-    DefaultJsonDynamicModelMetadataProvider metadataProvider;
+    MetadataProviderService metadataProvider;
 
     @Autowired
     SchemaMetaService schemaMetaService;
@@ -175,11 +173,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
     @Test
     void getModelById() throws IOException {
-        when(metadataProvider.provideMetadata(any())).thenAnswer((Answer<JsonDynamicModel>) invocation -> {
-            Object[] args = invocation.getArguments();
-            return (JsonDynamicModel) args[0];
-        });
-
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -214,11 +207,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
     @Test
     void updateModelTest() throws IOException {
-        when(metadataProvider.provideMetadata(any())).thenAnswer((Answer<JsonDynamicModel>) invocation -> {
-            Object[] args = invocation.getArguments();
-            return (JsonDynamicModel) args[0];
-        });
-
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -423,7 +411,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
     @Test
     void deleteModel_changeDeletedFlagOnly() throws IOException {
-        doAnswer(new ReturnsArgumentAt(0)).when(metadataProvider).provideMetadata(any());
         NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
         JsonSchema jsonSchemaMock = mock(JsonSchema.class);
 

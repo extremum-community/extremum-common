@@ -23,7 +23,7 @@ class DefaultImpermanentValidationContextTest {
 
         JsonValidator validator = mock(TypeValidator.class);
         JsonNode node = new ObjectMapper().readValue("\"text\"", JsonNode.class);
-        JsonNode schemaNode = new ObjectMapper().readValue("{\"type\": \"string\", \"format\": \"cybernated-date-time\"}", JsonNode.class);
+        JsonNode schemaNode = new ObjectMapper().readValue("{\"type\": \"string\", \"format\": \"extremum-date-time\"}", JsonNode.class);
 
         boolean validatorSupported = ctx.isValidatorSupported(validator, node, null, schemaNode, null);
 
