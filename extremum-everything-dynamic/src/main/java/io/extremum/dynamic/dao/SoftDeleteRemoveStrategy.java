@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.set;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
-import static reactor.core.publisher.Mono.from;
 
 @RequiredArgsConstructor
 public class SoftDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
@@ -21,12 +20,11 @@ public class SoftDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
     public Mono<Void> remove(Descriptor id, String collectionName) {
         return id.getInternalIdReactively()
                 .map(ObjectId::new)
-                .flatMap(oId -> from(doRemove(oId, collectionName)))
-                .then();
+                .flatMap(oId -> doRemove(oId, collectionName));
     }
 
-    private Publisher<UpdateResult> doRemove(ObjectId oId, String collectionName) {
-        return mongoOperations.getCollection(collectionName)
+    private Mono<Void> doRemove(ObjectId oId, String collectionName) {
+        Publisher<UpdateResult> publisher = mongoOperations.getCollection(collectionName)
                 .updateOne(
                         and(
                                 eq("_id", oId),
@@ -37,5 +35,7 @@ public class SoftDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
                         ),
                         set(deleted.name(), true)
                 );
+
+        return Mono.from(publisher).then();
     }
 }
