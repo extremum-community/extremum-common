@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import reactor.core.publisher.Mono;
 
 import static com.mongodb.client.model.Filters.eq;
+import static reactor.core.publisher.Mono.from;
 
 @RequiredArgsConstructor
 public class HardDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
@@ -16,9 +17,15 @@ public class HardDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
 
     @Override
     public Mono<Void> remove(Descriptor id, String collectionName) {
-        Publisher<DeleteResult> result = mongoOperations.getCollection(collectionName)
-                .deleteOne(eq("_id", new ObjectId(id.getInternalId())));
-
-        return Mono.from(result).then();
+        return id.getInternalIdReactively()
+                .map(ObjectId::new)
+                .flatMap(oId -> from(doRemove(oId, collectionName)))
+                .then();
     }
+
+    private Publisher<DeleteResult> doRemove(ObjectId oId, String collectionName) {
+        return mongoOperations.getCollection(collectionName)
+                .deleteOne(eq("_id", oId));
+    }
+
 }
