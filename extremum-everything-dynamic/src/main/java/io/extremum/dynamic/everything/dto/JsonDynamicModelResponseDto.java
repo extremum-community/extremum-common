@@ -2,7 +2,6 @@ package io.extremum.dynamic.everything.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.extremum.common.utils.DateUtils;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.AllArgsConstructor;
@@ -36,15 +35,13 @@ public class JsonDynamicModelResponseDto implements DynamicModelResponseDto<Map<
 
     @JsonIgnore
     public ZonedDateTime getCreated() {
-        return extract(created.name(), String.class)
-                .map(DateUtils::parseZonedDateTimeFromISO_8601)
+        return extract(created.name(), ZonedDateTime.class)
                 .orElseThrow(fieldNotPresented(created));
     }
 
     @JsonIgnore
     public ZonedDateTime getModified() {
-        return extract(modified.name(), String.class)
-                .map(DateUtils::parseZonedDateTimeFromISO_8601)
+        return extract(modified.name(), ZonedDateTime.class)
                 .orElseThrow(fieldNotPresented(modified));
     }
 

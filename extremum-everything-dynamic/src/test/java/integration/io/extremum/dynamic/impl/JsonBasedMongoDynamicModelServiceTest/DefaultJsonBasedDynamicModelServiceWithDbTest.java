@@ -48,6 +48,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +59,8 @@ import java.util.stream.StreamSupport;
 import static io.extremum.common.utils.DateUtils.parseZonedDateTimeFromISO_8601;
 import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -319,15 +322,15 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
+        Object created = saved.getModelData().get(Model.FIELDS.created.name());
         String modified = (String) saved.getModelData().get(Model.FIELDS.model.name());
 
         assertFalse(saved.getModelData().containsKey(deleted.name()));
         assertNotNull(created);
-        assertNotNull(modified);
+        assertThat(created, instanceOf(ZonedDateTime.class));
+        assertThat(created, instanceOf(ZonedDateTime.class));
         assertNotNull(saved.getModelData().get(Model.FIELDS.version.name()));
 
-        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(created));
         assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(modified));
 
         assertEquals("modelName", saved.getModelData().get(Model.FIELDS.model.name()));
@@ -356,27 +359,22 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        String created = (String) saved.getModelData().get(Model.FIELDS.created.name());
-        String modifiedWhenCreated = (String) saved.getModelData().get(Model.FIELDS.modified.name());
+        ZonedDateTime created = (ZonedDateTime) saved.getModelData().get(Model.FIELDS.created.name());
+        ZonedDateTime modifiedWhenCreated = (ZonedDateTime) saved.getModelData().get(Model.FIELDS.modified.name());
 
         assertNotNull(created);
         assertNotNull(modifiedWhenCreated);
         assertNotNull(saved.getModelData().get(Model.FIELDS.version.name()));
 
-        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(created));
-        assertDoesNotThrow(() -> parseZonedDateTimeFromISO_8601(modifiedWhenCreated));
         assertEquals("modelName", saved.getModelData().get(Model.FIELDS.model.name()));
 
         JsonDynamicModel updated = service.saveModel(saved).block();
 
         assertEquals(2, (long) updated.getModelData().get(Model.FIELDS.version.name()));
 
-        String modifiedWhenUpdated = (String) updated.getModelData().get(Model.FIELDS.modified.name());
-        assertTrue(
-                parseZonedDateTimeFromISO_8601(modifiedWhenCreated).isBefore(
-                        parseZonedDateTimeFromISO_8601(modifiedWhenUpdated)
-                )
-        );
+        ZonedDateTime modifiedWhenUpdated = (ZonedDateTime) updated.getModelData().get(Model.FIELDS.modified.name());
+
+        assertTrue(modifiedWhenCreated.isBefore(modifiedWhenUpdated));
     }
 
     @Test
