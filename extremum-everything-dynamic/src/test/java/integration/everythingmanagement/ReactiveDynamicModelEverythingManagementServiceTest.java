@@ -15,7 +15,7 @@ import io.extremum.dynamic.dao.MongoDynamicModelDao;
 import io.extremum.dynamic.everything.dto.JsonDynamicModelResponseDto;
 import io.extremum.dynamic.everything.management.HybridEverythingManagementService;
 import io.extremum.dynamic.everything.management.ReactiveDynamicModelEverythingManagementService;
-import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
@@ -36,7 +36,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -91,7 +90,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     JsonDynamicModelValidator jsonDynamicModelValidator;
 
     @MockBean
-    DefaultJsonDynamicModelMetadataProvider metadataProvider;
+    DefaultDynamicModelMetadataProviderService metadataProvider;
 
     @MockBean
     WatchEventConsumer watchEventConsumer;
@@ -105,9 +104,6 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     void beforeEach() {
         doReturn(just(Try.successful(mock(ValidationContext.class))))
                 .when(jsonDynamicModelValidator).validate(any());
-
-        doAnswer(new ReturnsArgumentAt(0))
-                .when(metadataProvider).provideMetadata(any());
 
         dynamicModelEverythingManagementService =
                 hybridEverythingManagementService.getDynamicModelEverythingManagementService();

@@ -2,7 +2,7 @@ package integration.io.extremum.dynamic;
 
 import integration.SpringBootTestWithServices;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
-import io.extremum.dynamic.metadata.impl.DefaultJsonDynamicModelMetadataProvider;
+import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MockBeans({
-        @MockBean(DefaultJsonDynamicModelMetadataProvider.class)
+        @MockBean(DefaultDynamicModelMetadataProviderService.class)
 })
 @ActiveProfiles({"load-context-test"})
 @SpringBootTest(classes = {DynamicModelHeaterTestConfiguration.class})
