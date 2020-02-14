@@ -10,12 +10,14 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.ParameterizedType;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -66,6 +68,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
+    @Transactional
     public <N extends M> Mono<N> save(N model) {
         return Mono.defer(() -> {
             if (isNew(model)) {
@@ -76,12 +79,6 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
                         .switchIfEmpty(Mono.error(() -> modelNotFoundExceptionWhenUpdating(model)));
             }
         });
-    }
-
-    private <N extends M> ModelNotFoundException modelNotFoundExceptionWhenUpdating(N model) {
-        String message = String.format("No current snapshot found by lineageId '%s' when trying to update",
-                model.getLineageId());
-        return new ModelNotFoundException(message);
     }
 
     private boolean isNew(M model) {
@@ -146,19 +143,22 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     private <N extends M> Mono<N> saveOldSnapshotAndInsertNewSnapshot(N nextSnapshot, M currentSnapshot) {
-        return reactiveMongoOperations.inTransaction()
-                .execute(sessionBound -> {
-                    return sessionBound.save(currentSnapshot)
-                            .then(sessionBound.insert(nextSnapshot));
-                })
-                .then(Mono.just(nextSnapshot))
-                .onErrorMap(DuplicateKeyException.class, e -> {
-                    if (e.getMessage() != null
-                            && e.getMessage().contains(MongoVersionedModel.INDEX_BY_LINEAGEID_VERSION)) {
-                        return versionAlreadyExistsOptimisticLockingException(nextSnapshot, e);
-                    }
-                    return e;
-                });
+        return reactiveMongoOperations
+                .save(currentSnapshot)
+                .then(Mono.defer(() -> reactiveMongoOperations.insert(nextSnapshot)))
+                .onErrorMap(DuplicateKeyException.class,
+                        turnDuplicateVersionExceptionToOptimisticFailure(nextSnapshot));
+    }
+
+    private <N extends M> Function<DuplicateKeyException, Throwable> turnDuplicateVersionExceptionToOptimisticFailure(
+            N nextSnapshot) {
+        return e -> {
+            if (e.getMessage() != null
+                    && e.getMessage().contains(MongoVersionedModel.INDEX_BY_LINEAGEID_VERSION)) {
+                return versionAlreadyExistsOptimisticLockingException(nextSnapshot, e);
+            }
+            return e;
+        };
     }
 
     private <N extends M> Throwable versionAlreadyExistsOptimisticLockingException(N nextSnapshot,
@@ -169,18 +169,27 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
                 String.format(format, nextSnapshot.getLineageId(), nextSnapshot.getVersion()), ex);
     }
 
+    private <N extends M> ModelNotFoundException modelNotFoundExceptionWhenUpdating(N model) {
+        String message = String.format("No current snapshot found by lineageId '%s' when trying to update",
+                model.getLineageId());
+        return new ModelNotFoundException(message);
+    }
+
     @Override
+    @Transactional
     public <N extends M> Flux<N> saveAll(Iterable<N> entities) {
         return Flux.fromIterable(entities)
                 .concatMap(this::save);
     }
 
     @Override
+    @Transactional
     public Mono<Void> deleteById(ObjectId lineageId) {
         return deleteByIdAndReturn(lineageId).then();
     }
 
     @Override
+    @Transactional
     public Mono<M> deleteByIdAndReturn(ObjectId lineageId) {
         return findById(lineageId).flatMap(found -> {
             found.setDeleted(true);
