@@ -44,7 +44,10 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
                         )
-                );
+                ).map(m -> {
+                    datesProcessor.processDates(m.getModelData());
+                    return m;
+                });
     }
 
     @Override

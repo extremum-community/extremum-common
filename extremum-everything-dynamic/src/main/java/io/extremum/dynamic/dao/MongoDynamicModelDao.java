@@ -144,6 +144,8 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
         return new Date();
     }
 
+    // we dont use a native spring-data methods instead of a mongo driver methods because spring-date
+    // doesn't support Date to ZonedDateTime converting in a nested elements
     @Override
     public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
         FindPublisher<Document> p = mongoOperations.getCollection(collectionName)
