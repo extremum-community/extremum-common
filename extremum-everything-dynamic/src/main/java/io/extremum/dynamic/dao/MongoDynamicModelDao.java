@@ -3,7 +3,6 @@ package io.extremum.dynamic.dao;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import io.extremum.common.exceptions.CommonException;
-import io.extremum.common.utils.DateUtils;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.basic.Model;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -61,7 +60,7 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
     }
 
     private void provideServiceFields(Map<String, Object> doc, JsonDynamicModel model) {
-        String now = getNowDateAsString();
+        Date now = getNowDate();
         doc.put(created.name(), now);
         doc.put(modified.name(), now);
         doc.put(version.name(), INITIAL_VERSION_VALUE);
@@ -133,7 +132,7 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
     }
 
     private void updateServiceFields(Map<String, Object> doc) {
-        doc.replace(modified.name(), getNowDateAsString());
+        doc.replace(modified.name(), getNowDate());
         doc.replace(version.name(), extractVersion(doc) + 1);
     }
 
@@ -141,10 +140,12 @@ public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
         return Long.valueOf(doc.get(version.name()).toString());
     }
 
-    private String getNowDateAsString() {
-        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
+    private Date getNowDate() {
+        return new Date();
     }
 
+    // we dont use a native spring-data methods instead of a mongo driver methods because spring-date
+    // doesn't support Date to ZonedDateTime converting in a nested elements
     @Override
     public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
         FindPublisher<Document> p = mongoOperations.getCollection(collectionName)

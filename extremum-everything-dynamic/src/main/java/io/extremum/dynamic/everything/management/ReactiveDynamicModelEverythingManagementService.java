@@ -9,6 +9,7 @@ import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DynamicModelDtoConversionService;
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.exceptions.ModelNotFoundException;
+import io.extremum.common.utils.DateUtils;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.dynamic.watch.DynamicModelWatchService;
@@ -24,6 +25,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static io.extremum.sharedmodels.basic.Model.FIELDS.created;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.modified;
 import static java.lang.String.format;
 
 @Slf4j
@@ -70,8 +73,20 @@ public class ReactiveDynamicModelEverythingManagementService implements Reactive
         JsonNode node = mapper.convertValue(map, JsonNode.class);
         try {
             JsonNode patched = patch.apply(node);
-            return mapper.convertValue(patched, new TypeReference<Map<String, Object>>() {
+            Map<String, Object> raw = mapper.convertValue(patched, new TypeReference<Map<String, Object>>() {
             });
+
+            Object createdValue = raw.get(created.name());
+            if (createdValue instanceof String) {
+                raw.replace(created.name(), DateUtils.convert((String) createdValue));
+            }
+
+            Object modifiedValue = raw.get(modified.name());
+            if (modifiedValue instanceof String) {
+                raw.replace(modified.name(), DateUtils.convert((String) modifiedValue));
+            }
+
+            return raw;
         } catch (JsonPatchException e) {
             String msg = format("Unable to apply patch %s with node %s", patch, node);
             log.error(msg, e);
