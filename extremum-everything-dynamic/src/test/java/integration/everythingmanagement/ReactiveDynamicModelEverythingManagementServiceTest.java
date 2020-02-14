@@ -1,10 +1,10 @@
 package integration.everythingmanagement;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
+import configurations.FileSystemSchemaProviderConfiguration;
 import integration.SpringBootTestWithServices;
 import io.atlassian.fugue.Try;
 import io.extremum.common.exceptions.ModelNotFoundException;
@@ -40,24 +40,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.util.Map;
 
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static reactor.core.publisher.Mono.just;
 
-@ActiveProfiles("everything-test")
 @SpringBootTest(classes = {
         WatchConfiguration.class,
         CommonConfiguration.class,
         ReactiveEverythingConfiguration.class,
+        FileSystemSchemaProviderConfiguration.class,
         DynamicModuleAutoConfiguration.class
 })
 @MockBeans({
@@ -235,13 +234,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     }
 
     private JsonDynamicModel createModel(String modelName, String stringModelData) {
-        JsonNode modelData = createJsonNodeForString(stringModelData);
-        return new JsonDynamicModel(modelName, convertToMap(modelData));
-    }
-
-    private Map<String, Object> convertToMap(JsonNode modelData) {
-        return new ObjectMapper().convertValue(modelData, new TypeReference<Map<String, Object>>() {
-        });
+        return new JsonDynamicModel(modelName, toMap(stringModelData));
     }
 
     private JsonNode createJsonNodeForString(String stringModelData) {

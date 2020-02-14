@@ -12,7 +12,7 @@ class DefaultReactiveDescriptorDeterminatorTest {
 
     @BeforeAll
     static void beforeAll() {
-        schemaMetaService.registerMapping(DynamicModel.MODEL_TYPE, DynamicModel.MODEL_TYPE);
+        schemaMetaService.registerMapping(DynamicModel.MODEL_TYPE, "empty.schema.json");
     }
 
     @Test

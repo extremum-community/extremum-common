@@ -1,9 +1,8 @@
-package integration.everythingmanagement;
+package integration.io.extremum.dynamic.dao;
 
 import configurations.FileSystemSchemaProviderConfiguration;
 import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.security.DataSecurity;
-import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
@@ -15,11 +14,10 @@ import org.springframework.context.annotation.Import;
 @MockBeans({
         @MockBean(DataSecurity.class),
         @MockBean(RoleSecurity.class),
-        @MockBean(PrincipalSource.class),
         @MockBean(SecurityProvider.class)
 })
 @Configuration
 @Import(FileSystemSchemaProviderConfiguration.class)
 @EnableAutoConfiguration(exclude = MongoReactiveDataAutoConfiguration.class)
-public class EverythingIntegrationTestConfiguration {
+public class SoftDeleteRemoveStrategyDaoTestConfigurations {
 }

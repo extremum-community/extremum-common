@@ -29,21 +29,17 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
             alreadyHeated = true;
 
             String schemaName = githubSchemaProperties.getSchemaName();
-            if (schemaName == null) {
-                log.warn("Schema name does not provided; DynamicModelHeater can't warm up a dynamic model system");
-            } else {
-                try {
-                    NetworkntSchema loaded = schemaProvider.loadSchema(schemaName);
-                    JsonNode title = loaded.getSchema().getSchemaNode().get("title");
-                    if (!isTextNode(title)) {
-                        log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
-                                "in a descriptor determinator", loaded.getSchema());
-                    } else {
-                        schemaMetaService.registerMapping(title.textValue(), schemaName);
-                    }
-                } catch (SchemaLoadingException e) {
-                    log.error("Unable to load schema {}", schemaName, e);
+            try {
+                NetworkntSchema loaded = schemaProvider.loadSchema(schemaName);
+                JsonNode title = loaded.getSchema().getSchemaNode().get("title");
+                if (!isTextNode(title)) {
+                    log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
+                            "in a descriptor determinator", loaded.getSchema());
+                } else {
+                    schemaMetaService.registerMapping(title.textValue(), schemaName);
                 }
+            } catch (SchemaLoadingException e) {
+                log.error("Unable to load schema {}", schemaName, e);
             }
         }
     }

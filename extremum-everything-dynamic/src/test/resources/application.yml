@@ -15,3 +15,13 @@ logging:
   level:
     io.extremum: debug
     org.springframework: debug
+github:
+  schema:
+    owner: owner
+    ref: ref
+    repo: repoName
+    schema-path: /path/to/schemas
+    schema-name: simple.schema.json
+    token: githubAccessToken
+    webhook-listener-port: 0
+    webhook-listener-server-context: /webhooks/github/push/clear-caches

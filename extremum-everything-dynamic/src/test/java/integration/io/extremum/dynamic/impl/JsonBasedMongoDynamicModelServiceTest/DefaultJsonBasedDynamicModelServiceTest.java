@@ -1,21 +1,16 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
 import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.dao.MongoDynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
-import io.extremum.dynamic.schema.networknt.NetworkntSchema;
-import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import io.extremum.dynamic.services.DatesProcessor;
 import io.extremum.dynamic.services.impl.DefaultJsonBasedDynamicModelService;
 import io.extremum.dynamic.validator.ValidationContext;
 import io.extremum.dynamic.validator.exceptions.DynamicModelValidationException;
 import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
-import io.extremum.dynamic.validator.exceptions.SchemaNotFoundException;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
 import io.extremum.dynamic.watch.DefaultDynamicModelWatchService;
 import io.extremum.sharedmodels.basic.Model;
@@ -37,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.atlassian.fugue.Try.successful;
-import static io.extremum.dynamic.TestUtils.loadResourceAsInputStream;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -46,9 +40,6 @@ import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(classes = JsonBasedDynamicModelServiceTestConfiguration.class)
 class DefaultJsonBasedDynamicModelServiceTest {
-    @MockBean
-    FileSystemNetworkntSchemaProvider schemaProvider;
-
     @SpyBean
     NetworkntJsonDynamicModelValidator modelValidator;
 
@@ -78,15 +69,9 @@ class DefaultJsonBasedDynamicModelServiceTest {
 
     @Test
     void saveModel() {
-        final JsonDynamicModel model = mock(JsonDynamicModel.class);
+        JsonDynamicModel model = new JsonDynamicModel("AModel", new HashMap<>());
 
-        NetworkntSchema schema = mock(NetworkntSchema.class);
-
-        String schemaName = "MyDynamicModel";
-
-        when(schemaProvider.loadSchema(schemaName)).thenReturn(schema);
-        when(model.getModelData()).thenReturn(new HashMap<>());
-        when(model.getModelName()).thenReturn(schemaName);
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
 
         doReturn(just(successful(mock(ValidationContext.class)))).when(modelValidator).validate(any());
 
@@ -123,12 +108,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
 
         JsonDynamicModel model = new JsonDynamicModel("model", invalidModelRawValue);
 
-        JsonSchema schema = JsonSchemaFactory.getInstance()
-                .getSchema(loadResourceAsInputStream(this.getClass().getClassLoader(), "schemas/simple.schema.json"));
-
-        when(schemaProvider.loadSchema(any())).thenReturn(new NetworkntSchema(schema));
-
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json");
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
@@ -152,9 +132,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
 
         JsonDynamicModel jModel = new JsonDynamicModel(unknownModel, null);
 
-        when(schemaProvider.loadSchema(unknownModel)).thenThrow(SchemaNotFoundException.class);
-
-        schemaMetaService.registerMapping(jModel.getModelName(), jModel.getModelName());
+        schemaMetaService.registerMapping(jModel.getModelName(), "unknown_schema");
 
         Mono<JsonDynamicModel> result = service.saveModel(jModel);
 

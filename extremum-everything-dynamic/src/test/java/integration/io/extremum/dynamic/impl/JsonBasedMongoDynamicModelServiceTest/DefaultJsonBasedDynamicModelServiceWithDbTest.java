@@ -1,9 +1,8 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
+import configurations.FileSystemSchemaProviderConfiguration;
 import integration.SpringBootTestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
@@ -41,7 +40,6 @@ import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -59,6 +57,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import static io.extremum.common.utils.DateUtils.parseZonedDateTimeFromISO_8601;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -67,10 +66,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Slf4j
-@ActiveProfiles("save-model-test")
 @ContextConfiguration(classes = {
         WatchConfiguration.class,
         CommonConfiguration.class,
+        FileSystemSchemaProviderConfiguration.class,
         DynamicModuleAutoConfiguration.class,
         WatchConfiguration.class
 })
@@ -133,7 +132,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "complex.schema.json");
 
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
@@ -193,7 +192,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -228,7 +227,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -273,7 +272,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(modelName, modelName);
+        schemaMetaService.registerMapping(modelName, "empty.schema.json");
 
         service.saveModel(model).block();
 
@@ -319,7 +318,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -356,7 +355,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -396,7 +395,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
 
         JsonDynamicModel saved = service.saveModel(model).block();
         saved.getModelData().replace(Model.FIELDS.version.name(), 3);
@@ -408,7 +407,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void deleteModel_changeDeletedFlagOnly() throws IOException {
+    void deleteModel_changeDeletedFlagOnly() {
         NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
         JsonSchema jsonSchemaMock = mock(JsonSchema.class);
 
@@ -425,7 +424,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("dynmodel", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), model.getModelName());
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
         JsonDynamicModel saved = service.saveModel(model).block();
 
         JsonDynamicModel removedModel = service.remove(saved.getId()).block();
@@ -445,11 +444,5 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         StepVerifier.create(findById)
                 .expectError(ModelNotFoundException.class)
                 .verify();
-    }
-
-    private Map<String, Object> toMap(String stringData) throws IOException {
-        JsonNode node = mapper.readValue(stringData, JsonNode.class);
-        return mapper.convertValue(node, new TypeReference<Map<String, Object>>() {
-        });
     }
 }
