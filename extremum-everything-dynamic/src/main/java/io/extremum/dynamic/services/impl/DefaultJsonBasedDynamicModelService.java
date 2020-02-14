@@ -43,8 +43,9 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                         validated.fold(
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
-                        )
-                ).map(m -> {
+                        ))
+                .map(this::removeSensetive)
+                .map(m -> {
                     datesProcessor.processDates(m.getModelData());
                     return m;
                 });
@@ -53,6 +54,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
         return saveModelWithoutNotifications(model)
+                .map(this::removeSensetive)
                 .flatMap(savedModel ->
                         watchService.registerSaveOperation(savedModel)
                                 .thenReturn(savedModel));
@@ -108,6 +110,14 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                 .map(normalize())
                 .doOnNext(metadataProvider::provideMetadata)
                 .switchIfEmpty(defer(() -> error(new ModelNotFoundException("DynamicModel with id " + id + " not found"))));
+    }
+
+    private JsonDynamicModel removeSensetive(JsonDynamicModel model) {
+        if (model.getModelData() != null) {
+            model.getModelData().remove("_id");
+        }
+
+        return model;
     }
 
     @Override

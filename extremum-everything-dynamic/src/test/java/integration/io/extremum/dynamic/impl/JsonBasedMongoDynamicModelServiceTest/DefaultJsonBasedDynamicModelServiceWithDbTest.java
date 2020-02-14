@@ -142,6 +142,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                 .assertNext(m -> {
                             assertEquals(model.getModelName(), m.getModelName());
 
+                            assertFalse(model.getModelData().containsKey("_id"));
+
                             assertEquals(model.getModelData().get("field1").toString(), m.getModelData().get("field1").toString());
 
                             Map<String, Object> map = ((Map) m.getModelData().get("field3"));
@@ -203,6 +205,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         assertNotNull(model.getModelName(), found.getId().getModelType());
         assertEquals(saved.getId(), found.getId());
         assertEquals(model.getModelName(), found.getModelName());
+        assertFalse(model.getModelData().containsKey("_id"));
         assertEquals(model.getModelData().get("field1"), found.getModelData().get("field1"));
         assertEquals(model.getModelData().get("field3"), found.getModelData().get("field3"));
     }
@@ -245,6 +248,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         JsonDynamicModel updatedResult = service.saveModel(updatedModel).block();
 
         assertEquals(idOfTheFoundModel, updatedResult.getId());
+        assertFalse(updatedResult.getModelData().containsKey("_id"));
 
         JsonDynamicModel foundUpdated = service.findById(idOfTheFoundModel).block();
 
