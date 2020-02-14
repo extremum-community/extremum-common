@@ -19,12 +19,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
+import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableConfigurationProperties(MongoProperties.class)
+@EnableTransactionManagement
 @RequiredArgsConstructor
 public class MainReactiveMongoConfiguration {
     private final MongoProperties mongoProperties;
@@ -49,6 +52,11 @@ public class MainReactiveMongoConfiguration {
     @Bean
     public ReactiveMongoDatabaseFactory reactiveMongoDbFactory() {
         return new SimpleReactiveMongoDatabaseFactory(reactiveMongoClient(), getDatabaseName());
+    }
+
+    @Bean
+    public ReactiveMongoTransactionManager reactiveMongoTransactionManager() {
+        return new ReactiveMongoTransactionManager(reactiveMongoDbFactory());
     }
 
     @Bean
