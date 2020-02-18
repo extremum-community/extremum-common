@@ -6,6 +6,7 @@ import io.extremum.dynamic.dao.HardDeleteRemoveStrategy;
 import io.extremum.dynamic.dao.MongoDynamicModelDao;
 import io.extremum.dynamic.dao.SoftDeleteRemoveStrategy;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
+import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.basic.Model;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -23,19 +24,21 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = SoftDeleteRemoveStrategyDaoTestConfigurations.class)
 public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
     @Autowired
-    MongoDynamicModelDao dao;
+    ReactiveMongoOperations mongoOperations;
 
     @Autowired
-    ReactiveMongoOperations mongoOperations;
+    private ReactiveMongoDescriptorFacilities facilities;
 
     @Test
     void softDeleteTest() {
         JsonDynamicModel model = buildModel("AModelForSoftDelete", toMap("{\"f\": \"v\"}"));
         String collectionName = modelNameToCollectionName(model.getModelName());
 
-        JsonDynamicModel persisted = dao.create(model, collectionName).block();
-
         DynamicModelRemoveStrategy strategy = createSoftDeleteStrategy();
+
+        MongoDynamicModelDao dao = new MongoDynamicModelDao(mongoOperations, facilities, strategy);
+
+        JsonDynamicModel persisted = dao.create(model, collectionName).block();
 
         strategy.remove(persisted.getId(), collectionName).block();
 
@@ -50,9 +53,11 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
         JsonDynamicModel model = buildModel("AModelForHardDelete", toMap("{\"f\": \"v\"}"));
         String collectionName = modelNameToCollectionName(model.getModelName());
 
-        JsonDynamicModel persisted = dao.create(model, collectionName).block();
-
         DynamicModelRemoveStrategy strategy = createHardDeleteStrategy();
+
+        MongoDynamicModelDao dao = new MongoDynamicModelDao(mongoOperations, facilities, strategy);
+
+        JsonDynamicModel persisted = dao.create(model, collectionName).block();
 
         strategy.remove(persisted.getId(), collectionName).block();
 

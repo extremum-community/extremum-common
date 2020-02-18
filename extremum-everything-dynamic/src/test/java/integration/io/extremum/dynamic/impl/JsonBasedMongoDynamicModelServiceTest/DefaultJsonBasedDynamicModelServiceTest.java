@@ -2,7 +2,7 @@ package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTe
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.dynamic.SchemaMetaService;
-import io.extremum.dynamic.dao.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.metadata.impl.DefaultDynamicModelMetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DateTypesNormalizer;
@@ -56,7 +56,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
     SchemaMetaService schemaMetaService;
 
     @MockBean
-    MongoDynamicModelDao dao;
+    JsonDynamicModelDao dao;
 
     @MockBean
     DefaultDynamicModelMetadataProviderService metadataProvider;

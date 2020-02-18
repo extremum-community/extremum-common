@@ -11,7 +11,7 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.dynamic.ReactiveDescriptorDeterminator;
 import io.extremum.dynamic.SchemaMetaService;
-import io.extremum.dynamic.dao.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.everything.dto.JsonDynamicModelResponseDto;
 import io.extremum.dynamic.everything.management.HybridEverythingManagementService;
 import io.extremum.dynamic.everything.management.ReactiveDynamicModelEverythingManagementService;
@@ -77,7 +77,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     JsonBasedDynamicModelService dynamicModelService;
 
     @Autowired
-    MongoDynamicModelDao dynamicModelDao;
+    JsonDynamicModelDao dynamicModelDao;
 
     @Autowired
     ReactiveDescriptorDeterminator reactiveDescriptorDeterminator;

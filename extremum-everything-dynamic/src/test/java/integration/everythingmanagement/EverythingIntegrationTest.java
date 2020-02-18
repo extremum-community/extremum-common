@@ -2,7 +2,7 @@ package integration.everythingmanagement;
 
 import integration.SpringBootTestWithServices;
 import io.extremum.dynamic.SchemaMetaService;
-import io.extremum.dynamic.dao.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.constant.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     WebTestClient webTestClient;
 
     @Autowired
-    MongoDynamicModelDao dao;
+    JsonDynamicModelDao dao;
 
     @Autowired
     SchemaMetaService schemaMetaService;

@@ -14,7 +14,6 @@ import org.bson.types.ObjectId;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
@@ -30,9 +29,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static reactor.core.publisher.Mono.*;
 
 @Slf4j
-@Repository
 @RequiredArgsConstructor
-public class MongoDynamicModelDao implements DynamicModelDao<JsonDynamicModel> {
+public class MongoDynamicModelDao implements JsonDynamicModelDao {
     private static final long INITIAL_VERSION_VALUE = 1L;
 
     private final ReactiveMongoOperations mongoOperations;

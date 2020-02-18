@@ -2,6 +2,7 @@ package io.extremum.dynamic.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.SneakyThrows;
 
 import java.util.Map;
@@ -19,6 +20,10 @@ public class DynamicModelTestUtils {
     }
 
     public static JsonDynamicModel buildModel(String modelName, Map<String, Object> data) {
-        return new JsonDynamicModel(modelName, data);
+        return buildModel(null, modelName, data);
+    }
+
+    public static JsonDynamicModel buildModel(Descriptor id, String modelName, Map<String, Object> data) {
+        return new JsonDynamicModel(id, modelName, data);
     }
 }
