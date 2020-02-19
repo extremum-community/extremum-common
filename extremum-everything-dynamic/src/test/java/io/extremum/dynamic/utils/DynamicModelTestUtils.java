@@ -15,10 +15,6 @@ public class DynamicModelTestUtils {
         return mapper.readerFor(Map.class).readValue(value);
     }
 
-    public static String modelNameToCollectionName(String modelName) {
-        return modelName.toLowerCase().replaceAll("[\\W]", "_");
-    }
-
     public static JsonDynamicModel buildModel(String modelName, Map<String, Object> data) {
         return buildModel(null, modelName, data);
     }

@@ -2,11 +2,13 @@ package io.extremum.dynamic;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import io.extremum.dynamic.events.DynamicModelRegisteredEvent;
 import io.extremum.dynamic.schema.networknt.NetworkntSchema;
 import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.validator.exceptions.SchemaLoadingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
 
     private volatile boolean alreadyHeated = false;
     private final SchemaMetaService schemaMetaService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -37,11 +40,16 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
                             "in a descriptor determinator", loaded.getSchema());
                 } else {
                     schemaMetaService.registerMapping(title.textValue(), schemaName);
+                    onMappingRegistered(title.textValue());
                 }
             } catch (SchemaLoadingException e) {
                 log.error("Unable to load schema {}", schemaName, e);
             }
         }
+    }
+
+    private void onMappingRegistered(String modelName) {
+        eventPublisher.publishEvent(new DynamicModelRegisteredEvent(modelName));
     }
 
     private boolean isTextNode(JsonNode title) {

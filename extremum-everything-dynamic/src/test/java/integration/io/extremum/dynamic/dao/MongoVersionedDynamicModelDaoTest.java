@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static io.extremum.common.model.VersionedModel.FIELDS.*;
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.modelNameToCollectionName;
+import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
 import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.modified;
 import static java.util.Arrays.asList;
@@ -82,7 +82,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel("snapshotTaken_after_update", "{\"a\":\"b\"}").block();
         updateModel(persisted).block();
 
-        String collectionName = modelNameToCollectionName(persisted.getModelName());
+        String collectionName = collectionNameFromModel(persisted.getModelName());
 
         Long totalSnapshotsCount = findInCollection(
                 collectionName,
@@ -106,7 +106,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
     void findById() {
         JsonDynamicModel persisted = persistModel("findByIdTestModel", "{\"a\": \"b\"}").block();
         JsonDynamicModel found = dao.getByIdFromCollection(persisted.getId(),
-                modelNameToCollectionName(persisted.getModelName())).block();
+                collectionNameFromModel(persisted.getModelName())).block();
 
         assertNotNull(found);
 
@@ -125,7 +125,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
         JsonDynamicModel updated1 = updateModel(persisted).block();
         updateModel(updated1).block();
 
-        String collectionName = modelNameToCollectionName(persisted.getModelName());
+        String collectionName = collectionNameFromModel(persisted.getModelName());
 
         JsonDynamicModel found = dao.getByIdFromCollection(persisted.getId(), collectionName).block();
 
@@ -138,7 +138,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
     void deletedModelNotFoundTest() {
         JsonDynamicModel persisted = persistModel("deletedModelNotFoundTestModel", "{\"a\":\"b\"}").block();
 
-        String collectionName = modelNameToCollectionName(persisted.getModelName());
+        String collectionName = collectionNameFromModel(persisted.getModelName());
 
         dao.remove(persisted.getId(), collectionName).block();
 
@@ -149,7 +149,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
     void removeTest() {
         JsonDynamicModel persisted = persistModel("removeTestModel", "{\"a\": \"b\"}").block();
 
-        String collectionName = modelNameToCollectionName(persisted.getModelName());
+        String collectionName = collectionNameFromModel(persisted.getModelName());
         dao.remove(persisted.getId(), collectionName).block();
 
         Bson andQuery = andQuery(
@@ -167,7 +167,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel("markSnapshotsAsDeleted_after_deleteModel", "{\"a\":\"b\"}").block();
         updateModel(persisted).block();
 
-        String collectionName = modelNameToCollectionName(persisted.getModelName());
+        String collectionName = collectionNameFromModel(persisted.getModelName());
         dao.remove(persisted.getId(), collectionName).block();
 
         long markDeletedSnapshotsFound = findInCollection(
@@ -201,10 +201,10 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
 
     private Mono<JsonDynamicModel> persistModel(final String modelName, final String data) {
         JsonDynamicModel model = new JsonDynamicModel(modelName, toMap(data));
-        return dao.create(model, modelNameToCollectionName(model.getModelName()));
+        return dao.create(model, collectionNameFromModel(model.getModelName()));
     }
 
     private Mono<JsonDynamicModel> updateModel(JsonDynamicModel model) {
-        return dao.update(model, modelNameToCollectionName(model.getModelName()));
+        return dao.update(model, collectionNameFromModel(model.getModelName()));
     }
 }

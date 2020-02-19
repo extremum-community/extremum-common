@@ -1,7 +1,5 @@
 package io.extremum.dynamic.dao;
 
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Indexes;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.Success;
 import io.extremum.common.exceptions.ModelNotFoundException;
@@ -43,24 +41,17 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     @Override
     public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
         return makeDescriptor(model.getModelName())
-                .flatMap(createServiceFields(model))
-                .then(ensureIndexes(collectionName)
-                        .then(Mono.from(operations.getCollection(collectionName)
-                                .insertOne(new Document(model.getModelData())))
-                                .then(just(model))));
+                .flatMap(provideServiceFields(model))
+                .flatMap(insertModel(collectionName));
     }
 
-    private Mono<String> ensureIndexes(String collectionName) {
-        Publisher<String> p = operations.getCollection(collectionName)
-                .createIndex(Indexes.compoundIndex(
-                        new Document(VersionedModel.FIELDS.lineageId.name(), 1),
-                        new Document(Model.FIELDS.version.name(), 1)
-                ), new IndexOptions().unique(true));
-
-        return Mono.from(p);
+    private Function<JsonDynamicModel, Mono<JsonDynamicModel>> insertModel(String collectionName) {
+        return model -> Mono.from(operations.getCollection(collectionName)
+                .insertOne(new Document(model.getModelData())))
+                .thenReturn(model);
     }
 
-    private Function<Descriptor, Mono<JsonDynamicModel>> createServiceFields(JsonDynamicModel model) {
+    private Function<Descriptor, Mono<JsonDynamicModel>> provideServiceFields(JsonDynamicModel model) {
         return descr -> fromSupplier(() -> {
             ObjectId oId = new ObjectId(descr.getInternalId());
             ZonedDateTime now = ZonedDateTime.now();

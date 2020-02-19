@@ -18,7 +18,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import reactor.core.publisher.Mono;
 
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
+import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.buildModel;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SoftDeleteRemoveStrategyDaoTestConfigurations.class)
@@ -32,7 +34,7 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
     @Test
     void softDeleteTest() {
         JsonDynamicModel model = buildModel("AModelForSoftDelete", toMap("{\"f\": \"v\"}"));
-        String collectionName = modelNameToCollectionName(model.getModelName());
+        String collectionName = collectionNameFromModel(model.getModelName());
 
         DynamicModelRemoveStrategy strategy = createSoftDeleteStrategy();
 
@@ -51,7 +53,7 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
     @Test
     void hardDeleteTest() {
         JsonDynamicModel model = buildModel("AModelForHardDelete", toMap("{\"f\": \"v\"}"));
-        String collectionName = modelNameToCollectionName(model.getModelName());
+        String collectionName = collectionNameFromModel(model.getModelName());
 
         DynamicModelRemoveStrategy strategy = createHardDeleteStrategy();
 

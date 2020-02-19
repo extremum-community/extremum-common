@@ -1,6 +1,7 @@
 package io.extremum.dynamic.services.impl;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
+import io.extremum.dynamic.DynamicModelSupports;
 import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.metadata.MetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
@@ -122,7 +123,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     }
 
     private Mono<String> getCollectionName(Descriptor descr) {
-        return descr.getModelTypeReactively().map(this::normalizeStringToCollectionName);
+        return descr.getModelTypeReactively().map(DynamicModelSupports::collectionNameFromModel);
     }
 
     private Mono<String> getCollectionName(JsonDynamicModel model) {
@@ -130,11 +131,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
             return getCollectionName(model.getId());
         } else {
             return just(model.getModelName())
-                    .map(this::normalizeStringToCollectionName);
+                    .map(DynamicModelSupports::collectionNameFromModel);
         }
-    }
-
-    private String normalizeStringToCollectionName(String str) {
-        return str.toLowerCase().replaceAll("[\\W]", "_");
     }
 }
