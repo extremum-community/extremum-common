@@ -21,6 +21,10 @@
         </dependency>
         <dependency>
             <groupId>io.extremum</groupId>
+            <artifactId>extremum-shared-models-grpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.extremum</groupId>
             <artifactId>extremum-annotations</artifactId>
         </dependency>
         <dependency>
@@ -90,6 +94,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.extremum</groupId>
@@ -102,9 +110,18 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
     </dependencies>
 </project>
