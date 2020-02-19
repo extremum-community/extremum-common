@@ -45,7 +45,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
                 .flatMap(createServiceFields(model))
                 .flatMap(enhanced -> from(operations.getCollection(collectionName)
                         .insertOne(new Document(model.getModelData())))
-                        .then(justOrEmpty(model)));
+                        .then(just(model)));
     }
 
     private Function<Descriptor, Mono<JsonDynamicModel>> createServiceFields(JsonDynamicModel model) {
@@ -115,7 +115,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
                                             .insertOne(new Document(next.getModelData()));
 
                                     return from(insertPublisher)
-                                            .then(just(next));
+                                            .thenReturn(next);
                                 }
                             });
                 });
@@ -152,7 +152,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
         return extractInternalId(id)
                 .flatMap(getActiveSnapshotFromCollection(collectionName))
                 .map(doc -> new JsonDynamicModel(id, doc.getString(Model.FIELDS.model.name()), doc))
-                .switchIfEmpty(error(new ModelNotFoundException("Dynamic model with id " + id + " doesn't found")));
+                .switchIfEmpty(defer(() -> error(new ModelNotFoundException("Dynamic model with id " + id + " doesn't found"))));
     }
 
     private Function<ObjectId, Mono<Document>> getActiveSnapshotFromCollection(String collectionName) {
