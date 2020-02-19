@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
@@ -378,35 +377,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         ZonedDateTime modifiedWhenUpdated = (ZonedDateTime) updated.getModelData().get(Model.FIELDS.modified.name());
 
         assertTrue(modifiedWhenCreated.isBefore(modifiedWhenUpdated));
-    }
-
-    @Test
-    void modelUpdated_throws_OptimisticLockException() throws IOException {
-        NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
-        JsonSchema jsonSchemaMock = mock(JsonSchema.class);
-
-        doReturn(Collections.emptySet())
-                .when(jsonSchemaMock).validate(any(), any());
-
-        doReturn(jsonSchemaMock)
-                .when(networkntSchemaMock).getSchema();
-
-        doReturn(Optional.of(networkntSchemaMock))
-                .when(networkntCacheManager).fetchFromCache(anyString());
-
-        Map<String, Object> data = toMap("{\"a\":  \"b\"}");
-
-        JsonDynamicModel model = new JsonDynamicModel("modelName", data);
-
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
-
-        JsonDynamicModel saved = service.saveModel(model).block();
-        saved.getModelData().replace(Model.FIELDS.version.name(), 3);
-
-        Mono<JsonDynamicModel> updated = service.saveModel(saved);
-        StepVerifier.create(updated)
-                .expectError(OptimisticLockingFailureException.class)
-                .verify();
     }
 
     @Test

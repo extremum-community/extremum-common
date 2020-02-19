@@ -6,7 +6,6 @@ import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.Success;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.VersionedModel;
-import io.extremum.common.utils.DateUtils;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.mongo.MongoConstants;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
@@ -35,7 +34,7 @@ import static reactor.core.publisher.Mono.*;
 
 @RequiredArgsConstructor
 public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
-    private static final long VERSION_INIT_VALUE = 1L;
+    private static final long INITIAL_VERSION_VALUE = 1L;
     private static final String PRIMARY_KEY_FIELD_NAME = "_id";
 
     private final ReactiveMongoOperations operations;
@@ -67,7 +66,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
             ZonedDateTime now = ZonedDateTime.now();
 
             model.setId(descr);
-            model.getModelData().put(Model.FIELDS.version.name(), VERSION_INIT_VALUE);
+            model.getModelData().put(Model.FIELDS.version.name(), INITIAL_VERSION_VALUE);
             model.getModelData().put(Model.FIELDS.created.name(), toDate(now));
             model.getModelData().put(Model.FIELDS.modified.name(), toDate(now));
             model.getModelData().put(Model.FIELDS.model.name(), model.getModelName());
@@ -81,8 +80,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     }
 
     private Date toDate(ZonedDateTime zdt) {
-        String tmp = DateUtils.formatZonedDateTimeISO_8601(zdt);
-        return DateUtils.convert(tmp);
+        return Date.from(zdt.toInstant());
     }
 
     private Mono<Descriptor> makeDescriptor(String modelName) {
