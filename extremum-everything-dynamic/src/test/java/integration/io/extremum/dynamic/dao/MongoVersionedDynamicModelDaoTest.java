@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import reactor.core.publisher.Mono;
 
@@ -104,24 +103,6 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
     }
 
     @Test
-    void optimisticLockExceptionTest() {
-        JsonDynamicModel persisted = persistModel("optimisticLockExceptionTestModel", "{\"a\":\"b\"}").block();
-
-        String collectionName = modelNameToCollectionName(persisted.getModelName());
-
-        Bson query = andQuery(
-                new Document(lineageId.name(), new ObjectId(persisted.getId().getInternalId())),
-                new Document(currentSnapshot.name(), true)
-        );
-
-        BasicDBObject update = new BasicDBObject("$inc", new BasicDBObject(version.name(), 1));
-
-        updateInCollection(collectionName, query, update, p -> from(p).count().block());
-
-        assertThrows(OptimisticLockingFailureException.class, () -> dao.replace(persisted, collectionName).block());
-    }
-
-    @Test
     void findById() {
         JsonDynamicModel persisted = persistModel("findByIdTestModel", "{\"a\": \"b\"}").block();
         JsonDynamicModel found = dao.getByIdFromCollection(persisted.getId(),
@@ -198,7 +179,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
                 p -> from(p).count().block()
         );
 
-        assertEquals(2, markDeletedSnapshotsFound);
+        assertEquals(1, markDeletedSnapshotsFound);
     }
 
     private <T> T findInCollection(String collectionName, Bson query, Function<FindPublisher<Document>, T> transformer) {

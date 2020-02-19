@@ -22,7 +22,7 @@ public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoC
 
                 JsonDynamicModelResponseDto dto = new JsonDynamicModelResponseDto();
                 HashMap<String, Object> data = new HashMap<>(dModel.getModelData());
-                removeSensitiveData(data);
+                removeTechnicalData(data);
                 dto.setData(data);
                 dto.setId(dModel.getId());
 
@@ -33,7 +33,7 @@ public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoC
         }
     }
 
-    private void removeSensitiveData(HashMap<String, Object> data) {
+    private void removeTechnicalData(HashMap<String, Object> data) {
         data.remove("_id");
         data.remove(VersionedModel.FIELDS.lineageId.name());
         data.remove(VersionedModel.FIELDS.currentSnapshot.name());

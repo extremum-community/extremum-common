@@ -1,6 +1,7 @@
 package io.extremum.dynamic.dao;
 
-import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.reactivestreams.client.Success;
 import io.extremum.common.exceptions.ModelNotFoundException;
@@ -16,26 +17,27 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.reactivestreams.Publisher;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.function.Function;
 
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
 import static reactor.core.publisher.Mono.*;
 
 @RequiredArgsConstructor
 public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     private static final long VERSION_INIT_VALUE = 1L;
+    private static final String PRIMARY_KEY_FIELD_NAME = "_id";
+
     private final ReactiveMongoOperations operations;
     private final ReactiveMongoDescriptorFacilities descriptorFacilities;
 
@@ -43,9 +45,20 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
         return makeDescriptor(model.getModelName())
                 .flatMap(createServiceFields(model))
-                .flatMap(enhanced -> from(operations.getCollection(collectionName)
-                        .insertOne(new Document(model.getModelData())))
-                        .then(just(model)));
+                .flatMap(_it -> ensureIndexes(collectionName)
+                        .flatMap(idx -> Mono.from(operations.getCollection(collectionName)
+                                .insertOne(new Document(model.getModelData())))
+                                .then(just(model))));
+    }
+
+    private Mono<String> ensureIndexes(String collectionName) {
+        Publisher<String> p = operations.getCollection(collectionName)
+                .createIndex(Indexes.compoundIndex(
+                        new Document(VersionedModel.FIELDS.lineageId.name(), 1),
+                        new Document(Model.FIELDS.version.name(), 1)
+                ), new IndexOptions().unique(true));
+
+        return Mono.from(p);
     }
 
     private Function<Descriptor, Mono<JsonDynamicModel>> createServiceFields(JsonDynamicModel model) {
@@ -87,36 +100,26 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
                     JsonDynamicModel current = prepared.getT1();
                     JsonDynamicModel next = prepared.getT2();
 
-                    List<Bson> andCriteria = new ArrayList<>();
-                    andCriteria.add(new Document(VersionedModel.FIELDS.lineageId.name(), new ObjectId(next.getId().getInternalId())));
-                    andCriteria.add(new Document(VersionedModel.FIELDS.currentSnapshot.name(), true));
-                    andCriteria.add(new Document(Model.FIELDS.version.name(), updatedModel.getModelData().get(Model.FIELDS.version.name())));
+                    Bson filter = and(
+                            eq(PRIMARY_KEY_FIELD_NAME, current.getModelData().get(PRIMARY_KEY_FIELD_NAME))
+                    );
 
-                    Bson filter = new Document("$and", andCriteria);
-
-                    List<Bson> update = new ArrayList<>();
-                    update.add(new Document("$set", new Document(VersionedModel.FIELDS.currentSnapshot.name(), false)));
-                    update.add(new Document("$set", new Document(VersionedModel.FIELDS.end.name(), now)));
+                    Bson update = combine(
+                            set(VersionedModel.FIELDS.currentSnapshot.name(), false),
+                            set(VersionedModel.FIELDS.end.name(), now)
+                    );
 
                     Publisher<UpdateResult> p = operations.getCollection(collectionName)
-                            .updateMany(filter, update);
+                            .updateOne(filter, update);
 
-                    return Flux.from(p)
-                            .collectList()
-                            .flatMap(results -> {
-                                long updatedCount = results.stream()
-                                        .mapToLong(UpdateResult::getMatchedCount)
-                                        .sum();
+                    return Mono.from(p)
+                            .flatMap(_it -> {
 
-                                if (updatedCount == 0) {
-                                    return error(new OptimisticLockingFailureException("Model " + current.getId() + " changed"));
-                                } else {
-                                    Publisher<Success> insertPublisher = operations.getCollection(collectionName)
-                                            .insertOne(new Document(next.getModelData()));
+                                Publisher<Success> insertPublisher = operations.getCollection(collectionName)
+                                        .insertOne(new Document(next.getModelData()));
 
-                                    return from(insertPublisher)
-                                            .thenReturn(next);
-                                }
+                                return Mono.from(insertPublisher)
+                                        .thenReturn(next);
                             });
                 });
     }
@@ -131,10 +134,12 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
         next.getModelData().put(Model.FIELDS.version.name(), extractVersion(currentSnapshot) + 1);
         next.getModelData().put(VersionedModel.FIELDS.lineageId.name(), new ObjectId(currentSnapshot.getId().getInternalId()));
         next.getModelData().put(VersionedModel.FIELDS.currentSnapshot.name(), true);
-        next.getModelData().put(Model.FIELDS.created.name(), now);
+        next.getModelData().put(Model.FIELDS.created.name(), currentSnapshot.getModelData().get(Model.FIELDS.created.name()));
         next.getModelData().put(Model.FIELDS.modified.name(), now);
         next.getModelData().put(VersionedModel.FIELDS.start.name(), now);
         next.getModelData().put(VersionedModel.FIELDS.end.name(), toDate(MongoConstants.DISTANT_FUTURE));
+
+        next.getModelData().remove(PRIMARY_KEY_FIELD_NAME);
 
         return Tuples.of(current, next);
     }
@@ -152,16 +157,20 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
         return extractInternalId(id)
                 .flatMap(getActiveSnapshotFromCollection(collectionName))
                 .map(doc -> new JsonDynamicModel(id, doc.getString(Model.FIELDS.model.name()), doc))
-                .switchIfEmpty(defer(() -> error(new ModelNotFoundException("Dynamic model with id " + id + " doesn't found"))));
+                .switchIfEmpty(defer(() -> error(new ModelNotFoundException("Dynamic model with id " + id + " isn't found"))));
     }
 
     private Function<ObjectId, Mono<Document>> getActiveSnapshotFromCollection(String collectionName) {
         return oId -> {
-            List<BasicDBObject> criteria = new ArrayList<>();
-            criteria.add(new BasicDBObject(VersionedModel.FIELDS.lineageId.name(), oId));
-            criteria.add(new BasicDBObject(VersionedModel.FIELDS.currentSnapshot.name(), true));
+            Bson condition = and(
+                    eq(VersionedModel.FIELDS.lineageId.name(), oId),
+                    eq(VersionedModel.FIELDS.currentSnapshot.name(), true),
+                    or(
+                            eq(Model.FIELDS.deleted.name(), false),
+                            exists(Model.FIELDS.deleted.name(), false)
+                    )
+            );
 
-            BasicDBObject condition = new BasicDBObject("$and", criteria);
             Publisher<Document> p = operations.getCollection(collectionName)
                     .find(condition).first();
 
@@ -170,21 +179,13 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     }
 
     @Override
+    @Transactional
     public Mono<Void> remove(Descriptor id, String collectionName) {
-        return extractInternalId(id)
-                .flatMap(oId -> {
-                    List<BasicDBObject> update = new ArrayList<>();
-                    update.add(new BasicDBObject("$set", new BasicDBObject(Model.FIELDS.deleted.name(), true)));
-                    update.add(new BasicDBObject("$set", new BasicDBObject(VersionedModel.FIELDS.currentSnapshot.name(), false)));
-
-                    Publisher<UpdateResult> p = operations.getCollection(collectionName)
-                            .updateMany(
-                                    new BasicDBObject(VersionedModel.FIELDS.lineageId.name(), oId),
-                                    update
-                            );
-
-                    return Flux.from(p).collectList().then(empty());
-                });
+        return getByIdFromCollection(id, collectionName)
+                .flatMap(found -> {
+                    found.getModelData().put(Model.FIELDS.deleted.name(), true);
+                    return replace(found, collectionName);
+                }).then();
     }
 
     private Mono<ObjectId> extractInternalId(Descriptor id) {
