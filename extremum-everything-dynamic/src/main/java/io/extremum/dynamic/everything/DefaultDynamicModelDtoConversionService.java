@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoConversionService {
@@ -21,7 +22,7 @@ public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoC
                 JsonDynamicModel dModel = (JsonDynamicModel) model;
 
                 JsonDynamicModelResponseDto dto = new JsonDynamicModelResponseDto();
-                HashMap<String, Object> data = new HashMap<>(dModel.getModelData());
+                Map<String, Object> data = new HashMap<>(dModel.getModelData());
                 removeTechnicalData(data);
                 dto.setData(data);
                 dto.setId(dModel.getId());
@@ -33,7 +34,7 @@ public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoC
         }
     }
 
-    private void removeTechnicalData(HashMap<String, Object> data) {
+    private void removeTechnicalData(Map<String, Object> data) {
         data.remove("_id");
         data.remove(VersionedModel.FIELDS.lineageId.name());
         data.remove(VersionedModel.FIELDS.currentSnapshot.name());
