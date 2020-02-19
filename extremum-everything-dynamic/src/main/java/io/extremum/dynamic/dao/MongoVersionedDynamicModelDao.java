@@ -44,8 +44,8 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
         return makeDescriptor(model.getModelName())
                 .flatMap(createServiceFields(model))
-                .flatMap(_it -> ensureIndexes(collectionName)
-                        .flatMap(idx -> Mono.from(operations.getCollection(collectionName)
+                .then(ensureIndexes(collectionName)
+                        .then(Mono.from(operations.getCollection(collectionName)
                                 .insertOne(new Document(model.getModelData())))
                                 .then(just(model))));
     }
@@ -110,16 +110,15 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
                     Publisher<UpdateResult> p = operations.getCollection(collectionName)
                             .updateOne(filter, update);
 
-                    return Mono.from(p)
-                            .flatMap(_it -> {
-
-                                Publisher<Success> insertPublisher = operations.getCollection(collectionName)
-                                        .insertOne(new Document(next.getModelData()));
-
-                                return Mono.from(insertPublisher)
-                                        .thenReturn(next);
-                            });
+                    return Mono.from(p).then(insertSnapshot(next, collectionName));
                 });
+    }
+
+    private Mono<JsonDynamicModel> insertSnapshot(JsonDynamicModel snapshot, String collectionName) {
+        Publisher<Success> insertPublisher = operations.getCollection(collectionName)
+                .insertOne(new Document(snapshot.getModelData()));
+
+        return Mono.from(insertPublisher).thenReturn(snapshot);
     }
 
     private Tuple2<JsonDynamicModel, JsonDynamicModel> prepareCurrentAndNextSnapshots(JsonDynamicModel currentSnapshot, JsonDynamicModel updatedModel, Date now) {
