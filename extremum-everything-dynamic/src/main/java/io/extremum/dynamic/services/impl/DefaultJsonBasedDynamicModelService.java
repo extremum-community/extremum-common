@@ -81,7 +81,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
             if (isNewModel(bModel)) {
                 return dao.create(bModel, collectionName);
             } else {
-                return dao.replace(bModel, collectionName);
+                return dao.update(bModel, collectionName);
             }
         };
     }

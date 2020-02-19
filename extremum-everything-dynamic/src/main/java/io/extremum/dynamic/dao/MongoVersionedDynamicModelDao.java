@@ -89,7 +89,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
 
     @Override
     @Transactional
-    public Mono<JsonDynamicModel> replace(JsonDynamicModel updatedModel, String collectionName) {
+    public Mono<JsonDynamicModel> update(JsonDynamicModel updatedModel, String collectionName) {
         return getByIdFromCollection(updatedModel.getId(), collectionName)
                 .flatMap(currentSnapshot -> {
                     Date now = toDate(ZonedDateTime.now());
@@ -182,7 +182,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
         return getByIdFromCollection(id, collectionName)
                 .flatMap(found -> {
                     found.getModelData().put(Model.FIELDS.deleted.name(), true);
-                    return replace(found, collectionName);
+                    return update(found, collectionName);
                 }).then();
     }
 

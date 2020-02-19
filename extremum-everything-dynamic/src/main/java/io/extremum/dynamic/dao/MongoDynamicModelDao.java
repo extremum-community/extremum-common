@@ -64,7 +64,7 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
     }
 
     @Override
-    public Mono<JsonDynamicModel> replace(JsonDynamicModel model, String collectionName) {
+    public Mono<JsonDynamicModel> update(JsonDynamicModel model, String collectionName) {
         Objects.requireNonNull(model.getId(), "ID of a model can't be null");
 
         return just(model.getId())

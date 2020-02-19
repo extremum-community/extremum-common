@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 public interface DynamicModelDao<T extends DynamicModel<?>> {
     Mono<T> create(T model, String collectionName);
 
-    Mono<T> replace(T model, String collectionName);
+    Mono<T> update(T model, String collectionName);
 
     Mono<T> getByIdFromCollection(Descriptor id, String collectionName);
 

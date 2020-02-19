@@ -205,6 +205,6 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
     }
 
     private Mono<JsonDynamicModel> updateModel(JsonDynamicModel model) {
-        return dao.replace(model, modelNameToCollectionName(model.getModelName()));
+        return dao.update(model, modelNameToCollectionName(model.getModelName()));
     }
 }
