@@ -1,6 +1,7 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.reactivestreams.client.FindPublisher;
 import com.networknt.schema.JsonSchema;
 import configurations.FileSystemSchemaProviderConfiguration;
 import integration.SpringBootTestWithServices;
@@ -33,12 +34,10 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
@@ -50,12 +49,10 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
+import static io.extremum.common.model.VersionedModel.FIELDS.lineageId;
 import static io.extremum.common.utils.DateUtils.parseZonedDateTimeFromISO_8601;
 import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
@@ -64,6 +61,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static reactor.core.publisher.Mono.just;
 
 @Slf4j
 @ContextConfiguration(classes = {
@@ -281,8 +279,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         service.saveModel(model).block();
 
         Descriptor mockDescriptor = mock(Descriptor.class);
-        when(mockDescriptor.getModelTypeReactively()).thenReturn(Mono.just("complex.schema.json"));
-        when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
+        when(mockDescriptor.getModelTypeReactively()).thenReturn(just("complex.schema.json"));
+        when(mockDescriptor.getInternalIdReactively()).thenReturn(just(ObjectId.get().toString()));
 
         Mono<JsonDynamicModel> result = service.findById(mockDescriptor);
 
@@ -294,8 +292,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     @Test
     void findByIdReturnsException_when_modelNotFound_in_nonExistentCollection() {
         Descriptor mockDescriptor = mock(Descriptor.class);
-        when(mockDescriptor.getModelTypeReactively()).thenReturn(Mono.just("non-model-type"));
-        when(mockDescriptor.getInternalId()).thenReturn(ObjectId.get().toString());
+        when(mockDescriptor.getModelTypeReactively()).thenReturn(just("non-model-type"));
+        when(mockDescriptor.getInternalIdReactively()).thenReturn(just(ObjectId.get().toString()));
 
         Mono<JsonDynamicModel> result = service.findById(mockDescriptor);
 
@@ -382,35 +380,6 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void modelUpdated_throws_OptimisticLockException() throws IOException {
-        NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
-        JsonSchema jsonSchemaMock = mock(JsonSchema.class);
-
-        doReturn(Collections.emptySet())
-                .when(jsonSchemaMock).validate(any(), any());
-
-        doReturn(jsonSchemaMock)
-                .when(networkntSchemaMock).getSchema();
-
-        doReturn(Optional.of(networkntSchemaMock))
-                .when(networkntCacheManager).fetchFromCache(anyString());
-
-        Map<String, Object> data = toMap("{\"a\":  \"b\"}");
-
-        JsonDynamicModel model = new JsonDynamicModel("modelName", data);
-
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
-
-        JsonDynamicModel saved = service.saveModel(model).block();
-        saved.getModelData().replace(Model.FIELDS.version.name(), 3);
-
-        Mono<JsonDynamicModel> updated = service.saveModel(saved);
-        StepVerifier.create(updated)
-                .expectError(OptimisticLockingFailureException.class)
-                .verify();
-    }
-
-    @Test
     void deleteModel_changeDeletedFlagOnly() {
         NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
         JsonSchema jsonSchemaMock = mock(JsonSchema.class);
@@ -434,14 +403,16 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         JsonDynamicModel removedModel = service.remove(saved.getId()).block();
         assertNotNull(removedModel);
 
-        Publisher<Document> presentedInDb = operations.getCollection("dynmodel")
-                .find(new Document("_id", new ObjectId(saved.getId().getInternalId())))
-                .first();
+        List<Document> criteria = new ArrayList<>();
+        criteria.add(new Document(lineageId.name(), new ObjectId(saved.getId().getInternalId())));
+        criteria.add(new Document(deleted.name(), true));
 
-        StepVerifier.create(presentedInDb)
-                .assertNext(removed -> {
-                    assertTrue(removed.getBoolean(deleted.name()));
-                }).verifyComplete();
+        FindPublisher<Document> presentedInDb = operations.getCollection(model.getModelName())
+                .find(new Document("$and", criteria));
+
+        int removedCount = Flux.from(presentedInDb).collectList().block().size();
+
+        assertEquals(1, removedCount);
 
         Mono<JsonDynamicModel> findById = service.findById(saved.getId());
 

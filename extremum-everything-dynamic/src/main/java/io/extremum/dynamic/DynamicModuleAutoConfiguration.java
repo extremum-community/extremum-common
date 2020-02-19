@@ -1,8 +1,8 @@
 package io.extremum.dynamic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.dynamic.dao.DynamicModelRemoveStrategy;
-import io.extremum.dynamic.dao.SoftDeleteRemoveStrategy;
+import io.extremum.dynamic.dao.JsonDynamicModelDao;
+import io.extremum.dynamic.dao.MongoVersionedDynamicModelDao;
 import io.extremum.dynamic.resources.github.GithubAccessOptions;
 import io.extremum.dynamic.resources.github.GithubResourceConfiguration;
 import io.extremum.dynamic.schema.JsonSchemaType;
@@ -18,6 +18,7 @@ import io.extremum.dynamic.services.impl.DefaultDateTypesNormalizer;
 import io.extremum.dynamic.services.impl.DefaultDatesProcessor;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
+import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -104,7 +105,7 @@ public class DynamicModuleAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DynamicModelRemoveStrategy dynamicModelRemoveStrategy(ReactiveMongoOperations mongoOperations) {
-        return new SoftDeleteRemoveStrategy(mongoOperations);
+    public JsonDynamicModelDao jsonDynamicModelDao(ReactiveMongoOperations ops, ReactiveMongoDescriptorFacilities facilities) {
+        return new MongoVersionedDynamicModelDao(ops, facilities);
     }
 }

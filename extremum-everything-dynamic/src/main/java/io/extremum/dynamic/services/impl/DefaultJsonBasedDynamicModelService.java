@@ -1,7 +1,8 @@
 package io.extremum.dynamic.services.impl;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.dynamic.dao.DynamicModelDao;
+import io.extremum.dynamic.DynamicModelSupports;
+import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.metadata.MetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.DateTypesNormalizer;
@@ -29,7 +30,7 @@ import static reactor.core.publisher.Mono.*;
 @Service
 @RequiredArgsConstructor
 public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicModelService {
-    private final DynamicModelDao<JsonDynamicModel> dao;
+    private final JsonDynamicModelDao dao;
     private final JsonDynamicModelValidator modelValidator;
     private final MetadataProviderService metadataProvider;
     private final DateTypesNormalizer dateTypesNormalizer;
@@ -44,7 +45,6 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                                 Mono::error,
                                 ctx -> saveValidatedModel(model, ctx)
                         ))
-                .map(this::removeSensetive)
                 .map(m -> {
                     datesProcessor.processDates(m.getModelData());
                     return m;
@@ -54,7 +54,6 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     @Override
     public Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
         return saveModelWithoutNotifications(model)
-                .map(this::removeSensetive)
                 .flatMap(savedModel ->
                         watchService.registerSaveOperation(savedModel)
                                 .thenReturn(savedModel));
@@ -83,7 +82,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
             if (isNewModel(bModel)) {
                 return dao.create(bModel, collectionName);
             } else {
-                return dao.replace(bModel, collectionName);
+                return dao.update(bModel, collectionName);
             }
         };
     }
@@ -112,14 +111,6 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
                 .switchIfEmpty(defer(() -> error(new ModelNotFoundException("DynamicModel with id " + id + " not found"))));
     }
 
-    private JsonDynamicModel removeSensetive(JsonDynamicModel model) {
-        if (model.getModelData() != null) {
-            model.getModelData().remove("_id");
-        }
-
-        return model;
-    }
-
     @Override
     public Mono<JsonDynamicModel> remove(Descriptor id) {
         return findById(id)
@@ -132,7 +123,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     }
 
     private Mono<String> getCollectionName(Descriptor descr) {
-        return descr.getModelTypeReactively().map(this::normalizeStringToCollectionName);
+        return descr.getModelTypeReactively().map(DynamicModelSupports::collectionNameFromModel);
     }
 
     private Mono<String> getCollectionName(JsonDynamicModel model) {
@@ -140,11 +131,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
             return getCollectionName(model.getId());
         } else {
             return just(model.getModelName())
-                    .map(this::normalizeStringToCollectionName);
+                    .map(DynamicModelSupports::collectionNameFromModel);
         }
-    }
-
-    private String normalizeStringToCollectionName(String str) {
-        return str.toLowerCase().replaceAll("[\\W]", "_");
     }
 }

@@ -2,7 +2,7 @@ package integration.everythingmanagement;
 
 import integration.SpringBootTestWithServices;
 import io.extremum.dynamic.SchemaMetaService;
-import io.extremum.dynamic.dao.MongoDynamicModelDao;
+import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.constant.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
+import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.buildModel;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -27,7 +29,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     WebTestClient webTestClient;
 
     @Autowired
-    MongoDynamicModelDao dao;
+    JsonDynamicModelDao dao;
 
     @Autowired
     SchemaMetaService schemaMetaService;
@@ -114,7 +116,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
                 .exchange()
                 .expectStatus().isOk();
 
-        dao.getByIdFromCollection(persisted.getId(), modelNameToCollectionName(modelName));
+        dao.getByIdFromCollection(persisted.getId(), collectionNameFromModel(modelName));
 
         webTestClient.get()
                 .uri("/v1/" + persisted.getId().getExternalId())
@@ -125,6 +127,6 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     }
 
     private Mono<JsonDynamicModel> persistModel(JsonDynamicModel model) {
-        return dao.create(model, modelNameToCollectionName(model.getModelName()));
+        return dao.create(model, collectionNameFromModel(model.getModelName()));
     }
 }
