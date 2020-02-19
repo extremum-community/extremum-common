@@ -41,8 +41,7 @@ public class DynamicModelRegisteredEventListener implements ApplicationListener<
                                 new Document(VersionedModel.FIELDS.lineageId.name(), 1),
                                 new Document(VersionedModel.FIELDS.currentSnapshot.name(), 1),
                                 new Document(Model.FIELDS.deleted.name(), 1)
-                        ),
-                        new IndexOptions().unique(true)
+                        )
                 );
 
 
