@@ -5,14 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.basic.MultilingualLanguage;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
+import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StringOrMultilingualSerializerTest {
     private ObjectMapper mapper = new BasicJsonObjectMapper();
@@ -26,7 +27,7 @@ public class StringOrMultilingualSerializerTest {
     }
 
     @Test
-    public void serializeToComplexObjectTest() throws JsonProcessingException, JSONException {
+    public void serializeToComplexObjectTest() throws Exception {
         String expectedText_ru = "В лесу родилась ёлочка";
         String expectedLang_ru = "ru-RU";
         String expectedText_en = "The forest raised a christmas tree";

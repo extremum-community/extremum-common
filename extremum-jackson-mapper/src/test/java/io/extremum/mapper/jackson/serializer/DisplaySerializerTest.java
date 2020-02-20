@@ -10,15 +10,14 @@ import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.Media;
 import io.extremum.sharedmodels.content.MediaType;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DisplaySerializerTest {
-    private ObjectMapper mapper = new BasicJsonObjectMapper();
+    private final ObjectMapper mapper = new BasicJsonObjectMapper();
+    private final JsonNormalizer normalizer = new JsonNormalizer();
 
     @Test
     void serializeToSimpleStringTest() throws JsonProcessingException {
@@ -29,7 +28,7 @@ class DisplaySerializerTest {
     }
 
     @Test
-    void serializeToJsonObjectTest() throws JsonProcessingException, JSONException {
+    void serializeToJsonObjectTest() throws Exception {
         Media icon = new Media();
         icon.setUrl("/url/to/resource");
         icon.setType(MediaType.IMAGE);
@@ -62,13 +61,10 @@ class DisplaySerializerTest {
                 icon,
                 splash);
 
-        String value = mapper.writeValueAsString(display);
+        String producedJson = mapper.writeValueAsString(display);
 
-        String loaded = TestUtils.loadAsStringFromResource("json-files/display-as-object.json");
+        String expectedJson = TestUtils.loadAsStringFromResource("json-files/display-as-object.json");
 
-        JSONObject actual = new JSONObject(value);
-        JSONObject expected = new JSONObject(loaded);
-
-        assertEquals(expected.toString(), actual.toString());
+        assertEquals(normalizer.normalizeJson(expectedJson), normalizer.normalizeJson(producedJson));
     }
 }
