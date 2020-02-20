@@ -59,7 +59,7 @@ import java.util.List;
         DescriptorsMongoConfiguration.class, DescriptorsReactiveMongoConfiguration.class,
         MongoRepositoriesConfiguration.class})
 @RequiredArgsConstructor
-@ComponentScan({"io.extremum.common.dto.converters", "io.extremum.sharedmodels.converter"})
+@ComponentScan({"io.extremum.common.dto.converters", "io.extremum.sharedmodels.grpc.converter"})
 @EnableConfigurationProperties({RedisProperties.class, DescriptorsProperties.class, ModelProperties.class})
 @AutoConfigureBefore(JacksonAutoConfiguration.class)
 public class CommonConfiguration {

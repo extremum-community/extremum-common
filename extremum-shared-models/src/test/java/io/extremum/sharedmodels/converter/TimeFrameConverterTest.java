@@ -1,6 +1,7 @@
 package io.extremum.sharedmodels.converter;
 
 import io.extremum.sharedmodels.basic.IntegerOrString;
+import io.extremum.sharedmodels.converter.TimeFrameConverter;
 import io.extremum.sharedmodels.spacetime.TimeFrame;
 import io.extremum.sharedmodels.spacetime.TimeFrameDocument;
 import org.junit.jupiter.api.Test;
