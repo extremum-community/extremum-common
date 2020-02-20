@@ -11,7 +11,7 @@ class JsonNormalizer {
         try {
             return new JSONObject(json).toString();
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("Cannot parse '%s' as json", json), e);
         }
     }
 }
