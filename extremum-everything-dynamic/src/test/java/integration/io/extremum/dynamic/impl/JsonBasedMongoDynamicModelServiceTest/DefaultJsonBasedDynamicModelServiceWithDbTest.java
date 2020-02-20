@@ -1,13 +1,11 @@
 package integration.io.extremum.dynamic.impl.JsonBasedMongoDynamicModelServiceTest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.reactivestreams.client.FindPublisher;
 import com.networknt.schema.JsonSchema;
 import configurations.FileSystemSchemaProviderConfiguration;
 import integration.SpringBootTestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
-import io.extremum.dynamic.GithubSchemaProperties;
 import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.metadata.MetadataProviderService;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
@@ -44,7 +42,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -81,13 +78,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     DefaultJsonBasedDynamicModelService service;
 
     @Autowired
-    GithubSchemaProperties githubSchemaProperties;
-
-    @Autowired
     ReactiveMongoOperations operations;
-
-    @Autowired
-    private ObjectMapper mapper;
 
     @SpyBean
     NetworkntCacheManager networkntCacheManager;
@@ -102,7 +93,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     WatchEventConsumer watchConsumer;
 
     @Test
-    void validModelSavedInMongo() throws IOException, JSONException {
+    void validModelSavedInMongo() throws JSONException {
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -174,7 +165,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void getModelById() throws IOException {
+    void getModelById() {
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -209,7 +200,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void updateModelTest() throws IOException {
+    void updateModelTest() {
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -256,7 +247,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     // negative tests
 
     @Test
-    void findByIdReturnsException_when_modelNotFound_in_existingCollection() throws IOException {
+    void findByIdReturnsException_when_modelNotFound_in_existingCollection() {
         String schemaName = "complex.schema.json";
 
         String pathToFile = this.getClass().getClassLoader().getResource("test.file.txt").getPath();
@@ -303,7 +294,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void modelSaved_withFields_create_modified_version__and__without_deleted() throws IOException {
+    void modelSaved_withFields_create_modified_version__and__without_deleted() {
         NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
         JsonSchema jsonSchemaMock = mock(JsonSchema.class);
 
@@ -340,7 +331,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     }
 
     @Test
-    void modelUpdated_withFields_modified_changed__version_incremented() throws IOException {
+    void modelUpdated_withFields_modified_changed__version_incremented() {
         NetworkntSchema networkntSchemaMock = mock(NetworkntSchema.class);
         JsonSchema jsonSchemaMock = mock(JsonSchema.class);
 

@@ -1,8 +1,11 @@
 package io.extremum.dynamic.server.handlers;
 
 import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import io.extremum.dynamic.TestUtils;
+import io.extremum.dynamic.server.supports.FilesSupportsService;
+import io.extremum.dynamic.server.supports.impl.DefaultFilesSupportsService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,8 @@ class HttpSchemaServerExchangeHandlerTest {
         HttpExchange exchange = mock(HttpExchange.class);
 
         ByteArrayOutputStream responseBody = spy(ByteArrayOutputStream.class);
+        HttpContext httpContext = mock(HttpContext.class);
+        doReturn("/").when(httpContext).getPath();
 
         String fileName = "simple.schema.json";
         URI requestUri = URI.create(format("http://localhost:8080/%s", fileName));
@@ -38,12 +43,14 @@ class HttpSchemaServerExchangeHandlerTest {
         when(exchange.getResponseBody()).thenReturn(responseBody);
         when(exchange.getRequestURI()).thenReturn(requestUri);
         when(exchange.getResponseHeaders()).thenReturn(responseHeaders);
+        when(exchange.getHttpContext()).thenReturn(httpContext);
 
         ArgumentCaptor<Integer> codeCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Path basePath = Paths.get(this.getClass().getClassLoader().getResource("schemas").getPath());
 
-        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, basePath);
+        FilesSupportsService fileSupportsService = new DefaultFilesSupportsService();
+        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, basePath, fileSupportsService);
 
         handler.run();
 
@@ -75,13 +82,18 @@ class HttpSchemaServerExchangeHandlerTest {
 
         OutputStream responseOutputStream = mock(OutputStream.class);
 
+        HttpContext httpContext = mock(HttpContext.class);
+        doReturn("/").when(httpContext).getPath();
+
         doNothing().when(responseOutputStream).close();
 
-        when(exchange.getRequestURI()).thenReturn(URI.create("http://localhost"));
+        when(exchange.getRequestURI()).thenReturn(URI.create("http://localhost/"));
         when(exchange.getResponseHeaders()).thenReturn(mock(Headers.class));
         when(exchange.getResponseBody()).thenReturn(responseOutputStream);
+        when(exchange.getHttpContext()).thenReturn(httpContext);
 
-        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, baseDirectory);
+        FilesSupportsService fileSupportsService = new DefaultFilesSupportsService();
+        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, baseDirectory, fileSupportsService);
         handler.run();
 
         ArgumentCaptor<Integer> captorCode = ArgumentCaptor.forClass(Integer.class);

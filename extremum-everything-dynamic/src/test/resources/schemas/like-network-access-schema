@@ -1,6 +1,7 @@
 {
   "$id": "an_id_for_complex_schema_from-network",
   "type": "object",
+  "title": "TestDynamicModelFrom-an_id_for_complex_schema_from-network",
   "properties": {
     "field1": {
       "type": "string"
