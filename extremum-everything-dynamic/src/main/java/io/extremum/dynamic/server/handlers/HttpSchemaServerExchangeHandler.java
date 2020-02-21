@@ -1,6 +1,7 @@
 package io.extremum.dynamic.server.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
+import io.extremum.dynamic.server.handlers.security.SchemaHandlerSecurityManager;
 import io.extremum.dynamic.server.supports.FilesSupportsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,22 +19,28 @@ public class HttpSchemaServerExchangeHandler implements Runnable {
     private final HttpExchange exchange;
     private final Path basicSchemaDirectory;
     private final FilesSupportsService filesSupportService;
+    private final SchemaHandlerSecurityManager schemaHandlerSecurityManager;
 
     @Override
     public void run() {
         try {
             Path localPathToRequestedSchema = buildLocalPath(exchange);
 
-            if (filesSupportService.isRegularFile(localPathToRequestedSchema)) {
-                respondStatus(HttpStatus.OK);
+            if (schemaHandlerSecurityManager.isAccessAllowed(localPathToRequestedSchema)) {
+                if (filesSupportService.isRegularFile(localPathToRequestedSchema)) {
+                    respondStatus(HttpStatus.OK);
 
-                exchange.getResponseHeaders()
-                        .add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                    exchange.getResponseHeaders()
+                            .add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-                filesSupportService.copy(localPathToRequestedSchema, exchange.getResponseBody());
+                    filesSupportService.copy(localPathToRequestedSchema, exchange.getResponseBody());
+                } else {
+                    log.warn("File can't be found on path {}", localPathToRequestedSchema);
+                    respondStatus(HttpStatus.NOT_FOUND);
+                }
             } else {
-                log.warn("File can't be found on path {}", localPathToRequestedSchema);
-                respondStatus(HttpStatus.NOT_FOUND);
+                log.warn("Attempts to get access to restricted file {}", localPathToRequestedSchema);
+                respondAccessForbiddenError();
             }
 
             exchange.getResponseBody().close();
@@ -53,6 +60,15 @@ public class HttpSchemaServerExchangeHandler implements Runnable {
 
     private void respondStatus(HttpStatus status) throws IOException {
         exchange.sendResponseHeaders(status.value(), 0);
+    }
+
+    private void respondAccessForbiddenError() {
+        try {
+            exchange.sendResponseHeaders(HttpStatus.FORBIDDEN.value(), 0);
+            exchange.getResponseBody().close();
+        } catch (IOException e) {
+            log.error("Unable to respond", e);
+        }
     }
 
     private void respondInternalError() {

@@ -2,6 +2,7 @@ package io.extremum.dynamic;
 
 import com.sun.net.httpserver.HttpHandler;
 import io.extremum.dynamic.server.handlers.HttpSchemaServerHandler;
+import io.extremum.dynamic.server.handlers.security.SchemaHandlerSecurityManager;
 import io.extremum.dynamic.server.impl.HttpSchemaServer;
 import io.extremum.dynamic.server.supports.FilesSupportsService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class HttpSchemaServerLauncher implements ApplicationListener<ContextRefr
     private final int port;
     private final String context;
     private final FilesSupportsService fileSupportsService;
+    private final SchemaHandlerSecurityManager securityManager;
 
     private volatile boolean alreadyLaunched = false;
 
@@ -30,7 +32,7 @@ public class HttpSchemaServerLauncher implements ApplicationListener<ContextRefr
         if (!alreadyLaunched) {
             alreadyLaunched = true;
 
-            HttpHandler handler = new HttpSchemaServerHandler(executor, schemaDirectory, fileSupportsService);
+            HttpHandler handler = new HttpSchemaServerHandler(executor, schemaDirectory, fileSupportsService, securityManager);
             HttpSchemaServer server = new HttpSchemaServer(port, context, handler);
             server.launch();
 

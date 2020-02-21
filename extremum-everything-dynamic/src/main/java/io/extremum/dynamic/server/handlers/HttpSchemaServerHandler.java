@@ -2,6 +2,7 @@ package io.extremum.dynamic.server.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import io.extremum.dynamic.server.handlers.security.SchemaHandlerSecurityManager;
 import io.extremum.dynamic.server.supports.FilesSupportsService;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -17,9 +18,10 @@ public class HttpSchemaServerHandler implements HttpHandler {
     private final ExecutorService executor;
     private final Path schemaDirectory;
     private final FilesSupportsService filesSupportsService;
+    private final SchemaHandlerSecurityManager securityManager;
 
     @Override
     public void handle(HttpExchange httpExchange) {
-        executor.submit(new HttpSchemaServerExchangeHandler(httpExchange, schemaDirectory, filesSupportsService));
+        executor.submit(new HttpSchemaServerExchangeHandler(httpExchange, schemaDirectory, filesSupportsService, securityManager));
     }
 }

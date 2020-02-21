@@ -2,6 +2,7 @@ package integration.validate_model_from_local_schema;
 
 import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.dynamic.config.DynamicModelProperties;
+import io.extremum.dynamic.server.handlers.security.SchemaHandlerSecurityManager;
 import io.extremum.dynamic.server.supports.FilesSupportsService;
 import io.extremum.dynamic.server.supports.impl.DefaultFilesSupportsService;
 import io.extremum.security.DataSecurity;
@@ -11,20 +12,14 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.util.SocketUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -36,8 +31,18 @@ import static org.mockito.Mockito.*;
 })
 @RequiredArgsConstructor
 @EnableAutoConfiguration
-public class ValidateModelFromLocalSchemaTestConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class ValidateModelFromLocalSchemaTestConfiguration {
     private final DynamicModelProperties props;
+
+    @Bean
+    @Primary
+    public SchemaHandlerSecurityManager schemaHandlerSecurityManager() {
+        SchemaHandlerSecurityManager manager = mock(SchemaHandlerSecurityManager.class);
+
+        doReturn(true).when(manager).isAccessAllowed(any());
+
+        return manager;
+    }
 
     @Bean
     @Primary
@@ -69,14 +74,5 @@ public class ValidateModelFromLocalSchemaTestConfiguration implements Applicatio
         }).when(filesSupportsService).copy(any(), any());
 
         return filesSupportsService;
-    }
-
-    @Override
-    public void initialize(ConfigurableApplicationContext ctx) {
-        Map<String, Object> props = new HashMap<>();
-        props.put("port", SocketUtils.findAvailableTcpPort());
-
-        MapPropertySource mapPropertySource = new MapPropertySource("dynamic-models.local-schema-server", props);
-        ctx.getEnvironment().getPropertySources().addFirst(mapPropertySource);
     }
 }

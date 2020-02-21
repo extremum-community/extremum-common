@@ -4,6 +4,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import io.extremum.dynamic.TestUtils;
+import io.extremum.dynamic.server.handlers.security.SchemaHandlerSecurityManager;
 import io.extremum.dynamic.server.supports.FilesSupportsService;
 import io.extremum.dynamic.server.supports.impl.DefaultFilesSupportsService;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ import static org.mockito.Mockito.*;
 class HttpSchemaServerExchangeHandlerTest {
     @Test
     void respondWithFileContent() throws IOException {
+        SchemaHandlerSecurityManager securityManager = mock(SchemaHandlerSecurityManager.class);
+        doReturn(true).when(securityManager).isAccessAllowed(any());
+
         HttpExchange exchange = mock(HttpExchange.class);
 
         ByteArrayOutputStream responseBody = spy(ByteArrayOutputStream.class);
@@ -50,7 +54,8 @@ class HttpSchemaServerExchangeHandlerTest {
         Path basePath = Paths.get(this.getClass().getClassLoader().getResource("schemas").getPath());
 
         FilesSupportsService fileSupportsService = new DefaultFilesSupportsService();
-        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, basePath, fileSupportsService);
+        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, basePath,
+                fileSupportsService, securityManager);
 
         handler.run();
 
@@ -76,6 +81,9 @@ class HttpSchemaServerExchangeHandlerTest {
 
     @Test
     void respond_404_ifRequestedResourceNotFound() throws IOException {
+        SchemaHandlerSecurityManager securityManager = mock(SchemaHandlerSecurityManager.class);
+        doReturn(true).when(securityManager).isAccessAllowed(any());
+
         HttpExchange exchange = mock(HttpExchange.class);
 
         Path baseDirectory = Paths.get("unknown_directory");
@@ -93,7 +101,8 @@ class HttpSchemaServerExchangeHandlerTest {
         when(exchange.getHttpContext()).thenReturn(httpContext);
 
         FilesSupportsService fileSupportsService = new DefaultFilesSupportsService();
-        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, baseDirectory, fileSupportsService);
+        HttpSchemaServerExchangeHandler handler = new HttpSchemaServerExchangeHandler(exchange, baseDirectory,
+                fileSupportsService, securityManager);
         handler.run();
 
         ArgumentCaptor<Integer> captorCode = ArgumentCaptor.forClass(Integer.class);
