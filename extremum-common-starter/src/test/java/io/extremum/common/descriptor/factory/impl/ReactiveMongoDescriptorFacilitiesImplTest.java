@@ -5,6 +5,7 @@ import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
+import io.extremum.mongo.facilities.DescriptorIsAlreadyReadyException;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilitiesImpl;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor.Readiness;
@@ -119,5 +120,21 @@ class ReactiveMongoDescriptorFacilitiesImplTest {
 
         //noinspection UnassignedFluxMonoInstance
         verify(reactiveDescriptorDao, times(2)).store(blankDescriptor);
+    }
+
+    @Test
+    void givenADescriptorIsReady_whenMakingItReady_thenExceptionShouldBeThrown() {
+        Descriptor readyDescriptor = Descriptor.builder()
+                .externalId("external-id")
+                .readiness(Readiness.READY)
+                .storageType(StorageType.MONGO)
+                .build();
+        reactiveDescriptorDao.store(readyDescriptor).block();
+
+        Mono<Descriptor> mono = facilities.makeDescriptorReady("external-id", "TestModel");
+
+        StepVerifier.create(mono)
+                .expectError(DescriptorIsAlreadyReadyException.class)
+                .verify();
     }
 }
