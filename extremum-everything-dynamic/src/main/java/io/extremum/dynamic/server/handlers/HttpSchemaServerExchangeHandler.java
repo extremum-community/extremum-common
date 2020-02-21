@@ -26,8 +26,8 @@ public class HttpSchemaServerExchangeHandler implements Runnable {
         try {
             Path localPathToRequestedSchema = buildLocalPath(exchange);
 
-            if (schemaHandlerSecurityManager.isAccessAllowed(localPathToRequestedSchema)) {
-                if (filesSupportService.isRegularFile(localPathToRequestedSchema)) {
+            if (filesSupportService.isRegularFile(localPathToRequestedSchema)) {
+                if (schemaHandlerSecurityManager.isAccessAllowed(localPathToRequestedSchema)) {
                     respondStatus(HttpStatus.OK);
 
                     exchange.getResponseHeaders()
@@ -35,12 +35,12 @@ public class HttpSchemaServerExchangeHandler implements Runnable {
 
                     filesSupportService.copy(localPathToRequestedSchema, exchange.getResponseBody());
                 } else {
-                    log.warn("File can't be found on path {}", localPathToRequestedSchema);
-                    respondStatus(HttpStatus.NOT_FOUND);
+                    log.warn("Attempts to get access to restricted file {}", localPathToRequestedSchema);
+                    respondAccessForbiddenError();
                 }
             } else {
-                log.warn("Attempts to get access to restricted file {}", localPathToRequestedSchema);
-                respondAccessForbiddenError();
+                log.warn("File can't be found on path {}", localPathToRequestedSchema);
+                respondStatus(HttpStatus.NOT_FOUND);
             }
 
             exchange.getResponseBody().close();
