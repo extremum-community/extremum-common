@@ -15,13 +15,17 @@ logging:
   level:
     io.extremum: debug
     org.springframework: debug
-github:
+dynamic-models:
   schema:
-    owner: owner
-    ref: ref
-    repo: repoName
-    schema-path: /path/to/schemas
-    schema-name: simple.schema.json
-    token: githubAccessToken
-    webhook-listener-port: 0
-    webhook-listener-server-context: /webhooks/github/push/clear-caches
+    location: github
+    pointer:
+      schema-path: /path/to/schemas
+      schema-name: simple.schema.json
+      github:
+        owner: owner
+        ref: ref
+        repo: repoName
+        token: githubAccessToken
+  github-webhook-listener:
+    port: 0
+    server-context: /webhooks/github/push/clear-caches
