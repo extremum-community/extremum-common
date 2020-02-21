@@ -34,25 +34,14 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
             alreadyHeated = true;
 
             if (isSchemaPlacedOnLocal()) {
-                heatLocalSchema();
+                log.info("Schema will be loaded from local area");
             } else {
-                heatGithubSchema();
+                log.info("Schema will be loaded from github");
             }
+
+            String schemaName = props.getSchema().getPointer().getSchemaName();
+            heatSchema(schemaName);
         }
-    }
-
-    private void heatLocalSchema() {
-        log.info("Schema will be loaded from local location");
-
-        String schemaName = props.getSchema().getPointer().getSchemaName();
-        heatSchema(schemaName);
-    }
-
-    private void heatGithubSchema() {
-        log.info("Schema will be loaded form github location");
-
-        String schemaName = props.getSchema().getPointer().getSchemaName();
-        heatSchema(schemaName);
     }
 
     private void heatSchema(String schemaName) {

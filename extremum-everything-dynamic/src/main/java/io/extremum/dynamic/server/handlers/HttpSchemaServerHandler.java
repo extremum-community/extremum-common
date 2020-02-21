@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
-@ToString(exclude = "executor")
+@ToString(exclude = {"executor", "filesSupportsService", "securityManager"})
 @RequiredArgsConstructor
 public class HttpSchemaServerHandler implements HttpHandler {
     private final ExecutorService executor;
