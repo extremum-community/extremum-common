@@ -4,6 +4,7 @@ import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.mongo.facilities.DescriptorIsAlreadyReadyException;
 import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -67,5 +69,18 @@ class MongoDescriptorFacilitiesImplTest {
         assertThat(descriptor.getModelType(), is("TestModel"));
 
         verify(descriptorDao, times(2)).store(blankDescriptor);
+    }
+
+    @Test
+    void givenADescriptorIsReady_whenMakingItReady_thenExceptionShouldBeThrown() {
+        Descriptor readyDescriptor = Descriptor.builder()
+                .externalId("external-id")
+                .readiness(Descriptor.Readiness.READY)
+                .storageType(Descriptor.StorageType.MONGO)
+                .build();
+        descriptorDao.store(readyDescriptor);
+
+        assertThrows(DescriptorIsAlreadyReadyException.class,
+                () -> facilities.makeDescriptorReady("external-id", "TestModel"));
     }
 }
