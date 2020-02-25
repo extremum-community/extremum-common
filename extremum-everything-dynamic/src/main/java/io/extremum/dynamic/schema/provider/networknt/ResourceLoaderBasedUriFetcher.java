@@ -7,13 +7,10 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
-public class ResourceLoaderBasedUriFetcher implements URIFetcher {
+public class ResourceLoaderBasedUriFetcher implements URIFetcher, NetworkntURIFetcher {
     public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList("http", "https")));
 
@@ -22,5 +19,10 @@ public class ResourceLoaderBasedUriFetcher implements URIFetcher {
     @Override
     public InputStream fetch(URI uri) throws IOException {
         return resourceLoader.loadAsInputStream(uri);
+    }
+
+    @Override
+    public List<String> getSupportedSchemas() {
+        return new ArrayList<>(SUPPORTED_SCHEMES);
     }
 }
