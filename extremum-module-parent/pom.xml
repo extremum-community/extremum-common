@@ -64,6 +64,8 @@
                                 <exclude>javax.validation:validation-api</exclude>
                                 <!-- because it is now org.glassfish:jakarta.el -->
                                 <exclude>org.glassfish:javax.el</exclude>
+                                <!-- because we prefer org.slf4j:jcl-over-slf4j -->
+                                <exclude>org.springframework:spring-jcl</exclude>
                             </excludes>
                         </bannedDependencies>
                         <banDuplicateClasses>
