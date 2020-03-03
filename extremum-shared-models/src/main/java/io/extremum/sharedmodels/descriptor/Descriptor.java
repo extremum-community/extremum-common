@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.extremum.common.annotation.FromStorageString;
+import io.extremum.common.annotation.ToStorageString;
 import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import io.extremum.sharedmodels.content.Display;
 import lombok.*;
@@ -356,11 +358,13 @@ public class Descriptor implements Serializable {
         }
 
         @JsonValue
+        @ToStorageString
         public String getValue() {
             return value;
         }
 
         @JsonCreator
+        @FromStorageString
         public static Type fromString(String value) {
             if (value == null) {
                 return SINGLE;
@@ -388,11 +392,13 @@ public class Descriptor implements Serializable {
         }
 
         @JsonValue
+        @ToStorageString
         public String getValue() {
             return value;
         }
 
         @JsonCreator
+        @FromStorageString
         public static StorageType fromString(String value) {
             if (value != null) {
                 for (StorageType type : StorageType.values()) {
@@ -416,11 +422,13 @@ public class Descriptor implements Serializable {
         }
 
         @JsonValue
+        @ToStorageString
         public String getValue() {
             return value;
         }
 
         @JsonCreator
+        @FromStorageString
         public static Readiness fromString(String value) {
             if (value != null) {
                 for (Readiness readiness : Readiness.values()) {

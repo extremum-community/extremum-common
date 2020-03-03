@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-annotations</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
