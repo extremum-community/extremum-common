@@ -13,6 +13,7 @@ import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleList
 import io.extremum.mongo.service.lifecycle.ReactiveMongoVersionedModelLifecycleListener;
 import io.extremum.mongo.springdata.ReactiveMongoTemplateWithReactiveEvents;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -55,6 +56,7 @@ public class MainReactiveMongoConfiguration {
     }
 
     @Bean
+    @Qualifier("mainMongo")
     public ReactiveMongoTransactionManager reactiveMongoTransactionManager() {
         return new ReactiveMongoTransactionManager(reactiveMongoDbFactory());
     }
