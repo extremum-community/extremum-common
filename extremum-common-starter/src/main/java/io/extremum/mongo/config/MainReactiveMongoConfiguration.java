@@ -1,5 +1,6 @@
 package io.extremum.mongo.config;
 
+import com.mongodb.WriteConcern;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
+import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -45,8 +47,11 @@ public class MainReactiveMongoConfiguration {
     @Primary
     public ReactiveMongoOperations reactiveMongoTemplate(MappingMongoConverter mappingMongoConverter,
                                                          ReactiveEventPublisher reactiveEventPublisher) {
-        return new ReactiveMongoTemplateWithReactiveEvents(reactiveMongoDbFactory(), mappingMongoConverter,
-                reactiveEventPublisher);
+        ReactiveMongoTemplateWithReactiveEvents template = new ReactiveMongoTemplateWithReactiveEvents(
+                reactiveMongoDbFactory(), mappingMongoConverter, reactiveEventPublisher);
+        template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+        template.setWriteConcern(WriteConcern.MAJORITY);
+        return template;
     }
 
     @Bean

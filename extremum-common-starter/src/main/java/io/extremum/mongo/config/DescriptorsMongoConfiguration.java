@@ -2,6 +2,7 @@ package io.extremum.mongo.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.WriteConcern;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.mongo.springdata.repository.SoftDeleteMongoRepositoryFactoryBean;
@@ -20,6 +21,7 @@ import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.MongoConfigurationSupport;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
+import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
@@ -51,7 +53,10 @@ public class DescriptorsMongoConfiguration {
 
     @Bean
     public MongoTemplate descriptorsMongoTemplate() throws Exception {
-        return new MongoTemplate(descriptorsMongoDbFactory(), descriptorsMappingMongoConverter());
+        MongoTemplate template = new MongoTemplate(descriptorsMongoDbFactory(), descriptorsMappingMongoConverter());
+        template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+        template.setWriteConcern(WriteConcern.MAJORITY);
+        return template;
     }
 
     @Bean
