@@ -2,6 +2,7 @@ package io.extremum.mongo.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.WriteConcern;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
@@ -51,7 +53,10 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     @Bean
     @Primary
     public MongoTemplate mongoTemplate() throws Exception {
-        return super.mongoTemplate();
+        MongoTemplate template = super.mongoTemplate();
+        template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+        template.setWriteConcern(WriteConcern.MAJORITY);
+        return template;
     }
 
     @Override
