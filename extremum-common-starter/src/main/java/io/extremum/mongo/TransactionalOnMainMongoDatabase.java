@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Transactional("mainMongo")
-public @interface TransactionalOnMainMongo {
+public @interface TransactionalOnMainMongoDatabase {
 }

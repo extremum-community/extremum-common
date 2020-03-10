@@ -3,7 +3,7 @@ package io.extremum.mongo.dao.impl;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.VersionedModel;
 import io.extremum.mongo.MongoConstants;
-import io.extremum.mongo.TransactionalOnMainMongo;
+import io.extremum.mongo.TransactionalOnMainMongoDatabase;
 import io.extremum.mongo.dao.ReactiveMongoVersionedDao;
 import io.extremum.mongo.model.MongoVersionedModel;
 import org.bson.types.ObjectId;
@@ -68,7 +68,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
-    @TransactionalOnMainMongo
+    @TransactionalOnMainMongoDatabase
     public <N extends M> Mono<N> save(N model) {
         return Mono.defer(() -> {
             if (isNew(model)) {
@@ -176,20 +176,20 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
-    @TransactionalOnMainMongo
+    @TransactionalOnMainMongoDatabase
     public <N extends M> Flux<N> saveAll(Iterable<N> entities) {
         return Flux.fromIterable(entities)
                 .concatMap(this::save);
     }
 
     @Override
-    @TransactionalOnMainMongo
+    @TransactionalOnMainMongoDatabase
     public Mono<Void> deleteById(ObjectId lineageId) {
         return deleteByIdAndReturn(lineageId).then();
     }
 
     @Override
-    @TransactionalOnMainMongo
+    @TransactionalOnMainMongoDatabase
     public Mono<M> deleteByIdAndReturn(ObjectId lineageId) {
         return findById(lineageId).flatMap(found -> {
             found.setDeleted(true);
