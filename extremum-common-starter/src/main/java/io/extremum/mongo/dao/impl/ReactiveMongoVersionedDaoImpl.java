@@ -3,6 +3,7 @@ package io.extremum.mongo.dao.impl;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.VersionedModel;
 import io.extremum.mongo.MongoConstants;
+import io.extremum.mongo.TransactionalOnMainMongoDatabase;
 import io.extremum.mongo.dao.ReactiveMongoVersionedDao;
 import io.extremum.mongo.model.MongoVersionedModel;
 import org.bson.types.ObjectId;
@@ -10,7 +11,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -68,7 +68,7 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
-    @Transactional
+    @TransactionalOnMainMongoDatabase
     public <N extends M> Mono<N> save(N model) {
         return Mono.defer(() -> {
             if (isNew(model)) {
@@ -176,20 +176,20 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
     }
 
     @Override
-    @Transactional
+    @TransactionalOnMainMongoDatabase
     public <N extends M> Flux<N> saveAll(Iterable<N> entities) {
         return Flux.fromIterable(entities)
                 .concatMap(this::save);
     }
 
     @Override
-    @Transactional
+    @TransactionalOnMainMongoDatabase
     public Mono<Void> deleteById(ObjectId lineageId) {
         return deleteByIdAndReturn(lineageId).then();
     }
 
     @Override
-    @Transactional
+    @TransactionalOnMainMongoDatabase
     public Mono<M> deleteByIdAndReturn(ObjectId lineageId) {
         return findById(lineageId).flatMap(found -> {
             found.setDeleted(true);
