@@ -5,6 +5,7 @@ import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.starter.CommonConfiguration;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,13 +16,16 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author rpuch
@@ -29,6 +33,9 @@ import static org.hamcrest.Matchers.is;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = CommonConfiguration.class)
 class SpringDataUniversalDaoTest extends TestWithServices {
+    private static final ZonedDateTime YEAR_2000 = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+    private static final ZonedDateTime YEAR_3000 = YEAR_2000.plusYears(1000);
+
     @Autowired
     private MongoOperations mongoOperations;
     @Autowired
@@ -37,12 +44,13 @@ class SpringDataUniversalDaoTest extends TestWithServices {
     private SpringDataUniversalDao universalDao;
 
     private List<ObjectId> houseIds;
+    private House house1;
 
     @BeforeEach
-    void setUp() {
+    void createHouses() {
         universalDao = new SpringDataUniversalDao(mongoOperations, reactiveMongoOperations);
 
-        House house1 = new House("1");
+        house1 = new House("1");
         House house2 = new House("2a");
         mongoOperations.save(house1);
         mongoOperations.save(house2);
@@ -84,4 +92,113 @@ class SpringDataUniversalDaoTest extends TestWithServices {
         assertThat(retrievedHouses.toStream().collect(Collectors.toList()), hasSize(1));
     }
 
+    @Test
+    void modelCreatedBeforeSinceShouldNotBeFoundWhenRetrieving() {
+        Projection projection = Projection.sinceUntil(YEAR_3000, null);
+
+        CollectionFragment<House> houses = universalDao.retrieveByIds(singletonList(house1.getId()),
+                House.class, projection);
+
+        assertThat(houses.elements(), is(empty()));
+    }
+
+    @Test
+    void modelCreatedExactlyAtSinceShouldBeFoundWhenRetrieving() {
+        Projection projection = Projection.sinceUntil(house1.getCreated(), YEAR_3000);
+
+        CollectionFragment<House> houses = universalDao.retrieveByIds(singletonList(house1.getId()),
+                House.class, projection);
+
+        assertThatFirstHouseIsFound(houses);
+    }
+
+    private void assertThatFirstHouseIsFound(CollectionFragment<House> houses) {
+        assertThatFirstHouseIsFound(houses.elements());
+    }
+
+    private void assertThatFirstHouseIsFound(Collection<House> houses) {
+        assertThat(houses, hasSize(1));
+        assertThat(houses.iterator().next().getId(), equalTo(house1.getId()));
+    }
+
+    @Test
+    void modelCreatedBetweenSinceAndUntilShouldBeFoundWhenRetrieving() {
+        Projection projection = Projection.sinceUntil(YEAR_2000, YEAR_3000);
+
+        CollectionFragment<House> houses = universalDao.retrieveByIds(singletonList(house1.getId()),
+                House.class, projection);
+
+        assertThatFirstHouseIsFound(houses);
+    }
+
+    @Test
+    void modelCreatedExactlyAtUntilShouldNotBeFoundWhenRetrieving() {
+        Projection projection = Projection.sinceUntil(YEAR_2000, house1.getCreated());
+
+        CollectionFragment<House> houses = universalDao.retrieveByIds(singletonList(house1.getId()),
+                House.class, projection);
+
+        assertThat(houses.elements(), is(empty()));
+    }
+
+    @Test
+    void modelCreatedAfterUntilShouldNotBeFoundWhenRetrieving() {
+        Projection projection = Projection.sinceUntil(null, YEAR_2000);
+
+        CollectionFragment<House> houses = universalDao.retrieveByIds(singletonList(house1.getId()),
+                House.class, projection);
+
+        assertThat(houses.elements(), is(empty()));
+    }
+
+    @Test
+    void modelCreatedBeforeSinceShouldNotBeFoundWhenStreaming() {
+        Projection projection = Projection.sinceUntil(YEAR_3000, null);
+
+        List<House> houses = streamByFirstHouseIdWith(projection);
+
+        assertThat(houses, is(empty()));
+    }
+
+    @Test
+    void modelCreatedExactlyAtSinceShouldBeFoundWhenStreaming() {
+        Projection projection = Projection.sinceUntil(house1.getCreated(), YEAR_3000);
+
+        List<House> houses = streamByFirstHouseIdWith(projection);
+
+        assertThatFirstHouseIsFound(houses);
+    }
+
+    @Test
+    void modelCreatedBetweenSinceAndUntilShouldBeFoundWhenStreaming() {
+        Projection projection = Projection.sinceUntil(YEAR_2000, YEAR_3000);
+
+        List<House> houses = streamByFirstHouseIdWith(projection);
+
+        assertThatFirstHouseIsFound(houses);
+    }
+
+    @Test
+    void modelCreatedExactlyAtUntilShouldNotBeFoundWhenStreaming() {
+        Projection projection = Projection.sinceUntil(YEAR_2000, house1.getCreated());
+
+        List<House> houses = streamByFirstHouseIdWith(projection);
+
+        assertThat(houses, is(empty()));
+    }
+
+    @Test
+    void modelCreatedAfterUntilShouldNotBeFoundWhenStreaming() {
+        Projection projection = Projection.sinceUntil(null, YEAR_2000);
+
+        List<House> houses = streamByFirstHouseIdWith(projection);
+
+        assertThat(houses, is(empty()));
+    }
+
+    @NotNull
+    private List<House> streamByFirstHouseIdWith(Projection projection) {
+        return universalDao.streamByIds(singletonList(house1.getId()), House.class, projection)
+                .toStream().collect(Collectors.toList());
+    }
 }

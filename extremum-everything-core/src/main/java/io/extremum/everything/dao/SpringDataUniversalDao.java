@@ -36,7 +36,8 @@ public class SpringDataUniversalDao implements UniversalDao {
 
     @Override
     public <T> CollectionFragment<T> retrieveByIds(List<?> ids, Class<T> classOfElement, Projection projection) {
-        List<T> elements = mongoOperations.find(criteriaToSearchByIdsWithSortAndPaging(ids, projection), classOfElement);
+        List<T> elements = mongoOperations.find(
+                criteriaToSearchByIdsWithSortAndPaging(ids, projection), classOfElement);
         long count = mongoOperations.count(criteriaToSearchByIds(ids, projection), classOfElement);
 
         return CollectionFragment.forFragment(elements, count);
@@ -63,7 +64,7 @@ public class SpringDataUniversalDao implements UniversalDao {
         criteria.add(softDeletion.notDeleted());
 
         projection.getSince().ifPresent(since -> criteria.add(where(CREATED).gte(since)));
-        projection.getUntil().ifPresent(until -> criteria.add(where(CREATED).lte(until)));
+        projection.getUntil().ifPresent(until -> criteria.add(where(CREATED).lt(until)));
 
         return new Query(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
     }

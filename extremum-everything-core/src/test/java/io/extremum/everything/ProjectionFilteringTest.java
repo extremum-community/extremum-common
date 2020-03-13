@@ -19,78 +19,96 @@ class ProjectionFilteringTest {
     private static final ZonedDateTime YEAR_2005 = YEAR_2000.plusYears(5);
     private static final ZonedDateTime YEAR_2010 = YEAR_2000.plusYears(10);
 
-    private Projection projection = Projection.sinceUntil(YEAR_2000, YEAR_2010);
+    private final Projection since2000Till2010 = Projection.sinceUntil(YEAR_2000, YEAR_2010);
 
     @Test
     void whenDateTimeIsBetweenSinceAndUntil_thenWeShouldAcceptIt() {
-        assertThat(projection.accepts(YEAR_2000), is(true));
-        assertThat(projection.accepts(YEAR_2005), is(true));
-        assertThat(projection.accepts(YEAR_2010), is(true));
+        assertThat(since2000Till2010.accepts(YEAR_2000), is(true));
+        assertThat(since2000Till2010.accepts(YEAR_2005), is(true));
     }
 
     @Test
     void whenDateTimeIsBeforeSince_thenWeShouldNotAcceptIt() {
-        assertThat(projection.accepts(YEAR_2000.minusNanos(1)), is(false));
+        assertThat(since2000Till2010.accepts(YEAR_2000.minusNanos(1)), is(false));
     }
 
     @Test
     void whenDateTimeIsAfterSince_thenWeShouldNotAcceptIt() {
-        assertThat(projection.accepts(YEAR_2010.plusNanos(1)), is(false));
+        assertThat(since2000Till2010.accepts(YEAR_2010.plusNanos(1)), is(false));
     }
 
     @Test
     void whenDateTimeIsNull_thenWeShouldAcceptIt() {
-        assertThat(projection.accepts((ZonedDateTime) null), is(true));
+        assertThat(since2000Till2010.accepts((ZonedDateTime) null), is(true));
     }
 
     @Test
     void whenSinceIsNull_thenItShouldWorkAsMinusInfinityWithDateTime() {
-        projection = Projection.sinceUntil(null, YEAR_2010);
+        Projection projection = Projection.sinceUntil(null, YEAR_2010);
 
         assertThat(projection.accepts(YEAR_2005), is(true));
     }
 
     @Test
     void whenUntilIsNull_thenItShouldWorkAsPlusInfinityWithDateTime() {
-        projection = Projection.sinceUntil(YEAR_2000, null);
+        Projection projection = Projection.sinceUntil(YEAR_2000, null);
 
         assertThat(projection.accepts(YEAR_2005), is(true));
     }
 
     @Test
     void whenCreatedIsBetweenSinceAndUntil_thenWeShouldAcceptTheModel() {
-        assertThat(projection.accepts(new TestModel(YEAR_2000)), is(true));
-        assertThat(projection.accepts(new TestModel(YEAR_2005)), is(true));
-        assertThat(projection.accepts(new TestModel(YEAR_2010)), is(true));
+        assertThat(since2000Till2010.accepts(new TestModel(YEAR_2000)), is(true));
+        assertThat(since2000Till2010.accepts(new TestModel(YEAR_2005)), is(true));
     }
 
     @Test
     void whenCreatedIsBeforeSince_thenWeShouldNotAcceptTheModel() {
-        assertThat(projection.accepts(new TestModel(YEAR_2000.minusNanos(1))), is(false));
+        assertThat(since2000Till2010.accepts(new TestModel(YEAR_2000.minusNanos(1))), is(false));
     }
 
     @Test
     void whenCreatedIsAfterSince_thenWeShouldNotAcceptTheModel() {
-        assertThat(projection.accepts(new TestModel(YEAR_2010.plusNanos(1))), is(false));
+        assertThat(since2000Till2010.accepts(new TestModel(YEAR_2010.plusNanos(1))), is(false));
     }
 
     @Test
     void whenCreatedIsNull_thenWeShouldAcceptTheModel() {
-        assertThat(projection.accepts(new TestModel(null)), is(true));
+        assertThat(since2000Till2010.accepts(new TestModel(null)), is(true));
     }
 
     @Test
     void whenSinceIsNull_thenItShouldWorkAsMinusInfinityWithModel() {
-        projection = Projection.sinceUntil(null, YEAR_2010);
+        Projection projection = Projection.sinceUntil(null, YEAR_2010);
 
         assertThat(projection.accepts(new TestModel(YEAR_2005)), is(true));
     }
 
     @Test
     void whenUntilIsNull_thenItShouldWorkAsPlusInfinityWithModel() {
-        projection = Projection.sinceUntil(YEAR_2000, null);
+        Projection projection = Projection.sinceUntil(YEAR_2000, null);
 
         assertThat(projection.accepts(new TestModel(YEAR_2005)), is(true));
+    }
+
+    @Test
+    void sinceShouldBeIncludedInAcceptedIntervalWithDateTime() {
+        assertThat(since2000Till2010.accepts(YEAR_2000), is(true));
+    }
+
+    @Test
+    void sinceShouldBeIncludedInAcceptedIntervalWithModel() {
+        assertThat(since2000Till2010.accepts(new TestModel(YEAR_2000)), is(true));
+    }
+
+    @Test
+    void untilShouldNotBeIncludedInAcceptedIntervalWithDateTime() {
+        assertThat(since2000Till2010.accepts(YEAR_2010), is(false));
+    }
+
+    @Test
+    void untilShouldNotBeIncludedInAcceptedIntervalWithModel() {
+        assertThat(since2000Till2010.accepts(new TestModel(YEAR_2010)), is(false));
     }
 
     @ModelName("Test")

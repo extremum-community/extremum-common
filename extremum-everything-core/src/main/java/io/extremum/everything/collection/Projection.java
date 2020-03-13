@@ -71,15 +71,15 @@ public class Projection {
     }
 
     public boolean accepts(ZonedDateTime dateTime) {
-        if (since != null && dateTime != null) {
-            if (dateTime.isBefore(since)) {
-                return false;
-            }
+        if (dateTime == null) {
+            return true;
         }
-        if (until != null && dateTime != null) {
-            if (dateTime.isAfter(until)) {
-                return false;
-            }
+
+        if (since != null && dateTime.compareTo(since) < 0) {
+            return false;
+        }
+        if (until != null && dateTime.compareTo(until) >= 0) {
+            return false;
         }
 
         return true;
