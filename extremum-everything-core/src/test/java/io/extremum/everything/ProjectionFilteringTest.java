@@ -22,36 +22,72 @@ class ProjectionFilteringTest {
     private Projection projection = Projection.sinceUntil(YEAR_2000, YEAR_2010);
 
     @Test
-    void whenCreatedIsBetweenSinceAndUntil_thenWeShouldAccept() {
+    void whenDateTimeIsBetweenSinceAndUntil_thenWeShouldAcceptIt() {
+        assertThat(projection.accepts(YEAR_2000), is(true));
+        assertThat(projection.accepts(YEAR_2005), is(true));
+        assertThat(projection.accepts(YEAR_2010), is(true));
+    }
+
+    @Test
+    void whenDateTimeIsBeforeSince_thenWeShouldNotAcceptIt() {
+        assertThat(projection.accepts(YEAR_2000.minusNanos(1)), is(false));
+    }
+
+    @Test
+    void whenDateTimeIsAfterSince_thenWeShouldNotAcceptIt() {
+        assertThat(projection.accepts(YEAR_2010.plusNanos(1)), is(false));
+    }
+
+    @Test
+    void whenDateTimeIsNull_thenWeShouldAcceptIt() {
+        assertThat(projection.accepts((ZonedDateTime) null), is(true));
+    }
+
+    @Test
+    void whenSinceIsNull_thenItShouldWorkAsMinusInfinityWithDateTime() {
+        projection = Projection.sinceUntil(null, YEAR_2010);
+
+        assertThat(projection.accepts(YEAR_2005), is(true));
+    }
+
+    @Test
+    void whenUntilIsNull_thenItShouldWorkAsPlusInfinityWithDateTime() {
+        projection = Projection.sinceUntil(YEAR_2000, null);
+
+        assertThat(projection.accepts(YEAR_2005), is(true));
+    }
+
+    @Test
+    void whenCreatedIsBetweenSinceAndUntil_thenWeShouldAcceptTheModel() {
         assertThat(projection.accepts(new TestModel(YEAR_2000)), is(true));
         assertThat(projection.accepts(new TestModel(YEAR_2005)), is(true));
         assertThat(projection.accepts(new TestModel(YEAR_2010)), is(true));
     }
 
     @Test
-    void whenCreatedIsBeforeSince_thenWeShouldNotAccept() {
+    void whenCreatedIsBeforeSince_thenWeShouldNotAcceptTheModel() {
         assertThat(projection.accepts(new TestModel(YEAR_2000.minusNanos(1))), is(false));
     }
 
     @Test
-    void whenCreatedIsAfterSince_thenWeShouldNotAccept() {
+    void whenCreatedIsAfterSince_thenWeShouldNotAcceptTheModel() {
         assertThat(projection.accepts(new TestModel(YEAR_2010.plusNanos(1))), is(false));
     }
 
     @Test
-    void whenCreatedIsNull_thenWeShouldAccept() {
+    void whenCreatedIsNull_thenWeShouldAcceptTheModel() {
         assertThat(projection.accepts(new TestModel(null)), is(true));
     }
 
     @Test
-    void whenSinceIsNull_thenItShouldWorkAsMinusInfinity() {
+    void whenSinceIsNull_thenItShouldWorkAsMinusInfinityWithModel() {
         projection = Projection.sinceUntil(null, YEAR_2010);
 
         assertThat(projection.accepts(new TestModel(YEAR_2005)), is(true));
     }
 
     @Test
-    void whenUntilIsNull_thenItShouldWorkAsPlusInfinity() {
+    void whenUntilIsNull_thenItShouldWorkAsPlusInfinityWithModel() {
         projection = Projection.sinceUntil(YEAR_2000, null);
 
         assertThat(projection.accepts(new TestModel(YEAR_2005)), is(true));

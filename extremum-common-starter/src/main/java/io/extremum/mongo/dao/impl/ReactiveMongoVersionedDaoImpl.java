@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.function.Function;
@@ -23,6 +24,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedModel>
         implements ReactiveMongoVersionedDao<M> {
+    public static final long FIRST_VERSION_NUMBER = 0L;
+
     private final ReactiveMongoOperations reactiveMongoOperations;
     private final Class<M> modelClass;
 
@@ -30,7 +33,26 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
 
     public ReactiveMongoVersionedDaoImpl(ReactiveMongoOperations reactiveMongoOperations) {
         this.reactiveMongoOperations = reactiveMongoOperations;
-        modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+
+        this.modelClass = detectModelClass(getClass());
+    }
+
+    private static <M> Class<M> detectModelClass(Class<?> thisClass) {
+        Class<?> currentClass = thisClass;
+        while (currentClass != null) {
+            Type superType = currentClass.getGenericSuperclass();
+            if (superType instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) superType;
+                if (parameterizedType.getActualTypeArguments().length == 1) {
+                    @SuppressWarnings("unchecked")
+                    Class<M> castResult = (Class<M>) parameterizedType.getActualTypeArguments()[0];
+                    return castResult;
+                }
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        throw new IllegalStateException("Did not find a generic supertype starting with " + thisClass);
     }
 
     @Override
@@ -97,7 +119,13 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
         newSnapshot.setStart(now);
         newSnapshot.setEnd(infinitelyDistantFuture());
         newSnapshot.setCurrentSnapshot(true);
-        newSnapshot.setVersion(0L);
+        newSnapshot.setVersion(FIRST_VERSION_NUMBER);
+
+        customizeFirstSnapshot(newSnapshot);
+    }
+
+    @SuppressWarnings("unused")
+    protected <N extends M> void customizeFirstSnapshot(N firstSnapshot) {
     }
 
     private ZonedDateTime infinitelyDistantFuture() {
@@ -136,6 +164,12 @@ public abstract class ReactiveMongoVersionedDaoImpl<M extends MongoVersionedMode
         nextSnapshot.setEnd(infinitelyDistantFuture());
         nextSnapshot.setCurrentSnapshot(true);
         nextSnapshot.setVersion(nextSnapshot.getVersion() + 1);
+
+        customizeNextSnapshot(nextSnapshot, currentSnapshot);
+    }
+
+    @SuppressWarnings("unused")
+    protected <N extends M> void customizeNextSnapshot(N nextSnapshot, M currentSnapshot) {
     }
 
     private ObjectId newSnapshotId() {
