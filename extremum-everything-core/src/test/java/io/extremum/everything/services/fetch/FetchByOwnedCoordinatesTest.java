@@ -1,8 +1,6 @@
 package io.extremum.everything.services.fetch;
 
 import io.extremum.common.model.BasicModel;
-import io.extremum.sharedmodels.basic.Model;
-import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.model.annotation.ModelName;
 import io.extremum.everything.collection.CollectionElementType;
@@ -11,7 +9,10 @@ import io.extremum.everything.collection.Projection;
 import io.extremum.everything.dao.UniversalDao;
 import io.extremum.everything.exceptions.EverythingEverythingException;
 import io.extremum.everything.services.collection.FetchByOwnedCoordinates;
+import io.extremum.mongo.model.MongoCommonModel;
+import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -180,20 +181,20 @@ class FetchByOwnedCoordinatesTest {
     @Test
     void givenModelStoregaTypeIsNotMongo_whenFetchingCollectionViaIds_thenAnExceptionShouldBeThrown() {
         Street model = new Street();
-        model.setUuid(Descriptor.builder().storageType(Descriptor.StorageType.ELASTICSEARCH).build());
+        model.setUuid(Descriptor.builder().storageType(StandardStorageType.ELASTICSEARCH).build());
 
         try {
             fetcher.fetch(model, "houses", Projection.empty());
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), is("Only Mongo models can use IDs to fetch collections, " +
-                    "but it was 'ELASTICSEARCH' on 'Street', attribute 'houses'"));
+                    "but it was 'elastic' on 'Street', attribute 'houses'"));
         }
     }
 
     @Test
     void givenModelIsAProxyThatDoesNotStoreDataInOurFields_whenFetchingCollection_thenGetterShouldBeUsed() {
-        PersistableCommonModel model = new AProxy$HibernateProxy$ThatIgnoresTheFieldValue();
+        PersistableCommonModel<?> model = new AProxy$HibernateProxy$ThatIgnoresTheFieldValue();
 
         CollectionFragment<Model> houses = fetcher.fetch(model, "houses", Projection.empty());
         assertThat(houses.elements(), hasSize(2));
@@ -201,7 +202,7 @@ class FetchByOwnedCoordinatesTest {
 
     @Test
     void givenModelClassHasCollectionElementTypeAnnotatedBothOnFieldAndGetter_whenFetchingCollection_thenAnExceptionShouldBeThrown() {
-        PersistableCommonModel model = new HasElementTypeAnnotatedTwice();
+        PersistableCommonModel<?> model = new HasElementTypeAnnotatedTwice();
 
         try {
             fetcher.fetch(model, "houses", Projection.empty());

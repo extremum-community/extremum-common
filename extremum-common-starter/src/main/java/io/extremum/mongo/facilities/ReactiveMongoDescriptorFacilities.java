@@ -1,18 +1,9 @@
 package io.extremum.mongo.facilities;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
-import org.bson.types.ObjectId;
-import reactor.core.publisher.Mono;
+import io.extremum.common.facilities.ReactiveDescriptorFacilities;
 
 /**
  * @author rpuch
  */
-public interface ReactiveMongoDescriptorFacilities {
-    Mono<Descriptor> create(ObjectId id, String modelType);
-
-    Mono<Descriptor> fromInternalId(ObjectId internalId);
-
-    Mono<ObjectId> resolve(Descriptor descriptor);
-
-    Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType);
+public interface ReactiveMongoDescriptorFacilities extends ReactiveDescriptorFacilities {
 }

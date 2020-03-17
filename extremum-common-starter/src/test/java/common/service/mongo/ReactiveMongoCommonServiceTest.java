@@ -7,6 +7,7 @@ import io.extremum.common.utils.ModelUtils;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -136,7 +137,7 @@ class ReactiveMongoCommonServiceTest {
                 .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId().toString())
                 .modelType(modelName)
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         model.setUuid(descriptor);

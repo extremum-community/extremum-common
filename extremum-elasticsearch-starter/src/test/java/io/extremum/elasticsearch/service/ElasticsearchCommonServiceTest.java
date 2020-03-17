@@ -2,6 +2,7 @@ package io.extremum.elasticsearch.service;
 
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.common.service.AlertsCollector;
 import io.extremum.common.utils.ModelUtils;
@@ -52,7 +53,7 @@ class ElasticsearchCommonServiceTest {
                 .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId())
                 .modelType(ModelUtils.getModelName(model))
-                .storageType(Descriptor.StorageType.POSTGRES)
+                .storageType(StandardStorageType.POSTGRES)
                 .build();
 
         model.setUuid(descriptor);

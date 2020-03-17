@@ -14,7 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static io.extremum.sharedmodels.descriptor.Descriptor.StorageType.MONGO;
+import static io.extremum.sharedmodels.descriptor.StandardStorageType.MONGO;
+import static io.extremum.test.mockito.ReturnFirstArg.returnFirstArg;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -30,7 +31,7 @@ class DescriptorAllocatorTest {
     @Test
     void whenAllocating_thenDescriptorsShouldBeStoredInABatchViaDescriptorService() {
         when(descriptorService.storeBatch(anyListOfSize(10)))
-                .then(invocation -> invocation.getArgument(0));
+                .then(returnFirstArg());
 
         DescriptorAllocator allocator = new DescriptorAllocator(
                 new BlankDescriptorSaver(descriptorService), MONGO, idGenerator);

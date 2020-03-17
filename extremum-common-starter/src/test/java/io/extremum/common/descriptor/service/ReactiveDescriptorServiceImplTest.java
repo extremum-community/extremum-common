@@ -1,8 +1,10 @@
 package io.extremum.common.descriptor.service;
 
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
+import io.extremum.mongo.facilities.DescriptorIsAlreadyReadyException;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,14 +15,14 @@ import reactor.test.StepVerifier;
 
 import java.util.Map;
 
+import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReactiveDescriptorServiceImplTest {
@@ -86,7 +88,7 @@ class ReactiveDescriptorServiceImplTest {
     private Descriptor blankDescriptor() {
         return Descriptor.builder()
                 .externalId("external-id")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .readiness(Descriptor.Readiness.BLANK)
                 .build();
     }
@@ -101,5 +103,47 @@ class ReactiveDescriptorServiceImplTest {
         StepVerifier.create(mono)
                 .expectNext(singletonMap("internal-id", "external-id"))
                 .verifyComplete();
+    }
+
+    @Test
+    void givenABlankDescriptorExists_whenMakingItReady_thenItBecomesReadyAndReturnsTheDescriptor() {
+        Descriptor blankDescriptor = Descriptor.builder()
+                .externalId("external-id")
+                .readiness(Descriptor.Readiness.BLANK)
+                .storageType(StandardStorageType.MONGO)
+                .build();
+        when(reactiveDescriptorDao.retrieveByExternalId("external-id"))
+                .thenReturn(Mono.just(blankDescriptor));
+        when(reactiveDescriptorDao.store(any()))
+                .then(returnFirstArgInMono());
+
+        Mono<Descriptor> mono = reactiveDescriptorService.makeDescriptorReady("external-id", "TestModel");
+
+        StepVerifier.create(mono)
+                .assertNext(descriptor -> {
+                    assertThat(descriptor.getReadiness(), is(Descriptor.Readiness.READY));
+                    assertThat(descriptor.getModelType(), is("TestModel"));
+                })
+                .verifyComplete();
+
+        //noinspection UnassignedFluxMonoInstance
+        verify(reactiveDescriptorDao).store(blankDescriptor);
+    }
+
+    @Test
+    void givenADescriptorIsReady_whenMakingItReady_thenExceptionShouldBeThrown() {
+        Descriptor readyDescriptor = Descriptor.builder()
+                .externalId("external-id")
+                .readiness(Descriptor.Readiness.READY)
+                .storageType(StandardStorageType.MONGO)
+                .build();
+        when(reactiveDescriptorDao.retrieveByExternalId("external-id"))
+                .thenReturn(Mono.just(readyDescriptor));
+
+        Mono<Descriptor> mono = reactiveDescriptorService.makeDescriptorReady("external-id", "TestModel");
+
+        StepVerifier.create(mono)
+                .expectError(DescriptorIsAlreadyReadyException.class)
+                .verify();
     }
 }

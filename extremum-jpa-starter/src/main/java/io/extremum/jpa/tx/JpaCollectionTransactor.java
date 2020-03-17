@@ -1,7 +1,8 @@
 package io.extremum.jpa.tx;
 
 import io.extremum.common.tx.CollectionTransactor;
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.sharedmodels.descriptor.StorageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.support.TransactionOperations;
 
@@ -12,8 +13,8 @@ public class JpaCollectionTransactor implements CollectionTransactor {
     private final TransactionOperations transactionOperations;
 
     @Override
-    public Descriptor.StorageType hostStorageType() {
-        return Descriptor.StorageType.POSTGRES;
+    public StorageType hostStorageType() {
+        return StandardStorageType.POSTGRES;
     }
 
     @Override

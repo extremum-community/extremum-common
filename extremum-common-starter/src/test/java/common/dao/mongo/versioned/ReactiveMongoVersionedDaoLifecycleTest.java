@@ -2,6 +2,7 @@ package common.dao.mongo.versioned;
 
 import io.extremum.common.test.TestWithServices;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.types.ObjectId;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -109,7 +110,7 @@ class ReactiveMongoVersionedDaoLifecycleTest extends TestWithServices {
         return Descriptor.builder()
                     .externalId(UUID.randomUUID().toString())
                     .internalId(new ObjectId().toString())
-                    .storageType(Descriptor.StorageType.MONGO)
+                    .storageType(StandardStorageType.MONGO)
                     .build();
     }
 

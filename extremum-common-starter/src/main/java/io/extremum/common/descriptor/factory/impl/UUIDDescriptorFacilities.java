@@ -1,9 +1,10 @@
 package io.extremum.common.descriptor.factory.impl;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorResolver;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
+import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StorageType;
 
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public abstract class UUIDDescriptorFacilities {
         this.descriptorSaver = descriptorSaver;
     }
 
-    protected abstract Descriptor.StorageType storageType();
+    protected abstract StorageType storageType();
 
     public Descriptor create(UUID uuid, String modelType) {
         return descriptorSaver.createAndSave(uuid.toString(), modelType, storageType());

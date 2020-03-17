@@ -10,6 +10,7 @@ import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -633,7 +634,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
                 .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
-                .storageType(Descriptor.StorageType.ELASTICSEARCH)
+                .storageType(StandardStorageType.ELASTICSEARCH)
                 .build();
 
         model.setUuid(descriptor);

@@ -15,7 +15,8 @@ public class TransactorsCollectionTransactivity implements CollectionTransactivi
 
     @Override
     public boolean isCollectionTransactional(Descriptor hostId) {
-        return transactors.stream().anyMatch(transactor -> transactor.hostStorageType() == hostId.getStorageType());
+        return transactors.stream()
+                .anyMatch(transactor -> transactor.hostStorageType().matches(hostId.getStorageType()));
     }
 
     @Override
@@ -26,7 +27,7 @@ public class TransactorsCollectionTransactivity implements CollectionTransactivi
 
     private CollectionTransactor requiredTransactor(Descriptor hostId) {
         return transactors.stream()
-                    .filter(ttor -> ttor.hostStorageType() == hostId.getStorageType())
+                    .filter(ttor -> ttor.hostStorageType().matches(hostId.getStorageType()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException(
                             String.format("Did not find any transactor for '%s'", hostId.getStorageType())));

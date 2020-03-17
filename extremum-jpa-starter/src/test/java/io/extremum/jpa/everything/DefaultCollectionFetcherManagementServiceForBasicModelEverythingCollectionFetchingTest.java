@@ -17,6 +17,7 @@ import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.jpa.model.PostgresBasicModel;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +91,7 @@ class DefaultCollectionFetcherManagementServiceForBasicModelEverythingCollection
                 .externalId("hostId")
                 .internalId("internalHostId")
                 .modelType("JpaBasicContainer")
-                .storageType(Descriptor.StorageType.POSTGRES)
+                .storageType(StandardStorageType.POSTGRES)
                 .build();
     }
 

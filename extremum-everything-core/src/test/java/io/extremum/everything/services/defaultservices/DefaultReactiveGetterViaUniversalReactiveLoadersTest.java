@@ -4,6 +4,7 @@ import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.support.UniversalReactiveModelLoaders;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +32,7 @@ class DefaultReactiveGetterViaUniversalReactiveLoadersTest {
             .externalId("externalId")
             .internalId("internalId")
             .modelType("TestModel")
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .build();
 
     @Test

@@ -15,6 +15,7 @@ import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynami
 import io.extremum.dynamic.watch.DefaultDynamicModelWatchService;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -155,7 +156,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
         Descriptor id = Descriptor.builder()
                 .internalId("int")
                 .externalId("ext")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .modelType("model")
                 .build();
 

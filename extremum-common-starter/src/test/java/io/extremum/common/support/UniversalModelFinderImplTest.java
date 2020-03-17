@@ -4,6 +4,7 @@ import io.extremum.sharedmodels.basic.Model;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.common.service.CommonService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,13 +55,13 @@ class UniversalModelFinderImplTest {
                         .externalId("external1")
                         .internalId("internal1")
                         .modelType("model1")
-                        .storageType(Descriptor.StorageType.MONGO)
+                        .storageType(StandardStorageType.MONGO)
                         .build(),
                 Descriptor.builder()
                         .externalId("external2")
                         .internalId("internal2")
                         .modelType("model2")
-                        .storageType(Descriptor.StorageType.MONGO)
+                        .storageType(StandardStorageType.MONGO)
                         .build()
         );
         List<Model> models = modelFinder.findModels(descriptors);

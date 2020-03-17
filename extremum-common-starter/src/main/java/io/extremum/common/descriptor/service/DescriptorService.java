@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Service to work with {@link Descriptor}s.
  *
- * Please note that this service do not tolerate null arguments by default. If a null argument
+ * Please note that this service does not tolerate null arguments by default. If a null argument
  * is passed, a {@link NullPointerException} is thrown.
  */
 public interface DescriptorService {
@@ -42,4 +42,6 @@ public interface DescriptorService {
     Map<String, String> loadMapByExternalIds(Collection<String> externalIds);
 
     Map<String, String> loadMapByInternalIds(Collection<String> internalIds);
+
+    Descriptor makeDescriptorReady(String descriptorExternalId, String modelType);
 }

@@ -26,6 +26,7 @@ import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.security.ReactiveDataSecurity;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.test.core.MockedMapperDependencies;
 import lombok.Getter;
@@ -43,6 +44,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
+import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
@@ -93,7 +95,7 @@ class ReactivePatchFlowImplTest {
             .externalId("external-id")
             .internalId("internal-id")
             .modelType(TestModel.MODEL_NAME)
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .build();
 
     @BeforeEach
@@ -111,7 +113,7 @@ class ReactivePatchFlowImplTest {
 
     private void whenSaveAModelThenReturnIt() {
         //noinspection UnassignedFluxMonoInstance
-        lenient().doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
+        lenient().doAnswer(returnFirstArgInMono())
                 .when(modelSaver).saveModel(any());
     }
 

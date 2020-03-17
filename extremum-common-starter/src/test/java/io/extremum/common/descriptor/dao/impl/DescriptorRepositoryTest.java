@@ -7,6 +7,7 @@ import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -63,7 +64,7 @@ class DescriptorRepositoryTest extends TestWithServices {
                 .externalId(descriptorService.createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
     }
 

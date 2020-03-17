@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.factory;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -10,8 +11,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Mono;
 
+import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,9 +37,9 @@ class ReactiveDescriptorSaverTest {
     @Test
     void whenCreatingADescriptorReactiely_thenCorrectDataShouldBeSavedWithReactiveDescriptorService() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
-        when(reactiveDescriptorService.store(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
+        when(reactiveDescriptorService.store(any())).then(returnFirstArgInMono());
 
-        descriptorSaver.createAndSave("internal-id", "Test", Descriptor.StorageType.MONGO).block();
+        descriptorSaver.createAndSave("internal-id", "Test", StandardStorageType.MONGO).block();
 
         //noinspection UnassignedFluxMonoInstance
         verify(reactiveDescriptorService).store(descriptorCaptor.capture());
@@ -51,6 +52,6 @@ class ReactiveDescriptorSaverTest {
         assertThat(savedDescriptor.getExternalId(), is("external-id"));
         assertThat(savedDescriptor.getInternalId(), is("internal-id"));
         assertThat(savedDescriptor.getModelType(), is("Test"));
-        assertThat(savedDescriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+        assertThat(savedDescriptor.getStorageType(), is("mongo"));
     }
 }

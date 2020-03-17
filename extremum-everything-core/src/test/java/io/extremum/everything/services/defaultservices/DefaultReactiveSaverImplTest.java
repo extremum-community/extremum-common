@@ -10,8 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Mono;
 
+import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,7 +32,7 @@ class DefaultReactiveSaverImplTest {
 
     @Test
     void whenSavingAModel_thenItShouldBeSavedToItsCommonService() {
-        when(commonService.save(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
+        when(commonService.save(any())).then(returnFirstArgInMono());
         TestModel model = new TestModel();
         
         saver.save(model).block();

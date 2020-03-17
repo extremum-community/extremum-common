@@ -2,6 +2,7 @@ package io.extremum.watch.processor;
 
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.watch.models.ModelMetadata;
 import io.extremum.watch.models.TextWatchEvent;
 import org.bson.types.ObjectId;
@@ -29,7 +30,7 @@ class ProcessorTests {
                 .externalId(EXTERNAL_ID)
                 .internalId(id.toString())
                 .modelType(modelType)
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
     }
 
