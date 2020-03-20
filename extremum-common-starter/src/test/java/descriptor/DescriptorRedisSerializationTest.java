@@ -3,6 +3,7 @@ package descriptor;
 import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
@@ -15,13 +16,16 @@ import io.extremum.starter.properties.RedisProperties;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -47,6 +51,8 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     @Autowired
     @Qualifier("descriptorsMongoTemplate")
     private MongoOperations descriptorMongoOperations;
+    @Autowired
+    private DescriptorSaver descriptorSaver;
 
     private DescriptorDao freshDaoToAvoidCachingInMemory;
 
@@ -64,7 +70,7 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     void whenLoadingADescriptorByExternalIdFromRedisWithoutMemoryCaching_thenDeserializationShouldSucceed() {
         Optional<Descriptor> retrievedDescriptor = freshDaoToAvoidCachingInMemory.retrieveByExternalId(
                 descriptor.getExternalId());
-        
+
         assertThatRetrievedDescriptorIsOk(descriptor, retrievedDescriptor);
     }
 
@@ -109,5 +115,37 @@ class DescriptorRedisSerializationTest extends TestWithServices {
         OwnedCoordinates ownedCoordinates = retrievedDescriptor.getCollection().getCoordinates().getOwnedCoordinates();
         assertThat(ownedCoordinates.getHostId().getExternalId(), is(hostExternalId));
         assertThat(ownedCoordinates.getHostAttributeName(), is("items"));
+    }
+
+    @Test
+    void storesDescriptorsMapKeyInRedisAsPlainString() {
+        RMap<String, String> descriptorsMap = redissonClient.getMap(descriptorsProperties.getDescriptorsMapName(),
+                new StringCodec());
+
+        assertThat(descriptorsMap.get(descriptor.getExternalId()), is(notNullValue()));
+    }
+
+    @Test
+    void storesInternalIdsMapKeyAndValueInRedisAsPlainStrings() {
+        RMap<String, String> internalIdsMap = redissonClient.getMap(descriptorsProperties.getInternalIdsMapName(),
+                new StringCodec());
+
+        assertThat(internalIdsMap.get(descriptor.getInternalId()), is(descriptor.getExternalId()));
+    }
+
+    @Test
+    void storesCollectionCoordinatesMapKeyAndValueInRedisAsPlainStrings() {
+        RMap<String, String> collectionCoordinatesMap = redissonClient.getMap(
+                descriptorsProperties.getCollectionCoordinatesMapName(), new StringCodec());
+
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree(randomString());
+        Descriptor savedDescriptor = descriptorSaver.createAndSave(collectionDescriptor);
+
+        assertThat(collectionCoordinatesMap.get(collectionDescriptor.toCoordinatesString()),
+                is(savedDescriptor.getExternalId()));
+    }
+
+    private String randomString() {
+        return UUID.randomUUID().toString();
     }
 }

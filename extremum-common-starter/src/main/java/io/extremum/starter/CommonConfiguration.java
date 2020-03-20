@@ -32,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.RedissonReactiveClient;
-import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,7 +75,6 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public Config redissonConfig(@Qualifier("redis") ObjectMapper redisMapper) {
         Config config = new Config();
-        config.setCodec(new JsonJacksonCodec(redisMapper));
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (StringUtils.hasLength(redisProperties.getPassword())) {
             config.useSingleServer().setPassword(redisProperties.getPassword());

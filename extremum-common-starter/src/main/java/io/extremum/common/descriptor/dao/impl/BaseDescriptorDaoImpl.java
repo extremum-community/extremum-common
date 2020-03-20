@@ -1,5 +1,6 @@
 package io.extremum.common.descriptor.dao.impl;
 
+import io.extremum.common.redisson.CompositeCodecWithQuickFix;
 import io.extremum.common.redisson.FlexibleLocalCachedMapOptions;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor.Readiness;
@@ -7,6 +8,8 @@ import org.redisson.RedissonLocalCachedMap.CacheValue;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
+import org.redisson.client.codec.StringCodec;
+import org.redisson.codec.CompositeCodec;
 import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.concurrent.TimeUnit;
@@ -16,13 +19,12 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                  MongoOperations descriptorMongoOperations,
                                  String descriptorsMapName, String internalIdsMapName,
                                  String collectionCoordinatesMapName,
-                                 Codec codec,
                                  int cacheSize, long idleTime) {
         super(descriptorRepository,
                 descriptorMongoOperations,
                 redissonClient.getLocalCachedMap(
                         descriptorsMapName,
-                        codec,
+                        new CompositeCodecWithQuickFix(new StringCodec(), DescriptorCodecs.codecForDescriptor()),
                         FlexibleLocalCachedMapOptions
                                 .<String, Descriptor>defaults()
                                 .shouldBeCached(BaseDescriptorDaoImpl::descriptorWillNeverChange)
@@ -35,6 +37,7 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
 
                 redissonClient.getLocalCachedMap(
                         internalIdsMapName,
+                        stringToStringCodec(),
                         LocalCachedMapOptions
                                 .<String, String>defaults()
                                 .loader(new DescriptorInternalIdMapLoader(descriptorRepository))
@@ -46,6 +49,7 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
 
                 redissonClient.getLocalCachedMap(
                         collectionCoordinatesMapName,
+                        stringToStringCodec(),
                         LocalCachedMapOptions
                                 .<String, String>defaults()
                                 .loader(new DescriptorCoordinatesMapLoader(descriptorRepository))
@@ -55,6 +59,11 @@ public class BaseDescriptorDaoImpl extends BaseDescriptorDao {
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)
                 )
         );
+    }
+
+    private static Codec stringToStringCodec() {
+        StringCodec stringCodec = new StringCodec();
+        return new CompositeCodec(stringCodec, stringCodec);
     }
 
     private static boolean descriptorWillNeverChange(CacheValue cacheValue) {
