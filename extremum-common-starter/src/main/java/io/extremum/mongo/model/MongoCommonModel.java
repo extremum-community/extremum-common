@@ -28,4 +28,12 @@ public abstract class MongoCommonModel implements PersistableCommonModel<ObjectI
     private Long version;
 
     private Boolean deleted = false;
+
+    public void setDeleted(Boolean newDeleted) {
+        if (newDeleted == null) {
+            throw new IllegalArgumentException("deleted cannot be null");
+        }
+
+        this.deleted = newDeleted;
+    }
 }
