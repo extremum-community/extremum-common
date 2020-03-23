@@ -2,7 +2,8 @@ package io.extremum.elasticsearch.facilities;
 
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.ReactiveUUIDDescriptorFacilities;
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.sharedmodels.descriptor.StorageType;
 
 public final class ReactiveElasticsearchDescriptorFacilitiesImpl extends ReactiveUUIDDescriptorFacilities
         implements ReactiveElasticsearchDescriptorFacilities {
@@ -11,7 +12,7 @@ public final class ReactiveElasticsearchDescriptorFacilitiesImpl extends Reactiv
     }
 
     @Override
-    protected Descriptor.StorageType storageType() {
-        return Descriptor.StorageType.ELASTICSEARCH;
+    protected StorageType storageType() {
+        return StandardStorageType.ELASTICSEARCH;
     }
 }

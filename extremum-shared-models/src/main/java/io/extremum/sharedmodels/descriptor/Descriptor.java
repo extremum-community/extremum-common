@@ -35,7 +35,7 @@ public class Descriptor implements Serializable {
     @JsonProperty("modelType")
     private String modelType;
     @JsonProperty("storageType")
-    private StorageType storageType;
+    private String storageType;
 
     @JsonProperty("collection")
     private CollectionDescriptor collection;
@@ -165,12 +165,12 @@ public class Descriptor implements Serializable {
                 .switchIfEmpty(Mono.error(newDescriptorNotFoundByExternalIdException()));
     }
 
-    public StorageType getStorageType() {
+    public String getStorageType() {
         if (this.storageType == null) {
             fillByIds();
             if (this.storageType == null) {
                 throw new IllegalStateException(
-                        String.format("StorageType can't be resolved by both id's: internalId - %s; descriptorId %s",
+                        String.format("Storage type can't be resolved by both id's: internalId - %s; descriptorId %s",
                                 internalId, externalId)
                 );
             }
@@ -180,7 +180,7 @@ public class Descriptor implements Serializable {
 
     @JsonIgnore
     @UsesStaticDependencies
-    public Mono<StorageType> getStorageTypeReactively() {
+    public Mono<String> getStorageTypeReactively() {
         if (this.storageType != null) {
             return Mono.just(storageType);
         }
@@ -324,7 +324,7 @@ public class Descriptor implements Serializable {
         return Objects.equals(getExternalId(), that.getExternalId()) &&
                 Objects.equals(getInternalId(), that.getInternalId()) &&
                 Objects.equals(getModelType(), that.getModelType()) &&
-                getStorageType() == that.getStorageType();
+                Objects.equals(getStorageType(), that.getStorageType());
     }
 
     @Override
@@ -380,38 +380,6 @@ public class Descriptor implements Serializable {
         }
     }
 
-    public enum StorageType {
-        MONGO("mongo"),
-        ELASTICSEARCH("elastic"),
-        POSTGRES("postgres");
-
-        private final String value;
-
-        StorageType(String value) {
-            this.value = value;
-        }
-
-        @JsonValue
-        @ToStorageString
-        public String getValue() {
-            return value;
-        }
-
-        @JsonCreator
-        @FromStorageString
-        public static StorageType fromString(String value) {
-            if (value != null) {
-                for (StorageType type : StorageType.values()) {
-                    if (type.getValue().equalsIgnoreCase(value)) {
-                        return type;
-                    }
-                }
-            }
-
-            return null;
-        }
-    }
-
     public enum Readiness {
         BLANK("blank"), READY("ready");
 
@@ -444,6 +412,13 @@ public class Descriptor implements Serializable {
 
     public enum FIELDS {
         externalId, internalId, modelType, storageType, created, modified, version, deleted, display
+    }
+
+    public static class DescriptorBuilder {
+        public DescriptorBuilder storageType(StorageType storageType) {
+            this.storageType = storageType.getStorageValue();
+            return this;
+        }
     }
 }
 

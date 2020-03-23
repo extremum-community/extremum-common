@@ -3,6 +3,7 @@ package io.extremum.everything.regular.controller;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.fundamental.CommonResponseDto;
 
 import java.time.ZonedDateTime;
@@ -31,7 +32,7 @@ class TestResponseDto extends CommonResponseDto {
                 .externalId("external-id-" + name)
                 .internalId("internal-id-" + name)
                 .modelType("Test")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
     }
 

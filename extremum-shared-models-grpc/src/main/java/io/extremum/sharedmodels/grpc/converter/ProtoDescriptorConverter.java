@@ -2,9 +2,7 @@ package io.extremum.sharedmodels.grpc.converter;
 
 import com.google.protobuf.Int64Value;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.sharedmodels.descriptor.Descriptor.StorageType;
 import io.extremum.sharedmodels.proto.common.ProtoDescriptor;
-import io.extremum.sharedmodels.proto.common.ProtoDescriptor.ProtoStorageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +24,7 @@ public class ProtoDescriptorConverter {
         }
 
         if (descriptor.getStorageType() != null) {
-            descriptorBuilder.setStorageType(ProtoStorageType.valueOf(descriptor.getStorageType().name()));
+            descriptorBuilder.setStorageType(descriptor.getStorageType());
         }
 
         String externalId = descriptor.getExternalId();
@@ -62,7 +60,7 @@ public class ProtoDescriptorConverter {
         descriptor.setExternalId(externalId.equals("") ? null : externalId);
         descriptor.setInternalId(internalId.equals("") ? null : internalId);
         descriptor.setModelType(modelType.equals("") ? null : modelType);
-        descriptor.setStorageType(StorageType.fromString(proto.getStorageType().name()));
+        descriptor.setStorageType(proto.getStorageType());
         descriptor.setCreated(timestampConverter.createFromProto(proto.getCreated()));
         descriptor.setModified(timestampConverter.createFromProto(proto.getModified()));
         descriptor.setDisplay(displayConverter.createFromProto(proto.getDisplay()));

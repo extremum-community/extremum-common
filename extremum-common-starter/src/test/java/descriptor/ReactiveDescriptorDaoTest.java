@@ -10,6 +10,7 @@ import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         Mono<Descriptor> mono = reactiveDescriptorDao.store(Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build());
         Descriptor savedDescriptor = mono.block();
         assertThat(savedDescriptor, is(notNullValue()));
@@ -58,7 +59,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         assertThat(loadedDescriptor, is(notNullValue()));
         assertThat(loadedDescriptor.getExternalId(), is(savedDescriptor.getExternalId()));
         assertThat(loadedDescriptor.getInternalId(), is(savedDescriptor.getInternalId()));
-        assertThat(loadedDescriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+        assertThat(loadedDescriptor.getStorageType(), is("mongo"));
     }
 
     @Test
@@ -114,7 +115,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
                 .externalId(createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         Mono<Descriptor> mono = reactiveDescriptorDao.retrieveByInternalId(internalId);
@@ -149,7 +150,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
     @Test
     void givenADescriptorIsSaved_whenItIsRetrieved_thenItsCreatedModifiedAndVersionShouldBeFilled() {
         Descriptor descriptorToSave = new DescriptorSavers(descriptorService)
-                .createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+                .createSingleDescriptor(new ObjectId().toString(), StandardStorageType.MONGO);
         Descriptor savedDescriptor = reactiveDescriptorDao.store(descriptorToSave).block();
         assertThat(savedDescriptor, is(notNullValue()));
 

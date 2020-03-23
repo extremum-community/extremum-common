@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.service;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.uuid.UUIDGenerator;
+import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
 import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;
 import lombok.RequiredArgsConstructor;
 
@@ -12,6 +13,8 @@ import java.util.*;
 public final class DescriptorServiceImpl implements DescriptorService {
     private final DescriptorDao descriptorDao;
     private final UUIDGenerator uuidGenerator;
+
+    private final DescriptorReadinessValidation descriptorReadinessValidation = new DescriptorReadinessValidation();
 
     @Override
     public String createExternalId() {
@@ -60,5 +63,23 @@ public final class DescriptorServiceImpl implements DescriptorService {
     public Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
         Objects.requireNonNull(internalIds, "List of internal ids can't be null");
         return descriptorDao.retrieveMapByInternalIds(internalIds);
+    }
+
+    @Override
+    public Descriptor makeDescriptorReady(String descriptorExternalId, String modelType) {
+        Descriptor descriptor = descriptorDao.retrieveByExternalId(descriptorExternalId)
+                .orElseThrow(() -> doesNotExistException(descriptorExternalId));
+
+        descriptorReadinessValidation.validateDescriptorIsNotReady(descriptorExternalId, descriptor);
+
+        descriptor.setReadiness(Descriptor.Readiness.READY);
+        descriptor.setModelType(modelType);
+
+        return descriptorDao.store(descriptor);
+    }
+
+    private DescriptorNotFoundException doesNotExistException(String descriptorExternalId) {
+        String errorMessage = String.format("No descriptor with externalId '%s' exists", descriptorExternalId);
+        return new DescriptorNotFoundException(errorMessage);
     }
 }

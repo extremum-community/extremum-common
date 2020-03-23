@@ -1,10 +1,11 @@
 package io.extremum.elasticsearch.reactive;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.support.UniversalReactiveModelLoader;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.basic.Model;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.sharedmodels.descriptor.StorageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
 import reactor.core.publisher.Mono;
@@ -24,7 +25,7 @@ public class ElasticsearchUniversalReactiveModelLoader implements UniversalReact
     }
 
     @Override
-    public Descriptor.StorageType type() {
-        return Descriptor.StorageType.ELASTICSEARCH;
+    public StorageType type() {
+        return StandardStorageType.ELASTICSEARCH;
     }
 }

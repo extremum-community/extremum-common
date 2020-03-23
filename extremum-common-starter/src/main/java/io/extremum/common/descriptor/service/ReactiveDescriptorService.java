@@ -14,4 +14,6 @@ public interface ReactiveDescriptorService {
     Mono<Descriptor> loadByInternalId(String internalId);
 
     Mono<Map<String, String>> loadMapByInternalIds(Collection<String> internalIds);
+
+    Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType);
 }

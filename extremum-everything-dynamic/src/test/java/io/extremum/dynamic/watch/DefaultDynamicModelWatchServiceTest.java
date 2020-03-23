@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.processor.WatchEventConsumer;
 import org.codehaus.jettison.json.JSONArray;
@@ -28,7 +29,7 @@ class DefaultDynamicModelWatchServiceTest {
     private static final Descriptor DESCRIPTOR = Descriptor.builder()
             .internalId("internal")
             .externalId("external")
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .modelType(MODEL_NAME)
             .build();
 

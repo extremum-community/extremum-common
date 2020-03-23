@@ -154,7 +154,7 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
         @Indexed(unique = true, sparse = true)
         private String internalId;
         private String modelType;
-        private Descriptor.StorageType storageType;
+        private String storageType;
 
         private CollectionDescriptor collection;
 
@@ -177,7 +177,7 @@ class CustomDescriptorCollectionMappingContext extends MongoMappingContext {
         @Transient
         private Mono<String> internalIdReactively;
         @Transient
-        private Mono<Descriptor.StorageType> storageTypeReactively;
+        private Mono<String> storageTypeReactively;
 
         @Transient
         private Mono<String> modelTypeReactively;

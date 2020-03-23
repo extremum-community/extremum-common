@@ -23,14 +23,14 @@ public abstract class AbstractReactiveMongoEventListener<E>
         this.domainClass = typeArgument == null ? Object.class : typeArgument;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     @Override
     public Mono<Void> onApplicationEvent(ReactiveMongoMappingEvent<?> event) {
 
         Object source = event.getSource();
 
         // Check for matching domain type and invoke callbacks
-        if (source != null && !domainClass.isAssignableFrom(source.getClass())) {
+        if (!domainClass.isAssignableFrom(source.getClass())) {
             return Mono.empty();
         }
 

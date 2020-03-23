@@ -5,6 +5,7 @@ import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +65,7 @@ class DescriptorMongoStorageTest extends TestWithServices {
 
     private Descriptor createAndSaveNewDescriptor() {
         return descriptorSaver.createAndSave(new ObjectId().toString(), "Test",
-                Descriptor.StorageType.MONGO);
+                StandardStorageType.MONGO);
     }
 
     @Test

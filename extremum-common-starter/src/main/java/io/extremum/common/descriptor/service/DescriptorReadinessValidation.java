@@ -1,5 +1,6 @@
-package io.extremum.mongo.facilities;
+package io.extremum.common.descriptor.service;
 
+import io.extremum.mongo.facilities.DescriptorIsAlreadyReadyException;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 class DescriptorReadinessValidation {

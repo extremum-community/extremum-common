@@ -66,4 +66,9 @@ public class InMemoryDescriptorService implements DescriptorService {
     public Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Descriptor makeDescriptorReady(String descriptorExternalId, String modelType) {
+        throw new UnsupportedOperationException();
+    }
 }

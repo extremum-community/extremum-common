@@ -3,6 +3,7 @@ package common.service.mongo;
 import common.dao.mongo.TestMongoModelDao;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.exceptions.WrongArgumentException;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.common.service.AlertsCollector;
 import io.extremum.common.service.Problems;
@@ -463,7 +464,7 @@ class MongoCommonServiceTest {
                 .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId().toString())
                 .modelType(modelName)
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         model.setUuid(descriptor);

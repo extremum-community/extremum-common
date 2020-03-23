@@ -29,7 +29,7 @@ class DescriptorTest {
     private final Descriptor descriptorInDb = Descriptor.builder()
             .externalId("external-id")
             .internalId("internal-id")
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .modelType("modelType")
             .build();
 
@@ -151,13 +151,13 @@ class DescriptorTest {
     @Test
     void givenStorageTypeIsNotNull_whenGetStorageTypeReactivelyIsUsed_thenTheStorageTypeShouldBeReturned() {
         Descriptor descriptor = Descriptor.builder()
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
-        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+        Mono<String> storageTypeMono = descriptor.getStorageTypeReactively();
 
         StepVerifier.create(storageTypeMono)
-                .expectNext(Descriptor.StorageType.MONGO)
+                .expectNext("mongo")
                 .verifyComplete();
     }
 
@@ -170,13 +170,13 @@ class DescriptorTest {
                 .externalId("external-id")
                 .build();
 
-        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+        Mono<String> storageTypeMono = descriptor.getStorageTypeReactively();
 
         StepVerifier.create(storageTypeMono)
-                .expectNext(Descriptor.StorageType.MONGO)
+                .expectNext("mongo")
                 .verifyComplete();
 
-        assertThat(descriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+        assertThat(descriptor.getStorageType(), is("mongo"));
     }
 
     @Test
@@ -188,7 +188,7 @@ class DescriptorTest {
                 .externalId("external-id")
                 .build();
 
-        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+        Mono<String> storageTypeMono = descriptor.getStorageTypeReactively();
 
         StepVerifier.create(storageTypeMono)
                 .expectErrorSatisfies(ex -> {
@@ -207,13 +207,13 @@ class DescriptorTest {
                 .internalId("internal-id")
                 .build();
 
-        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+        Mono<String> storageTypeMono = descriptor.getStorageTypeReactively();
 
         StepVerifier.create(storageTypeMono)
-                .expectNext(Descriptor.StorageType.MONGO)
+                .expectNext("mongo")
                 .verifyComplete();
 
-        assertThat(descriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+        assertThat(descriptor.getStorageType(), is("mongo"));
     }
 
     @Test
@@ -225,7 +225,7 @@ class DescriptorTest {
                 .internalId("internal-id")
                 .build();
 
-        Mono<Descriptor.StorageType> storageTypeMono = descriptor.getStorageTypeReactively();
+        Mono<String> storageTypeMono = descriptor.getStorageTypeReactively();
 
         StepVerifier.create(storageTypeMono)
                 .expectErrorSatisfies(ex -> {
@@ -361,7 +361,7 @@ class DescriptorTest {
         Descriptor descriptor = Descriptor.builder()
                 .externalId("external-id")
                 .internalId("internal-id")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         when(descriptorLoader.loadByInternalIdReactively("internal-id"))

@@ -21,6 +21,7 @@ public class InMemoryDescriptorService implements DescriptorService {
     private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
 
     private final ConcurrentMap<String, Descriptor> externalIdToDescriptorMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Descriptor> internalIdToDescriptorMap = new ConcurrentHashMap<>();
 
     @Override
     public String createExternalId() {
@@ -36,6 +37,11 @@ public class InMemoryDescriptorService implements DescriptorService {
         }
 
         externalIdToDescriptorMap.put(externalId, descriptor);
+
+        String internalId = ReflectionUtils.getFieldValue(descriptor, "internalId");
+        if (internalId != null) {
+            internalIdToDescriptorMap.put(internalId, descriptor);
+        }
 
         return descriptor;
     }
@@ -53,7 +59,7 @@ public class InMemoryDescriptorService implements DescriptorService {
 
     @Override
     public Optional<Descriptor> loadByInternalId(String internalId) {
-        throw new UnsupportedOperationException();
+        return Optional.ofNullable(internalIdToDescriptorMap.get(internalId));
     }
 
     @Override
@@ -63,6 +69,11 @@ public class InMemoryDescriptorService implements DescriptorService {
 
     @Override
     public Map<String, String> loadMapByInternalIds(Collection<String> internalIds) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Descriptor makeDescriptorReady(String descriptorExternalId, String modelType) {
         throw new UnsupportedOperationException();
     }
 

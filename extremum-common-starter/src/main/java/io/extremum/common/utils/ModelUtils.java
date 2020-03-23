@@ -1,11 +1,11 @@
 package io.extremum.common.utils;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.annotation.HardDelete;
 import io.extremum.common.model.annotation.ModelName;
+import io.extremum.sharedmodels.basic.Model;
 
 public final class ModelUtils {
-    public static String getModelName(Class<? extends Model> modelClass) {
+    public static String getModelName(Class<?> modelClass) {
         ModelName annotation = findModelNameAnnotation(modelClass);
         if (annotation == null) {
             throw new IllegalStateException(modelClass + " is not annotated with @ModelName");
@@ -13,7 +13,7 @@ public final class ModelUtils {
         return annotation.value();
     }
 
-    private static ModelName findModelNameAnnotation(Class<? extends Model> modelClass) {
+    private static ModelName findModelNameAnnotation(Class<?> modelClass) {
         return AnnotationUtils.findAnnotationDirectlyOrUnderProxy(ModelName.class, modelClass);
     }
 
@@ -21,7 +21,7 @@ public final class ModelUtils {
         return findModelNameAnnotation(modelClass) != null;
     }
 
-    public static <M extends Model> String getModelName(M model) {
+    public static String getModelName(Object model) {
         return getModelName(model.getClass());
     }
 

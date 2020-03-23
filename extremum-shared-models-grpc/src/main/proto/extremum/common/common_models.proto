@@ -43,19 +43,12 @@ message ProtoDescriptor {
     string external_id = 1;
     string internal_id = 2;
     string model_type = 3;
-    ProtoStorageType storage_type = 4;
+    string storage_type = 4;
     ProtoZonedTimestamp created = 5;
     ProtoZonedTimestamp modified = 6;
     google.protobuf.Int64Value version = 7;
     bool deleted = 8;
     ProtoDisplay display = 9;
-
-    enum ProtoStorageType {
-        UNKNOWN = 0;
-        MONGO = 1;
-        ELASTICSEARCH = 2;
-        POSTGRES = 3;
-    }
 }
 
 message ProtoDisplay {

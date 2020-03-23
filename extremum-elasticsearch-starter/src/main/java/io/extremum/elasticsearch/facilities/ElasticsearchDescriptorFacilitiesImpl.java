@@ -1,9 +1,10 @@
 package io.extremum.elasticsearch.facilities;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.UUIDDescriptorFacilities;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.sharedmodels.descriptor.StorageType;
 
 public final class ElasticsearchDescriptorFacilitiesImpl extends UUIDDescriptorFacilities
         implements ElasticsearchDescriptorFacilities {
@@ -12,7 +13,7 @@ public final class ElasticsearchDescriptorFacilitiesImpl extends UUIDDescriptorF
     }
 
     @Override
-    protected Descriptor.StorageType storageType() {
-        return Descriptor.StorageType.ELASTICSEARCH;
+    protected StorageType storageType() {
+        return StandardStorageType.ELASTICSEARCH;
     }
 }

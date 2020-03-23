@@ -9,6 +9,7 @@ import io.extremum.elasticsearch.dao.SearchOptions;
 import io.extremum.elasticsearch.dao.TestReactiveElasticsearchModelDao;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -56,7 +57,7 @@ class ReactiveElasticsearchCommonServiceTest {
                 .externalId(uuidGenerator.generateUUID())
                 .internalId(model.getId())
                 .modelType(ModelUtils.getModelName(model))
-                .storageType(Descriptor.StorageType.POSTGRES)
+                .storageType(StandardStorageType.POSTGRES)
                 .build();
 
         model.setUuid(descriptor);

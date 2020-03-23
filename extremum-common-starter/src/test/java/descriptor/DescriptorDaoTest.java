@@ -16,6 +16,7 @@ import io.extremum.sharedmodels.content.MediaType;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor.Readiness;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.starter.DescriptorDaoFactory;
 import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.RedisProperties;
@@ -162,7 +163,7 @@ class DescriptorDaoTest extends TestWithServices {
                 .externalId(createExternalId())
                 .internalId(internalId)
                 .modelType("test_model")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
@@ -187,7 +188,7 @@ class DescriptorDaoTest extends TestWithServices {
                 .externalId(externalId)
                 .internalId(internalId)
                 .modelType("test_model")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         descriptorDao.store(descriptor);
@@ -205,7 +206,7 @@ class DescriptorDaoTest extends TestWithServices {
                 .externalId(externalId)
                 .internalId(internalId)
                 .modelType("test_model")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .display(new Display("abcd"))
                 .build();
 
@@ -239,7 +240,7 @@ class DescriptorDaoTest extends TestWithServices {
                 .externalId(externalId)
                 .internalId(internalId)
                 .modelType("test_model")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .display(displayObj)
                 .build();
 
@@ -329,7 +330,7 @@ class DescriptorDaoTest extends TestWithServices {
         String internalId2 = new ObjectId().toString();
         DescriptorSavers savers = new DescriptorSavers(descriptorService);
         List<Descriptor> descriptorsToSave = Stream.of(internalId1, internalId2)
-                .map(internalId -> savers.createSingleDescriptor(internalId, Descriptor.StorageType.MONGO))
+                .map(internalId -> savers.createSingleDescriptor(internalId, StandardStorageType.MONGO))
                 .collect(Collectors.toList());
 
         List<Descriptor> savedDescriptors = descriptorDao.storeBatch(descriptorsToSave);
@@ -358,7 +359,7 @@ class DescriptorDaoTest extends TestWithServices {
         anotherDao.retrieveByExternalId(storedDescriptor.getExternalId());
 
         // when
-        mongoDescriptorFacilities.makeDescriptorReady(descriptor.getExternalId(), "TestModel");
+        descriptorService.makeDescriptorReady(descriptor.getExternalId(), "TestModel");
 
         // then
         Descriptor retrievedDescriptor = anotherDao.retrieveByExternalId(storedDescriptor.getExternalId())
@@ -376,7 +377,7 @@ class DescriptorDaoTest extends TestWithServices {
 
     private Descriptor createMongoModelDescriptor() {
         DescriptorSavers savers = new DescriptorSavers(descriptorService);
-        return savers.createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+        return savers.createSingleDescriptor(new ObjectId().toString(), StandardStorageType.MONGO);
     }
 
     @Test
@@ -395,7 +396,7 @@ class DescriptorDaoTest extends TestWithServices {
     @Test
     void givenADescriptorIsSaved_whenItIsRetrieved_thenItsCreatedModifiedAndVersionShouldBeFilled() {
         Descriptor descriptorToSave = new DescriptorSavers(descriptorService)
-                .createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+                .createSingleDescriptor(new ObjectId().toString(), StandardStorageType.MONGO);
         Descriptor savedDescriptor = descriptorDao.store(descriptorToSave);
 
         Descriptor retrievedDescriptor = freshDaoToAvoidCachingInMemory
@@ -414,7 +415,7 @@ class DescriptorDaoTest extends TestWithServices {
     @Test
     void givenADescriptorIsSavedInABatch_whenItIsRetrieved_thenItsCreatedModifiedAndVersionShouldBeFilled() {
         Descriptor descriptorToSave = new DescriptorSavers(descriptorService)
-                .createSingleDescriptor(new ObjectId().toString(), Descriptor.StorageType.MONGO);
+                .createSingleDescriptor(new ObjectId().toString(), StandardStorageType.MONGO);
         List<Descriptor> savedDescriptors = descriptorDao.storeBatch(singletonList(descriptorToSave));
         Descriptor savedDescriptor = savedDescriptors.get(0);
 

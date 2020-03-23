@@ -2,6 +2,7 @@ package io.extremum.common.support;
 
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ class ListBasedUniversalReactiveModelLoadersTest {
             .externalId("externalId")
             .internalId("internalId")
             .modelType("TestModel")
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .build();
     private final TestModel modelInDb = new TestModel();
 
@@ -41,7 +42,7 @@ class ListBasedUniversalReactiveModelLoadersTest {
 
     @Test
     void whenLoaderSupportsTheDescriptorStorageType_thenTheLoaderShouldBeReturned() {
-        when(loader.type()).thenReturn(Descriptor.StorageType.MONGO);
+        when(loader.type()).thenReturn(StandardStorageType.MONGO);
         when(modelClasses.getClassByModelName("TestModel"))
                 .thenReturn(modelClass(TestModel.class));
         when(loader.loadByInternalId("internalId", TestModel.class))
@@ -60,15 +61,15 @@ class ListBasedUniversalReactiveModelLoadersTest {
 
     @Test
     void whenLoaderDoesNotSupportTheDescriptorStorageType_thenAnExceptionShouldBeThrown() {
-        when(loader.type()).thenReturn(Descriptor.StorageType.POSTGRES);
+        when(loader.type()).thenReturn(StandardStorageType.POSTGRES);
 
         try {
             //noinspection UnassignedFluxMonoInstance
             loaders.loadByDescriptor(mongoDescriptor);
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
-            assertThat(e.getMessage(), is("No loader supports storage type 'MONGO'. " +
-                    "Make sure you have an instance of UniversalReactiveModelLoader that supports 'MONGO' " +
+            assertThat(e.getMessage(), is("No loader supports storage type 'mongo'. " +
+                    "Make sure you have an instance of UniversalReactiveModelLoader that supports 'mongo' " +
                     "in the application context."));
         }
     }

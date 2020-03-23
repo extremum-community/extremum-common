@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Mono;
 
+import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
@@ -96,7 +97,7 @@ class ReactiveCollectionDescriptorServiceImplTest {
 
     @Test
     void givenNoCollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
-        when(reactiveDescriptorDao.store(any())).then(invocation -> Mono.just(invocation.getArgument(0)));
+        when(reactiveDescriptorDao.store(any())).then(returnFirstArgInMono());
 
         Descriptor retrievedOrCreated = service.retrieveByCoordinatesOrCreate(owned).block();
 

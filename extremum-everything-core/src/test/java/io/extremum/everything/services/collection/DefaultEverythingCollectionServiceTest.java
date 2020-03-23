@@ -17,6 +17,7 @@ import io.extremum.everything.services.management.ModelRetriever;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import lombok.Getter;
 import org.bson.types.ObjectId;
@@ -129,7 +130,7 @@ class DefaultEverythingCollectionServiceTest {
                 .externalId("hostId")
                 .internalId("internalHostId")
                 .modelType("Street")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
     }
 

@@ -3,12 +3,10 @@ package io.extremum.everything.services.management;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.google.common.collect.ImmutableList;
-import io.extremum.mongo.dao.MongoCommonDao;
 import io.extremum.common.descriptor.service.DBDescriptorLoader;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
 import io.extremum.common.support.CommonServices;
 import io.extremum.common.support.ListBasedCommonServices;
 import io.extremum.common.support.ModelClasses;
@@ -20,10 +18,13 @@ import io.extremum.everything.services.SaverService;
 import io.extremum.everything.services.defaultservices.*;
 import io.extremum.everything.support.DefaultModelDescriptors;
 import io.extremum.everything.support.ModelDescriptors;
+import io.extremum.mongo.dao.MongoCommonDao;
+import io.extremum.mongo.service.impl.MongoCommonServiceImpl;
 import io.extremum.security.AllowEverythingForDataAccess;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.sharedmodels.descriptor.StaticDescriptorLoaderAccessor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.test.core.MockedMapperDependencies;
 import org.bson.types.ObjectId;
@@ -40,10 +41,9 @@ import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Optional;
 
+import static io.extremum.test.mockito.ReturnFirstArg.returnFirstArg;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -151,7 +151,7 @@ class EverythingServicesTest {
         return Descriptor.builder()
                 .externalId("external-id")
                 .internalId(objectId.toString())
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .modelType(modelName)
                 .build();
     }
@@ -205,7 +205,7 @@ class EverythingServicesTest {
         whenGetDescriptorByExternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
         whenGetDescriptorByInternalIdThenReturnOne(MongoModelWithoutServices.class.getSimpleName());
         whenFindByIdViaCommonServiceThenReturnAModel();
-        when(commonDaoForModelWithoutServices.save(any())).then(interaction -> interaction.getArgument(0));
+        when(commonDaoForModelWithoutServices.save(any())).then(returnFirstArg());
 
         ResponseDto dto = service.patch(descriptor, jsonPatch, true);
 

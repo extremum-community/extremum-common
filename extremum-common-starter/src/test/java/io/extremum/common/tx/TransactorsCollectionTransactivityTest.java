@@ -1,6 +1,8 @@
 package io.extremum.common.tx;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.sharedmodels.descriptor.StorageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +25,7 @@ class TransactorsCollectionTransactivityTest {
     private CollectionTransactor transactor = new TestTransactor();
 
     private final Descriptor descriptor = Descriptor.builder()
-            .storageType(Descriptor.StorageType.POSTGRES)
+            .storageType(StandardStorageType.POSTGRES)
             .build();
 
     @BeforeEach
@@ -39,7 +41,7 @@ class TransactorsCollectionTransactivityTest {
     }
 
     private void supportTheCurrentDescriptor() {
-        when(transactor.hostStorageType()).thenReturn(Descriptor.StorageType.POSTGRES);
+        when(transactor.hostStorageType()).thenReturn(StandardStorageType.POSTGRES);
     }
 
     @Test
@@ -50,7 +52,7 @@ class TransactorsCollectionTransactivityTest {
     }
 
     private void doNotSupportTheCurrentDescriptor() {
-        when(transactor.hostStorageType()).thenReturn(Descriptor.StorageType.MONGO);
+        when(transactor.hostStorageType()).thenReturn(StandardStorageType.MONGO);
     }
 
     @Test
@@ -69,14 +71,14 @@ class TransactorsCollectionTransactivityTest {
             transactivity.doInTransaction(descriptor, () -> 42);
             fail("An exception should be thrown");
         } catch (IllegalStateException e) {
-            assertThat(e.getMessage(), is("Did not find any transactor for 'POSTGRES'"));
+            assertThat(e.getMessage(), is("Did not find any transactor for 'postgres'"));
         }
     }
 
     private static class TestTransactor implements CollectionTransactor {
         @Override
-        public Descriptor.StorageType hostStorageType() {
-            return Descriptor.StorageType.POSTGRES;
+        public StorageType hostStorageType() {
+            return StandardStorageType.POSTGRES;
         }
 
         @Override

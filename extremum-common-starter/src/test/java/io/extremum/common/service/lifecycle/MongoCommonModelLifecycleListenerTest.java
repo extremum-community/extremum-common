@@ -1,15 +1,14 @@
 package io.extremum.common.service.lifecycle;
 
-import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorDao;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,21 +32,19 @@ class MongoCommonModelLifecycleListenerTest {
 
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
-    @Spy
-    private DescriptorDao descriptorDao = new InMemoryDescriptorDao();
 
     private final ObjectId objectId = new ObjectId();
     private final Descriptor descriptor = Descriptor.builder()
             .externalId("existing-external-id")
             .internalId(objectId.toString())
             .modelType("Test")
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .build();
 
     @BeforeEach
     void createListener() {
         MongoDescriptorFacilities facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(),
-                new DescriptorSaver(descriptorService), descriptorDao);
+                new DescriptorSaver(descriptorService));
         listener = new MongoCommonModelLifecycleListener(facilities);
     }
 
