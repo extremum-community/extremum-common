@@ -1,7 +1,7 @@
 package io.extremum.everything.collection;
 
 import io.extremum.common.model.PersistableCommonModel;
-import io.extremum.sharedmodels.constants.DateConstants;
+import io.extremum.datetime.DateConstants;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -24,8 +24,8 @@ public class Projection {
 
     @ConstructorProperties({"offset", "limit", "since", "until"})
     public Projection(Integer offset, Integer limit,
-                      @DateTimeFormat(pattern = DateConstants.FORMAT) ZonedDateTime since,
-                      @DateTimeFormat(pattern = DateConstants.FORMAT) ZonedDateTime until) {
+                      @DateTimeFormat(pattern = DateConstants.DATETIME_FORMAT_WITH_MICROS) ZonedDateTime since,
+                      @DateTimeFormat(pattern = DateConstants.DATETIME_FORMAT_WITH_MICROS) ZonedDateTime until) {
         this.offset = offset;
         this.limit = limit;
         this.since = since;

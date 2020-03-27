@@ -49,11 +49,12 @@ class SaveProcess {
     }
 
     private void fillCreatedUpdated(ElasticsearchCommonModel model) {
+        ZonedDateTime now = ZonedDateTime.now();
         if (model.getCreated() == null) {
-            model.setCreated(ZonedDateTime.now());
+            model.setCreated(now);
         }
         if (model.getModified() == null) {
-            model.setModified(ZonedDateTime.now());
+            model.setModified(now);
         }
     }
 

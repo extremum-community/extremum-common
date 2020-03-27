@@ -9,7 +9,7 @@ import io.extremum.common.dto.converters.ConversionConfig;
 import io.extremum.common.dto.converters.services.DynamicModelDtoConversionService;
 import io.extremum.common.exceptions.CommonException;
 import io.extremum.common.exceptions.ModelNotFoundException;
-import io.extremum.common.utils.DateUtils;
+import io.extremum.datetime.DateUtils;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.dynamic.watch.DynamicModelWatchService;

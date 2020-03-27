@@ -33,7 +33,7 @@ class SystemJsonObjectMapperTest {
     @Test
     void testZonedDateTimeParseSuccessfully() throws JsonProcessingException {
         String utc = mapper.writeValueAsString(ZonedDateTime.of(1000, 1, 1, 1, 1, 1, 999_888_000, ZoneId.of("UTC")));
-        assertThat(utc, is("\"1000-01-01T01:01:01.999888+0000\""));
+        assertThat(utc, is("\"1000-01-01T01:01:01.999888Z\""));
     }
 
     @Test
@@ -60,12 +60,12 @@ class SystemJsonObjectMapperTest {
     @Test
     void givenMapperIsConfiguredWithoutDescriptorsTransfiguration_whenDeserializaingDescriptorWithDisplayAndIcon_thenItShouldBeOk()
             throws Exception {
-        String json = "{\"created\":\"2019-05-24T15:54:59.958000+0400\",\"deleted\":false,\"display\":" +
+        String json = "{\"created\":\"2019-05-24T15:54:59.958000+04:00\",\"deleted\":false,\"display\":" +
                 "{\"caption\":\"aaa\",\"icon\":{\"depth\":2,\"duration\":20,\"height\":200,\"type\":\"image\",\"url\"" +
                 ":\"/url/to/resource\",\"width\":100},\"splash\":{\"depth\":2,\"duration\":20,\"height\":200,\"type\":" +
                 "\"image\",\"url\":\"/url/to/resource\",\"width\":100}},\"externalId\":" +
                 "\"1e71af1b-16f8-4567-9660-9e4549a0203f\",\"internalId\":\"5ce7db93dde97936c6c4c302\",\"modelType\":" +
-                "\"test_model\",\"modified\":\"2019-05-24T15:54:59.958000+0400\",\"storageType\":\"mongo\",\"version\":0}";
+                "\"test_model\",\"modified\":\"2019-05-24T15:54:59.958000+04:00\",\"storageType\":\"mongo\",\"version\":0}";
 
         Descriptor descriptor = new BasicJsonObjectMapper()
                 .readerFor(Descriptor.class).readValue(json);
@@ -87,7 +87,7 @@ class SystemJsonObjectMapperTest {
     void givenASerializedAlertWithAnError_whenDeserializingIt_thenItShouldBeDeserializedSuccessfully()
             throws Exception {
         Alert alert = Alert.errorAlert("Oops");
-        String json = mapper.writerFor(Alert.class).writeValueAsString(alert);
+        String json = mapper.writeValueAsString(alert);
 
         Alert deserializedAlert = mapper.readerFor(Alert.class).readValue(json);
 
@@ -108,7 +108,7 @@ class SystemJsonObjectMapperTest {
                 .since(since)
                 .until(until)
                 .build();
-        String json = mapper.writerFor(Pagination.class).writeValueAsString(pagination);
+        String json = mapper.writeValueAsString(pagination);
 
         Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
 
@@ -130,7 +130,7 @@ class SystemJsonObjectMapperTest {
                 .since(since)
                 .until(until)
                 .build();
-        String json = mapper.writerFor(Pagination.class).writeValueAsString(pagination);
+        String json = mapper.writeValueAsString(pagination);
 
         Pagination deserializedPagination = mapper.readerFor(Pagination.class).readValue(json);
 
@@ -144,22 +144,22 @@ class SystemJsonObjectMapperTest {
         tf.setEnd(ZonedDateTime.of(2020, 1, 2, 3, 4, 6, 6000, ZoneOffset.of("+0000")));
         tf.setDuration(new IntegerOrString("1s"));
         assertEquals(
-                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}",
-                mapper.writerFor(TimeFrame.class).writeValueAsString(tf)
+                "{\"start\":\"2020-01-02T03:04:05.000006Z\",\"end\":\"2020-01-02T03:04:06.000006Z\",\"duration\":\"1s\"}",
+                mapper.writeValueAsString(tf)
         );
         assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
-                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}"
+                "{\"start\":\"2020-01-02T03:04:05.000006+00:00\",\"end\":\"2020-01-02T03:04:06.000006+00:00\",\"duration\":\"1s\"}"
         ));
         tf.setDuration(new IntegerOrString(1000));
         assertEquals(
-                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":1000}",
-                mapper.writerFor(TimeFrame.class).writeValueAsString(tf)
+                "{\"start\":\"2020-01-02T03:04:05.000006Z\",\"end\":\"2020-01-02T03:04:06.000006Z\",\"duration\":1000}",
+                mapper.writeValueAsString(tf)
         );
         assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
-                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":1000}"
+                "{\"start\":\"2020-01-02T03:04:05.000006+00:00\",\"end\":\"2020-01-02T03:04:06.000006+00:00\",\"duration\":1000}"
         ));
         assertEquals(tf, mapper.readerFor(TimeFrame.class).readValue(
-                "{\"start\":\"2020-01-02T03:04:05.000006+0000\",\"end\":\"2020-01-02T03:04:06.000006+0000\",\"duration\":\"1s\"}"
+                "{\"start\":\"2020-01-02T03:04:05.000006+00:00\",\"end\":\"2020-01-02T03:04:06.000006+00:00\",\"duration\":\"1s\"}"
         ));
     }
 }

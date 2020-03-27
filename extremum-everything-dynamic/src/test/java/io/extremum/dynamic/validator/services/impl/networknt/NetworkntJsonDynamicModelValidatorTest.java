@@ -47,9 +47,9 @@ class NetworkntJsonDynamicModelValidatorTest {
     @Test
     void validate_ok_validationContextContainsAPathsToDateFields() throws IOException {
         Map<String, Object> modelData = toMap("{\"a\":\"b\", " +
-                "\"fieldDate1\": \"2013-01-09T09:31:26.111111-0500\", " +
-                "\"fieldDate2\": \"2014-01-09T09:31:26.111111-0500\", " +
-                "\"fieldDate3_noCybernatedDate\": \"2014-01-09T09:31:26.111111-0500\"}");
+                "\"fieldDate1\": \"2013-01-09T09:31:26.111111-05:00\", " +
+                "\"fieldDate2\": \"2014-01-09T09:31:26.111111-05:00\", " +
+                "\"fieldDate3_noCybernatedDate\": \"2014-01-09T09:31:26.111111-05:00\"}");
 
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 

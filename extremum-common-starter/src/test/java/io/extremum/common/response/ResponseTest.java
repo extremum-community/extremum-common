@@ -109,7 +109,7 @@ class ResponseTest {
         assertEquals(200, jsonObject.getInt("code"));
         assertEquals(rqid, jsonObject.getString("rqid"));
         assertEquals("en_US", jsonObject.getString("locale"));
-        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ").parse(jsonObject.getString("timestamp"));
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSX").parse(jsonObject.getString("timestamp"));
     }
 
 

@@ -39,6 +39,7 @@
         <module>extremum-annotations</module>
         <module>extremum-everything-dynamic</module>
         <module>extremum-shared-models-grpc</module>
+        <module>extremum-datetime</module>
     </modules>
 
     <scm>
