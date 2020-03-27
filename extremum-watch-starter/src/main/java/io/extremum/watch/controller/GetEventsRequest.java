@@ -1,6 +1,6 @@
 package io.extremum.watch.controller;
 
-import io.extremum.sharedmodels.constants.DateConstants;
+import io.extremum.datetime.DateConstants;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -19,8 +19,8 @@ public class GetEventsRequest {
 
     @ConstructorProperties({"since", "until", "limit"})
     public GetEventsRequest(
-            @DateTimeFormat(pattern = DateConstants.FORMAT) ZonedDateTime since,
-            @DateTimeFormat(pattern = DateConstants.FORMAT) ZonedDateTime until,
+            @DateTimeFormat(pattern = DateConstants.DATETIME_FORMAT_WITH_MICROS) ZonedDateTime since,
+            @DateTimeFormat(pattern = DateConstants.DATETIME_FORMAT_WITH_MICROS) ZonedDateTime until,
             Integer limit) {
         this.since = since;
         this.until = until;

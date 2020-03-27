@@ -1,6 +1,6 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
-import io.extremum.common.utils.DateUtils;
+import io.extremum.datetime.DateUtils;
 import io.extremum.elasticsearch.dao.ReactiveElasticsearchCommonDao;
 import io.extremum.elasticsearch.dao.SearchOptions;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;

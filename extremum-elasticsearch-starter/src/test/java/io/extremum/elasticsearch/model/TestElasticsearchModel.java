@@ -7,7 +7,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 @ModelName("TestElasticsearchModel")
 @Document(indexName = TestElasticsearchModel.INDEX)
-@Getter @Setter
+@Getter
+@Setter
 public class TestElasticsearchModel extends ElasticsearchCommonModel {
 
     public static final String INDEX = "test_entities";

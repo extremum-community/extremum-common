@@ -5,17 +5,15 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.extremum.datetime.ApiDateTimeFormat;
+import io.extremum.datetime.DateConstants;
 import io.extremum.mapper.jackson.module.BasicSerializationDeserializationModule;
 import io.extremum.mapper.jackson.module.StringOrObjectModule;
-import io.extremum.sharedmodels.constants.DateConstants;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-
-import static java.time.format.DateTimeFormatter.ofPattern;
 
 
 /**
@@ -23,10 +21,9 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  */
 public class BasicJsonObjectMapper extends ObjectMapper {
 
-    private static final DateTimeFormatter FORMATTER = ofPattern(DateConstants.FORMAT);
+    private final ApiDateTimeFormat dateTimeFormat = new ApiDateTimeFormat();
 
     public BasicJsonObjectMapper() {
-        // deserialization
         this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
         this.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
@@ -36,7 +33,7 @@ public class BasicJsonObjectMapper extends ObjectMapper {
 
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        this.setDateFormat(new SimpleDateFormat(DateConstants.FORMAT, Locale.US));
+        this.setDateFormat(new SimpleDateFormat(DateConstants.DATETIME_FORMAT_WITH_MICROS, Locale.US));
     }
 
     private JavaTimeModule createJavaTimeModule() {
@@ -46,19 +43,19 @@ public class BasicJsonObjectMapper extends ObjectMapper {
         return javaTimeModule;
     }
 
-    private static class ZoneDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
+    private class ZoneDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
         @Override
-        public void serialize(ZonedDateTime zonedDateTime, JsonGenerator jsonGenerator,
+        public void serialize(ZonedDateTime dateTime, JsonGenerator jsonGenerator,
                               SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeString(zonedDateTime.format(FORMATTER));
+            jsonGenerator.writeString(dateTimeFormat.format(dateTime));
         }
     }
 
-    private static class ZoneDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
+    private class ZoneDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> {
         @Override
         public ZonedDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
                 throws IOException {
-            return ZonedDateTime.parse(jsonParser.getValueAsString(), FORMATTER);
+            return dateTimeFormat.parse(jsonParser.getValueAsString());
         }
     }
 

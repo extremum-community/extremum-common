@@ -1,8 +1,6 @@
-package io.extremum.common.utils;
+package io.extremum.datetime;
 
-import lombok.extern.java.Log;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,21 +12,18 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
 
-import static io.extremum.sharedmodels.constants.DateConstants.*;
+import static io.extremum.datetime.DateConstants.DATETIME_FORMAT_WITH_MICROS;
+import static io.extremum.datetime.DateConstants.ISO_8601_ZONED_DATE_TIME_FORMATTER;
+import static io.extremum.datetime.DateConstants.RFC_ZONED_DATE_TIME_FORMATTER;
 
 /**
  * @author iPolyakov on 03.02.15.
  */
-@Log
+@Slf4j
 public final class DateUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
-
-    public static final String FORMAT_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}T[\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3}-[\\d]{4}";
-
-
     public static SimpleDateFormat dateFormat() {
-        return new SimpleDateFormat(FORMAT, Locale.US);
+        return new SimpleDateFormat(DATETIME_FORMAT_WITH_MICROS, Locale.US);
     }
 
     public static String convert(Date from) {
@@ -36,7 +31,7 @@ public final class DateUtils {
     }
 
     public static String convert(ZonedDateTime from) {
-        return from.format(DateTimeFormatter.ofPattern(FORMAT));
+        return from.format(DateTimeFormatter.ofPattern(DATETIME_FORMAT_WITH_MICROS));
     }
 
     public static Date convert(String from) {
@@ -44,7 +39,7 @@ public final class DateUtils {
             try {
                 return dateFormat().parse(from);
             } catch (ParseException e) {
-                LOGGER.debug("cannot convert Date", e);
+                log.debug("cannot convert Date", e);
             }
         }
         return null;
@@ -54,7 +49,7 @@ public final class DateUtils {
      * Parsing string in format "EEE, dd MMM yyyy HH:mm:ss zzz"
      */
     public static ZonedDateTime parseZonedDateTime(String date) {
-        return parseZonedDateTime(date, ZONED_DATE_TIME_FORMATTER);
+        return parseZonedDateTime(date, RFC_ZONED_DATE_TIME_FORMATTER);
     }
 
     /**
@@ -73,7 +68,7 @@ public final class DateUtils {
             try {
                 return ZonedDateTime.parse(date, formatter);
             } catch (DateTimeParseException e) {
-                LOGGER.error("Cannot parse ZonedDateTime", e);
+                log.error("Cannot parse ZonedDateTime", e);
             }
         }
         return null;

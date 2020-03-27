@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * This controller responsible for find appropriate watch events
+ * This controller is responsible for searching appropriate watch events.
  */
 @RestController
 @RequestMapping("/v1/watch")

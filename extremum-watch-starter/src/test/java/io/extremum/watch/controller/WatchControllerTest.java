@@ -11,7 +11,8 @@ import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.utils.DateUtils;
+import io.extremum.datetime.ApiDateTimeFormat;
+import io.extremum.datetime.DateUtils;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.core.StringResponseMatchers;
@@ -69,6 +70,8 @@ class WatchControllerTest {
     @Captor
     private ArgumentCaptor<Collection<Descriptor>> descriptorsCaptor;
 
+    private final ApiDateTimeFormat apiDateTimeFormat = new ApiDateTimeFormat();
+
     @Test
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
@@ -116,8 +119,8 @@ class WatchControllerTest {
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
         MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
-                .param("since", DateUtils.formatZonedDateTimeISO_8601(since))
-                .param("until", DateUtils.formatZonedDateTimeISO_8601(until))
+                .param("since", apiDateTimeFormat.format(since))
+                .param("until", apiDateTimeFormat.format(until))
                 .param("limit", "10")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
