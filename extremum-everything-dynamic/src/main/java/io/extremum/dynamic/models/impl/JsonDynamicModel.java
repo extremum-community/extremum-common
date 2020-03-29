@@ -8,7 +8,6 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
@@ -16,11 +15,35 @@ import java.util.Map;
 @Getter
 @ModelName(DynamicModel.MODEL_TYPE)
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class JsonDynamicModel implements DynamicModel<Map<String, Object>>, BasicModel<Descriptor> {
+
+    public JsonDynamicModel(Descriptor id, String modelName, Map<String, Object> modelData) {
+        this.id = id;
+        this.modelName = modelName;
+        this.modelData = modelData;
+        this.schemaName = modelName;
+        this.schemaVersion = null;
+    }
+
+    public JsonDynamicModel(String modelName, Map<String, Object> modelData) {
+        this.modelName = modelName;
+        this.modelData = modelData;
+        this.schemaName = modelName;
+        this.schemaVersion = null;
+    }
+
+    public JsonDynamicModel(String modelName, Map<String, Object> modelData, String schemaName, Integer schemaVersion) {
+        this.modelName = modelName;
+        this.modelData = modelData;
+        this.schemaName = schemaName;
+        this.schemaVersion = schemaVersion;
+    }
+
     private Descriptor id;
     private final String modelName;
     private final Map<String, Object> modelData;
+    private final String schemaName;
+    private final Integer schemaVersion;
 
     @JsonIgnore
     @Override

@@ -155,7 +155,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException, JSONException {
         String modelName = "PatchingDynamicModel";
 
-        doReturn(modelName).when(schemaMetaService).getSchemaNameByModel(modelName);
+        doReturn(modelName).when(schemaMetaService).getSchemaNameByNameAndVersion(modelName);
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
         JsonDynamicModel saved = dynamicModelDao.create(patchingModel, patchingModel.getModelName().toLowerCase()).block();
