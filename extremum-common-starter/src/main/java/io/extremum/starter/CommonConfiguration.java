@@ -105,6 +105,7 @@ public class CommonConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public UUIDGenerator uuidGenerator() {
         return new StandardUUIDGenerator();
     }
@@ -218,6 +219,7 @@ public class CommonConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ReactiveEventPublisher reactiveEventPublisher(
             List<ReactiveApplicationListener<? extends ApplicationEvent>> listeners) {
         return new DefaultReactiveEventPublisher(listeners);
@@ -255,6 +257,7 @@ public class CommonConfiguration {
     }
 
     @Bean(destroyMethod = "dispose")
+    @ConditionalOnMissingBean
     public Scheduler reactifierScheduler() {
         // per https://projectreactor.io/docs/core/release/reference/#faq.wrap-blocking
         return Schedulers.elastic();
