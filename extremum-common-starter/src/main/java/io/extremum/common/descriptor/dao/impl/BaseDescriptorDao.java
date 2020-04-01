@@ -7,7 +7,12 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -20,8 +25,6 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     private final RMap<String, Descriptor> descriptors;
     private final RMap<String, String> internalIdIndex;
     private final RMap<String, String> collectionCoordinatesToExternalIds;
-
-    private final DescriptorInitializations initializations = new DescriptorInitializations();
 
     BaseDescriptorDao(DescriptorRepository descriptorRepository, MongoOperations descriptorMongoOperations,
             RMap<String, Descriptor> descriptors,
@@ -67,15 +70,11 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public Descriptor store(Descriptor descriptor) {
-        initializations.fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis(descriptor);
+        Descriptor storedInMongo = descriptorMongoOperations.save(descriptor);
 
-        boolean initializeVersionManually = initializations.shouldInitializeVersionManually(descriptor);
+        putToMaps(storedInMongo);
 
-        initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptor, initializeVersionManually);
-        putToMaps(descriptor);
-
-        initializations.removeVersionIfItWasSetManually(descriptor, initializeVersionManually);
-        return descriptorMongoOperations.save(descriptor);
+        return storedInMongo;
     }
 
     private void putToMaps(Descriptor descriptor) {
@@ -91,22 +90,11 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
 
     @Override
     public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
-        descriptorsToSave.forEach(initializations::fillCreatedAndModifiedDatesManuallyToHaveFullyFilledObjectInRedis);
+        List<Descriptor> storedToMongo = descriptorRepository.saveAll(descriptorsToSave);
 
-        Boolean[] initializeVersionManually = descriptorsToSave.stream()
-                .map(initializations::shouldInitializeVersionManually)
-                .toArray(Boolean[]::new);
+        putManyToMaps(storedToMongo);
 
-        for (int i = 0; i < descriptorsToSave.size(); i++) {
-            initializations.fillVersionIfNeededToHaveFullyFilledObjectInRedis(descriptorsToSave.get(i),
-                    initializeVersionManually[i]);
-        }
-        putManyToMaps(descriptorsToSave);
-
-        for (int i = 0; i < descriptorsToSave.size(); i++) {
-            initializations.removeVersionIfItWasSetManually(descriptorsToSave.get(i), initializeVersionManually[i]);
-        }
-        return descriptorRepository.saveAll(descriptorsToSave);
+        return storedToMongo;
     }
 
     private void putManyToMaps(List<Descriptor> descriptorsToSave) {
