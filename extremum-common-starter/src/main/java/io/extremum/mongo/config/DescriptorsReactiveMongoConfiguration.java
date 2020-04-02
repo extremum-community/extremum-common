@@ -1,5 +1,6 @@
 package io.extremum.mongo.config;
 
+import com.mongodb.WriteConcern;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import io.extremum.mongo.properties.MongoProperties;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
+import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 
 @Configuration
@@ -32,7 +34,11 @@ public class DescriptorsReactiveMongoConfiguration {
     @Bean
     public ReactiveMongoOperations descriptorsReactiveMongoTemplate(
             @Qualifier("descriptorsMappingMongoConverter") MappingMongoConverter mappingMongoConverter) {
-        return new ReactiveMongoTemplate(descriptorsReactiveMongoDbFactory(), mappingMongoConverter);
+        ReactiveMongoTemplate template = new ReactiveMongoTemplate(descriptorsReactiveMongoDbFactory(),
+                mappingMongoConverter);
+        template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+        template.setWriteConcern(WriteConcern.MAJORITY);
+        return template;
     }
 
     @Bean

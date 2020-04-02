@@ -10,7 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.extremum.sharedmodels.descriptor.Descriptor.StorageType.MONGO;
+import static io.extremum.sharedmodels.descriptor.StandardStorageType.MONGO;
+import static io.extremum.test.mockito.ReturnFirstArg.returnFirstArg;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -25,7 +26,7 @@ class BlankDescriptorSaverTest {
 
     @Test
     void whenSavingABatch_thenABatchOfDescriptorsShouldBeSavedAndReturned() {
-        when(descriptorService.storeBatch(any())).then(invocation -> invocation.getArgument(0));
+        when(descriptorService.storeBatch(any())).then(returnFirstArg());
 
         BlankDescriptorSaver blankDescriptorSaver = new BlankDescriptorSaver(descriptorService);
 
@@ -33,7 +34,7 @@ class BlankDescriptorSaverTest {
         List<Descriptor> descriptors = blankDescriptorSaver.createAndSaveBatchOfBlankDescriptors(internalIds, MONGO);
 
         assertThat(descriptors, hasSize(3));
-        assertThat(descriptors, everyItem(hasProperty("storageType", is(MONGO))));
+        assertThat(descriptors, everyItem(hasProperty("storageType", is("mongo"))));
         assertThat(descriptors.get(0).getInternalId(), is("1"));
         assertThat(descriptors.get(1).getInternalId(), is("2"));
         assertThat(descriptors.get(2).getInternalId(), is("3"));

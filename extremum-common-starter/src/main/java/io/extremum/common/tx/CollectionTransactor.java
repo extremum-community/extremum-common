@@ -1,6 +1,6 @@
 package io.extremum.common.tx;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StorageType;
 
 import java.util.function.Supplier;
 
@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  * Currently, it is only needed for JPA.
  */
 public interface CollectionTransactor {
-    Descriptor.StorageType hostStorageType();
+    StorageType hostStorageType();
 
     <T> T doInTransaction(Supplier<T> action);
 }

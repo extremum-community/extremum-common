@@ -26,6 +26,7 @@ import io.extremum.security.DataSecurity;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.RequestDto;
 import io.extremum.test.core.MockedMapperDependencies;
 import lombok.Getter;
@@ -39,6 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
+import static io.extremum.test.mockito.ReturnFirstArg.returnFirstArg;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
@@ -91,7 +93,7 @@ class PatchFlowImplTest {
             .externalId("external-id")
             .internalId("internal-id")
             .modelType(TestModel.MODEL_NAME)
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .build();
 
     @BeforeEach
@@ -141,7 +143,7 @@ class PatchFlowImplTest {
     }
 
     private void whenSaveModelThenReturnIt() {
-        when(modelSaver.saveModel(any())).then(invocation -> invocation.getArgument(0));
+        when(modelSaver.saveModel(any())).then(returnFirstArg());
     }
 
     @Test

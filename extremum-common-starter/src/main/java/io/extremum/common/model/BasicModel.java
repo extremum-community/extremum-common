@@ -1,15 +1,10 @@
 package io.extremum.common.model;
 
 import io.extremum.sharedmodels.basic.Model;
-import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.io.Serializable;
 
-public interface BasicModel<ID extends Serializable> extends Model {
-    Descriptor getUuid();
-
-    void setUuid(Descriptor uuid);
-
+public interface BasicModel<ID extends Serializable> extends Model, HasUuid {
     ID getId();
 
     void setId(ID id);

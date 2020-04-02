@@ -1,73 +1,73 @@
 package io.extremum.mongo.service.lifecycle;
 
-import io.extremum.common.model.PersistableCommonModel;
+import io.extremum.common.facilities.ReactiveDescriptorFacilities;
+import io.extremum.common.model.HasUuid;
 import io.extremum.common.utils.ModelUtils;
-import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import org.bson.types.ObjectId;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 /**
  * @author rpuch
  */
-public final class ReactiveMongoModelsLifecycleSupport {
-    private final ReactiveMongoDescriptorFacilities mongoDescriptorFacilities;
+@RequiredArgsConstructor
+public final class ReactiveMongoModelsLifecycleSupport<T extends HasUuid> {
+    private final ReactiveDescriptorFacilities descriptorFacilities;
+    private final InternalIdAdapter<? super T> adapter;
 
-    public ReactiveMongoModelsLifecycleSupport(ReactiveMongoDescriptorFacilities mongoDescriptorFacilities) {
-        this.mongoDescriptorFacilities = mongoDescriptorFacilities;
+    public Mono<Void> fillRequiredFields(T model) {
+        return Mono.defer(() -> {
+            final boolean internalIdGiven = adapter.getInternalId(model).isPresent();
+            final boolean uuidGiven = model.getUuid() != null;
+
+            if (uuidGiven && !internalIdGiven) {
+                return getInternalIdFromDescriptor(model)
+                        .doOnNext(internalId -> adapter.setInternalId(model, internalId))
+                        .then();
+            } else if (!uuidGiven && internalIdGiven) {
+                return createAndSaveDescriptorWithGivenInternalId(adapter.getInternalId(model).get(), model)
+                        .doOnNext(model::setUuid)
+                        .then();
+            } else if (!uuidGiven && !internalIdGiven) {
+                return createAndSaveDescriptorWithGivenInternalId(adapter.generateNewInternalId(), model)
+                        .doOnNext(model::setUuid)
+                        .then(getInternalIdFromDescriptor(model))
+                        .doOnNext(internalId -> adapter.setInternalId(model, internalId))
+                        .then();
+            }
+
+            return Mono.empty();
+        });
     }
 
-    Mono<Void> fillRequiredFields(PersistableCommonModel<ObjectId> model) {
-        final boolean internalIdGiven = model.getId() != null;
-        final boolean uuidGiven = model.getUuid() != null;
-
-        if (uuidGiven && !internalIdGiven) {
-            return getInternalIdFromDescriptor(model)
-                    .doOnNext(model::setId)
-                    .then();
-        } else if (!uuidGiven && internalIdGiven) {
-            return createAndSaveDescriptorWithGivenInternalId(model.getId(), model)
-                    .doOnNext(model::setUuid)
-                    .then();
-        } else if (!uuidGiven && !internalIdGiven) {
-            return createAndSaveDescriptorWithGivenInternalId(newEntityId(), model)
-                    .doOnNext(model::setUuid)
-                    .then(getInternalIdFromDescriptor(model).doOnNext(model::setId))
-                    .then();
-        }
-
-        return Mono.empty();
+    private Mono<String> getInternalIdFromDescriptor(T model) {
+        return Mono.fromSupplier(model::getUuid)
+                .flatMap(descriptorFacilities::resolve);
     }
 
-    private Mono<ObjectId> getInternalIdFromDescriptor(PersistableCommonModel<ObjectId> model) {
-        return Mono.just(model)
-                .map(PersistableCommonModel::getUuid)
-                .flatMap(mongoDescriptorFacilities::resolve);
+    private Mono<Descriptor> createAndSaveDescriptorWithGivenInternalId(String internalId, T model) {
+        return Mono.defer(() -> {
+            String modelName = ModelUtils.getModelName(model);
+            return descriptorFacilities.createOrGet(internalId, modelName);
+        });
     }
 
-    private Mono<Descriptor> createAndSaveDescriptorWithGivenInternalId(ObjectId objectId,
-                                                                        PersistableCommonModel<ObjectId> model) {
-        String modelName = ModelUtils.getModelName(model);
-        return mongoDescriptorFacilities.create(objectId, modelName);
+    public Mono<Void> createDescriptorIfNeeded(T model) {
+        return Mono.defer(() -> {
+            if (model.getUuid() == null) {
+                String name = ModelUtils.getModelName(model.getClass());
+                return descriptorFacilities.createOrGet(adapter.requiredInternalId(model), name)
+                        .doOnNext(model::setUuid)
+                        .then();
+            }
+
+            return Mono.empty();
+        });
     }
 
-    private ObjectId newEntityId() {
-        return new ObjectId();
-    }
-
-    Mono<Void> createDescriptorIfNeeded(PersistableCommonModel<ObjectId> model) {
-        if (model.getUuid() == null) {
-            String name = ModelUtils.getModelName(model.getClass());
-            return mongoDescriptorFacilities.create(model.getId(), name)
-                    .doOnNext(model::setUuid)
-                    .then();
-        }
-
-        return Mono.empty();
-    }
-
-    Mono<Void> resolveDescriptor(PersistableCommonModel<ObjectId> model) {
-        return mongoDescriptorFacilities.fromInternalId(model.getId())
+    public Mono<Void> fillDescriptorFromInternalId(T model) {
+        return Mono.fromSupplier(() -> adapter.requiredInternalId(model))
+                .flatMap(descriptorFacilities::fromInternalId)
                 .doOnNext(model::setUuid)
                 .then();
     }

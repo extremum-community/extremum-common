@@ -1,6 +1,6 @@
 package io.extremum.jpa.tx;
 
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +27,7 @@ class JpaCollectionTransactorTest {
 
     @Test
     void whenTypeIsQueried_thenPostgresShouldBeReturned() {
-        assertThat(transactor.hostStorageType(), is(Descriptor.StorageType.POSTGRES));
+        assertThat(transactor.hostStorageType(), is(StandardStorageType.POSTGRES));
     }
 
     @Test

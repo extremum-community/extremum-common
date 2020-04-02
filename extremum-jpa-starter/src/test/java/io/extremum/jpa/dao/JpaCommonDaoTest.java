@@ -5,6 +5,7 @@ import io.extremum.common.utils.ModelUtils;
 import io.extremum.jpa.TestWithServices;
 import io.extremum.jpa.model.TestJpaModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -273,7 +274,7 @@ class JpaCommonDaoTest extends TestWithServices {
                 .externalId(descriptorService.createExternalId())
                 .internalId(UUID.randomUUID().toString())
                 .modelType(ModelUtils.getModelName(model))
-                .storageType(Descriptor.StorageType.POSTGRES)
+                .storageType(StandardStorageType.POSTGRES)
                 .build();
 
         model.setUuid(descriptor);

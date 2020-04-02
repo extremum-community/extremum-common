@@ -12,9 +12,6 @@ public class SoftDeletion {
     private static final String DELETED = PersistableCommonModel.FIELDS.deleted.name();
 
     public Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where(DELETED).exists(false),
-                where(DELETED).is(false)
-        );
+        return where(DELETED).is(false);
     }
 }

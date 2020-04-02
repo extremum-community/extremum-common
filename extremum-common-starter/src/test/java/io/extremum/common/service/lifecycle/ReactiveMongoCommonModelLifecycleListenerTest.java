@@ -6,6 +6,7 @@ import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleListener;
 import io.extremum.mongo.springdata.ReactiveBeforeConvertEvent;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +40,7 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
             .externalId("existing-external-id")
             .internalId(objectId.toString())
             .modelType("Test")
-            .storageType(Descriptor.StorageType.MONGO)
+            .storageType(StandardStorageType.MONGO)
             .build();
 
     @BeforeEach
@@ -53,7 +54,7 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
         when(reactiveMongoDescriptorFacilities.resolve(any()))
                 .then(invocation -> {
                     Descriptor descriptor = invocation.getArgument(0);
-                    return Mono.just(new ObjectId(descriptor.getInternalId()));
+                    return Mono.just(descriptor.getInternalId());
                 });
 
         TestMongoModel model = new TestMongoModel();
@@ -65,13 +66,13 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
     }
 
     private void createADescriptorWhenRequested() {
-        when(reactiveMongoDescriptorFacilities.create(any(), anyString()))
+        when(reactiveMongoDescriptorFacilities.createOrGet(any(), anyString()))
                 .then(invocation -> Mono.just(
                         Descriptor.builder()
                                 .externalId("new-external-id")
                                 .internalId(invocation.getArgument(0).toString())
                                 .modelType(invocation.getArgument(1))
-                                .storageType(Descriptor.StorageType.MONGO)
+                                .storageType(StandardStorageType.MONGO)
                                 .build()
                 ));
     }
@@ -90,7 +91,7 @@ class ReactiveMongoCommonModelLifecycleListenerTest {
     @Test
     void givenAnEntityHasNoIdButHasUUID_whenItIsSaved_thenDescriptorShouldNotBeGeneratedButUUIDsInternalIdAssignedToId() {
         when(reactiveMongoDescriptorFacilities.resolve(descriptor))
-                .thenReturn(Mono.just(objectId));
+                .thenReturn(Mono.just(objectId.toString()));
 
         TestMongoModel model = new TestMongoModel();
         model.setUuid(descriptor);

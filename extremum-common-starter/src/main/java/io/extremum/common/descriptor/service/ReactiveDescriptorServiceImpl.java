@@ -14,6 +14,8 @@ import java.util.Objects;
 public class ReactiveDescriptorServiceImpl implements ReactiveDescriptorService {
     private final ReactiveDescriptorDao reactiveDescriptorDao;
 
+    private final DescriptorReadinessValidation descriptorReadinessValidation = new DescriptorReadinessValidation();
+
     @Override
     public Mono<Descriptor> store(Descriptor descriptor) {
         Objects.requireNonNull(descriptor, "Descriptor is null");
@@ -45,5 +47,17 @@ public class ReactiveDescriptorServiceImpl implements ReactiveDescriptorService 
     @Override
     public Mono<Map<String, String>> loadMapByInternalIds(Collection<String> internalIds) {
         return reactiveDescriptorDao.retrieveMapByInternalIds(internalIds);
+    }
+
+    @Override
+    public Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType) {
+        return reactiveDescriptorDao.retrieveByExternalId(descriptorExternalId)
+                .doOnNext(descriptor -> descriptorReadinessValidation.validateDescriptorIsNotReady(
+                        descriptorExternalId, descriptor))
+                .doOnNext(descriptor -> {
+                    descriptor.setReadiness(Descriptor.Readiness.READY);
+                    descriptor.setModelType(modelType);
+                })
+                .flatMap(reactiveDescriptorDao::store);
     }
 }

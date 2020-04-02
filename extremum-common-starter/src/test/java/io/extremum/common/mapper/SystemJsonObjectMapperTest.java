@@ -6,6 +6,7 @@ import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.content.Display;
 import io.extremum.sharedmodels.content.MediaType;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.AlertLevelEnum;
 import io.extremum.sharedmodels.dto.Pagination;
@@ -40,7 +41,7 @@ class SystemJsonObjectMapperTest {
         Descriptor descriptor = Descriptor.builder()
                 .externalId("external-id")
                 .internalId("internal-id")
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .modelType("test-model")
                 .build();
 

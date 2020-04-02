@@ -3,6 +3,7 @@ package io.extremum.common.descriptor.factory.impl;
 import io.extremum.common.descriptor.factory.DescriptorResolver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StorageType;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -14,7 +15,7 @@ public abstract class ReactiveUUIDDescriptorFacilities {
         this.descriptorSaver = descriptorSaver;
     }
 
-    protected abstract Descriptor.StorageType storageType();
+    protected abstract StorageType storageType();
 
     public Mono<Descriptor> create(UUID uuid, String modelType) {
         return descriptorSaver.createAndSave(uuid.toString(), modelType, storageType());

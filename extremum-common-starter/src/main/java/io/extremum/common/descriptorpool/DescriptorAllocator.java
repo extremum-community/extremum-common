@@ -2,6 +2,7 @@ package io.extremum.common.descriptorpool;
 
 import io.extremum.common.descriptor.factory.BlankDescriptorSaver;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StorageType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class DescriptorAllocator implements Allocator<Descriptor> {
     private final BlankDescriptorSaver blankDescriptorSaver;
-    private final Descriptor.StorageType storageType;
+    private final StorageType storageType;
     private final InternalIdGenerator internalIdGenerator;
 
     @Override

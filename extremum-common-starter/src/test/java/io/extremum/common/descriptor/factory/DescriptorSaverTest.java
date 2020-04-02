@@ -2,6 +2,7 @@ package io.extremum.common.descriptor.factory;
 
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,7 +33,7 @@ class DescriptorSaverTest {
     void whenCreatingADescriptor_thenCorrectDataShouldBeSavedWithDescriptorService() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
 
-        descriptorSaver.createAndSave("internal-id", "Test", Descriptor.StorageType.MONGO);
+        descriptorSaver.createAndSave("internal-id", "Test", StandardStorageType.MONGO);
 
         verify(descriptorService).store(descriptorCaptor.capture());
         Descriptor savedDescriptor = descriptorCaptor.getValue();
@@ -44,6 +45,6 @@ class DescriptorSaverTest {
         assertThat(savedDescriptor.getExternalId(), is("external-id"));
         assertThat(savedDescriptor.getInternalId(), is("internal-id"));
         assertThat(savedDescriptor.getModelType(), is("Test"));
-        assertThat(savedDescriptor.getStorageType(), is(Descriptor.StorageType.MONGO));
+        assertThat(savedDescriptor.getStorageType(), is("mongo"));
     }
 }

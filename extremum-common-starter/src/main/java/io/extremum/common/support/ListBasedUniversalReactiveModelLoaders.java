@@ -28,7 +28,7 @@ public class ListBasedUniversalReactiveModelLoaders implements UniversalReactive
 
     private UniversalReactiveModelLoader findLoader(Descriptor descriptor) {
         return loaders.stream()
-                .filter(loader -> loader.type() == descriptor.getStorageType())
+                .filter(loader -> loader.type().matches(descriptor.getStorageType()))
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException(noLoaderAvailableMessage(descriptor)));
     }

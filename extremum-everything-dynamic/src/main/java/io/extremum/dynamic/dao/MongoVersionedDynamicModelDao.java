@@ -75,7 +75,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     }
 
     private Mono<Descriptor> makeDescriptor(String modelName) {
-        return descriptorFacilities.create(new ObjectId(), modelName);
+        return descriptorFacilities.createOrGet(new ObjectId().toString(), modelName);
     }
 
     @Override

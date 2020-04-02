@@ -2,7 +2,6 @@ package io.extremum.mongo.facilities;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.bson.types.ObjectId;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -21,6 +20,4 @@ public interface MongoDescriptorFacilities {
     List<Descriptor> fromInternalIdListOrNull(List<String> internalIdList);
 
     ObjectId resolve(Descriptor descriptor);
-
-    Descriptor makeDescriptorReady(String descriptorExternalId, String modelType);
 }

@@ -1,11 +1,12 @@
 package io.extremum.mongo.reactive;
 
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.support.UniversalReactiveModelLoader;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.mongo.SoftDeletion;
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.basic.Model;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.sharedmodels.descriptor.StorageType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -43,7 +44,7 @@ public class MongoUniversalReactiveModelLoader implements UniversalReactiveModel
     }
 
     @Override
-    public Descriptor.StorageType type() {
-        return Descriptor.StorageType.MONGO;
+    public StorageType type() {
+        return StandardStorageType.MONGO;
     }
 }

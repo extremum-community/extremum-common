@@ -4,6 +4,7 @@ import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import models.TestMongoModel;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -410,7 +411,7 @@ class MongoCommonDaoTest extends TestWithServices {
                 .externalId(descriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
                 .modelType(ModelUtils.getModelName(model.getClass()))
-                .storageType(Descriptor.StorageType.MONGO)
+                .storageType(StandardStorageType.MONGO)
                 .build();
 
         model.setUuid(descriptor);

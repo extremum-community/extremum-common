@@ -1,7 +1,6 @@
 package io.extremum.everything.collection;
 
 import io.extremum.common.model.PersistableCommonModel;
-import io.extremum.common.utils.DateUtils;
 import io.extremum.sharedmodels.constants.DateConstants;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -71,21 +70,23 @@ public class Projection {
         return since != null || until != null;
     }
 
-    // Public methods
-
-    public boolean accepts(PersistableCommonModel<?> model) {
-        if (since != null && model.getCreated() != null) {
-            if (model.getCreated().isBefore(since)) {
-                return false;
-            }
+    public boolean accepts(ZonedDateTime dateTime) {
+        if (dateTime == null) {
+            return true;
         }
-        if (until != null && model.getCreated() != null) {
-            if (model.getCreated().isAfter(until)) {
-                return false;
-            }
+
+        if (since != null && dateTime.compareTo(since) < 0) {
+            return false;
+        }
+        if (until != null && dateTime.compareTo(until) >= 0) {
+            return false;
         }
 
         return true;
+    }
+
+    public boolean accepts(PersistableCommonModel<?> model) {
+        return accepts(model.getCreated());
     }
 
     public <T> List<T> cut(List<T> list) {

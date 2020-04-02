@@ -39,6 +39,11 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
 
     @Override
     public Mono<Map<String, String>> loadMapByInternalIds(Collection<String> internalIds) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType) {
+        throw new UnsupportedOperationException();
     }
 }

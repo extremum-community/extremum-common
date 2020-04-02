@@ -4,6 +4,7 @@ import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.test.mockito.ReturnFirstArg;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.util.Optional;
 
+import static io.extremum.test.mockito.ReturnFirstArg.returnFirstArg;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,7 +83,7 @@ class CollectionDescriptorServiceImplTest {
 
     @Test
     void givenNoCollectionDescriptorExistsWithSuchCoordinates_whenRetrievingByCoordinatesOrCreating_thenDescriptorShouldBeSavedViaDao() {
-        when(descriptorDao.store(any())).then(invocation -> invocation.getArgument(0));
+        when(descriptorDao.store(any())).then(returnFirstArg());
 
         Descriptor retrievedOrCreated = collectionDescriptorService.retrieveByCoordinatesOrCreate(owned);
 

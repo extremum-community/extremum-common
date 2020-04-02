@@ -17,7 +17,8 @@ import java.time.ZonedDateTime;
 @Setter
 @CompoundIndexes({
         @CompoundIndex(def = "{'lineageId': 1, 'start': 1, 'end': 1}", name = "lineageId_start_end"),
-        @CompoundIndex(def = "{'lineageId': 1, 'currentSnapshot': 1}", name = "lineageId_currentSnapshot"),
+        @CompoundIndex(def = "{'lineageId': 1, 'currentSnapshot': 1, 'deleted': 1}",
+                name = "lineageId_currentSnapshot_deleted"),
         @CompoundIndex(def = "{'lineageId': 1, 'version': 1}", unique = true,
                 name = MongoVersionedModel.INDEX_BY_LINEAGEID_VERSION)
 })
@@ -42,7 +43,6 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
 
     private Long version;
 
-    @Indexed
     private Boolean deleted = false;
 
     @Override
@@ -53,5 +53,13 @@ public abstract class MongoVersionedModel implements VersionedModel<ObjectId> {
     @Override
     public void setId(ObjectId id) {
         setLineageId(id);
+    }
+
+    public void setDeleted(Boolean newDeleted) {
+        if (newDeleted == null) {
+            throw new IllegalArgumentException("deleted cannot be null");
+        }
+
+        this.deleted = newDeleted;
     }
 }

@@ -1,14 +1,14 @@
 package io.extremum.everything.services.collection;
 
 import io.extremum.common.model.BasicModel;
-import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.utils.InstanceFields;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.everything.collection.CollectionFragment;
 import io.extremum.everything.collection.Projection;
 import io.extremum.everything.exceptions.EverythingEverythingException;
-import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.basic.Model;
+import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.util.StringUtils;
@@ -114,7 +114,7 @@ abstract class GetByOwnedCoordinates<T> {
     }
 
     private void makeSureStorageTypeIsSupported(BasicModel host, HostAttribute attribute) {
-        if (host.getUuid() != null && host.getUuid().getStorageType() != Descriptor.StorageType.MONGO) {
+        if (host.getUuid() != null && !StandardStorageType.MONGO.matches(host.getUuid().getStorageType())) {
             String message = String.format(
                     "Only Mongo models can use IDs to fetch collections, but it was '%s' on '%s', attribute '%s'",
                     host.getUuid().getStorageType(), ModelUtils.getModelName(host), attribute.name());
