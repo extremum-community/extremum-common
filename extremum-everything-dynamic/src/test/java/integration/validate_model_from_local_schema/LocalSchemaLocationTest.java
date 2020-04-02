@@ -22,11 +22,12 @@ public class LocalSchemaLocationTest extends SpringBootTestWithServices {
 
     final static String SCHEMA_NAME = "like-network-access-schema";
     final static String MODEL_NAME = "TestDynamicModelFrom-an_id_for_complex_schema_from-network";
+    final static int SCHEMA_VERSION = 1;
 
     @Test
     void schemaMetaServiceKnowsAboutModel() {
         boolean schemaMetaServiceContainsAModel = schemaMetaService.getModelNames().contains(MODEL_NAME);
-        String registeredSchemaName = schemaMetaService.getSchemaNameByNameAndVersion(MODEL_NAME);
+        String registeredSchemaName = schemaMetaService.getSchema(MODEL_NAME, SCHEMA_VERSION);
 
         assertTrue(schemaMetaServiceContainsAModel);
         assertEquals(SCHEMA_NAME, registeredSchemaName);

@@ -72,7 +72,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
     void saveModel() {
         JsonDynamicModel model = new JsonDynamicModel("AModel", new HashMap<>());
 
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
         doReturn(just(successful(mock(ValidationContext.class)))).when(modelValidator).validate(any());
 
@@ -109,7 +109,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
 
         JsonDynamicModel model = new JsonDynamicModel("model", invalidModelRawValue);
 
-        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json", 1);
 
         Mono<JsonDynamicModel> result = service.saveModel(model);
 
@@ -133,7 +133,7 @@ class DefaultJsonBasedDynamicModelServiceTest {
 
         JsonDynamicModel jModel = new JsonDynamicModel(unknownModel, null);
 
-        schemaMetaService.registerMapping(jModel.getModelName(), "unknown_schema");
+        schemaMetaService.registerMapping(jModel.getModelName(), "unknown_schema", 1);
 
         Mono<JsonDynamicModel> result = service.saveModel(jModel);
 

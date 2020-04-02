@@ -21,6 +21,7 @@ dynamic-models:
     pointer:
       schema-path: /path/to/schemas
       schema-name: simple.schema.json
+      schema-version: 1
       github:
         owner: owner
         ref: ref

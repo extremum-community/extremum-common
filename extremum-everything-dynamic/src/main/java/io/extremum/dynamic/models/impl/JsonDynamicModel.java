@@ -16,20 +16,22 @@ import java.util.Map;
 @ModelName(DynamicModel.MODEL_TYPE)
 @AllArgsConstructor
 public class JsonDynamicModel implements DynamicModel<Map<String, Object>>, BasicModel<Descriptor> {
+    // the schema version to set, if schema version was not specified at constructor
+    private static int DEFAULT_SCHEMA_VERSION = 1;
 
     public JsonDynamicModel(Descriptor id, String modelName, Map<String, Object> modelData) {
         this.id = id;
         this.modelName = modelName;
         this.modelData = modelData;
         this.schemaName = modelName;
-        this.schemaVersion = null;
+        this.schemaVersion = DEFAULT_SCHEMA_VERSION;
     }
 
     public JsonDynamicModel(String modelName, Map<String, Object> modelData) {
         this.modelName = modelName;
         this.modelData = modelData;
         this.schemaName = modelName;
-        this.schemaVersion = null;
+        this.schemaVersion = DEFAULT_SCHEMA_VERSION;
     }
 
     public JsonDynamicModel(String modelName, Map<String, Object> modelData, String schemaName, Integer schemaVersion) {
@@ -43,7 +45,7 @@ public class JsonDynamicModel implements DynamicModel<Map<String, Object>>, Basi
     private final String modelName;
     private final Map<String, Object> modelData;
     private final String schemaName;
-    private final Integer schemaVersion;
+    private final int schemaVersion;
 
     @JsonIgnore
     @Override

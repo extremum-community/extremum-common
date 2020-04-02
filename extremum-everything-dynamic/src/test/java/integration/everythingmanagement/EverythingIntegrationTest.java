@@ -35,7 +35,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     @Test
     void get_returnOkResponse() {
         String modelName = "ADynamicModel";
-        schemaMetaService.registerMapping(modelName, "<doesn't matter for this test>");
+        schemaMetaService.registerMapping(modelName, "<doesn't matter for this test>", 1);
 
         JsonDynamicModel model = buildModel(modelName, toMap("{\"field\": \"value\"}"));
         JsonDynamicModel persisted = persistModel(model).block();
@@ -57,7 +57,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     @Test
     void patch_withValidPatchData_patchingAModel_and_returnOkResponse() {
         String modelName = "ADynamicModelForPatching";
-        schemaMetaService.registerMapping(modelName, "simple.schema.json");
+        schemaMetaService.registerMapping(modelName, "simple.schema.json", 1);
 
         String patch = "[{\"op\":  \"replace\", \"path\": \"/field\", \"value\": \"replaced\"}]";
 
@@ -82,7 +82,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     @Test
     void patch_withNotValidPatchData_doesnPatchingAModel_and_returnErrorResponse() {
         String modelName = "ADynamicModelForPatchingWithNotValidPatchRequest";
-        schemaMetaService.registerMapping(modelName, "simple.schema.json");
+        schemaMetaService.registerMapping(modelName, "simple.schema.json", 1);
 
         String patch = "[{\"op\":  \"replace\", \"path\": \"/field1\", \"value\": 1}]";
 
@@ -104,7 +104,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
     @Test
     void removeModel() {
         String modelName = "AModelForRemove";
-        schemaMetaService.registerMapping(modelName, "simple.schema.json");
+        schemaMetaService.registerMapping(modelName, "simple.schema.json", 1);
 
         JsonDynamicModel model = buildModel(modelName, toMap("{\"field\": \"value\"}"));
         JsonDynamicModel persisted = persistModel(model).block();

@@ -40,11 +40,12 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
             }
 
             String schemaName = props.getSchema().getPointer().getSchemaName();
-            heatSchema(schemaName);
+            int schemaVersion = props.getSchema().getPointer().getSchemaVersion();
+            heatSchema(schemaName, schemaVersion);
         }
     }
 
-    private void heatSchema(String schemaName) {
+    private void heatSchema(String schemaName, int schemaVersion) {
         try {
             NetworkntSchema loaded = schemaProvider.loadSchema(schemaName);
             JsonNode title = loaded.getSchema().getSchemaNode().get("title");
@@ -52,7 +53,7 @@ public class DynamicModelHeater implements ApplicationListener<ContextRefreshedE
                 log.warn("No 'title' attribute found in schema {}. Model name for that schema can't be registered " +
                         "in a descriptor determinator", loaded.getSchema());
             } else {
-                schemaMetaService.registerMapping(title.textValue(), schemaName);
+                schemaMetaService.registerMapping(title.textValue(), schemaName, schemaVersion);
                 onMappingRegistered(title.textValue());
             }
         } catch (SchemaLoadingException e) {

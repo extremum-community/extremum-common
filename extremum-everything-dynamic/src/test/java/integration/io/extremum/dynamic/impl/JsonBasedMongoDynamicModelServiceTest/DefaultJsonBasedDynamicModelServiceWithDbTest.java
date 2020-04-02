@@ -121,7 +121,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "complex.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "complex.schema.json", 1);
 
         Mono<JsonDynamicModel> saved = service.saveModel(model);
 
@@ -183,7 +183,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -219,7 +219,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -265,7 +265,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel(modelName, modelData);
 
-        schemaMetaService.registerMapping(modelName, "empty.schema.json");
+        schemaMetaService.registerMapping(modelName, "empty.schema.json", 1);
 
         service.saveModel(model).block();
 
@@ -311,7 +311,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -348,7 +348,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("modelName", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
@@ -388,7 +388,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel model = new JsonDynamicModel("dynmodel", data);
 
-        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
         JsonDynamicModel saved = service.saveModel(model).block();
 
         JsonDynamicModel removedModel = service.remove(saved.getId()).block();
