@@ -30,7 +30,7 @@ public class DefaultSchemaMetaService implements SchemaMetaService {
 
     @Data
     @AllArgsConstructor
-    static class SchemaKey {
+    private static class SchemaKey {
         String schemaName;
         int schemaVersion;
     }
