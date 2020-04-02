@@ -17,7 +17,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class JsonDynamicModel implements DynamicModel<Map<String, Object>>, BasicModel<Descriptor> {
     // the schema version to set, if schema version was not specified at constructor
-    private static int DEFAULT_SCHEMA_VERSION = 1;
+    private final static int DEFAULT_SCHEMA_VERSION = 1;
 
     public JsonDynamicModel(Descriptor id, String modelName, Map<String, Object> modelData) {
         this.id = id;
