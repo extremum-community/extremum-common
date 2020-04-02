@@ -53,7 +53,7 @@ class NetworkntJsonDynamicModelValidatorTest {
 
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json", 1);
 
         Mono<Try<ValidationContext>> result = validator.validate(model);
 
@@ -78,7 +78,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         Map<String, Object> modelData = toMap("{\"fieldDate1\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("simple.schema.json", modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "simple.schema.json", 1);
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
@@ -100,7 +100,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         Map<String, Object> modelData = toMap("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("unknown_schema", modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "unknown_schema");
+        schemaMetaService.registerMapping(model.getModelName(), "unknown_schema", 1);
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 
@@ -123,7 +123,7 @@ class NetworkntJsonDynamicModelValidatorTest {
         Map<String, Object> modelData = toMap("{\"field2\":\"string\"}");
         JsonDynamicModel model = new JsonDynamicModel("complex_with_bad_ref.schema.json", modelData);
 
-        schemaMetaService.registerMapping(model.getModelName(), "complex_with_bad_ref.schema.json");
+        schemaMetaService.registerMapping(model.getModelName(), "complex_with_bad_ref.schema.json", 1);
 
         Mono<Try<ValidationContext>> validationResult = validator.validate(model);
 

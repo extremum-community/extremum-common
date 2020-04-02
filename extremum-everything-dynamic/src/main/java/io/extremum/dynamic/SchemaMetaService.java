@@ -3,9 +3,10 @@ package io.extremum.dynamic;
 import java.util.Set;
 
 public interface SchemaMetaService {
-    String getSchemaNameByModel(String modelName);
 
-    void registerMapping(String modelName, String schemaName);
+    String getSchemaName(String modelName, int schemaVersion);
+
+    void registerMapping(String modelName, String schemaName, int schemaVersion);
 
     Set<String> getModelNames();
 }

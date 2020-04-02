@@ -30,6 +30,7 @@ public class DynamicModelProperties {
             private String schemaPath;
             @NotNull
             private String schemaName;
+            private int schemaVersion;
             private Local local;
             private Github github;
 

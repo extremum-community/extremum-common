@@ -39,7 +39,7 @@ public class NetworkntJsonDynamicModelValidator implements JsonDynamicModelValid
     public Mono<Try<ValidationContext>> validate(JsonDynamicModel model) {
         return defer(() -> {
             try {
-                String schemaName = schemaMetaService.getSchemaNameByModel(model.getModelName());
+                String schemaName = schemaMetaService.getSchemaName(model.getSchemaName(), model.getSchemaVersion());
 
                 if (schemaName == null) {
                     throw new SchemaLoadingException("Unable to determine a schema name for model " + model.getModelName());
