@@ -3,7 +3,7 @@
     <parent>
         <groupId>io.extremum</groupId>
         <artifactId>extremum-module-parent</artifactId>
-        <version>1.1.4</version>
+        <version>1.1.5-SNAPSHOT</version>
         <relativePath>../extremum-module-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
