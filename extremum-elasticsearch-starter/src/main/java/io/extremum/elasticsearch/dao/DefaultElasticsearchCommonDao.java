@@ -7,16 +7,16 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.common.model.PersistableCommonModel.FIELDS;
 import io.extremum.common.utils.CollectionUtils;
-import io.extremum.common.utils.DateUtils;
 import io.extremum.common.utils.ModelUtils;
 import io.extremum.common.utils.StreamUtils;
+import io.extremum.datetime.ApiDateTimeFormat;
+import io.extremum.datetime.DateUtils;
 import io.extremum.elasticsearch.dao.extractor.AccessorFacade;
 import io.extremum.elasticsearch.dao.extractor.GetResponseAccessorFacade;
 import io.extremum.elasticsearch.dao.extractor.SearchHitAccessorFacade;
 import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
-import io.extremum.sharedmodels.constants.DateConstants;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
@@ -33,7 +33,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Requests;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -47,7 +51,12 @@ import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -75,6 +84,8 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
     private final String indexType;
 
     private final Class<? extends M> modelClass;
+
+    private final ApiDateTimeFormat apiDateTimeFormat = new ApiDateTimeFormat();
 
     protected DefaultElasticsearchCommonDao(Class<M> modelClass, ElasticsearchProperties elasticsearchProperties,
                                             DescriptorService descriptorService,
@@ -459,7 +470,7 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
                 .map(m -> m.get(fieldName))
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
-                .map(v -> DateUtils.parseZonedDateTime(v, DateConstants.ISO_8601_ZONED_DATE_TIME_FORMATTER))
+                .map(apiDateTimeFormat::parse)
                 .orElse(null);
     }
 }

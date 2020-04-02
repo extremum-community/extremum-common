@@ -50,7 +50,7 @@ import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static io.extremum.common.model.VersionedModel.FIELDS.lineageId;
-import static io.extremum.common.utils.DateUtils.parseZonedDateTimeFromISO_8601;
+import static io.extremum.datetime.DateUtils.parseZonedDateTimeFromISO_8601;
 import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -114,8 +114,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                 "  " +
                 "},\n" +
                 "  \"fieldObject\": {\n" +
-                "    \"fieldDate1\": \"2013-01-09T09:31:26.111111-0500\",\n" +
-                "    \"fieldDate2\": \"2014-01-09T09:31:26.111111-0500\"\n" +
+                "    \"fieldDate1\": \"2013-01-09T09:31:26.111111-05:00\",\n" +
+                "    \"fieldDate2\": \"2014-01-09T09:31:26.111111-05:00\"\n" +
                 "  }\n" +
                 "}");
 

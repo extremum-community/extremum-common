@@ -3,7 +3,7 @@ package io.extremum.dynamic.services.impl;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import io.extremum.common.utils.DateUtils;
+import io.extremum.datetime.ApiDateTimeFormat;
 import io.extremum.dynamic.services.DateTypesNormalizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,8 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class DefaultDateTypesNormalizer implements DateTypesNormalizer {
+    private final ApiDateTimeFormat apiDateTimeFormat = new ApiDateTimeFormat();
+
     @Override
     public Map<String, Object> normalize(Map<String, Object> doc, Collection<String> datePaths) {
         for (String path : datePaths) {
@@ -35,6 +37,6 @@ public class DefaultDateTypesNormalizer implements DateTypesNormalizer {
     }
 
     private ZonedDateTime toZonedDateTime(String value) {
-        return DateUtils.parseZonedDateTimeFromISO_8601(value);
+        return apiDateTimeFormat.parse(value);
     }
 }

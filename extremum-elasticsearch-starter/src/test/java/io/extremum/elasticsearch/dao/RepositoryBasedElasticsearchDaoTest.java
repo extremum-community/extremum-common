@@ -11,6 +11,7 @@ import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.test.hamcrest.SameMomentMatcher;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -30,6 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.extremum.test.hamcrest.SameMomentMatcher.atSameMomentAs;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -554,7 +556,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     }
 
     @Test
-    void whenSearchingWithQueryBuilder_softDeletionShouldBeRespected() {
+    void whenSearchingWithQueryBuilder_thenSoftDeletionShouldBeRespected() {
         String uniqueName = UUID.randomUUID().toString();
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
@@ -614,6 +616,13 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
 
         tests.assertThatInexactSearchYields3Results(exactName);
         tests.assertThatExactSearchYields1Result(exactName);
+    }
+
+    @Test
+    void createdAndModifiedShouldBeEqualForFirstVersion() {
+        TestElasticsearchModel saved = dao.save(new TestElasticsearchModel());
+
+        assertThat(saved.getModified(), atSameMomentAs(saved.getCreated()));
     }
 
     @NotNull
