@@ -4,7 +4,7 @@ import java.util.Set;
 
 public interface SchemaMetaService {
 
-    String getSchema(String modelName, int schemaVersion);
+    String getSchemaName(String modelName, int schemaVersion);
 
     void registerMapping(String modelName, String schemaName, int schemaVersion);
 

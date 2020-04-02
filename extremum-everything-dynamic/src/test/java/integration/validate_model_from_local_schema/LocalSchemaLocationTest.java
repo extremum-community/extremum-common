@@ -27,7 +27,7 @@ public class LocalSchemaLocationTest extends SpringBootTestWithServices {
     @Test
     void schemaMetaServiceKnowsAboutModel() {
         boolean schemaMetaServiceContainsAModel = schemaMetaService.getModelNames().contains(MODEL_NAME);
-        String registeredSchemaName = schemaMetaService.getSchema(MODEL_NAME, SCHEMA_VERSION);
+        String registeredSchemaName = schemaMetaService.getSchemaName(MODEL_NAME, SCHEMA_VERSION);
 
         assertTrue(schemaMetaServiceContainsAModel);
         assertEquals(SCHEMA_NAME, registeredSchemaName);

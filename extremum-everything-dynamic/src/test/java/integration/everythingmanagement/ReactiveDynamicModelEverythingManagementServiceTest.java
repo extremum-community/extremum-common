@@ -156,7 +156,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         String modelName = "PatchingDynamicModel";
         int schemaVersion = 1;
 
-        doReturn(modelName).when(schemaMetaService).getSchema(modelName, schemaVersion);
+        doReturn(modelName).when(schemaMetaService).getSchemaName(modelName, schemaVersion);
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
         JsonDynamicModel saved = dynamicModelDao.create(patchingModel, patchingModel.getModelName().toLowerCase()).block();

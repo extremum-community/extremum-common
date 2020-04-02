@@ -14,7 +14,7 @@ public class DefaultSchemaMetaService implements SchemaMetaService {
     private final Map<SchemaKey, String> map = new ConcurrentHashMap<>();
 
     @Override
-    public String getSchema(String modelName, int schemaVersion) {
+    public String getSchemaName(String modelName, int schemaVersion) {
         return map.get(new SchemaKey(modelName, schemaVersion));
     }
 
