@@ -41,7 +41,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel(model).block();
 
         webTestClient.get()
-                .uri("/v1/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getId().getExternalId())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -65,7 +65,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel(model).block();
 
         webTestClient.patch()
-                .uri("/v1/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getId().getExternalId())
                 .bodyValue(patch)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .exchange()
@@ -89,7 +89,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel model = buildModel(modelName, toMap("{\"field1\": \"value\"}"));
         JsonDynamicModel persisted = persistModel(model).block();
         webTestClient.patch()
-                .uri("/v1/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getId().getExternalId())
                 .bodyValue(patch)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .exchange()
@@ -110,14 +110,14 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel(model).block();
 
         webTestClient.delete()
-                .uri("/v1/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getId().getExternalId())
                 .exchange()
                 .expectStatus().isOk();
 
         dao.getByIdFromCollection(persisted.getId(), collectionNameFromModel(modelName));
 
         webTestClient.get()
-                .uri("/v1/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getId().getExternalId())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()

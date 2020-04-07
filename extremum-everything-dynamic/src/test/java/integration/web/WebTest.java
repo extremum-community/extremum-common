@@ -35,7 +35,7 @@ public class WebTest extends SpringBootTestWithServices {
         String modelName = "SomeDynamicModel";
 
         webTestClient.post()
-                .uri("/v1/" + modelName)
+                .uri("/" + modelName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just("{\"field1\": \"aaa\", \"field2\": 1}"), String.class)
                 .exchange()
