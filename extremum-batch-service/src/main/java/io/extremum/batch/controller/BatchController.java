@@ -37,7 +37,7 @@ import static io.extremum.batch.utils.BatchValidation.validateRequest;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/batch")
+@RequestMapping("/batch")
 public class BatchController {
     @Value("${batch.web.client.worker-thread-size}")
     private int workerThreadSize;

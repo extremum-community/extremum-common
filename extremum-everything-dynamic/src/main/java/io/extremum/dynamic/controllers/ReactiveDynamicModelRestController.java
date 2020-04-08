@@ -5,14 +5,16 @@ import io.extremum.dynamic.services.JsonBasedDynamicModelService;
 import io.extremum.sharedmodels.dto.Alert;
 import io.extremum.sharedmodels.dto.Response;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/v1/")
 public class ReactiveDynamicModelRestController implements DynamicModelRestController {
     private final JsonBasedDynamicModelService dynamicModelService;
 

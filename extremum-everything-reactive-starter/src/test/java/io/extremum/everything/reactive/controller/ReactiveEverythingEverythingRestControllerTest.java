@@ -87,7 +87,7 @@ class ReactiveEverythingEverythingRestControllerTest {
     @NotNull
     private Response getViaEverythingGet(String externalId) {
         Response response = webClient.get()
-                .uri("/v1/" + externalId)
+                .uri("/" + externalId)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -105,7 +105,7 @@ class ReactiveEverythingEverythingRestControllerTest {
                 .thenReturn(Mono.just(standardTestResponseDto()));
 
         Response response = webClient.patch()
-                .uri("/v1/" + randomUuid())
+                .uri("/" + randomUuid())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(jsonPatch()))
@@ -135,7 +135,7 @@ class ReactiveEverythingEverythingRestControllerTest {
                 .thenReturn(Mono.empty());
 
         Response response = webClient.delete()
-                .uri("/v1/" + externalId)
+                .uri("/" + externalId)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -158,7 +158,7 @@ class ReactiveEverythingEverythingRestControllerTest {
                 .thenReturn(Flux.just(new TestResponseDto("first"), new TestResponseDto("second")));
 
         List<TestResponseDto> dtos = webClient.get()
-                .uri("/v1/" + randomUuid)
+                .uri("/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -181,7 +181,7 @@ class ReactiveEverythingEverythingRestControllerTest {
         when(collectionManagementService.streamCollection(eq(randomUuid), any(), anyBoolean()))
                 .thenReturn(Flux.error(new RuntimeException("Oops!")));
 
-        String responseText = webClient.get().uri("/v1/" + randomUuid)
+        String responseText = webClient.get().uri("/" + randomUuid)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().is2xxSuccessful()

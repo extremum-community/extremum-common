@@ -7,15 +7,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api(tags = "Ping")
 @CrossOrigin
 @RestController
-@RequestMapping("/v1")
 public class PingController {
-    @ApiOperation(value = "Check a health status of a service")
+    @ApiOperation(value = "Check the health status of the service")
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK")
     })

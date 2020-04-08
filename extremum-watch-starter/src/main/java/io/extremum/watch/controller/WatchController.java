@@ -1,9 +1,9 @@
 package io.extremum.watch.controller;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
-import io.extremum.sharedmodels.dto.Response;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.sharedmodels.dto.Response;
 import io.extremum.watch.dto.TextWatchEventResponseDto;
 import io.extremum.watch.dto.converter.TextWatchEventConverter;
 import io.extremum.watch.exception.WatchException;
@@ -12,7 +12,12 @@ import io.extremum.watch.services.WatchEventService;
 import io.extremum.watch.services.WatchSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +27,7 @@ import java.util.stream.Collectors;
  * This controller is responsible for searching appropriate watch events.
  */
 @RestController
-@RequestMapping("/v1/watch")
+@RequestMapping("/watch")
 @RequiredArgsConstructor
 public class WatchController {
     private final WatchEventService watchEventService;

@@ -12,7 +12,6 @@ import com.jayway.jsonpath.JsonPath;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.datetime.ApiDateTimeFormat;
-import io.extremum.datetime.DateUtils;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.core.StringResponseMatchers;
@@ -37,9 +36,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
@@ -47,7 +52,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -76,7 +83,7 @@ class WatchControllerTest {
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        mockMvc.perform(put("/v1/watch")
+        mockMvc.perform(put("/watch")
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
@@ -84,7 +91,6 @@ class WatchControllerTest {
 
         verify(watchSubscriptionService).subscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> savedDescriptors = descriptorsCaptor.getValue();
-        //noinspection unchecked
         assertThat(savedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
     }
 
@@ -98,7 +104,7 @@ class WatchControllerTest {
         when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
+        MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(StringResponseMatchers.successfulResponse()))
@@ -118,7 +124,7 @@ class WatchControllerTest {
         when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
+        MvcResult mvcResult = mockMvc.perform(get("/watch")
                 .param("since", apiDateTimeFormat.format(since))
                 .param("until", apiDateTimeFormat.format(until))
                 .param("limit", "10")
@@ -172,7 +178,7 @@ class WatchControllerTest {
     void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
         when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
 
-        mockMvc.perform(delete("/v1/watch")
+        mockMvc.perform(delete("/watch")
                 .content("[\"dead\",\"beef\"]")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful())
@@ -180,7 +186,6 @@ class WatchControllerTest {
 
         verify(watchSubscriptionService).unsubscribe(descriptorsCaptor.capture(), eq("Alex"));
         Collection<Descriptor> removedDescriptors = descriptorsCaptor.getValue();
-        //noinspection unchecked
         assertThat(removedDescriptors, containsInAnyOrder(withExternalId("dead"), withExternalId("beef")));
     }
 

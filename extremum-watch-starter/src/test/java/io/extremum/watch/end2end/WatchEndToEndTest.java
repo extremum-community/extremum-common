@@ -107,7 +107,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private void subscribeToTheModel() throws Exception {
         mockMvc.perform(
-                put("/v1/watch")
+                put("/watch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
@@ -127,7 +127,7 @@ class WatchEndToEndTest extends TestWithServices {
         ));
 
         mockMvc.perform(
-                patch("/v1/" +  getModelExternalId())
+                patch("/" +  getModelExternalId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(jsonPatch)))
                 .andExpect(status().is2xxSuccessful())
@@ -142,7 +142,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() {
         try {
-            MvcResult mvcResult = mockMvc.perform(get("/v1/watch")
+            MvcResult mvcResult = mockMvc.perform(get("/watch")
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().is2xxSuccessful())
                     .andExpect(content().string(StringResponseMatchers.successfulResponse()))
@@ -258,7 +258,7 @@ class WatchEndToEndTest extends TestWithServices {
 
     private void subscribeToCurrentModelAndGet403() throws Exception {
         mockMvc.perform(
-                put("/v1/watch")
+                put("/watch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\"" + getModelExternalId() + "\"]")
                         .accept(MediaType.APPLICATION_JSON))
