@@ -25,12 +25,12 @@ public class SameMomentMatcher<T extends Temporal> extends TypeSafeDiagnosingMat
             return true;
         }
 
-        description.appendText("was not at the same moment of time as ").appendValue(sample);
+        description.appendValue(temporal).appendText(" not at the same moment of time as ").appendValue(sample);
         return false;
     }
 
     @Override
     public void describeTo(Description description) {
-        description.appendText("is at same moment of time as ").appendValue(sample);
+        description.appendText("at the same moment of time as ").appendValue(sample);
     }
 }
