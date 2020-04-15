@@ -42,7 +42,7 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
 
         JsonDynamicModel persisted = dao.create(model, collectionName).block();
 
-        strategy.remove(persisted.getId(), collectionName).block();
+        strategy.remove(persisted.getUuid(), collectionName).block();
 
         Document found = findDocument(collectionName, persisted);
 
@@ -61,7 +61,7 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
 
         JsonDynamicModel persisted = dao.create(model, collectionName).block();
 
-        strategy.remove(persisted.getId(), collectionName).block();
+        strategy.remove(persisted.getUuid(), collectionName).block();
 
         Document found = findDocument(collectionName, persisted);
 
@@ -80,7 +80,7 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
 
     private Document findDocument(String collectionName, JsonDynamicModel persisted) {
         Publisher<Document> foundPublisher = mongoOperations.getCollection(collectionName)
-                .find(new Document("_id", new ObjectId(persisted.getId().getInternalId())))
+                .find(new Document("_id", new ObjectId(persisted.getUuid().getInternalId())))
                 .first();
 
         return Mono.from(foundPublisher).block();

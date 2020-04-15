@@ -43,7 +43,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
     }
 
     private Mono<Void> processPatchInvocation(JsonPatch jsonPatch, JsonDynamicModel model) {
-        return model.getId()
+        return model.getUuid()
                 .getInternalIdReactively()
                 .doOnNext(internalId -> {
                     try {
@@ -59,7 +59,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
     }
 
     private Mono<Void> processDeleteInvocation(JsonDynamicModel model) {
-        return model.getId()
+        return model.getUuid()
                 .getInternalIdReactively()
                 .doOnNext(internalId -> {
                     try {
@@ -74,7 +74,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
     }
 
     private Mono<Void> processSaveInvocation(JsonDynamicModel model) {
-        return model.getId().getInternalIdReactively()
+        return model.getUuid().getInternalIdReactively()
                 .doOnNext(internalId -> {
                     if (log.isDebugEnabled()) {
                         log.debug("Watch method with name 'save' and args saved model {}", model);

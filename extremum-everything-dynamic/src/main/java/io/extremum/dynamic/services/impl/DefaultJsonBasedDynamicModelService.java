@@ -70,7 +70,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
         return bModel -> {
             Map<String, Object> mapWithReplacedDates = datesProcessor.processDates(bModel.getModelData());
 
-            return new JsonDynamicModel(bModel.getId(), bModel.getModelName(), mapWithReplacedDates);
+            return new JsonDynamicModel(bModel.getUuid(), bModel.getModelName(), mapWithReplacedDates);
         };
     }
 
@@ -99,7 +99,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
     }
 
     private boolean isNewModel(JsonDynamicModel model) {
-        return model.getId() == null;
+        return model.getUuid() == null;
     }
 
     @Override
@@ -128,7 +128,7 @@ public class DefaultJsonBasedDynamicModelService implements JsonBasedDynamicMode
 
     private Mono<String> getCollectionName(JsonDynamicModel model) {
         if (model.getId() != null) {
-            return getCollectionName(model.getId());
+            return getCollectionName(model.getUuid());
         } else {
             return just(model.getModelName())
                     .map(DynamicModelSupports::collectionNameFromModel);

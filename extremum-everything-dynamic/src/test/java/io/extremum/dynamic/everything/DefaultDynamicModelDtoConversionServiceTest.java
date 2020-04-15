@@ -42,7 +42,7 @@ class DefaultDynamicModelDtoConversionServiceTest {
                 .assertNext(dto -> {
                     Assertions.assertTrue(dto instanceof JsonDynamicModelResponseDto);
 
-                    Assertions.assertEquals(model.getId(), dto.getId());
+                    Assertions.assertEquals(model.getUuid().getExternalId(), dto.getId().getExternalId());
                     Assertions.assertEquals(model.getModelData(), ((JsonDynamicModelResponseDto) dto).getData());
                     Assertions.assertEquals(model.getModelName(), dto.getModel());
                 })

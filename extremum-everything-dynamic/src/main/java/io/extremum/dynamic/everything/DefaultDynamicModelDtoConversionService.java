@@ -25,7 +25,7 @@ public class DefaultDynamicModelDtoConversionService implements DynamicModelDtoC
                 Map<String, Object> data = new HashMap<>(dModel.getModelData());
                 removeTechnicalData(data);
                 dto.setData(data);
-                dto.setId(dModel.getId());
+                dto.setId(dModel.getUuid());
 
                 return dto;
             });

@@ -39,7 +39,7 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
 
     @Override
     public Mono<JsonDynamicModel> create(JsonDynamicModel model, String collectionName) {
-        return justOrEmpty(model.getId())
+        return justOrEmpty(model.getUuid())
                 .switchIfEmpty(createNewDescriptor(model))
                 .map(descriptor -> {
                             Map<String, Object> modelData = model.getModelData();
@@ -61,13 +61,14 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
         doc.put(modified.name(), now);
         doc.put(version.name(), INITIAL_VERSION_VALUE);
         doc.put(Model.FIELDS.model.name(), model.getModelName());
+        doc.put(deleted.name(), false);
     }
 
     @Override
     public Mono<JsonDynamicModel> update(JsonDynamicModel model, String collectionName) {
-        Objects.requireNonNull(model.getId(), "ID of a model can't be null");
+        Objects.requireNonNull(model.getUuid(), "ID of a model can't be null");
 
-        return just(model.getId())
+        return just(model.getUuid())
                 .flatMap(Descriptor::getInternalIdReactively)
                 .flatMap(doUpdate(model, collectionName));
     }
@@ -94,7 +95,7 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
 
             return mongoOperations.findAndReplace(query, modelData, collectionName)
                     .doOnNext(updatedDoc -> log.info("Document {} updated", model.getId()))
-                    .map(_it -> new JsonDynamicModel(model.getId(), model.getModelName(), modelData))
+                    .map(_it -> new JsonDynamicModel(model.getUuid(), model.getModelName(), modelData))
                     .switchIfEmpty(error(new OptimisticLockingFailureException(msg)));
         };
     }

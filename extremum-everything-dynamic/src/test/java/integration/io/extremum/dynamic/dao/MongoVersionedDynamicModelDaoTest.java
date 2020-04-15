@@ -86,11 +86,11 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
 
         Long totalSnapshotsCount = findInCollection(
                 collectionName,
-                new Document(lineageId.name(), new ObjectId(persisted.getId().getInternalId())),
+                new Document(lineageId.name(), new ObjectId(persisted.getUuid().getInternalId())),
                 p -> from(p).count().block());
 
         Bson andQuery = andQuery(
-                new Document(lineageId.name(), new ObjectId(persisted.getId().getInternalId())),
+                new Document(lineageId.name(), new ObjectId(persisted.getUuid().getInternalId())),
                 new Document(currentSnapshot.name(), true)
         );
 
@@ -105,7 +105,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
     @Test
     void findById() {
         JsonDynamicModel persisted = persistModel("findByIdTestModel", "{\"a\": \"b\"}").block();
-        JsonDynamicModel found = dao.getByIdFromCollection(persisted.getId(),
+        JsonDynamicModel found = dao.getByIdFromCollection(persisted.getUuid(),
                 collectionNameFromModel(persisted.getModelName())).block();
 
         assertNotNull(found);
@@ -127,7 +127,7 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
 
         String collectionName = collectionNameFromModel(persisted.getModelName());
 
-        JsonDynamicModel found = dao.getByIdFromCollection(persisted.getId(), collectionName).block();
+        JsonDynamicModel found = dao.getByIdFromCollection(persisted.getUuid(), collectionName).block();
 
         assertNotNull(found);
         assertEquals(found.getModelData().get(lineageId.name()), persisted.getModelData().get(lineageId.name()));
@@ -140,9 +140,9 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
 
         String collectionName = collectionNameFromModel(persisted.getModelName());
 
-        dao.remove(persisted.getId(), collectionName).block();
+        dao.remove(persisted.getUuid(), collectionName).block();
 
-        assertThrows(ModelNotFoundException.class, () -> dao.getByIdFromCollection(persisted.getId(), collectionName).block());
+        assertThrows(ModelNotFoundException.class, () -> dao.getByIdFromCollection(persisted.getUuid(), collectionName).block());
     }
 
     @Test
@@ -150,10 +150,10 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel("removeTestModel", "{\"a\": \"b\"}").block();
 
         String collectionName = collectionNameFromModel(persisted.getModelName());
-        dao.remove(persisted.getId(), collectionName).block();
+        dao.remove(persisted.getUuid(), collectionName).block();
 
         Bson andQuery = andQuery(
-                new Document(lineageId.name(), new ObjectId(persisted.getId().getInternalId())),
+                new Document(lineageId.name(), new ObjectId(persisted.getUuid().getInternalId())),
                 new Document(Model.FIELDS.deleted.name(), true)
         );
 
@@ -168,12 +168,12 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
         updateModel(persisted).block();
 
         String collectionName = collectionNameFromModel(persisted.getModelName());
-        dao.remove(persisted.getId(), collectionName).block();
+        dao.remove(persisted.getUuid(), collectionName).block();
 
         long markDeletedSnapshotsFound = findInCollection(
                 collectionName,
                 andQuery(
-                        new Document(lineageId.name(), new ObjectId(persisted.getId().getInternalId())),
+                        new Document(lineageId.name(), new ObjectId(persisted.getUuid().getInternalId())),
                         new Document(Model.FIELDS.deleted.name(), true)
                 ),
                 p -> from(p).count().block()

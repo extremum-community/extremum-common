@@ -41,11 +41,11 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel(model).block();
 
         webTestClient.get()
-                .uri("/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getUuid().getExternalId())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.result.id").isEqualTo(persisted.getId().getExternalId())
+                .jsonPath("$.result.id").isEqualTo(persisted.getUuid().getExternalId())
                 .jsonPath("$.result.field").isEqualTo("value")
                 .jsonPath("$.result.model").isEqualTo(modelName)
                 .jsonPath("$.result.field").isEqualTo("value")
@@ -65,13 +65,13 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel(model).block();
 
         webTestClient.patch()
-                .uri("/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getUuid().getExternalId())
                 .bodyValue(patch)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.result.id").isEqualTo(persisted.getId().getExternalId())
+                .jsonPath("$.result.id").isEqualTo(persisted.getUuid().getExternalId())
                 .jsonPath("$.result.field").isEqualTo("replaced")
                 .jsonPath("$.result.version", 2).exists()
                 .jsonPath("$.result.model").isEqualTo(modelName)
@@ -89,7 +89,7 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel model = buildModel(modelName, toMap("{\"field1\": \"value\"}"));
         JsonDynamicModel persisted = persistModel(model).block();
         webTestClient.patch()
-                .uri("/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getUuid().getExternalId())
                 .bodyValue(patch)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .exchange()
@@ -110,14 +110,14 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
         JsonDynamicModel persisted = persistModel(model).block();
 
         webTestClient.delete()
-                .uri("/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getUuid().getExternalId())
                 .exchange()
                 .expectStatus().isOk();
 
-        dao.getByIdFromCollection(persisted.getId(), collectionNameFromModel(modelName));
+        dao.getByIdFromCollection(persisted.getUuid(), collectionNameFromModel(modelName));
 
         webTestClient.get()
-                .uri("/" + persisted.getId().getExternalId())
+                .uri("/" + persisted.getUuid().getExternalId())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()

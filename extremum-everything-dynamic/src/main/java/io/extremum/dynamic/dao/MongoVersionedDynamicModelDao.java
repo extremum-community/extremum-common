@@ -56,7 +56,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
             ObjectId oId = new ObjectId(descr.getInternalId());
             ZonedDateTime now = ZonedDateTime.now();
 
-            model.setId(descr);
+            model.setUuid(descr);
             model.getModelData().put(Model.FIELDS.version.name(), INITIAL_VERSION_VALUE);
             model.getModelData().put(Model.FIELDS.created.name(), toDate(now));
             model.getModelData().put(Model.FIELDS.modified.name(), toDate(now));
@@ -81,7 +81,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     @Override
     @Transactional
     public Mono<JsonDynamicModel> update(JsonDynamicModel updatedModel, String collectionName) {
-        return getByIdFromCollection(updatedModel.getId(), collectionName)
+        return getByIdFromCollection(updatedModel.getUuid(), collectionName)
                 .flatMap(currentSnapshot -> {
                     Date now = toDate(ZonedDateTime.now());
 
@@ -120,7 +120,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
         current.getModelData().put(VersionedModel.FIELDS.currentSnapshot.name(), false);
 
         next.getModelData().put(Model.FIELDS.version.name(), extractVersion(currentSnapshot) + 1);
-        next.getModelData().put(VersionedModel.FIELDS.lineageId.name(), new ObjectId(currentSnapshot.getId().getInternalId()));
+        next.getModelData().put(VersionedModel.FIELDS.lineageId.name(), new ObjectId(currentSnapshot.getUuid().getInternalId()));
         next.getModelData().put(VersionedModel.FIELDS.currentSnapshot.name(), true);
         next.getModelData().put(Model.FIELDS.created.name(), currentSnapshot.getModelData().get(Model.FIELDS.created.name()));
         next.getModelData().put(Model.FIELDS.modified.name(), now);
@@ -133,7 +133,7 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
     }
 
     private JsonDynamicModel cloneModel(JsonDynamicModel currentSnapshot) {
-        return new JsonDynamicModel(currentSnapshot.getId(), currentSnapshot.getModelName(), new HashMap<>(currentSnapshot.getModelData()));
+        return new JsonDynamicModel(currentSnapshot.getUuid(), currentSnapshot.getModelName(), new HashMap<>(currentSnapshot.getModelData()));
     }
 
     private long extractVersion(JsonDynamicModel model) {

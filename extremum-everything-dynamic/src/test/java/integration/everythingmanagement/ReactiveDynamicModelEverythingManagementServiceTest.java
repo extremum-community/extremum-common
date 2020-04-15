@@ -113,10 +113,10 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
         JsonDynamicModel model = createModel("TestDynamicModel", "{\"a\":\"b\"}");
         JsonDynamicModel savedModel = dynamicModelService.saveModel(model).block();
 
-        ResponseDto found = dynamicModelEverythingManagementService.get(savedModel.getId(), false).block();
+        ResponseDto found = dynamicModelEverythingManagementService.get(savedModel.getUuid(), false).block();
 
         assertNotNull(found);
-        assertEquals(savedModel.getId(), found.getId());
+        assertEquals(savedModel.getUuid().getExternalId(), found.getId().getExternalId());
         assertEquals(model.getModelName(), found.getModel());
         assertTrue(((JsonDynamicModelResponseDto) found).getData().containsKey("a"));
         assertEquals("b", ((JsonDynamicModelResponseDto) found).getData().get("a"));
@@ -153,26 +153,26 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @Test
     void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException, JSONException {
-        String modelName = "PatchingDynamicModel";
+        String modelName = "patchingDynamicModel";
         int schemaVersion = 1;
 
         doReturn(modelName).when(schemaMetaService).getSchemaName(modelName, schemaVersion);
 
         JsonDynamicModel patchingModel = createModel(modelName, "{\"a\":\"b\"}");
-        JsonDynamicModel saved = dynamicModelDao.create(patchingModel, patchingModel.getModelName().toLowerCase()).block();
+        JsonDynamicModel saved = dynamicModelDao.create(patchingModel, patchingModel.getModelName()).block();
 
         JsonNode nodePatch = createJsonNodeForString("[{\"op\":\"replace\", \"path\":\"/a\", \"value\":\"c\"}]");
         JsonPatch patch = JsonPatch.fromJson(nodePatch);
-        Mono<ResponseDto> result = dynamicModelEverythingManagementService.patch(saved.getId(), patch, false);
+        Mono<ResponseDto> result = dynamicModelEverythingManagementService.patch(saved.getUuid(), patch, false);
 
         StepVerifier.create(result)
                 .assertNext(patched -> {
-                    assertEquals(saved.getId(), patched.getId());
+                    assertEquals(saved.getUuid().getExternalId(), patched.getId().getExternalId());
                     assertEquals(patchingModel.getModelName(), patched.getModel());
                     assertEquals("c", ((JsonDynamicModelResponseDto) patched).getData().get("a"));
                 }).verifyComplete();
 
-        Mono<JsonDynamicModel> foundPatchedModel = dynamicModelService.findById(saved.getId());
+        Mono<JsonDynamicModel> foundPatchedModel = dynamicModelService.findById(saved.getUuid());
         StepVerifier.create(foundPatchedModel)
                 .assertNext(patched -> {
                     assertEquals(saved.getId(), patched.getId());
@@ -205,10 +205,10 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @Test
     void removeOperation_shouldRemoveModel_andReturnsWithEmptyPipe() throws JSONException {
-        JsonDynamicModel model = createModel("ModelForRemove", "{\"a\":\"b\"}");
-        JsonDynamicModel savedModel = dynamicModelDao.create(model, model.getModelName().toLowerCase()).block();
+        JsonDynamicModel model = createModel("modelForRemove", "{\"a\":\"b\"}");
+        JsonDynamicModel savedModel = dynamicModelDao.create(model, model.getModelName()).block();
 
-        Mono<Void> result = dynamicModelEverythingManagementService.remove(savedModel.getId());
+        Mono<Void> result = dynamicModelEverythingManagementService.remove(savedModel.getUuid());
 
         StepVerifier.create(result).verifyComplete();
 

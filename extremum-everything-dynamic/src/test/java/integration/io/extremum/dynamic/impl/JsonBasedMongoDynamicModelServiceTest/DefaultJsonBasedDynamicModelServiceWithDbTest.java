@@ -140,8 +140,8 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                             assertTrue(map.containsKey("externalField"));
                             assertEquals(((Map) model.getModelData().get("field3")).get("externalField"), map.get("externalField"));
 
-                            assertNotNull(m.getId());
-                            assertEquals(model.getModelName(), m.getId().getModelType());
+                            assertNotNull(m.getUuid());
+                            assertEquals(model.getModelName(), m.getUuid().getModelType());
                         }
                 )
                 .verifyComplete();
@@ -187,11 +187,11 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        JsonDynamicModel found = service.findById(saved.getId()).block();
+        JsonDynamicModel found = service.findById(saved.getUuid()).block();
 
         assertNotNull(found);
-        assertNotNull(found.getId());
-        assertNotNull(model.getModelName(), found.getId().getModelType());
+        assertNotNull(found.getUuid());
+        assertNotNull(model.getModelName(), found.getUuid().getModelType());
         assertEquals(saved.getId(), found.getId());
         assertEquals(model.getModelName(), found.getModelName());
         assertFalse(model.getModelData().containsKey("_id"));
@@ -223,10 +223,10 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        JsonDynamicModel found = service.findById(saved.getId()).block();
+        JsonDynamicModel found = service.findById(saved.getUuid()).block();
 
-        Descriptor idOfTheFoundModel = found.getId();
-        assertEquals(saved.getId(), idOfTheFoundModel);
+        Descriptor idOfTheFoundModel = found.getUuid();
+        assertEquals(saved.getUuid(), idOfTheFoundModel);
 
         Map<String, Object> modelData_updated = toMap("{\"field1\":\"bbb\", \"field3\":{\"externalField\":\"bbb\"}, \n" +
                 "\"created\":\"blablabla\",\n" +
@@ -236,7 +236,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         JsonDynamicModel updatedModel = new JsonDynamicModel(idOfTheFoundModel, found.getModelName(), modelData_updated);
         JsonDynamicModel updatedResult = service.saveModel(updatedModel).block();
 
-        assertEquals(idOfTheFoundModel, updatedResult.getId());
+        assertEquals(idOfTheFoundModel.getExternalId(), updatedResult.getUuid().getExternalId());
         assertFalse(updatedResult.getModelData().containsKey("_id"));
 
         JsonDynamicModel foundUpdated = service.findById(idOfTheFoundModel).block();
@@ -391,11 +391,11 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
         JsonDynamicModel saved = service.saveModel(model).block();
 
-        JsonDynamicModel removedModel = service.remove(saved.getId()).block();
+        JsonDynamicModel removedModel = service.remove(saved.getUuid()).block();
         assertNotNull(removedModel);
 
         List<Document> criteria = new ArrayList<>();
-        criteria.add(new Document(lineageId.name(), new ObjectId(saved.getId().getInternalId())));
+        criteria.add(new Document(lineageId.name(), new ObjectId(saved.getUuid().getInternalId())));
         criteria.add(new Document(deleted.name(), true));
 
         FindPublisher<Document> presentedInDb = operations.getCollection(model.getModelName())
@@ -405,7 +405,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         assertEquals(1, removedCount);
 
-        Mono<JsonDynamicModel> findById = service.findById(saved.getId());
+        Mono<JsonDynamicModel> findById = service.findById(saved.getUuid());
 
         StepVerifier.create(findById)
                 .expectError(ModelNotFoundException.class)
