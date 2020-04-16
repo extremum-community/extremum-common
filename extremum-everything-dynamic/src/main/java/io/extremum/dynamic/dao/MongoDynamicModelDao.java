@@ -158,7 +158,7 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
         return from(p)
                 .flatMap(doc ->
                         mongoDescriptorFacilities
-                                .fromInternalId(((ObjectId)doc.get("_id")).toString())
+                                .fromInternalId((doc.getObjectId("_id")).toString())
                                 .map(descr -> {
                                     doc.remove("_id");
                                     return new JsonDynamicModel(descr, descr.getModelType(), doc);
