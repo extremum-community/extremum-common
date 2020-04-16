@@ -20,6 +20,10 @@
             <groupId>io.extremum</groupId>
             <artifactId>extremum-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.extremum</groupId>
+            <artifactId>extremum-datetime</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
