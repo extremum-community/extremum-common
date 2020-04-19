@@ -2,6 +2,7 @@ package io.extremum.dynamic.dao;
 
 import com.mongodb.reactivestreams.client.FindPublisher;
 import io.extremum.common.exceptions.CommonException;
+import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.basic.Model;
@@ -22,11 +23,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.mongodb.client.model.Filters.*;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Filters.or;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.created;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.model;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.modified;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.version;
 import static java.lang.String.format;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static reactor.core.publisher.Mono.*;
+import static reactor.core.publisher.Mono.defer;
+import static reactor.core.publisher.Mono.error;
+import static reactor.core.publisher.Mono.from;
+import static reactor.core.publisher.Mono.just;
+import static reactor.core.publisher.Mono.justOrEmpty;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -158,12 +170,13 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
         return from(p)
                 .flatMap(doc ->
                         mongoDescriptorFacilities
-                                .fromInternalId(doc.getString("_id"))
+                                .fromInternalId(doc.getObjectId("_id").toString())
                                 .map(descr -> {
                                     doc.remove("_id");
                                     return new JsonDynamicModel(descr, descr.getModelType(), doc);
                                 })
-                );
+                )
+                .switchIfEmpty(defer(() -> error(new ModelNotFoundException("Dynamic model with id " + id + " isn't found"))));
     }
 
     @Override
