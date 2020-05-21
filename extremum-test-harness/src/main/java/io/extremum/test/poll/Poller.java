@@ -13,10 +13,15 @@ import static java.time.Instant.now;
  */
 public class Poller {
     private final Duration maxPollDuration;
-    private final Duration sleepDuration = Duration.ofMillis(100);
+    private final Duration sleepDuration;
 
     public Poller(Duration maxPollDuration) {
+        this(maxPollDuration, Duration.ofMillis(100));
+    }
+
+    public Poller(Duration maxPollDuration, Duration sleepDuration) {
         this.maxPollDuration = maxPollDuration;
+        this.sleepDuration = sleepDuration;
     }
 
     public <T> T poll(Supplier<? extends T> sampler, Predicate<? super T> finisher) throws InterruptedException {
