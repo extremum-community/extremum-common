@@ -49,6 +49,11 @@ public class Poller {
             Thread.sleep(sleepDuration.toMillis());
         }
 
+        return handleFailedPolling(pollTimedOutMessage, probe);
+    }
+
+    private <T> T handleFailedPolling(String pollTimedOutMessage, Probe<T> probe) {
+        probe.doOnFailure();
         throw new PollTimedOutException(pollTimedOutMessage);
     }
 

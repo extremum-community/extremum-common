@@ -52,18 +52,18 @@
     <repositories>
         <repository>
             <id>extremum-releases</id>
-            <url>https://nexus.cybernation.com/repository/maven-releases/</url>
+            <url>https://nexus.infra.cybernation.com/repository/maven-releases/</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
             <id>extremum-releases</id>
-            <url>https://nexus.cybernation.com/repository/maven-releases/</url>
+            <url>https://nexus.infra.cybernation.com/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>extremum-snapshots</id>
-            <url>https://nexus.cybernation.com/repository/maven-snapshots/</url>
+            <url>https://nexus.infra.cybernation.com/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
