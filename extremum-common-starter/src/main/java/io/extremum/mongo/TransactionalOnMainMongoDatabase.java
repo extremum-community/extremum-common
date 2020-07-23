@@ -1,5 +1,6 @@
 package io.extremum.mongo;
 
+import io.extremum.mongo.springdata.MainMongoDb;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.ElementType;
@@ -15,6 +16,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-@Transactional("mainMongo")
+@Transactional(MainMongoDb.QUALIFIER)
 public @interface TransactionalOnMainMongoDatabase {
 }

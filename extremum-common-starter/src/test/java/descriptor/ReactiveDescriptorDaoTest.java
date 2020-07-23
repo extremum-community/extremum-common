@@ -2,32 +2,40 @@ package descriptor;
 
 import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
+import io.extremum.common.descriptor.dao.impl.DescriptorCodecs;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.redisson.CompositeCodecWithQuickFix;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.springdata.MainMongoDb;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
+import io.extremum.starter.properties.DescriptorsProperties;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.transaction.ReactiveTransactionManager;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Map;
 
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.hamcrest.MatcherAssert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
@@ -43,23 +51,88 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
     private MongoDescriptorFacilities mongoDescriptorFacilities;
     @Autowired
     private DescriptorSaver descriptorSaver;
+    @Autowired
+    @MainMongoDb
+    private ReactiveTransactionManager reactiveTransactionManager;
+    @Autowired
+    private DescriptorsProperties descriptorsProperties;
+    @Autowired
+    private RedissonClient redissonClient;
+
+    RMap<String, Descriptor> descriptorsInRedis;
+
+    @BeforeEach
+    void createRedisMap() {
+        descriptorsInRedis = redissonClient.getMap(
+                descriptorsProperties.getDescriptorsMapName(),
+                new CompositeCodecWithQuickFix(new StringCodec(), DescriptorCodecs.codecForDescriptor())
+        );
+    }
 
     @Test
-    void testStore() {
-        Mono<Descriptor> mono = reactiveDescriptorDao.store(Descriptor.builder()
+    void shouldStoreBothToMongoAndRedis() {
+        Descriptor descriptor = descriptorForStorage();
+
+        Mono<Descriptor> mono = reactiveDescriptorDao.store(descriptor);
+        Descriptor savedDescriptor = mono.block();
+
+        assertThatDescriptorWasSavedToMongoAndRedis(savedDescriptor);
+    }
+
+    private Descriptor descriptorForStorage() {
+        return Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
                 .storageType(StandardStorageType.MONGO)
-                .build());
-        Descriptor savedDescriptor = mono.block();
+                .build();
+    }
+
+    private void assertThatDescriptorWasSavedToMongoAndRedis(Descriptor savedDescriptor) {
         assertThat(savedDescriptor, is(notNullValue()));
 
-        Descriptor loadedDescriptor = descriptorRepository.findByExternalId(savedDescriptor.getExternalId())
+        Descriptor fromMongo = descriptorRepository.findByExternalId(savedDescriptor.getExternalId())
                 .orElse(null);
-        assertThat(loadedDescriptor, is(notNullValue()));
-        assertThat(loadedDescriptor.getExternalId(), is(savedDescriptor.getExternalId()));
-        assertThat(loadedDescriptor.getInternalId(), is(savedDescriptor.getInternalId()));
-        assertThat(loadedDescriptor.getStorageType(), is("mongo"));
+        assertThat(fromMongo, is(notNullValue()));
+        assertThat(fromMongo.getExternalId(), is(savedDescriptor.getExternalId()));
+        assertThat(fromMongo.getInternalId(), is(savedDescriptor.getInternalId()));
+        assertThat(fromMongo.getStorageType(), is("mongo"));
+
+        Descriptor fromRedis = descriptorsInRedis.get(savedDescriptor.getExternalId());
+        assertThat(fromRedis, is(notNullValue()));
+        assertThat(fromRedis.getExternalId(), is(savedDescriptor.getExternalId()));
+        assertThat(fromRedis.getInternalId(), is(savedDescriptor.getInternalId()));
+        assertThat(fromRedis.getStorageType(), is("mongo"));
+    }
+
+    @Test
+    void shouldStoreBothToMongoAndRedisUnderTransaction() {
+        Descriptor descriptor = descriptorForStorage();
+
+        TransactionalOperator txOp = TransactionalOperator.create(reactiveTransactionManager);
+
+        Mono<Descriptor> mono = txOp.transactional(reactiveDescriptorDao.store(descriptor));
+        Descriptor savedDescriptor = mono.block();
+
+        assertThatDescriptorWasSavedToMongoAndRedis(savedDescriptor);
+    }
+
+    @Test
+    void shouldStoreToRedisOnlyAfterTransactionCommits() {
+        Descriptor descriptor = descriptorForStorage();
+
+        TransactionalOperator txOp = TransactionalOperator.create(reactiveTransactionManager);
+
+        Mono<Descriptor> storeAndAssertNoDescriptorSavedToRedis = reactiveDescriptorDao.store(descriptor)
+                .doOnNext(savedDescriptor -> {
+                    assertThatDescriptorIsNotSavedToRedis(savedDescriptor.getExternalId());
+                });
+        Mono<Descriptor> mono = txOp.transactional(storeAndAssertNoDescriptorSavedToRedis);
+        mono.block();
+    }
+
+    private void assertThatDescriptorIsNotSavedToRedis(String externalId) {
+        Descriptor fromRedis = descriptorsInRedis.get(externalId);
+        assertThat(fromRedis, is(nullValue()));
     }
 
     @Test

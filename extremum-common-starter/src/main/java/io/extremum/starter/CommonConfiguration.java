@@ -23,6 +23,8 @@ import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.mongo.config.*;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
+import io.extremum.mongo.springdata.DescriptorsMongoDb;
+import io.extremum.mongo.springdata.MainMongoDb;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;
@@ -44,6 +46,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.*;
 import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -113,7 +116,7 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DescriptorDao descriptorDao(RedissonClient redissonClient, DescriptorRepository descriptorRepository,
-            @Qualifier("descriptorsMongoTemplate") MongoOperations descriptorMongoOperations) {
+            @DescriptorsMongoDb MongoOperations descriptorMongoOperations) {
         return DescriptorDaoFactory.create(redisProperties, descriptorsProperties,
                 redissonClient, descriptorRepository, descriptorMongoOperations);
     }
@@ -122,9 +125,10 @@ public class CommonConfiguration {
     @ConditionalOnMissingBean
     public ReactiveDescriptorDao reactiveDescriptorDao(
             RedissonReactiveClient redissonReactiveClient, DescriptorRepository descriptorRepository,
-            @Qualifier("descriptorsReactiveMongoTemplate") ReactiveMongoOperations reactiveMongoOperations) {
+            @DescriptorsMongoDb ReactiveMongoOperations reactiveMongoOperations,
+            @MainMongoDb ReactiveMongoDatabaseFactory mongoDatabaseFactory) {
         return DescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
-                redissonReactiveClient, descriptorRepository, reactiveMongoOperations);
+                redissonReactiveClient, descriptorRepository, reactiveMongoOperations, mongoDatabaseFactory);
     }
 
     @Bean
@@ -214,8 +218,10 @@ public class CommonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ReactiveDescriptorSaver reactiveDescriptorSaver(DescriptorService descriptorService,
-                                                           ReactiveDescriptorService reactiveDescriptorService) {
-        return new ReactiveDescriptorSaver(descriptorService, reactiveDescriptorService);
+            ReactiveDescriptorService reactiveDescriptorService,
+            ReactiveCollectionDescriptorService reactiveCollectionDescriptorService) {
+        return new ReactiveDescriptorSaver(descriptorService, reactiveDescriptorService,
+                reactiveCollectionDescriptorService);
     }
 
     @Bean

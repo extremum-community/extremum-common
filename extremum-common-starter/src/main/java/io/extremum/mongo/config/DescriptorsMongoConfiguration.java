@@ -1,10 +1,11 @@
 package io.extremum.mongo.config;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.WriteConcern;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.mongo.properties.MongoProperties;
+import io.extremum.mongo.springdata.DescriptorsMongoDb;
+import io.extremum.mongo.springdata.MainMongoDb;
+import io.extremum.mongo.springdata.MongoTemplateWithFixedDatabase;
 import io.extremum.mongo.springdata.repository.SoftDeleteMongoRepositoryFactoryBean;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -20,12 +21,11 @@ import org.springframework.data.mapping.model.PropertyNameFieldNamingStrategy;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.MongoConfigurationSupport;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -52,21 +52,14 @@ public class DescriptorsMongoConfiguration {
     private final MongoProperties mongoProperties;
 
     @Bean
-    public MongoTemplate descriptorsMongoTemplate() throws Exception {
-        MongoTemplate template = new MongoTemplate(descriptorsMongoDbFactory(), descriptorsMappingMongoConverter());
+    @DescriptorsMongoDb
+    public MongoTemplate descriptorsMongoTemplate(@MainMongoDb MongoDbFactory mainMongoDbFactory,
+            @DescriptorsMongoDb MappingMongoConverter descriptorsMappingMongoConverter) {
+        MongoTemplate template = new MongoTemplateWithFixedDatabase(mainMongoDbFactory,
+                descriptorsMappingMongoConverter, getDatabaseName());
         template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
         template.setWriteConcern(WriteConcern.MAJORITY);
         return template;
-    }
-
-    @Bean
-    public MongoDbFactory descriptorsMongoDbFactory() {
-        return new SimpleMongoDbFactory(descriptorsMongoClient(), getDatabaseName());
-    }
-
-    @Bean
-    public MongoClient descriptorsMongoClient() {
-        return new MongoClient(new MongoClientURI(mongoProperties.getDescriptorsDbUri()));
     }
 
     private String getDatabaseName() {
@@ -74,9 +67,11 @@ public class DescriptorsMongoConfiguration {
     }
 
     @Bean
+    @DescriptorsMongoDb
     public MappingMongoConverter descriptorsMappingMongoConverter() throws Exception {
 
-        DbRefResolver dbRefResolver = new DefaultDbRefResolver(descriptorsMongoDbFactory());
+        // We do not allow DBRefs because they are pain (at least I was told so)
+        DbRefResolver dbRefResolver = NoOpDbRefResolver.INSTANCE;
         MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, descriptorsMongoMappingContext());
         converter.setCustomConversions(customConversions);
 
@@ -154,4 +149,5 @@ public class DescriptorsMongoConfiguration {
         return abbreviateFieldNames() ? new CamelCaseAbbreviatingFieldNamingStrategy()
                 : PropertyNameFieldNamingStrategy.INSTANCE;
     }
+
 }

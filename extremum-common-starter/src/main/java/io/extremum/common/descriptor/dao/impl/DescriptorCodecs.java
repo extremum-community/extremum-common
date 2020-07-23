@@ -5,8 +5,8 @@ import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.redisson.client.codec.Codec;
 import org.redisson.codec.TypedJsonJacksonCodec;
 
-class DescriptorCodecs {
-    static Codec codecForDescriptor() {
+public class DescriptorCodecs {
+    public static Codec codecForDescriptor() {
         return new TypedJsonJacksonCodec(String.class, Descriptor.class,
                 new BasicJsonObjectMapper());
     }

@@ -11,9 +11,9 @@ import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleListener;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoVersionedModelLifecycleListener;
+import io.extremum.mongo.springdata.MainMongoDb;
 import io.extremum.mongo.springdata.ReactiveMongoTemplateWithReactiveEvents;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ public class MainReactiveMongoConfiguration {
 
     @Bean
     public MongoClient reactiveMongoClient() {
-        return MongoClients.create(mongoProperties.getServiceDbUri());
+        return MongoClients.create(mongoProperties.getUri());
     }
 
     private String getDatabaseName() {
@@ -45,6 +45,7 @@ public class MainReactiveMongoConfiguration {
 
     @Bean
     @Primary
+    @MainMongoDb
     public ReactiveMongoOperations reactiveMongoTemplate(MappingMongoConverter mappingMongoConverter,
                                                          ReactiveEventPublisher reactiveEventPublisher) {
         ReactiveMongoTemplateWithReactiveEvents template = new ReactiveMongoTemplateWithReactiveEvents(
@@ -55,12 +56,13 @@ public class MainReactiveMongoConfiguration {
     }
 
     @Bean
+    @MainMongoDb
     public ReactiveMongoDatabaseFactory reactiveMongoDbFactory() {
         return new SimpleReactiveMongoDatabaseFactory(reactiveMongoClient(), getDatabaseName());
     }
 
     @Bean
-    @Qualifier("mainMongo")
+    @MainMongoDb
     public ReactiveMongoTransactionManager reactiveMongoTransactionManager() {
         return new ReactiveMongoTransactionManager(reactiveMongoDbFactory());
     }

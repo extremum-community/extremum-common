@@ -11,13 +11,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
-import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static io.extremum.test.mockito.ReturnFirstArgInMono.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -37,6 +37,7 @@ class ReactiveDescriptorSaverTest {
     @Test
     void whenCreatingADescriptorReactiely_thenCorrectDataShouldBeSavedWithReactiveDescriptorService() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
+        when(reactiveDescriptorService.loadByInternalId("internal-id")).thenReturn(Mono.empty());
         when(reactiveDescriptorService.store(any())).then(returnFirstArgInMono());
 
         descriptorSaver.createAndSave("internal-id", "Test", StandardStorageType.MONGO).block();

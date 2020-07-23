@@ -4,6 +4,7 @@ import com.mongodb.client.model.Filters;
 import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.mongo.springdata.DescriptorsMongoDb;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.Document;
@@ -11,7 +12,6 @@ import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
 
@@ -19,14 +19,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static descriptor.DocumentByNameMatcher.havingName;
+import static descriptor.DocumentByNameMatcher.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author rpuch
@@ -38,7 +37,7 @@ class DescriptorMongoStorageTest extends TestWithServices {
     @Autowired
     private DescriptorSaver descriptorSaver;
     @Autowired
-    @Qualifier("descriptorsMongoTemplate")
+    @DescriptorsMongoDb
     private MongoOperations mongoOperations;
 
     @Test
