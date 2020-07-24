@@ -9,12 +9,17 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 /**
  * @author rpuch
  */
 public class InMemoryReactiveDescriptorService implements ReactiveDescriptorService {
     private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
+    private final ConcurrentMap<String, Descriptor> externalIdToDescriptorMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, String> internalIdToExternalIdMap = new ConcurrentHashMap<>();
 
     @Override
     public Mono<Descriptor> store(Descriptor descriptor) {
@@ -24,26 +29,38 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
             ReflectionUtils.setFieldValue(descriptor, "externalId", externalId);
         }
 
+        externalIdToDescriptorMap.put(externalId, descriptor);
+
+        String internalId = ReflectionUtils.getFieldValue(descriptor, "internalId");
+        if (internalId != null) {
+            internalIdToExternalIdMap.put(internalId, externalId);
+        }
+
         return Mono.just(descriptor);
     }
 
     @Override
     public Mono<Descriptor> loadByExternalId(String externalId) {
-        throw new UnsupportedOperationException();
+        return Mono.fromSupplier(() -> externalIdToDescriptorMap.get(externalId));
     }
 
     @Override
     public Mono<Descriptor> loadByInternalId(String internalId) {
-        throw new UnsupportedOperationException();
+        return Mono.fromSupplier(() -> internalIdToExternalIdMap.get(internalId))
+                .flatMap(this::loadByExternalId);
     }
 
     @Override
     public Mono<Map<String, String>> loadMapByInternalIds(Collection<String> internalIds) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType) {
         throw new UnsupportedOperationException();
+    }
+
+    public Stream<Descriptor> descriptors() {
+        return externalIdToDescriptorMap.values().stream();
     }
 }

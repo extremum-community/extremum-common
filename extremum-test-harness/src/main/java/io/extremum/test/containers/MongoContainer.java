@@ -6,15 +6,15 @@ import org.testcontainers.containers.Network;
 
 @Slf4j
 public class MongoContainer implements AutoCloseable {
-    private static final String DOCKER_IMAGE_NAME = "mongo:4.2-bionic";
+    private static final String DOCKER_IMAGE_NAME = "mongo:4.2.3-bionic";
 
     private final Network replicaSetNetwork;
-    private final GenericContainer container;
+    private final GenericContainer<?> container;
 
     public MongoContainer() {
         replicaSetNetwork = Network.newNetwork();
 
-        container = new GenericContainer(DOCKER_IMAGE_NAME)
+        container = new GenericContainer<>(DOCKER_IMAGE_NAME)
                 .withNetwork(replicaSetNetwork)
                 .withNetworkAliases("M1")
                 .withCommand("--replSet rs0 --bind_ip localhost,M1")
@@ -24,12 +24,11 @@ public class MongoContainer implements AutoCloseable {
         initReplicaSet(container);
 
         String mongoUri = "mongodb://" + container.getContainerIpAddress() + ":" + container.getFirstMappedPort();
-        System.setProperty("mongo.serviceDbUri", mongoUri);
-        System.setProperty("mongo.descriptorsDbUri", mongoUri);
+        System.setProperty("mongo.uri", mongoUri);
         log.info("MongoDB uri is {}", mongoUri);
     }
 
-    private static void initReplicaSet(GenericContainer mongo) {
+    private static void initReplicaSet(GenericContainer<?> mongo) {
         try {
             mongo.execInContainer("/bin/bash", "-c",
                     "mongo --eval 'printjson(rs.initiate({_id:\"rs0\","

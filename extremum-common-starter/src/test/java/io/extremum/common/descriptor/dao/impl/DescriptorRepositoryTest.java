@@ -6,13 +6,13 @@ import common.dao.mongo.MongoCommonDaoConfiguration;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.properties.MongoProperties;
+import io.extremum.mongo.springdata.MainMongoDb;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +22,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mongodb.client.model.Filters.eq;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static com.mongodb.client.model.Filters.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author rpuch
@@ -39,7 +41,7 @@ class DescriptorRepositoryTest extends TestWithServices {
     private DescriptorService descriptorService;
 
     @Autowired
-    @Qualifier("descriptorsMongoClient")
+    @MainMongoDb
     private MongoClient mongoClient;
     @Autowired
     private MongoProperties mongoProperties;

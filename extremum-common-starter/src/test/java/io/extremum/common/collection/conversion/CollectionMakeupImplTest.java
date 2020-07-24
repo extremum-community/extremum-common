@@ -55,11 +55,11 @@ class CollectionMakeupImplTest {
     @Spy
     private InMemoryReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
     @Spy
-    private ReactiveDescriptorSaver reactiveDescriptorSaver = new ReactiveDescriptorSaver(
-            descriptorService, reactiveDescriptorService);
-    @Spy
     private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
             new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService, descriptorService);
+    @Spy
+    private ReactiveDescriptorSaver reactiveDescriptorSaver = new ReactiveDescriptorSaver(
+            descriptorService, reactiveDescriptorService, reactiveCollectionDescriptorService);
     @Spy
     private CollectionUrls collectionUrls = new CollectionUrlsInRoot(new TestApplicationUrls());
 

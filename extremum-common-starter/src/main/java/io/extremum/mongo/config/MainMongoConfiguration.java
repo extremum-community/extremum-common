@@ -11,6 +11,7 @@ import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
 import io.extremum.mongo.springdata.EnableAllMongoAuditing;
+import io.extremum.mongo.springdata.MainMongoDb;
 import io.extremum.starter.DateToZonedDateTimeConverter;
 import io.extremum.starter.DescriptorToStringConverter;
 import io.extremum.starter.ZonedDateTimeToDateConverter;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
+import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.WriteResultChecking;
@@ -45,12 +47,20 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
 
     @Bean
     public MongoClientURI mongoDatabaseUri() {
-        return new MongoClientURI(mongoProperties.getServiceDbUri());
+        return new MongoClientURI(mongoProperties.getUri());
+    }
+
+    @Override
+    @Bean
+    @MainMongoDb
+    public MongoDbFactory mongoDbFactory() {
+        return super.mongoDbFactory();
     }
 
     @Override
     @Bean
     @Primary
+    @MainMongoDb
     public MongoTemplate mongoTemplate() throws Exception {
         MongoTemplate template = super.mongoTemplate();
         template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
@@ -60,6 +70,7 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     @Bean
+    @MainMongoDb
     public MongoClient mongoClient() {
         return new MongoClient(mongoDatabaseUri());
     }

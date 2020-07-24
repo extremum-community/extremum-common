@@ -1,8 +1,7 @@
-package io.extremum.common.collection.conversion;
+package io.extremum.elasticsearch.facilities;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
-import io.extremum.common.descriptor.factory.impl.InMemoryReactiveDescriptorService;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -38,12 +37,7 @@ public class InMemoryReactiveCollectionDescriptorService implements ReactiveColl
     }
 
     private Mono<Descriptor> retrieveByCoordinates(String coordinatesString) {
-        Descriptor descriptorOrNull = reactiveDescriptorService.descriptors()
-                .filter(descriptor -> descriptor.effectiveType() == Descriptor.Type.COLLECTION)
-                .filter(descriptor -> descriptor.getCollection().toCoordinatesString().equals(coordinatesString))
-                .findAny()
-                .orElse(null);
-        return Mono.justOrEmpty(descriptorOrNull);
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private Mono<? extends Descriptor> storeCollectionDescriptor(CollectionDescriptor collectionDescriptor) {

@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 public class InMemoryReactiveDescriptorService implements ReactiveDescriptorService {
     private final UUIDGenerator uuidGenerator = new StandardUUIDGenerator();
     private final ConcurrentMap<String, Descriptor> externalIdToDescriptorMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, String> internalIdToExternalIdMap = new ConcurrentHashMap<>();
 
     @Override
     public Mono<Descriptor> store(Descriptor descriptor) {
@@ -30,17 +31,23 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
 
         externalIdToDescriptorMap.put(externalId, descriptor);
 
+        String internalId = ReflectionUtils.getFieldValue(descriptor, "internalId");
+        if (internalId != null) {
+            internalIdToExternalIdMap.put(internalId, externalId);
+        }
+
         return Mono.just(descriptor);
     }
 
     @Override
     public Mono<Descriptor> loadByExternalId(String externalId) {
-        return Mono.justOrEmpty(externalIdToDescriptorMap.get(externalId));
+        return Mono.fromSupplier(() -> externalIdToDescriptorMap.get(externalId));
     }
 
     @Override
     public Mono<Descriptor> loadByInternalId(String internalId) {
-        throw new UnsupportedOperationException();
+        return Mono.fromSupplier(() -> internalIdToExternalIdMap.get(internalId))
+                .flatMap(this::loadByExternalId);
     }
 
     @Override

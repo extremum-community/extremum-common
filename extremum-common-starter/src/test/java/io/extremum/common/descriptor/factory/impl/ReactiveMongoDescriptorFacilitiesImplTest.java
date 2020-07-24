@@ -1,9 +1,10 @@
 package io.extremum.common.descriptor.factory.impl;
 
+import io.extremum.common.collection.conversion.InMemoryReactiveCollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilitiesImpl;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
@@ -16,13 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -36,14 +33,17 @@ class ReactiveMongoDescriptorFacilitiesImplTest {
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
     @Spy
-    private ReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
+    private InMemoryReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
+    @Spy
+    private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
+            new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService, descriptorService);
 
     private final ObjectId objectId = new ObjectId();
 
     @BeforeEach
     void initDescriptorSaver() {
         ReactiveDescriptorSaver descriptorSaver = new ReactiveDescriptorSaver(
-                descriptorService, reactiveDescriptorService);
+                descriptorService, reactiveDescriptorService, reactiveCollectionDescriptorService);
         facilities = new ReactiveMongoDescriptorFacilitiesImpl(new DescriptorFactory(), descriptorSaver);
     }
 

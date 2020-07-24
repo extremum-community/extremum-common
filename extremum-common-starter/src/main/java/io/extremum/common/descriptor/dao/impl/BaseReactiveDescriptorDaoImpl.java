@@ -7,6 +7,7 @@ import org.redisson.api.RedissonReactiveClient;
 import org.redisson.client.codec.Codec;
 import org.redisson.client.codec.StringCodec;
 import org.redisson.codec.CompositeCodec;
+import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 import java.util.concurrent.TimeUnit;
@@ -15,6 +16,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
     public BaseReactiveDescriptorDaoImpl(RedissonReactiveClient redissonClient,
                                          DescriptorRepository descriptorRepository,
                                          ReactiveMongoOperations reactiveMongoOperations,
+                                         ReactiveMongoDatabaseFactory mongoDatabaseFactory,
                                          String descriptorsMapName, String internalIdsMapName,
                                          String collectionCoordinatesMapName,
                                          int cacheSize, long idleTime) {
@@ -54,7 +56,7 @@ public class BaseReactiveDescriptorDaoImpl extends BaseReactiveDescriptorDao {
                                 .maxIdle(idleTime, TimeUnit.DAYS)
                                 .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)),
 
-                reactiveMongoOperations);
+                reactiveMongoOperations, mongoDatabaseFactory);
     }
 
     private static Codec stringToStringCodec() {

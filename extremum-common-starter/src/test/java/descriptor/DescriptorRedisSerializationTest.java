@@ -4,9 +4,10 @@ import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.mongo.springdata.DescriptorsMongoDb;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
@@ -20,18 +21,15 @@ import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
@@ -49,7 +47,7 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     @Autowired
     private MongoDescriptorFacilities mongoDescriptorFacilities;
     @Autowired
-    @Qualifier("descriptorsMongoTemplate")
+    @DescriptorsMongoDb
     private MongoOperations descriptorMongoOperations;
     @Autowired
     private DescriptorSaver descriptorSaver;

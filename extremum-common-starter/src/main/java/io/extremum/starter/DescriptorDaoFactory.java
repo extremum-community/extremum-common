@@ -9,6 +9,7 @@ import io.extremum.starter.properties.DescriptorsProperties;
 import io.extremum.starter.properties.RedisProperties;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.RedissonReactiveClient;
+import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
@@ -28,9 +29,10 @@ public class DescriptorDaoFactory {
     public static ReactiveDescriptorDao createReactive(
             RedisProperties redisProperties, DescriptorsProperties descriptorsProperties,
             RedissonReactiveClient redissonClient, DescriptorRepository descriptorRepository,
-            ReactiveMongoOperations reactiveMongoOperations) {
+            ReactiveMongoOperations reactiveMongoOperations,
+            ReactiveMongoDatabaseFactory mongoDatabaseFactory) {
         return new BaseReactiveDescriptorDaoImpl(redissonClient, descriptorRepository,
-                reactiveMongoOperations,
+                reactiveMongoOperations, mongoDatabaseFactory,
                 descriptorsProperties.getDescriptorsMapName(),
                 descriptorsProperties.getInternalIdsMapName(),
                 descriptorsProperties.getCollectionCoordinatesMapName(),

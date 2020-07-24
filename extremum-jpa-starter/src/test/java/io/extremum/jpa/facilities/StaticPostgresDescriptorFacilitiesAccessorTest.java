@@ -4,8 +4,8 @@ import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 /**
  * @author rpuch
@@ -15,10 +15,17 @@ class StaticPostgresDescriptorFacilitiesAccessorTest {
 
     @Test
     void test() {
-        PostgresDescriptorFacilities factory = new PostgresDescriptorFacilitiesImpl(new DescriptorFactory(), NOT_USED);
+        PostgresDescriptorFacilities originalFacilities = StaticPostgresDescriptorFacilitiesAccessor.getFacilities();
 
-        StaticPostgresDescriptorFacilitiesAccessor.setFacilities(factory);
+        try {
+            PostgresDescriptorFacilities factory = new PostgresDescriptorFacilitiesImpl(
+                    new DescriptorFactory(), NOT_USED);
 
-        assertThat(StaticPostgresDescriptorFacilitiesAccessor.getFacilities(), is(factory));
+            StaticPostgresDescriptorFacilitiesAccessor.setFacilities(factory);
+
+            assertThat(StaticPostgresDescriptorFacilitiesAccessor.getFacilities(), is(factory));
+        } finally {
+            StaticPostgresDescriptorFacilitiesAccessor.setFacilities(originalFacilities);
+        }
     }
 }

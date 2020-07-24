@@ -1,8 +1,8 @@
 package io.extremum.elasticsearch.facilities;
 
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.descriptor.service.ReactiveDescriptorService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.test.core.descriptor.InMemoryDescriptorService;
@@ -16,10 +16,9 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReactiveElasticsearchDescriptorFacilitiesImplTest {
@@ -28,14 +27,17 @@ class ReactiveElasticsearchDescriptorFacilitiesImplTest {
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
     @Spy
-    private ReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
+    private InMemoryReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
+    @Spy
+    private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
+            new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService, descriptorService);
 
     private final UUID uuid = UUID.randomUUID();
 
     @BeforeEach
     void initDescriptorSaver() {
         ReactiveDescriptorSaver descriptorSaver = new ReactiveDescriptorSaver(
-                descriptorService, reactiveDescriptorService);
+                descriptorService, reactiveDescriptorService, reactiveCollectionDescriptorService);
         facilities = new ReactiveElasticsearchDescriptorFacilitiesImpl(descriptorSaver);
     }
 

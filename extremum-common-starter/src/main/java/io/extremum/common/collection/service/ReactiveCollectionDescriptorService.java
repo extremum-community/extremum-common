@@ -10,5 +10,7 @@ import reactor.core.publisher.Mono;
 public interface ReactiveCollectionDescriptorService {
     Mono<CollectionDescriptor> retrieveByExternalId(String externalId);
 
+    Mono<Descriptor> retrieveByCoordinates(CollectionDescriptor collectionDescriptor);
+
     Mono<Descriptor> retrieveByCoordinatesOrCreate(CollectionDescriptor collectionDescriptor);
 }
