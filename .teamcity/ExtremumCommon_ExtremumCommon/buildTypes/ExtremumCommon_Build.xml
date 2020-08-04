@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="66693302-ec10-4b27-94cc-b0b480b60ba8" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Build</name>
+  <description />
+  <settings>
+    <options>
+      <option name="artifactRules" value="extremum*/target/*.jar" />
+      <option name="checkoutMode" value="ON_SERVER" />
+      <option name="cleanBuild" value="true" />
+      <option name="publishArtifactCondition" value="SUCCESSFUL" />
+    </options>
+    <disabled-settings>
+      <setting-ref ref="BUILD_EXT_2" />
+    </disabled-settings>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_1" name="" type="Maven2">
+        <parameters>
+          <param name="goals" value="clean package" />
+          <param name="localRepoScope" value="mavenDefault" />
+          <param name="maven.path" value="%teamcity.tool.maven.DEFAULT%" />
+          <param name="plugin.docker.imagePlatform" value="linux" />
+          <param name="pomLocation" value="pom.xml" />
+          <param name="teamcity.coverage.jacoco.classpath"><![CDATA[extremum-jpa-starter/target/**/*.class
+extremum-elasticsearch-starter/target/**/*.class
+extremum-common-starter/target/**/*.class]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="teamcity.tool.jacoco" value="%teamcity.tool.jacoco.DEFAULT%" />
+          <param name="userSettingsSelection" value="settings.xml" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_18" name="" type="sonar-plugin">
+        <parameters>
+          <param name="additionalParameters"><![CDATA[-Dsonar.scm.disabled=false
+-Dsonar.test.inclusions=**/*test*/**
+-Dsonar.exclusions=**/*test*/**
+-Dsonar.branch.name=%teamcity.build.branch%]]></param>
+          <param name="sonarProjectBinaries" value="target/classes" />
+          <param name="sonarProjectKey" value="%teamcity.project.id%" />
+          <param name="sonarProjectModules" value="authentication-api,extremum-batch-service,extremum-common-starter,extremum-core-test,extremum-elasticsearch-starter,extremum-everything-core,extremum-everything-reactive-starter,extremum-everything-starter,extremum-jackson-mapper,extremum-jpa-starter,extremum-security,extremum-shared-models,extremum-test-harness,extremum-watch-starter" />
+          <param name="sonarProjectName" value="%system.teamcity.projectName%" />
+          <param name="sonarProjectSources" value="src" />
+          <param name="sonarProjectVersion" value="%build.number%" />
+          <param name="sonarServer" value="423eb3d0-2e0d-4b79-b137-533aea756622" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="teamcity.tool.sonarquberunner" value="%teamcity.tool.sonar-qube-scanner.DEFAULT%" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="ExtremumCommon_ExtremumCommon_ExtremumCommon1" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers>
+      <build-trigger id="vcsTrigger" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter" value="+:*" />
+          <param name="enableQueueOptimization" value="true" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <build-extensions>
+      <extension id="BUILD_EXT_2" type="com.github.mpoindexter.teamcity.nexuspushplugin">
+        <parameters>
+          <param name="artifactUploadMandatory" value="false" />
+          <param name="deleteOnCleanup" value="false" />
+          <param name="nexusServerId" value="7c40bfc3-557a-42d9-ac80-dcd83f816b65" />
+          <param name="repositoryId" value="snapshots" />
+          <param name="uploadSettings" value="artifact=extremum-common" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_4" type="commit-status-publisher">
+        <parameters>
+          <param name="github_authentication_type" value="password" />
+          <param name="github_host" value="https://api.github.com" />
+          <param name="github_username" value="%system.EXTREMUM_GITHUB_LOGIN%" />
+          <param name="publisherId" value="githubStatusPublisher" />
+          <param name="secure:github_password" value="credentialsJSON:9b854ad7-7b89-4cea-82bc-dab9342c821b" />
+          <param name="vcsRootId" value="ExtremumCommon_ExtremumCommon_ExtremumCommon1" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_8" type="pullRequests">
+        <parameters>
+          <param name="authenticationType" value="vcsRoot" />
+          <param name="filterAuthorRole" value="MEMBER" />
+          <param name="filterTargetBranch" value="refs/heads/develop" />
+          <param name="providerType" value="github" />
+          <param name="vcsRootId" value="ExtremumCommon_ExtremumCommon_ExtremumCommon1" />
+        </parameters>
+      </extension>
+    </build-extensions>
+    <cleanup />
+  </settings>
+</build-type>
+

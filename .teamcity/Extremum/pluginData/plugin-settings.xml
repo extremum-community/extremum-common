@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <slackNotifications enabled="true">
+    <slackNotification channel="#extremum-ci-events" token="xoxp-725379757826-725384295555-737131420400-22bc61d12bf889e354f7e5b76759d0c4" enabled="true" mention-channel-enabled="false" mention-slack-user-enabled="true" mention-here-enabled="false">
+      <states>
+        <state type="buildFailed" enabled="true" />
+        <state type="buildBroken" enabled="true" />
+        <state type="buildStarted" enabled="false" />
+        <state type="buildFixed" enabled="true" />
+        <state type="buildFinished" enabled="true" />
+        <state type="responsibilityChanged" enabled="true" />
+        <state type="buildInterrupted" enabled="true" />
+        <state type="buildSuccessful" enabled="true" />
+        <state type="beforeBuildFinish" enabled="false" />
+      </states>
+      <build-types enabled-for-all="true" enabled-for-subprojects="true" />
+    </slackNotification>
+  </slackNotifications>
+</settings>
+

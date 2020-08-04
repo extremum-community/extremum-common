@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" parent-id="Extremum" archived="true" uuid="438be84a-e518-46ae-a73c-ce4ab3c20d34" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Lambda</name>
+  <parameters />
+  <cleanup />
+</project>
+

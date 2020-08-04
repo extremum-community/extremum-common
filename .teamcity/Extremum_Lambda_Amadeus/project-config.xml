@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" parent-id="Extremum_Lambda" archived="true" uuid="07716b0c-4dd6-4ba5-b284-7355af09e40e" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Amadeus</name>
+  <parameters />
+  <cleanup />
+</project>
+

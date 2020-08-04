@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" parent-id="Extremum" uuid="58a0e64c-8c68-4550-a718-8865b24354d6" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Extremum Demo Service</name>
+  <parameters />
+  <project-extensions>
+    <extension id="PROJECT_EXT_15" type="active_storage">
+      <parameters>
+        <param name="active.storage.feature.id" value="PROJECT_EXT_5" />
+      </parameters>
+    </extension>
+  </project-extensions>
+  <cleanup />
+</project>
+

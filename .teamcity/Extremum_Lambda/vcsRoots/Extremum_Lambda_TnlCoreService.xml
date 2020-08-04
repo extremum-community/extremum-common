@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vcs-root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="18a24d7a-2ccd-437a-a95c-b73c8656dcc4" type="jetbrains.git" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>tnl-core-service</name>
+  <param name="agentCleanFilesPolicy" value="ALL_UNTRACKED" />
+  <param name="agentCleanPolicy" value="ON_BRANCH_CHANGE" />
+  <param name="authMethod" value="PASSWORD" />
+  <param name="branch" value="refs/heads/develop" />
+  <param name="ignoreKnownHosts" value="true" />
+  <param name="secure:password" value="credentialsJSON:ae984edf-18cd-46df-ae7e-9319f3b92de0" />
+  <param name="submoduleCheckout" value="CHECKOUT" />
+  <param name="url" value="https://github.com/cybernated/tnl-core-service.git" />
+  <param name="useAlternates" value="true" />
+  <param name="username" value="%system.CYBERNATION_GITHUB_LOGIN%" />
+  <param name="usernameStyle" value="USERID" />
+</vcs-root>
+

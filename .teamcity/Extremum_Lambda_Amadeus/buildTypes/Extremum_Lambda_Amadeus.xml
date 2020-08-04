@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="3f0bb70f-e731-4a8f-a952-7a877310a81f" paused="true" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>amadeus-serverless-provider</name>
+  <description />
+  <settings>
+    <options>
+      <option name="allowPersonalBuildTriggering" value="false" />
+      <option name="buildConfigurationType" value="DEPLOYMENT" />
+      <option name="checkoutMode" value="ON_SERVER" />
+      <option name="cleanBuild" value="true" />
+      <option name="maximumNumberOfBuilds" value="1" />
+    </options>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_25" name="install npm packages" type="jonnyzzz.npm">
+        <parameters>
+          <param name="npm_commands"><![CDATA[install dateformat
+install amadeus --save]]></param>
+          <param name="teamcity.build.workingDir" value="lambda/amadeus" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_26" name="deploy to aws" type="simpleRunner">
+        <parameters>
+          <param name="script.content"><![CDATA[echo 'Zipping folders for save function'
+zip -r amadeus-serverless-provider.zip index.js node_modules/
+echo 'Zipped... uploading to AWS'
+aws lambda update-function-code \
+--function-name amadeus-provider \
+--zip-file fileb://amadeus-serverless-provider.zip]]></param>
+          <param name="teamcity.build.workingDir" value="lambda/amadeus" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="Extremum_Lambda_TnlCoreService" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers>
+      <build-trigger id="vcsTrigger" type="vcsTrigger">
+        <parameters>
+          <param name="enableQueueOptimization" value="true" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <cleanup />
+  </settings>
+</build-type>
+
