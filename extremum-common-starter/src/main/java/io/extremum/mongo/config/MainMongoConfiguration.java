@@ -44,6 +44,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainMongoConfiguration extends AbstractMongoConfiguration {
     private final MongoProperties mongoProperties;
+    private final List<CustomMongoConvertersSupplier> customMongoConvertersSuppliers;
 
     @Bean
     public MongoClientURI mongoDatabaseUri() {
@@ -124,6 +125,10 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         converters.add(new DescriptorToStringConverter());
         converters.add(new EnumToStringConverter());
         converters.add(new StringToEnumConverterFactory());
+
+        customMongoConvertersSuppliers.forEach(supplier -> {
+            converters.addAll(supplier.getConverters());
+        });
 
         return new MongoCustomConversions(converters);
     }
