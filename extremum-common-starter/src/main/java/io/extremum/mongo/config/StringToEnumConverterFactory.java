@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  * @author rpuch
  */
 @ReadingConverter
-class StringToEnumConverterFactory implements ConverterFactory<String, Enum<?>> {
+public class StringToEnumConverterFactory implements ConverterFactory<String, Enum<?>> {
     @Override
     public <T extends Enum<?>> Converter<String, T> getConverter(Class<T> targetType) {
         return new StringToEnum(targetType);

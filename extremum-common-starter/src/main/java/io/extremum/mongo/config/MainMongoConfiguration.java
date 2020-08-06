@@ -3,6 +3,7 @@ package io.extremum.mongo.config;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.WriteConcern;
+import io.extremum.common.annotation.SecondaryDatasource;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorLifecycleListener;
@@ -21,6 +22,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
@@ -32,8 +34,10 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author rpuch
@@ -44,6 +48,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainMongoConfiguration extends AbstractMongoConfiguration {
     private final MongoProperties mongoProperties;
+    private final List<CustomMongoConvertersSupplier> customMongoConvertersSuppliers;
 
     @Bean
     public MongoClientURI mongoDatabaseUri() {
@@ -99,20 +104,18 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     protected Collection<String> getMappingBasePackages() {
-        // TODO: a better solution?
-        // We explicitly return here an empty set to disable pre-scanning
-        // for entities. If we allow the infrastructure to pre-scan, we would
-        // have to exclude entities from different Mongo databases, and
-        // it is not clear how to do it.
-        // On the other hand, when Repository instances are created, indices
-        // are created within a correct Mongo database (defined by MongoTemplate
-        // which is in turn defined by Repository-scanning annotation like
-        // @EnableMongoRepositories.
-        return emptyMappingBasePackagesSetToAvoidMultipleDatasourceProblems();
+        return mongoProperties.getModelPackages();
     }
 
-    private Collection<String> emptyMappingBasePackagesSetToAvoidMultipleDatasourceProblems() {
-        return Collections.emptySet();
+    @Override
+    protected Set<Class<?>> getInitialEntitySet() throws ClassNotFoundException {
+        return super.getInitialEntitySet().stream()
+                .filter(this::isNotOnSecondaryDatasource)
+                .collect(toSet());
+    }
+
+    private boolean isNotOnSecondaryDatasource(Class<?> entityClass) {
+        return AnnotationUtils.findAnnotation(entityClass, SecondaryDatasource.class) == null;
     }
 
     @Bean
@@ -124,6 +127,10 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
         converters.add(new DescriptorToStringConverter());
         converters.add(new EnumToStringConverter());
         converters.add(new StringToEnumConverterFactory());
+
+        customMongoConvertersSuppliers.forEach(supplier -> {
+            converters.addAll(supplier.getConverters());
+        });
 
         return new MongoCustomConversions(converters);
     }

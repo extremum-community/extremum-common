@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,6 +22,7 @@ public class MongoProperties {
     private String uri;
     private String serviceDbName;
     private String descriptorsDbName;
+    private List<String> modelPackages = new ArrayList<>();
     private List<String> repositoryPackages;
 
     @PostConstruct

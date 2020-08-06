@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * @author rpuch
  */
 @WritingConverter
-class EnumToStringConverter implements Converter<Enum<?>, String>, ConditionalConverter {
+public class EnumToStringConverter implements Converter<Enum<?>, String>, ConditionalConverter {
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
         Class<?> enumType = sourceType.getType();

@@ -5,6 +5,7 @@ redis:
 mongo:
   service-db-name: test
   descriptors-db-name: descriptors
+  model-packages: abc,common.dao.mongo
   repository-packages: abc,common.dao.mongo
 
 descriptors:
