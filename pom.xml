@@ -5,7 +5,7 @@
     <groupId>io.extremum</groupId>
     <artifactId>extremum-common-project</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.10</version>
+    <version>1.1.11-SNAPSHOT</version>
     <name>Root extremum-common POM</name>
     <description>This POM serves as a root of extremum-common multimodule project. Also, it defines release-related
         settings (scm and distributionManagement).
@@ -47,7 +47,7 @@
         <url>https://github.com/extremum-io/extremum-common</url>
         <connection>scm:git:git@github.com:extremum-io/extremum-common.git</connection>
         <developerConnection>scm:git:git@github.com:extremum-io/extremum-common.git</developerConnection>
-        <tag>extremum-common-project-1.1.10</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <repositories>
