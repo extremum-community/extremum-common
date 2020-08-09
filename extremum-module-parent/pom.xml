@@ -22,8 +22,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -97,7 +97,7 @@
                 <artifactId>modernizer-maven-plugin</artifactId>
                 <version>1.8.0</version>
                 <configuration>
-                    <javaVersion>1.8</javaVersion>
+                    <javaVersion>${java.version}</javaVersion>
                 </configuration>
                 <executions>
                     <execution>
