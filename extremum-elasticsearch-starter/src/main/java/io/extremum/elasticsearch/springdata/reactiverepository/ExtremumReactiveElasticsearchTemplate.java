@@ -59,7 +59,7 @@ public class ExtremumReactiveElasticsearchTemplate extends ReactiveElasticsearch
         @SuppressWarnings("unchecked")
         ElasticsearchPersistentEntity<T> entity = getPersistentEntityFor(value.getClass());
         ConvertingPropertyAccessor<T> propertyAccessor = new ConvertingPropertyAccessor<>(
-                entity.<T>getPropertyAccessor(value), converter.getConversionService());
+                entity.getPropertyAccessor(value), converter.getConversionService());
 
         final String effectiveIndex = index != null ? index : entity.getIndexName();
         final String effectiveType = type != null ? type : entity.getIndexType();
@@ -89,7 +89,7 @@ public class ExtremumReactiveElasticsearchTemplate extends ReactiveElasticsearch
         });
     }
 
-    private ElasticsearchPersistentEntity getPersistentEntityFor(Class clazz) {
+    private ElasticsearchPersistentEntity getPersistentEntityFor(Class<?> clazz) {
         Assert.isTrue(clazz.isAnnotationPresent(Document.class),
                 "Unable to identify index name. " + clazz.getSimpleName()
                         + " is not a Document. Make sure the document class is annotated with " +
@@ -106,7 +106,7 @@ public class ExtremumReactiveElasticsearchTemplate extends ReactiveElasticsearch
         @SuppressWarnings("unchecked")
         ElasticsearchPersistentEntity<T> entity = getPersistentEntityFor(bean.getClass());
         ConvertingPropertyAccessor<T> propertyAccessor = new ConvertingPropertyAccessor<>(
-                entity.<T>getPropertyAccessor(bean), converter.getConversionService());
+                entity.getPropertyAccessor(bean), converter.getConversionService());
 
         ElasticsearchPersistentProperty idProperty = entity.getIdProperty();
         propertyAccessor.setProperty(idProperty, id);

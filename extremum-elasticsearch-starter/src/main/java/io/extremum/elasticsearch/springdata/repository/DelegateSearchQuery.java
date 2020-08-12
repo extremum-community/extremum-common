@@ -40,6 +40,7 @@ abstract class DelegateSearchQuery implements SearchQuery {
         return query.getElasticsearchSorts();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public List<FacetRequest> getFacets() {
         return query.getFacets();
