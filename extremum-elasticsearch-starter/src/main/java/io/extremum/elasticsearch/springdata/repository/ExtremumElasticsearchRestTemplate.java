@@ -130,7 +130,7 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         }
     }
 
-    private String[] retrieveIndexNameFromPersistentEntity(Class clazz) {
+    private String[] retrieveIndexNameFromPersistentEntity(Class<?> clazz) {
         if (clazz != null) {
             return new String[]{getPersistentEntityFor(clazz).getIndexName()};
         }
@@ -149,14 +149,14 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
         }
     }
 
-    private String[] retrieveTypeFromPersistentEntity(Class clazz) {
+    private String[] retrieveTypeFromPersistentEntity(Class<?> clazz) {
         if (clazz != null) {
             return new String[]{getPersistentEntityFor(clazz).getIndexType()};
         }
         return null;
     }
 
-    private VersionType retrieveVersionTypeFromPersistentEntity(Class clazz) {
+    private VersionType retrieveVersionTypeFromPersistentEntity(Class<?> clazz) {
         if (clazz != null) {
             return getPersistentEntityFor(clazz).getVersionType();
         }
@@ -266,10 +266,10 @@ public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate
     }
 
     private <T> SearchRequest prepareCount(Query query, Class<T> clazz) {
-        String indexName[] = !isEmpty(query.getIndices())
-                ? query.getIndices().toArray(new String[query.getIndices().size()])
+        String[] indexName = !isEmpty(query.getIndices())
+                ? query.getIndices().toArray(new String[0])
                 : retrieveIndexNameFromPersistentEntity(clazz);
-        String types[] = !isEmpty(query.getTypes()) ? query.getTypes().toArray(new String[query.getTypes().size()])
+        String[] types = !isEmpty(query.getTypes()) ? query.getTypes().toArray(new String[0])
                 : retrieveTypeFromPersistentEntity(clazz);
 
         Assert.notNull(indexName, "No index defined for Query");

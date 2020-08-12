@@ -1,8 +1,8 @@
 package io.extremum.mongo.config;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import io.extremum.common.annotation.SecondaryDatasource;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
 import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 /**
  * @author rpuch
@@ -46,14 +46,9 @@ import static java.util.stream.Collectors.toSet;
 @EnableConfigurationProperties(MongoProperties.class)
 @EnableAllMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
-public class MainMongoConfiguration extends AbstractMongoConfiguration {
+public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     private final MongoProperties mongoProperties;
     private final List<CustomMongoConvertersSupplier> customMongoConvertersSuppliers;
-
-    @Bean
-    public MongoClientURI mongoDatabaseUri() {
-        return new MongoClientURI(mongoProperties.getUri());
-    }
 
     @Override
     @Bean
@@ -77,7 +72,7 @@ public class MainMongoConfiguration extends AbstractMongoConfiguration {
     @Bean
     @MainMongoDb
     public MongoClient mongoClient() {
-        return new MongoClient(mongoDatabaseUri());
+        return MongoClients.create(mongoProperties.getUri());
     }
 
     @Override

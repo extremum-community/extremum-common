@@ -15,8 +15,10 @@ import org.springframework.data.mapping.context.PersistentEntities;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentProperty;
-import org.springframework.data.mongodb.core.mapping.event.AuditingEventListener;
+import org.springframework.data.mongodb.core.mapping.event.AuditingEntityCallback;
+import org.springframework.data.mongodb.core.mapping.event.ReactiveAuditingEntityCallback;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -36,6 +38,10 @@ import java.util.stream.Collectors;
  * @author rpuch
  */
 public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSupport {
+
+    private static final boolean PROJECT_REACTOR_AVAILABLE = ClassUtils.isPresent("reactor.core.publisher.Mono",
+            AllMongoAuditingRegistrar.class.getClassLoader());
+
     /*
      * (non-Javadoc)
      * @see org.springframework.data.auditing.config.AuditingBeanDefinitionRegistrarSupport#getAnnotation()
@@ -98,13 +104,29 @@ public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSu
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null!");
 
         BeanDefinitionBuilder listenerBeanDefinitionBuilder = BeanDefinitionBuilder
-                .rootBeanDefinition(AuditingEventListener.class);
+                .rootBeanDefinition(AuditingEntityCallback.class);
         listenerBeanDefinitionBuilder
                 .addConstructorArgValue(
                         ParsingUtils.getObjectFactoryBeanDefinition(getAuditingHandlerBeanName(), registry));
 
         registerInfrastructureBeanWithId(listenerBeanDefinitionBuilder.getBeanDefinition(),
-                AuditingEventListener.class.getName(), registry);
+                AuditingEntityCallback.class.getName(), registry);
+
+        if (PROJECT_REACTOR_AVAILABLE) {
+            registerReactiveAuditingEntityCallback(registry, auditingHandlerDefinition.getSource());
+        }
+    }
+
+    private void registerReactiveAuditingEntityCallback(BeanDefinitionRegistry registry, Object source) {
+
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ReactiveAuditingEntityCallback.class);
+
+        builder.addConstructorArgValue(
+                ParsingUtils.getObjectFactoryBeanDefinition(getAuditingHandlerBeanName(), registry));
+        builder.getRawBeanDefinition().setSource(source);
+
+        registerInfrastructureBeanWithId(builder.getBeanDefinition(), ReactiveAuditingEntityCallback.class.getName(),
+                registry);
     }
 
     /**

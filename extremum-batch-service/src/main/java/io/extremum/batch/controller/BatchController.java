@@ -44,9 +44,9 @@ public class BatchController {
     @Value("${batch.result-thread-size}")
     private int resultThreadSize;
 
-    private WebClient webClient;
-    private Scheduler resultScheduler;
-    private Validator validator;
+    private final WebClient webClient;
+    private final Scheduler resultScheduler;
+    private final Validator validator;
 
     public BatchController(WebClient.Builder webClientBuilder) {
         ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
@@ -94,7 +94,7 @@ public class BatchController {
                 .contentType(MediaType.APPLICATION_JSON);
 
         if (dto.getBody() != null) {
-            request.body(BodyInserters.fromObject(dto.getBody()));
+            request.body(BodyInserters.fromValue(dto.getBody()));
         }
         return request.exchange()
                 .map(response -> new ValidatedRequest(dto.getId(), response));

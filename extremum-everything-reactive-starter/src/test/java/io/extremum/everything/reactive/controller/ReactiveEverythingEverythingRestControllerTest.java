@@ -108,7 +108,7 @@ class ReactiveEverythingEverythingRestControllerTest {
                 .uri("/" + randomUuid())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromObject(jsonPatch()))
+                .body(BodyInserters.fromValue(jsonPatch()))
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(Response.class)

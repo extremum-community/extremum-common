@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SearchPreparation {
     private final ElasticsearchOperations elasticsearchOperations;
 
@@ -37,7 +38,7 @@ public class SearchPreparation {
         return prepareSearch(query, Optional.ofNullable(query.getQuery()));
     }
 
-    private void setPersistentEntityIndexAndType(Query query, Class clazz) {
+    private void setPersistentEntityIndexAndType(Query query, Class<?> clazz) {
         if (query.getIndices().isEmpty()) {
             query.addIndices(retrieveIndexNameFromPersistentEntity(clazz));
         }
@@ -46,14 +47,14 @@ public class SearchPreparation {
         }
     }
 
-    private String[] retrieveIndexNameFromPersistentEntity(Class clazz) {
+    private String[] retrieveIndexNameFromPersistentEntity(Class<?> clazz) {
         if (clazz != null) {
             return new String[]{elasticsearchOperations.getPersistentEntityFor(clazz).getIndexName()};
         }
         return null;
     }
 
-    private String[] retrieveTypeFromPersistentEntity(Class clazz) {
+    private String[] retrieveTypeFromPersistentEntity(Class<?> clazz) {
         if (clazz != null) {
             return new String[]{elasticsearchOperations.getPersistentEntityFor(clazz).getIndexType()};
         }
@@ -171,7 +172,9 @@ public class SearchPreparation {
             }
         }
 
+        //noinspection deprecation
         if (!isEmpty(searchQuery.getFacets())) {
+            //noinspection deprecation
             for (FacetRequest aggregatedFacet : searchQuery.getFacets()) {
                 searchRequest.source().aggregation(aggregatedFacet.getFacet());
             }

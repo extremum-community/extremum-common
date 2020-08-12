@@ -1,6 +1,6 @@
 package io.extremum.common.descriptor.dao.impl;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Updates;
 import common.dao.mongo.MongoCommonDaoConfiguration;
 import io.extremum.common.descriptor.service.DescriptorService;
