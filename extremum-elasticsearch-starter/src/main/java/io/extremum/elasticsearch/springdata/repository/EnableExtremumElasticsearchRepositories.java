@@ -1,17 +1,19 @@
 package io.extremum.elasticsearch.springdata.repository;
 
 import io.extremum.common.annotation.InfrastructureElement;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
-import org.springframework.data.elasticsearch.repository.support.ElasticsearchRepositoryFactoryBean;
 import org.springframework.data.repository.config.DefaultRepositoryBaseClass;
-import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Our custom analogue of @{@link EnableElasticsearchRepositories}.
@@ -110,7 +112,7 @@ public @interface EnableExtremumElasticsearchRepositories {
 	// Elasticsearch specific configuration
 
 	/**
-	 * Configures the name of the {@link ElasticsearchTemplate} bean definition to be used to create repositories
+	 * Configures the name of the {@link ElasticsearchRestTemplate} bean definition to be used to create repositories
 	 * discovered through this annotation. Defaults to {@code elasticsearchTemplate}.
 	 *
 	 * @return

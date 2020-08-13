@@ -10,8 +10,14 @@ import io.extremum.elasticsearch.facilities.ReactiveElasticsearchDescriptorFacil
 import io.extremum.elasticsearch.facilities.ReactiveElasticsearchDescriptorFacilitiesImpl;
 import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.elasticsearch.reactive.ElasticsearchUniversalReactiveModelLoader;
-import io.extremum.elasticsearch.springdata.reactiverepository.*;
-import io.extremum.elasticsearch.springdata.repository.*;
+import io.extremum.elasticsearch.service.lifecycle.ElasticsearchCommonModelLifecycleCallbacks;
+import io.extremum.elasticsearch.service.lifecycle.ReactiveElasticsearchCommonModelLifecycleCallbacks;
+import io.extremum.elasticsearch.springdata.reactiverepository.EnableExtremumReactiveElasticsearchRepositories;
+import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchRepositoryFactoryBean;
+import io.extremum.elasticsearch.springdata.reactiverepository.ExtremumReactiveElasticsearchTemplate;
+import io.extremum.elasticsearch.springdata.repository.EnableExtremumElasticsearchRepositories;
+import io.extremum.elasticsearch.springdata.repository.ExtremumElasticsearchRepositoryFactoryBean;
+import io.extremum.elasticsearch.springdata.repository.ExtremumElasticsearchRestTemplate;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -28,9 +34,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.reactive.DefaultReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
+import org.springframework.data.elasticsearch.config.EnableElasticsearchAuditing;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ResultsMapper;
+import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +49,7 @@ import org.springframework.http.HttpHeaders;
         repositoryFactoryBeanClass = ExtremumElasticsearchRepositoryFactoryBean.class)
 @EnableExtremumReactiveElasticsearchRepositories(basePackages = "${elasticsearch.repository-packages}",
         repositoryFactoryBeanClass = ExtremumReactiveElasticsearchRepositoryFactoryBean.class)
+@EnableElasticsearchAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
 public class ElasticsearchRepositoriesConfiguration {
     private final ElasticsearchProperties elasticsearchProperties;
@@ -56,8 +64,8 @@ public class ElasticsearchRepositoriesConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ReactiveElasticsearchDescriptorFacilities reactiveElasticsearchDescriptorFacilities(
-            ReactiveDescriptorSaver descriptorSaver) {
-        return new ReactiveElasticsearchDescriptorFacilitiesImpl(descriptorSaver);
+            DescriptorFactory descriptorFactory, ReactiveDescriptorSaver descriptorSaver) {
+        return new ReactiveElasticsearchDescriptorFacilitiesImpl(descriptorFactory, descriptorSaver);
     }
 
     @Bean
@@ -81,9 +89,21 @@ public class ElasticsearchRepositoriesConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ElasticsearchOperations elasticsearchTemplate(RestHighLevelClient elasticsearchClient,
-            ResultsMapper resultsMapper, ElasticsearchDescriptorFacilities elasticsearchDescriptorFactory) {
-        return new ExtremumElasticsearchRestTemplate(elasticsearchClient, resultsMapper,
-                elasticsearchDescriptorFactory);
+            ElasticsearchConverter elasticsearchConverter) {
+        return new ExtremumElasticsearchRestTemplate(elasticsearchClient, elasticsearchConverter
+        );
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SimpleElasticsearchMappingContext elasticsearchMappingContext() {
+        return new ElasticsearchMappingContextWithFixedCustomDateTimeParsing();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ElasticsearchConverter elasticsearchConverter(SimpleElasticsearchMappingContext mappingContext) {
+        return new MappingElasticsearchConverter(mappingContext);
     }
 
     @Bean
@@ -98,32 +118,11 @@ public class ElasticsearchRepositoriesConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ExtremumResultMapper resultMapper(ObjectMapper objectMapper) {
-        return new ExtremumResultMapper(
-                new ExtremumEntityMapper(new SimpleElasticsearchMappingContext(), objectMapper)
-        );
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     public ReactiveElasticsearchOperations reactiveElasticsearchTemplate(
-            ReactiveElasticsearchClient reactiveElasticsearchClient, ObjectMapper objectMapper,
-            ReactiveElasticsearchDescriptorFacilities descriptorFacilities) {
-        SimpleElasticsearchMappingContext mappingContext = new SimpleElasticsearchMappingContext();
-        return new ExtremumReactiveElasticsearchTemplate(reactiveElasticsearchClient,
-                new MappingElasticsearchConverter(mappingContext),
-                resultMapper(objectMapper),
-                descriptorFacilities);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ReactiveElasticsearchAdditionalOperations reactiveElasticsearchAdditionalOperations(
             ReactiveElasticsearchClient reactiveElasticsearchClient,
-            ElasticsearchOperations elasticsearchOperations,
-            ResultsMapper resultsMapper) {
-        return new ReactiveElasticsearchAdditionalOperationsImpl(reactiveElasticsearchClient, resultsMapper,
-                elasticsearchOperations);
+            ElasticsearchConverter elasticsearchConverter, ObjectMapper objectMapper) {
+        return new ExtremumReactiveElasticsearchTemplate(reactiveElasticsearchClient,
+                elasticsearchConverter);
     }
 
     @Bean
@@ -132,4 +131,19 @@ public class ElasticsearchRepositoriesConfiguration {
             ReactiveElasticsearchOperations reactiveElasticsearchOperations) {
         return new ElasticsearchUniversalReactiveModelLoader(reactiveElasticsearchOperations);
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ElasticsearchCommonModelLifecycleCallbacks elasticsearchCommonModelLifecycleCallbacks(
+            ElasticsearchDescriptorFacilities descriptorFacilities) {
+        return new ElasticsearchCommonModelLifecycleCallbacks(descriptorFacilities);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReactiveElasticsearchCommonModelLifecycleCallbacks reactiveElasticsearchCommonModelLifecycleCallbacks(
+            ReactiveElasticsearchDescriptorFacilities descriptorFacilities) {
+        return new ReactiveElasticsearchCommonModelLifecycleCallbacks(descriptorFacilities);
+    }
+
 }

@@ -9,11 +9,11 @@ public abstract class AccessorFacade {
 
     public abstract Descriptor getUuid();
 
-    public abstract Long getVersion();
+    public abstract long getVersion();
 
-    public abstract Long getSeqNo();
+    public abstract long getSeqNo();
 
-    public abstract Long getPrimaryTerm();
+    public abstract long getPrimaryTerm();
 
     public abstract String getRawSource();
 

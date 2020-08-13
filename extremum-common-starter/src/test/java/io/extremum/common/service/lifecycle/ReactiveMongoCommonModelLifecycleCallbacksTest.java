@@ -1,12 +1,9 @@
 package io.extremum.common.service.lifecycle;
 
-import io.extremum.common.descriptor.factory.DescriptorFactory;
-import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.impl.InMemoryDescriptorService;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
-import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
-import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
+import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
+import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleCallbacks;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import models.TestMongoModel;
@@ -14,21 +11,26 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import reactor.core.publisher.Mono;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
  */
 @ExtendWith(MockitoExtension.class)
-class MongoCommonModelLifecycleListenerTest {
-    private MongoCommonModelLifecycleListener listener;
+class ReactiveMongoCommonModelLifecycleCallbacksTest {
+    private ReactiveMongoCommonModelLifecycleCallbacks listener;
+
+    @Mock
+    private ReactiveMongoDescriptorFacilities reactiveMongoDescriptorFacilities;
 
     @Spy
     private DescriptorService descriptorService = new InMemoryDescriptorService();
@@ -43,25 +45,36 @@ class MongoCommonModelLifecycleListenerTest {
 
     @BeforeEach
     void createListener() {
-        MongoDescriptorFacilities facilities = new MongoDescriptorFacilitiesImpl(new DescriptorFactory(),
-                new DescriptorSaver(descriptorService));
-        listener = new MongoCommonModelLifecycleListener(facilities);
+        listener = new ReactiveMongoCommonModelLifecycleCallbacks(reactiveMongoDescriptorFacilities);
     }
 
     @Test
     void givenAnEntityHasNeitherIdNorUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedWithNewObjectIdAndAssignedToUuidAndItsInternalIdAssignedToId() {
-        alwaysGenerateExpectedExternalId();
+        createADescriptorWhenRequested();
+        when(reactiveMongoDescriptorFacilities.resolve(any()))
+                .then(invocation -> {
+                    Descriptor descriptor = invocation.getArgument(0);
+                    return Mono.just(descriptor.getInternalId());
+                });
+
         TestMongoModel model = new TestMongoModel();
         
-        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
+        Mono.from(listener.onBeforeConvert(model, "does-not-matter")).block();
 
         assertThatDescriptorWasGeneratedWithNewInternalId(model);
         assertThatDescriptorInternalIdMatchesEntityId(model);
-        assertThatDescriptorWasSaved(model);
     }
 
-    private void alwaysGenerateExpectedExternalId() {
-        when(descriptorService.createExternalId()).thenReturn("new-external-id");
+    private void createADescriptorWhenRequested() {
+        when(reactiveMongoDescriptorFacilities.createOrGet(any(), anyString()))
+                .then(invocation -> Mono.just(
+                        Descriptor.builder()
+                                .externalId("new-external-id")
+                                .internalId(invocation.getArgument(0).toString())
+                                .modelType(invocation.getArgument(1))
+                                .storageType(StandardStorageType.MONGO)
+                                .build()
+                ));
     }
 
     private void assertThatDescriptorWasGeneratedWithNewInternalId(TestMongoModel model) {
@@ -75,16 +88,15 @@ class MongoCommonModelLifecycleListenerTest {
         assertThat(model.getId().toString(), is(equalTo(model.getUuid().getInternalId())));
     }
 
-    private void assertThatDescriptorWasSaved(TestMongoModel model) {
-        verify(descriptorService).store(model.getUuid());
-    }
-
     @Test
     void givenAnEntityHasNoIdButHasUUID_whenItIsSaved_thenDescriptorShouldNotBeGeneratedButUUIDsInternalIdAssignedToId() {
+        when(reactiveMongoDescriptorFacilities.resolve(descriptor))
+                .thenReturn(Mono.just(objectId.toString()));
+
         TestMongoModel model = new TestMongoModel();
         model.setUuid(descriptor);
 
-        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
+        Mono.from(listener.onBeforeConvert(model, "does-not-matter")).block();
 
         assertThatUUIDWasNotChanged(model);
         assertThatEntityIdWasTakenFromUUID(model);
@@ -105,15 +117,14 @@ class MongoCommonModelLifecycleListenerTest {
 
     @Test
     void givenAnEntityHasIdButNoUUID_whenItIsSaved_thenANewDescriptorShouldBeGeneratedForThatIdAndAssignedToUuid() {
-        alwaysGenerateExpectedExternalId();
+        createADescriptorWhenRequested();
         TestMongoModel model = new TestMongoModel();
         model.setId(objectId);
 
-        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
+        Mono.from(listener.onBeforeConvert(model, "does-not-matter")).block();
 
         assertThatDescriptorWasGeneratedWithGivenInternalId(model);
         assertThatEntityIdDidNotChange(model);
-        assertThatDescriptorWasSaved(model);
     }
 
     private void assertThatDescriptorWasGeneratedWithGivenInternalId(TestMongoModel model) {
@@ -132,7 +143,7 @@ class MongoCommonModelLifecycleListenerTest {
         model.setId(objectId);
         model.setUuid(descriptor);
 
-        listener.onBeforeConvert(new BeforeConvertEvent<>(model, "does-not-matter"));
+        Mono.from(listener.onBeforeConvert(model, "does-not-matter")).block();
 
         assertThatUUIDWasNotChanged(model);
         assertThatEntityIdDidNotChange(model);

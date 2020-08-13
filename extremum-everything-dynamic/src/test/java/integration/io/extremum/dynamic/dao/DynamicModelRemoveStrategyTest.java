@@ -18,9 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import reactor.core.publisher.Mono;
 
-import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.buildModel;
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
+import static io.extremum.dynamic.DynamicModelSupports.*;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SoftDeleteRemoveStrategyDaoTestConfigurations.class)
@@ -79,10 +78,13 @@ public class DynamicModelRemoveStrategyTest extends SpringBootTestWithServices {
     }
 
     private Document findDocument(String collectionName, JsonDynamicModel persisted) {
-        Publisher<Document> foundPublisher = mongoOperations.getCollection(collectionName)
-                .find(new Document("_id", new ObjectId(persisted.getId().getInternalId())))
-                .first();
+        Mono<Document> foundPublisher = mongoOperations.getCollection(collectionName)
+                .flatMap(collection -> {
+                    Document document = new Document("_id", new ObjectId(persisted.getId().getInternalId()));
+                    Publisher<Document> publisher = collection.find(document).first();
+                    return Mono.from(publisher);
+                });
 
-        return Mono.from(foundPublisher).block();
+        return foundPublisher.block();
     }
 }

@@ -5,14 +5,12 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
-import io.extremum.common.reactive.ReactiveEventPublisher;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.properties.MongoProperties;
-import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleListener;
-import io.extremum.mongo.service.lifecycle.ReactiveMongoVersionedModelLifecycleListener;
+import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleCallbacks;
+import io.extremum.mongo.service.lifecycle.ReactiveMongoVersionedModelLifecycleCallbacks;
 import io.extremum.mongo.springdata.MainMongoDb;
-import io.extremum.mongo.springdata.ReactiveMongoTemplateWithReactiveEvents;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,6 +20,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
@@ -46,10 +45,8 @@ public class MainReactiveMongoConfiguration {
     @Bean
     @Primary
     @MainMongoDb
-    public ReactiveMongoOperations reactiveMongoTemplate(MappingMongoConverter mappingMongoConverter,
-                                                         ReactiveEventPublisher reactiveEventPublisher) {
-        ReactiveMongoTemplateWithReactiveEvents template = new ReactiveMongoTemplateWithReactiveEvents(
-                reactiveMongoDbFactory(), mappingMongoConverter, reactiveEventPublisher);
+    public ReactiveMongoOperations reactiveMongoTemplate(MappingMongoConverter mappingMongoConverter) {
+        ReactiveMongoTemplate template = new ReactiveMongoTemplate(reactiveMongoDbFactory(), mappingMongoConverter);
         template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
         template.setWriteConcern(WriteConcern.MAJORITY);
         return template;
@@ -75,14 +72,14 @@ public class MainReactiveMongoConfiguration {
     }
 
     @Bean
-    public ReactiveMongoCommonModelLifecycleListener reactiveMongoCommonModelLifecycleListener(
+    public ReactiveMongoCommonModelLifecycleCallbacks reactiveMongoCommonModelLifecycleCallbacks(
             ReactiveMongoDescriptorFacilities reactiveMongoDescriptorFacilities) {
-        return new ReactiveMongoCommonModelLifecycleListener(reactiveMongoDescriptorFacilities);
+        return new ReactiveMongoCommonModelLifecycleCallbacks(reactiveMongoDescriptorFacilities);
     }
 
     @Bean
-    public ReactiveMongoVersionedModelLifecycleListener reactiveMongoVersionedModelLifecycleListener(
+    public ReactiveMongoVersionedModelLifecycleCallbacks reactiveMongoVersionedModelLifecycleCallbacks(
             ReactiveMongoDescriptorFacilities reactiveMongoDescriptorFacilities) {
-        return new ReactiveMongoVersionedModelLifecycleListener(reactiveMongoDescriptorFacilities);
+        return new ReactiveMongoVersionedModelLifecycleCallbacks(reactiveMongoDescriptorFacilities);
     }
 }

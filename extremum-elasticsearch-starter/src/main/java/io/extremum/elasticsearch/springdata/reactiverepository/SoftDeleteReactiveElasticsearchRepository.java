@@ -5,6 +5,7 @@ import io.extremum.common.model.PersistableCommonModel;
 import io.extremum.elasticsearch.SoftDeletion;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.reactivestreams.Publisher;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleReactiveElasticsearchRepository;
@@ -25,7 +26,6 @@ import java.time.ZonedDateTime;
 public class SoftDeleteReactiveElasticsearchRepository<T extends ElasticsearchCommonModel>
         extends BaseReactiveElasticsearchRepository<T> {
     private final ElasticsearchEntityInformation<T, String> metadata;
-    private final ReactiveElasticsearchOperations elasticsearchOperations;
 
     private final SoftDeletion softDeletion = new SoftDeletion();
 
@@ -35,7 +35,6 @@ public class SoftDeleteReactiveElasticsearchRepository<T extends ElasticsearchCo
         super(metadata, elasticsearchOperations);
 
         this.metadata = metadata;
-        this.elasticsearchOperations = elasticsearchOperations;
     }
 
     @Override
@@ -78,6 +77,23 @@ public class SoftDeleteReactiveElasticsearchRepository<T extends ElasticsearchCo
     public Flux<T> findAllById(Iterable<String> ids) {
         return super.findAllById(ids)
                 .filter(PersistableCommonModel::isNotDeleted);
+    }
+
+    @Override
+    public Flux<T> findAllById(Publisher<String> idStream) {
+        return super.findAllById(idStream)
+                .filter(PersistableCommonModel::isNotDeleted);
+    }
+
+    @Override
+    public Mono<Void> deleteAll(Publisher<? extends T> entityStream) {
+
+        Assert.notNull(entityStream, "EntityStream must not be null!");
+
+        // TODO: optimize for bulk?
+        return Flux.from(entityStream)
+                .flatMap(this::delete)
+                .then();
     }
 
     @Override

@@ -46,19 +46,26 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import static io.extremum.common.model.VersionedModel.FIELDS.lineageId;
-import static io.extremum.datetime.DateUtils.parseZonedDateTimeFromISO_8601;
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
+import static io.extremum.common.model.VersionedModel.FIELDS.*;
+import static io.extremum.datetime.DateUtils.*;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
 import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
-import static reactor.core.publisher.Mono.just;
+import static reactor.core.publisher.Mono.*;
 
 @Slf4j
 @ContextConfiguration(classes = {
@@ -156,9 +163,14 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         assertEquals("/", json.getString("path"));
 
         for (String dateField : Arrays.asList("fieldObject.fieldDate1", "fieldObject.fieldDate2")) {
-            Iterable<Document> documents = Flux.from(operations.getCollection("complex_schema_json")
-                    .find(new Document(dateField, new Document("$type", "date")))
-                    .limit(2)).toIterable();
+            Iterable<Document> documents = operations.getCollection("complex_schema_json")
+                    .flatMapMany(collection -> {
+                        FindPublisher<Document> publisher = collection
+                                .find(new Document(dateField, new Document("$type", "date")))
+                                .limit(2);
+                        return Flux.from(publisher);
+                    })
+                    .toIterable();
 
             assertEquals(1, StreamSupport.stream(documents.spliterator(), false).count());
         }
@@ -398,10 +410,13 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         criteria.add(new Document(lineageId.name(), new ObjectId(saved.getId().getInternalId())));
         criteria.add(new Document(deleted.name(), true));
 
-        FindPublisher<Document> presentedInDb = operations.getCollection(model.getModelName())
-                .find(new Document("$and", criteria));
+        Flux<Document> presentedInDb = operations.getCollection(model.getModelName())
+                .flatMapMany(collection -> {
+                    FindPublisher<Document> publisher = collection.find(new Document("$and", criteria));
+                    return Flux.from(publisher);
+                });
 
-        int removedCount = Flux.from(presentedInDb).collectList().block().size();
+        int removedCount = presentedInDb.collectList().block().size();
 
         assertEquals(1, removedCount);
 

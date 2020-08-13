@@ -1,15 +1,10 @@
 package io.extremum.mongo.springdata.reactiverepository;
 
-import io.extremum.common.reactive.ReactiveEventPublisher;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
 import io.extremum.common.utils.ModelUtils;
-import io.extremum.mongo.springdata.ReactiveAfterConvertEvent;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactory;
-import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
@@ -36,18 +31,12 @@ import java.util.Optional;
 public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoRepositoryFactory {
     private final Class<?> repositoryInterface;
     private final ReactiveLookupStrategies lookupStrategies;
-    private final ReactiveEventPublisher reactiveEventPublisher;
 
     public ExtremumReactiveMongoRepositoryFactory(Class<?> repositoryInterface,
-                                                  ReactiveMongoOperations mongoOperations,
-                                                  ReactiveEventPublisher reactiveEventPublisher) {
+            ReactiveMongoOperations mongoOperations) {
         super(mongoOperations);
         this.repositoryInterface = repositoryInterface;
         lookupStrategies = new ReactiveLookupStrategies(mongoOperations);
-        this.reactiveEventPublisher = reactiveEventPublisher;
-
-        addRepositoryProxyPostProcessor((factory, repositoryInformation)
-                -> factory.addAdvice(new QueryMethodAfterLoadEventEmitter(repositoryInformation)));
     }
 
     @Override
@@ -75,41 +64,4 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
         return ModelUtils.isSoftDeletable(metadata.getDomainType());
     }
 
-    private class QueryMethodAfterLoadEventEmitter implements MethodInterceptor {
-        private final RepositoryInformation repositoryInformation;
-
-        private QueryMethodAfterLoadEventEmitter(RepositoryInformation repositoryInformation) {
-            this.repositoryInformation = repositoryInformation;
-        }
-
-        @Override
-        @Nullable
-        public Object invoke(MethodInvocation invocation) throws Throwable {
-            Object result = invocation.proceed();
-            if (result == null) {
-                return null;
-            }
-
-            if (!repositoryInformation.isQueryMethod(invocation.getMethod())) {
-                return result;
-            }
-
-            if (result instanceof Mono) {
-                Mono<?> mono = (Mono<?>) result;
-                return mono.flatMap(object -> {
-                    return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(object))
-                            .thenReturn(object);
-                });
-            }
-            if (result instanceof Flux) {
-                Flux<?> flux = (Flux<?>) result;
-                return flux.concatMap(object -> {
-                    return reactiveEventPublisher.publishEvent(new ReactiveAfterConvertEvent<>(object))
-                            .thenReturn(object);
-                });
-            }
-
-            return result;
-        }
-    }
 }

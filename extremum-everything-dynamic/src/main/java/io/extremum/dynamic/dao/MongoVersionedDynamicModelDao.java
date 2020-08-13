@@ -1,7 +1,7 @@
 package io.extremum.dynamic.dao;
 
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
-import com.mongodb.reactivestreams.client.Success;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.VersionedModel;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
@@ -26,8 +26,7 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Updates.*;
 import static reactor.core.publisher.Mono.*;
 
 @RequiredArgsConstructor
@@ -47,7 +46,11 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
 
     private Function<JsonDynamicModel, Mono<JsonDynamicModel>> insertModel(String collectionName) {
         return model -> Mono.from(operations.getCollection(collectionName)
-                .insertOne(new Document(model.getModelData())))
+                .flatMap(collection -> {
+                    Publisher<InsertOneResult> publisher = collection.insertOne(
+                            new Document(model.getModelData()));
+                    return Mono.from(publisher);
+                }))
                 .thenReturn(model);
     }
 
@@ -98,18 +101,21 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
                             set(VersionedModel.FIELDS.end.name(), now)
                     );
 
-                    Publisher<UpdateResult> p = operations.getCollection(collectionName)
-                            .updateOne(filter, update);
-
-                    return Mono.from(p).then(insertSnapshot(next, collectionName));
+                    return operations.getCollection(collectionName)
+                            .flatMap(collection -> {
+                                Publisher<UpdateResult> publisher = collection.updateOne(filter, update);
+                                return Mono.from(publisher);
+                            }).then(insertSnapshot(next, collectionName));
                 });
     }
 
     private Mono<JsonDynamicModel> insertSnapshot(JsonDynamicModel snapshot, String collectionName) {
-        Publisher<Success> insertPublisher = operations.getCollection(collectionName)
-                .insertOne(new Document(snapshot.getModelData()));
-
-        return Mono.from(insertPublisher).thenReturn(snapshot);
+        return operations.getCollection(collectionName)
+                .flatMap(collection -> {
+                    Publisher<InsertOneResult> publisher = collection.insertOne(
+                            new Document(snapshot.getModelData()));
+                    return Mono.from(publisher);
+                }).thenReturn(snapshot);
     }
 
     private Tuple2<JsonDynamicModel, JsonDynamicModel> prepareCurrentAndNextSnapshots(JsonDynamicModel currentSnapshot, JsonDynamicModel updatedModel, Date now) {
@@ -159,10 +165,11 @@ public class MongoVersionedDynamicModelDao implements JsonDynamicModelDao {
                     )
             );
 
-            Publisher<Document> p = operations.getCollection(collectionName)
-                    .find(condition).first();
-
-            return from(p);
+            return operations.getCollection(collectionName)
+                    .flatMap(collection -> {
+                        Publisher<Document> publisher = collection.find(condition).first();
+                        return Mono.from(publisher);
+                    });
         };
     }
 

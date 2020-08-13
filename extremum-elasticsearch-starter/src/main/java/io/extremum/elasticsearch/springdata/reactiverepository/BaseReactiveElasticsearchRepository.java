@@ -1,13 +1,10 @@
 package io.extremum.elasticsearch.springdata.reactiverepository;
 
-import io.extremum.datetime.DateUtils;
+import io.extremum.datetime.ApiDateTimeFormat;
 import io.extremum.elasticsearch.dao.ReactiveElasticsearchCommonDao;
 import io.extremum.elasticsearch.dao.SearchOptions;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
-import io.extremum.elasticsearch.springdata.repository.UpdateFailedException;
-import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -15,10 +12,10 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
-import org.springframework.data.elasticsearch.core.query.UpdateQueryBuilder;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleReactiveElasticsearchRepository;
 import reactor.core.publisher.Flux;
@@ -28,6 +25,8 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Collections.*;
 
 /**
  * @author rpuch
@@ -41,18 +40,17 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
     private static final String ANALYZER_KEYWORD = "keyword";
 
-    private final ElasticsearchEntityInformation<T, String> metadata;
-    private ReactiveElasticsearchAdditionalOperations additionalOperations;
+    private final ElasticsearchEntityInformation<T, String> entityInformation;
+    private final ReactiveElasticsearchOperations elasticsearchOperations;
 
-    BaseReactiveElasticsearchRepository(ElasticsearchEntityInformation<T, String> metadata,
+    private final ApiDateTimeFormat dateTimeFormat = new ApiDateTimeFormat();
+
+    BaseReactiveElasticsearchRepository(ElasticsearchEntityInformation<T, String> entityInformation,
                                         ReactiveElasticsearchOperations elasticsearchOperations) {
-        super(metadata, elasticsearchOperations);
+        super(entityInformation, elasticsearchOperations);
 
-        this.metadata = metadata;
-    }
-
-    public void setAdditionalOperations(ReactiveElasticsearchAdditionalOperations additionalOperations) {
-        this.additionalOperations = additionalOperations;
+        this.entityInformation = entityInformation;
+        this.elasticsearchOperations = elasticsearchOperations;
     }
 
     @Override
@@ -83,8 +81,9 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
     }
 
     protected Flux<T> search(QueryBuilder query) {
-        SearchQuery searchQuery = (new NativeSearchQueryBuilder()).withQuery(query).build();
-        return additionalOperations.queryForPage(searchQuery, metadata.getJavaType());
+        Query searchQuery = new NativeSearchQueryBuilder().withQuery(query).build();
+        return elasticsearchOperations.search(searchQuery, entityInformation.getJavaType())
+                .map(SearchHit::getContent);
     }
 
     @Override
@@ -94,26 +93,30 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
 
     @Override
     public Mono<Boolean> patch(String id, String painlessScript, Map<String, Object> scriptParams) {
-        UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexName(), id);
+        UpdateRequest updateRequest = new UpdateRequest(entityInformation.getIndexCoordinates().getIndexName(), id);
         Script script = createScript(painlessScript, scriptParams);
         updateRequest.script(script);
 
-        UpdateQuery updateQuery = new UpdateQueryBuilder()
-                .withClass(metadata.getJavaType())
-                .withId(id)
-                .withUpdateRequest(updateRequest)
+        UpdateQuery updateQuery = UpdateQuery.builder(id)
+                .withLang(PAINLESS_LANGUAGE)
+                .withScript(amendWithModificationTimeChange(painlessScript))
+                .withParams(scriptParams(scriptParams))
                 .build();
 
-        return additionalOperations.update(updateQuery)
-                .doOnNext(this::throwIfUpdateIsNotApplied)
+        // TODO: use single update() method instead of bulkUpdate() when the former is available
+        return elasticsearchOperations.bulkUpdate(singletonList(updateQuery), entityInformation.getIndexCoordinates())
                 .thenReturn(true);
     }
 
     private Script createScript(String painlessScript, Map<String, Object> params) {
         String scriptWithModificationTimeChange = amendWithModificationTimeChange(painlessScript);
-        Map<String, Object> paramsWithModificationTimeChange = amendWithModificationTime(params);
+        Map<String, Object> paramsWithModificationTimeChange = scriptParams(params);
         return new Script(ScriptType.INLINE, PAINLESS_LANGUAGE, scriptWithModificationTimeChange,
                 paramsWithModificationTimeChange);
+    }
+
+    private Map<String, Object> scriptParams(Map<String, Object> params) {
+        return amendWithModificationTime(params);
     }
 
     private String amendWithModificationTimeChange(String painlessScript) {
@@ -131,12 +134,7 @@ abstract class BaseReactiveElasticsearchRepository<T extends ElasticsearchCommon
     }
 
     private String getNowAsString() {
-        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
+        return dateTimeFormat.format(ZonedDateTime.now());
     }
 
-    private void throwIfUpdateIsNotApplied(UpdateResponse updateResponse) {
-        if (updateResponse.getResult() != DocWriteResponse.Result.UPDATED) {
-            throw new UpdateFailedException("Update result is not UPDATED but " + updateResponse.getResult());
-        }
-    }
 }

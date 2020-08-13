@@ -1,5 +1,6 @@
 package io.extremum.elasticsearch.dao;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.extremum.elasticsearch.TestWithServices;
 import io.extremum.elasticsearch.model.TestElasticsearchModel;
@@ -14,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 
 /**
  * @author rpuch
@@ -49,8 +50,7 @@ class ElasticsearchStorageStabilityTests extends TestWithServices {
         assertThat(parsedModel.getModified(), is(notNullValue()));
         assertThat(parsedModel.getDeleted(), is(false));
         assertThat(parsedModel.getVersion(), is(nullValue()));
-        assertThat(parsedModel.getPrimaryTerm(), is(nullValue()));
-        assertThat(parsedModel.getSeqNo(), is(nullValue()));
+        assertThat(parsedModel.getSeqNoPrimaryTerm(), is(nullValue()));
         assertThat(parsedModel.getName(), is("test"));
     }
 
@@ -65,6 +65,7 @@ class ElasticsearchStorageStabilityTests extends TestWithServices {
 
     private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) throws IOException {
         ObjectMapper mapper = new BasicJsonObjectMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return mapper.readerFor(TestElasticsearchModel.class).readValue(json);
     }
 }

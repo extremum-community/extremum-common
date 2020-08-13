@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import static org.elasticsearch.index.query.Operator.AND;
+import static org.elasticsearch.index.query.Operator.*;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**

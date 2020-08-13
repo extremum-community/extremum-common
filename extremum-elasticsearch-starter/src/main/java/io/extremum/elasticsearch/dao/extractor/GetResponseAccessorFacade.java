@@ -25,7 +25,7 @@ public class GetResponseAccessorFacade extends AccessorFacade {
     }
 
     @Override
-    public Long getVersion() {
+    public long getVersion() {
         return response.getVersion();
     }
 
@@ -35,12 +35,12 @@ public class GetResponseAccessorFacade extends AccessorFacade {
     }
 
     @Override
-    public Long getSeqNo() {
+    public long getSeqNo() {
         return response.getSeqNo();
     }
 
     @Override
-    public Long getPrimaryTerm() {
+    public long getPrimaryTerm() {
         return response.getPrimaryTerm();
     }
 

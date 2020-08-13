@@ -2,8 +2,6 @@ package integration.io.extremum.dynamic.dao;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.Function;
-import com.mongodb.client.result.UpdateResult;
-import com.mongodb.reactivestreams.client.FindPublisher;
 import integration.SpringBootTestWithServices;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.VersionedModel;
@@ -14,24 +12,24 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.List;
 
 import static io.extremum.common.model.VersionedModel.FIELDS.*;
-import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.modified;
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static io.extremum.dynamic.DynamicModelSupports.*;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
+import static java.util.Arrays.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static reactor.core.publisher.Flux.from;
+import static reactor.core.publisher.Flux.*;
 
 @SpringBootTest(classes = MongoVersionedDynamicModelDaoTestConfiguration.class)
 class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
@@ -182,16 +180,10 @@ class MongoVersionedDynamicModelDaoTest extends SpringBootTestWithServices {
         assertEquals(1, markDeletedSnapshotsFound);
     }
 
-    private <T> T findInCollection(String collectionName, Bson query, Function<FindPublisher<Document>, T> transformer) {
-        return transformer.apply(ops.getCollection(collectionName).find(query));
-    }
-
-    private <T> T updateInCollection(String collectionName, Bson query, BasicDBObject update,
-                                     Function<Publisher<UpdateResult>, T> transformer) {
-        Publisher<UpdateResult> p = ops.getCollection(collectionName)
-                .updateMany(query, update);
-
-        return transformer.apply(p);
+    private <T> T findInCollection(String collectionName, Bson query, Function<Flux<Document>, T> transformer) {
+        Flux<Document> flux = ops.getCollection(collectionName)
+                .flatMapMany(collection -> Flux.from(collection.find(query)));
+        return transformer.apply(flux);
     }
 
     private Bson andQuery(Document... andConditions) {

@@ -1,4 +1,4 @@
-package io.extremum.mongo.service.lifecycle;
+package io.extremum.common.lifecycle;
 
 import java.util.Optional;
 

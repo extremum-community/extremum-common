@@ -1,5 +1,6 @@
 package io.extremum.mongo.service.lifecycle;
 
+import io.extremum.common.lifecycle.InternalIdAdapter;
 import io.extremum.common.model.BasicModel;
 import org.bson.types.ObjectId;
 

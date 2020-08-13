@@ -3,7 +3,6 @@ package integration.io.extremum.dynamic.dao;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.Function;
-import com.mongodb.reactivestreams.client.FindPublisher;
 import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.model.VersionedModel;
 import io.extremum.dynamic.dao.JsonDynamicModelDao;
@@ -16,22 +15,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.List;
 
-import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
-import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.modified;
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static reactor.core.publisher.Flux.from;
+import static io.extremum.dynamic.DynamicModelSupports.*;
+import static io.extremum.dynamic.utils.DynamicModelTestUtils.*;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
+import static java.util.Arrays.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static reactor.core.publisher.Flux.*;
 
 @SpringBootTest(classes = MongoDynamicModelDaoTestConfiguration.class)
 class MongoDynamicModelDaoTest {
@@ -116,8 +113,10 @@ class MongoDynamicModelDaoTest {
         return new BasicDBObject("$and", criteria);
     }
 
-    private <T> T findInCollection(String collectionName, Bson query, Function<FindPublisher<Document>, T> transformer) {
-        return transformer.apply(ops.getCollection(collectionName).find(query));
+    private <T> T findInCollection(String collectionName, Bson query, Function<Flux<Document>, T> transformer) {
+        Flux<Document> flux = ops.getCollection(collectionName)
+                .flatMapMany(collection -> collection.find(query));
+        return transformer.apply(flux);
     }
 
     private Mono<JsonDynamicModel> persistModel(final String modelName, final String data) {
