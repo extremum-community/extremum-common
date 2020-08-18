@@ -7,7 +7,6 @@ import io.extremum.common.exceptions.ModelNotFoundException;
 import io.extremum.common.modelservices.ModelServices;
 import io.extremum.everything.services.ReactiveRemovalService;
 import io.extremum.everything.services.defaultservices.DefaultReactiveRemover;
-import io.extremum.security.DataSecurity;
 import io.extremum.security.ReactiveDataSecurity;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -31,7 +30,7 @@ public class DefaultReactiveEverythingManagementService implements ReactiveEvery
     @Override
     public Mono<ResponseDto> get(Descriptor id, boolean expand) {
         return modelRetriever.retrieveModelReactively(id)
-                .doOnNext(dataSecurity::checkGetAllowed)
+                .flatMap(model -> dataSecurity.checkGetAllowed(model).thenReturn(model))
                 .flatMap(model -> convertModelToResponseDto(model, expand))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(newModelNotFoundException(id))));
     }
