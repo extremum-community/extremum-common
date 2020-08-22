@@ -73,8 +73,8 @@ public class BatchController {
     @PostMapping
     public Mono<List<Response>> submitBatch(@RequestBody BatchRequestDto[] batchDto, @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
         return Flux.fromArray(batchDto)
-                .flatMap(validateRequest(validator))
-                .flatMap(validated -> {
+                .concatMap(validateRequest(validator))
+                .concatMap(validated -> {
                     if (validated.getEx() == null) {
                         return sendRequest((BatchRequestDto) validated.getData(), auth);
                     } else {
@@ -82,7 +82,7 @@ public class BatchController {
                     }
                 })
                 .publishOn(resultScheduler)
-                .flatMap(this::wrapResponses)
+                .concatMap(this::wrapResponses)
                 .collectList();
     }
 
