@@ -56,15 +56,28 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
 
     @Override
     public Mono<Descriptor> store(Descriptor descriptor) {
-        return reactiveMongoOperations.save(descriptor)
-                .flatMap(this::putToMapsAfterWriteToMongoBecomesVisible);
+        return Mono.defer(() -> {
+            if (log.isDebugEnabled()) {
+                log.debug("Saving descriptor, externalId {}, readiness {}, version {}", descriptor.getExternalId(),
+                        descriptor.getReadiness(), descriptor.getVersion());
+            }
+            return reactiveMongoOperations.save(descriptor)
+                    .flatMap(this::putToMapsAfterWriteToMongoBecomesVisible);
+        });
     }
 
     private Mono<Descriptor> putToMapsAfterWriteToMongoBecomesVisible(Descriptor savedToMongo) {
         return ReactiveMongoDatabaseUtils.isTransactionActive(mongoDatabaseFactory).flatMap(inTransaction -> {
             if (inTransaction) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Will put to maps after transaction is committed {}", savedToMongo.getExternalId());
+                }
                 return putToMapsAfterTransactionCommit(savedToMongo);
             } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Putting to maps outside of transaction {}, readiness {}, version {}",
+                            savedToMongo.getExternalId(), savedToMongo.getReadiness(), savedToMongo.getVersion());
+                }
                 return putToMaps(savedToMongo).thenReturn(savedToMongo);
             }
         });
@@ -75,6 +88,11 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
                 .doOnNext(tsm -> tsm.registerSynchronization(new TransactionSynchronization() {
                     @Override
                     public Mono<Void> afterCommit() {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Putting to maps after transaction commit {}, readiness {}, version {}",
+                                    savedToMongo.getExternalId(), savedToMongo.getReadiness(),
+                                    savedToMongo.getVersion());
+                        }
                         return putToMaps(savedToMongo);
                     }
                 }))
