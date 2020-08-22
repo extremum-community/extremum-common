@@ -131,6 +131,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     private Mono<Void> applyReactivelyToCollectedReferences(List<ReferenceContext> collectedReferences) {
         return Flux.fromIterable(collectedReferences)
+                // using flatMap() because we don't care about the exact order in which the references will be processed
                 .flatMap(this::applyMakeupToCollectionReactively)
                 .then();
     }
@@ -151,7 +152,7 @@ public class CollectionMakeupImpl implements CollectionMakeup {
 
     private Mono<Void> applyModulesReactively(CollectionMakeupRequest request) {
         return Flux.fromIterable(makeupModules)
-                .flatMap(module -> module.applyToCollectionReactively(request))
+                .concatMap(module -> module.applyToCollectionReactively(request))
                 .then();
     }
 

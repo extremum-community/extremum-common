@@ -18,7 +18,7 @@ public class DefaultReactiveEventPublisher implements ReactiveEventPublisher {
     public Mono<Void> publishEvent(ApplicationEvent event) {
         return Flux.fromIterable(listeners)
                 .map(this::castListener)
-                .flatMap(listener -> listener.onApplicationEvent(event))
+                .concatMap(listener -> listener.onApplicationEvent(event))
                 .collectList()
                 .then();
     }
