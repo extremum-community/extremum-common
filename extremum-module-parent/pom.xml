@@ -15,6 +15,11 @@
         If you are looking for a parent for your application, please use extremum-app-parent.
     </description>
 
+    <properties>
+        <java.version>8</java.version>
+        <testcoverage.minimum>0.92</testcoverage.minimum>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -38,6 +43,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
+                    <source>${java.version}</source>
                     <!-- this is to disable JDK-supplied doclint which is too strict
                      causes the build to fail -->
                     <additionalOptions>
@@ -156,10 +162,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <testcoverage.minimum>0.92</testcoverage.minimum>
-    </properties>
 
     <dependencies>
         <dependency>
