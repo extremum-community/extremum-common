@@ -1,4 +1,4 @@
-package io.extremum.mongo.service.lifecycle;
+package io.extremum.common.lifecycle;
 
 import io.extremum.common.facilities.ReactiveDescriptorFacilities;
 import io.extremum.common.model.HasUuid;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
  * @author rpuch
  */
 @RequiredArgsConstructor
-public final class ReactiveMongoModelsLifecycleSupport<T extends HasUuid> {
+public final class ReactiveCommonModelLifecycleSupport<T extends HasUuid> {
     private final ReactiveDescriptorFacilities descriptorFacilities;
     private final InternalIdAdapter<? super T> adapter;
 

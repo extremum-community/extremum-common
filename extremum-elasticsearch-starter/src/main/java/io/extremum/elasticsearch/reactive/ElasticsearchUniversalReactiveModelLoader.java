@@ -18,7 +18,7 @@ public class ElasticsearchUniversalReactiveModelLoader implements UniversalReact
 
     @Override
     public Mono<Model> loadByInternalId(String internalId, Class<? extends Model> modelClass) {
-        return reactiveElasticsearchOperations.findById(internalId, modelClass)
+        return reactiveElasticsearchOperations.get(internalId, modelClass)
                 .cast(ElasticsearchCommonModel.class)
                 .filter(PersistableCommonModel::isNotDeleted)
                 .map(Function.identity());

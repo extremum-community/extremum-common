@@ -6,9 +6,9 @@ import io.extremum.mongo.model.MongoCommonModel;
 /**
  * @author rpuch
  */
-public final class ReactiveMongoCommonModelLifecycleListener
-        extends ReactiveMongoLifecycleListener<MongoCommonModel> {
-    public ReactiveMongoCommonModelLifecycleListener(ReactiveMongoDescriptorFacilities mongoDescriptorFacilities) {
+public final class ReactiveMongoCommonModelLifecycleCallbacks
+        extends ReactiveMongoLifecycleCallbacks<MongoCommonModel> {
+    public ReactiveMongoCommonModelLifecycleCallbacks(ReactiveMongoDescriptorFacilities mongoDescriptorFacilities) {
         super(mongoDescriptorFacilities, new MongoInternalIdAdapter());
     }
 }

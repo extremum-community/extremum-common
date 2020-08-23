@@ -52,7 +52,7 @@ public class BatchController {
         ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
         // TODO refactor magic number to property variable
         resourceFactory.setLoopResources(useNative -> new NioEventLoopGroup(workerThreadSize, new DefaultThreadFactory("batch-thread")));
-        resourceFactory.setConnectionProvider(ConnectionProvider.elastic("batch-client"));
+        resourceFactory.setConnectionProvider(ConnectionProvider.builder("batch-client").build());
         resourceFactory.setUseGlobalResources(false);
         this.webClient = webClientBuilder
                 .clientConnector(new ReactorClientHttpConnector(resourceFactory, Function.identity()))

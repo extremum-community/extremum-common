@@ -2,6 +2,7 @@ package io.extremum.mongo.config;
 
 import com.mongodb.WriteConcern;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.common.descriptor.service.CollectionDescriptorCoordinatesRefresher;
 import io.extremum.mongo.properties.MongoProperties;
 import io.extremum.mongo.springdata.DescriptorsMongoDb;
 import io.extremum.mongo.springdata.MainMongoDb;
@@ -15,10 +16,11 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.annotation.Persistent;
+import org.springframework.data.mapping.callback.EntityCallbacks;
 import org.springframework.data.mapping.model.CamelCaseAbbreviatingFieldNamingStrategy;
 import org.springframework.data.mapping.model.FieldNamingStrategy;
 import org.springframework.data.mapping.model.PropertyNameFieldNamingStrategy;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.config.MongoConfigurationSupport;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.WriteResultChecking;
@@ -28,6 +30,7 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+import org.springframework.data.mongodb.core.mapping.event.AuditingEntityCallback;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -53,13 +56,26 @@ public class DescriptorsMongoConfiguration {
 
     @Bean
     @DescriptorsMongoDb
-    public MongoTemplate descriptorsMongoTemplate(@MainMongoDb MongoDbFactory mainMongoDbFactory,
-            @DescriptorsMongoDb MappingMongoConverter descriptorsMappingMongoConverter) {
+    public MongoTemplate descriptorsMongoTemplate(@MainMongoDb MongoDatabaseFactory mainMongoDbFactory,
+            @DescriptorsMongoDb MappingMongoConverter descriptorsMappingMongoConverter,
+            AuditingEntityCallback auditingEntityCallback,
+            CollectionDescriptorCoordinatesRefresher collectionDescriptorCoordinatesRefresher) {
         MongoTemplate template = new MongoTemplateWithFixedDatabase(mainMongoDbFactory,
                 descriptorsMappingMongoConverter, getDatabaseName());
         template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
         template.setWriteConcern(WriteConcern.MAJORITY);
+        template.setEntityCallbacks(explicitCallbacksToAvoidCircularDependencyProblem(
+                auditingEntityCallback, collectionDescriptorCoordinatesRefresher));
         return template;
+    }
+
+    private EntityCallbacks explicitCallbacksToAvoidCircularDependencyProblem(
+            AuditingEntityCallback auditingEntityCallback,
+            CollectionDescriptorCoordinatesRefresher collectionDescriptorCoordinatesRefresher) {
+        // we have to construct this explicitly because otherwise any EntityCallback that depends on descriptor-related
+        // beans (like the ones that support CommonModel descriptor-related filling/resolving) would create an
+        // unresolvable circular dependency during startup
+        return EntityCallbacks.create(auditingEntityCallback, collectionDescriptorCoordinatesRefresher);
     }
 
     private String getDatabaseName() {
@@ -68,12 +84,16 @@ public class DescriptorsMongoConfiguration {
 
     @Bean
     @DescriptorsMongoDb
-    public MappingMongoConverter descriptorsMappingMongoConverter() throws Exception {
+    public MappingMongoConverter descriptorsMappingMongoConverter(AuditingEntityCallback auditingEntityCallback,
+            CollectionDescriptorCoordinatesRefresher collectionDescriptorCoordinatesRefresher)
+            throws Exception {
 
         // We do not allow DBRefs because they are pain (at least I was told so)
         DbRefResolver dbRefResolver = NoOpDbRefResolver.INSTANCE;
         MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, descriptorsMongoMappingContext());
         converter.setCustomConversions(customConversions);
+        converter.setEntityCallbacks(explicitCallbacksToAvoidCircularDependencyProblem(
+                auditingEntityCallback, collectionDescriptorCoordinatesRefresher));
 
         return converter;
     }
@@ -84,6 +104,7 @@ public class DescriptorsMongoConfiguration {
         mappingContext.setInitialEntitySet(getInitialEntitySet());
         mappingContext.setSimpleTypeHolder(customConversions.getSimpleTypeHolder());
         mappingContext.setFieldNamingStrategy(fieldNamingStrategy());
+        mappingContext.setAutoIndexCreation(true);
         return mappingContext;
     }
 
@@ -150,4 +171,8 @@ public class DescriptorsMongoConfiguration {
                 : PropertyNameFieldNamingStrategy.INSTANCE;
     }
 
+    @Bean
+    public CollectionDescriptorCoordinatesRefresher collectionDescriptorCoordinatesStringRefresher() {
+        return new CollectionDescriptorCoordinatesRefresher();
+    }
 }

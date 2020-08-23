@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.elasticsearch.core.query.SeqNoPrimaryTerm;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -83,7 +84,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel loadedModel = dao.findById(savedModel.getId())
                 .orElseThrow(() -> new AssertionError("Did not find anything"));
 
-        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId().toString())));
+        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId())));
     }
 
     @Test
@@ -113,7 +114,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel model = new TestElasticsearchModel();
         model = makeSureModelHasSeqNumberMoreThanZero(model);
 
-        model.setSeqNo(0L);
+        model.setSeqNoPrimaryTerm(new SeqNoPrimaryTerm(0, 1));
         model.setName(UUID.randomUUID().toString());
         try {
             dao.save(model);
@@ -224,8 +225,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         dao.save(model);
 
         assertThat(model.getVersion(), is(notNullValue()));
-        assertThat(model.getSeqNo(), is(notNullValue()));
-        assertThat(model.getPrimaryTerm(), is(notNullValue()));
+        assertThat(model.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     @Test
@@ -237,8 +237,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
                 .orElseThrow(this::didNotFindAnything);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
-        assertThat(resultModel.getSeqNo(), is(notNullValue()));
-        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+        assertThat(resultModel.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     @Test
@@ -251,8 +250,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel resultModel = searchResult.get(0);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
-        assertThat(resultModel.getSeqNo(), is(notNullValue()));
-        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+        assertThat(resultModel.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     private SearchOptions exactMatchSearch() {
@@ -455,6 +453,7 @@ class ClassicElasticsearchDaoTest extends TestWithServices {
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(StandardStorageType.ELASTICSEARCH)
                 .build();
+        descriptorService.store(descriptor);
 
         model.setUuid(descriptor);
 

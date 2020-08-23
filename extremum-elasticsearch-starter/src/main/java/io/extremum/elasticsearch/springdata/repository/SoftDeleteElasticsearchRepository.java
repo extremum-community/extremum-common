@@ -10,15 +10,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Differs from the standard {@link SimpleElasticsearchRepository} in two aspects:
@@ -30,7 +35,6 @@ import java.util.stream.Collectors;
  */
 public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonModel>
         extends BaseElasticsearchRepository<T> {
-    private final ElasticsearchOperations elasticsearchOperations;
 
     private final SoftDeletion softDeletion = new SoftDeletion();
 
@@ -38,8 +42,6 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
             ElasticsearchEntityInformation<T, String> metadata,
             ElasticsearchOperations elasticsearchOperations) {
         super(metadata, elasticsearchOperations);
-
-        this.elasticsearchOperations = elasticsearchOperations;
     }
 
     @Override
@@ -55,18 +57,24 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     }
 
     @Override
-    public Page<T> search(SearchQuery query) {
-        return super.search(new NonDeletedSearchQuery(query));
+    public Page<T> search(Query query) {
+        // TODO: can we do it better to filter on the server side?
+        Page<T> page = super.search(query);
+        return pageOfNonDeleted(page);
+    }
+
+    private Page<T> pageOfNonDeleted(Page<T> page) {
+        List<T> list = page.stream()
+                .filter(PersistableCommonModel::isNotDeleted)
+                .collect(toList());
+        return new PageImpl<>(list, page.getPageable(), page.getTotalElements());
     }
 
     @Override
-    public Page<T> searchSimilar(T entity, String[] fields, Pageable pageable) {
+    public Page<T> searchSimilar(T entity, @Nullable String[] fields, Pageable pageable) {
         // TODO: can we do it better to filter on the server side?
         Page<T> page = super.searchSimilar(entity, fields, pageable);
-        List<T> list = page.stream()
-                .filter(PersistableCommonModel::isNotDeleted)
-                .collect(Collectors.toList());
-        return new PageImpl<T>(list, page.getPageable(), page.getTotalElements());
+        return pageOfNonDeleted(page);
     }
 
     @Override
@@ -89,6 +97,25 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     }
 
     @Override
+    public void delete(T entity) {
+
+        Assert.notNull(entity, "Cannot delete 'null' entity.");
+
+        deleteById(extractIdFromBean(entity));
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends T> entities) {
+
+        Assert.notNull(entities, "Cannot delete 'null' list.");
+
+        // TODO: optimize to one operation (and just one refresh)
+        for (T entity : entities) {
+            delete(entity);
+        }
+    }
+
+    @Override
     public Optional<T> findById(String id) {
         return super.findById(id).filter(PersistableCommonModel::isNotDeleted);
     }
@@ -97,18 +124,26 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     public Iterable<T> findAllById(Iterable<String> ids) {
         return StreamUtils.fromIterable(super.findAllById(ids))
                 .filter(PersistableCommonModel::isNotDeleted)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override
     public Page<T> findAll(Pageable pageable) {
-        CriteriaQuery query = new CriteriaQuery(softDeletion.notDeleted());
+        Query query = new CriteriaQuery(softDeletion.notDeleted());
         query.setPageable(pageable);
-        return elasticsearchOperations.queryForPage(query, getEntityClass());
+        SearchHits<T> searchHits = operations.search(query, getEntityClass(), entityInformation.getIndexCoordinates());
+        return searchHitsToPage(searchHits);
+    }
+
+    private PageImpl<T> searchHitsToPage(SearchHits<T> searchHits) {
+        List<T> entities = searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .collect(toList());
+        return new PageImpl<>(entities);
     }
 
     @Override
     public long count() {
-        return elasticsearchOperations.count(new CriteriaQuery(softDeletion.notDeleted()), getEntityClass());
+        return operations.count(new CriteriaQuery(softDeletion.notDeleted()), getEntityClass());
     }
 }

@@ -1,8 +1,6 @@
 package io.extremum.mongo.springdata.reactiverepository;
 
-import io.extremum.common.reactive.ReactiveEventPublisher;
 import io.extremum.common.repository.SeesSoftlyDeletedRecords;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactory;
@@ -32,20 +30,14 @@ import java.io.Serializable;
 public class ExtremumReactiveMongoRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
         extends ReactiveMongoRepositoryFactoryBean<T, S, ID> {
     private final Class<? extends T> repositoryInterface;
-    private ReactiveEventPublisher reactiveEventPublisher;
 
     public ExtremumReactiveMongoRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
         this.repositoryInterface = repositoryInterface;
     }
 
-    @Autowired
-    public void setReactiveEventPublisher(ReactiveEventPublisher reactiveEventPublisher) {
-        this.reactiveEventPublisher = reactiveEventPublisher;
-    }
-
     @Override
     protected RepositoryFactorySupport getFactoryInstance(ReactiveMongoOperations operations) {
-        return new ExtremumReactiveMongoRepositoryFactory(repositoryInterface, operations, reactiveEventPublisher);
+        return new ExtremumReactiveMongoRepositoryFactory(repositoryInterface, operations);
     }
 }

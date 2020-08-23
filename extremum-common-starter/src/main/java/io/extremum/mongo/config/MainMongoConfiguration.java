@@ -6,11 +6,10 @@ import com.mongodb.client.MongoClients;
 import io.extremum.common.annotation.SecondaryDatasource;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
-import io.extremum.common.descriptor.service.DescriptorLifecycleListener;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.mongo.facilities.MongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.properties.MongoProperties;
-import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleListener;
+import io.extremum.mongo.service.lifecycle.MongoCommonModelLifecycleCallbacks;
 import io.extremum.mongo.springdata.EnableAllMongoAuditing;
 import io.extremum.mongo.springdata.MainMongoDb;
 import io.extremum.starter.DateToZonedDateTimeConverter;
@@ -24,13 +23,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.convert.MappingContextTypeInformationMapper;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.*;
 /**
  * @author rpuch
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(MongoProperties.class)
 @EnableAllMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
@@ -53,7 +53,7 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     @Override
     @Bean
     @MainMongoDb
-    public MongoDbFactory mongoDbFactory() {
+    public MongoDatabaseFactory mongoDbFactory() {
         return super.mongoDbFactory();
     }
 
@@ -61,8 +61,8 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     @Bean
     @Primary
     @MainMongoDb
-    public MongoTemplate mongoTemplate() throws Exception {
-        MongoTemplate template = super.mongoTemplate();
+    public MongoTemplate mongoTemplate(MongoDatabaseFactory databaseFactory, MappingMongoConverter converter) {
+        MongoTemplate template = super.mongoTemplate(databaseFactory, converter);
         template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
         template.setWriteConcern(WriteConcern.MAJORITY);
         return template;
@@ -83,14 +83,25 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     @Override
     @Bean
     @Primary
-    public MappingMongoConverter mappingMongoConverter() throws Exception {
-        MappingMongoConverter converter = super.mappingMongoConverter();
+    @MainMongoDb
+    public MongoMappingContext mongoMappingContext(MongoCustomConversions customConversions)
+            throws ClassNotFoundException {
+        return super.mongoMappingContext(customConversions);
+    }
+
+    @Override
+    @Bean
+    @Primary
+    public MappingMongoConverter mappingMongoConverter(MongoDatabaseFactory databaseFactory,
+    			MongoCustomConversions customConversions, MongoMappingContext mappingContext) {
+        MappingMongoConverter converter = super.mappingMongoConverter(databaseFactory, customConversions,
+                mappingContext);
 
         // changing type mapper so that:
         // 1. if there is no @TypeAlias on the model class, _class attribute is not saved
         // 2. if @TypeAlias is there, its value is saved in _class attribute
         MappingContextTypeInformationMapper typeInformationMapper = new MappingContextTypeInformationMapper(
-                mongoMappingContext());
+                mappingContext);
         DefaultMongoTypeMapper typeMapper = new MongoTypeMapperWithSearchByExampleFix(typeInformationMapper);
         converter.setTypeMapper(typeMapper);
 
@@ -114,6 +125,7 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     }
 
     @Bean
+    @Override
     public MongoCustomConversions customConversions() {
         List<Object> converters = new ArrayList<>();
 
@@ -130,6 +142,11 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
         return new MongoCustomConversions(converters);
     }
 
+    @Override
+    protected boolean autoIndexCreation() {
+        return true;
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public MongoDescriptorFacilities mongoDescriptorFacilities(DescriptorFactory descriptorFactory,
@@ -138,14 +155,9 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     }
 
     @Bean
-    public MongoCommonModelLifecycleListener mongoCommonModelLifecycleListener(
+    public MongoCommonModelLifecycleCallbacks mongoCommonModelLifecycleCallbacks(
             MongoDescriptorFacilities mongoDescriptorFacilities) {
-        return new MongoCommonModelLifecycleListener(mongoDescriptorFacilities);
-    }
-
-    @Bean
-    public DescriptorLifecycleListener descriptorLifecycleListener() {
-        return new DescriptorLifecycleListener();
+        return new MongoCommonModelLifecycleCallbacks(mongoDescriptorFacilities);
     }
 
 }

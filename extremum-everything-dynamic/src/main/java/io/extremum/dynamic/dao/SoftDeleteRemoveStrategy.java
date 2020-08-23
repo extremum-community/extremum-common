@@ -24,18 +24,21 @@ public class SoftDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
     }
 
     private Mono<Void> doRemove(ObjectId oId, String collectionName) {
-        Publisher<UpdateResult> publisher = mongoOperations.getCollection(collectionName)
-                .updateOne(
-                        and(
-                                eq("_id", oId),
-                                or(
-                                        eq(deleted.name(), false),
-                                        exists(deleted.name(), false)
-                                )
-                        ),
-                        set(deleted.name(), true)
-                );
 
-        return Mono.from(publisher).then();
+        return mongoOperations.getCollection(collectionName)
+                .flatMap(collection -> {
+                    Publisher<UpdateResult> publisher1 = collection.updateOne(
+                            and(
+                                    eq("_id", oId),
+                                    or(
+                                            eq(deleted.name(), false),
+                                            exists(deleted.name(), false)
+                                    )
+                            ),
+                            set(deleted.name(), true)
+                    );
+                    return Mono.from(publisher1);
+                })
+                .then();
     }
 }

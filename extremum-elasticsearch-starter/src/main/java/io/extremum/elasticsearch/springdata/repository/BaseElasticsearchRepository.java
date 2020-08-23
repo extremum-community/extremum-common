@@ -1,13 +1,11 @@
 package io.extremum.elasticsearch.springdata.repository;
 
-import io.extremum.datetime.DateUtils;
 import io.extremum.common.utils.StreamUtils;
+import io.extremum.datetime.ApiDateTimeFormat;
 import io.extremum.elasticsearch.dao.ElasticsearchCommonDao;
 import io.extremum.elasticsearch.dao.SearchOptions;
 import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
-import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.script.Script;
@@ -15,7 +13,7 @@ import org.elasticsearch.script.ScriptType;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
-import org.springframework.data.elasticsearch.core.query.UpdateQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.UpdateResponse;
 import org.springframework.data.elasticsearch.repository.support.ElasticsearchEntityInformation;
 import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
 
@@ -39,6 +37,8 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     private final ElasticsearchEntityInformation<T, String> metadata;
 
+    private final ApiDateTimeFormat dateTimeFormat = new ApiDateTimeFormat();
+
     BaseElasticsearchRepository(ElasticsearchEntityInformation<T, String> metadata,
             ElasticsearchOperations elasticsearchOperations) {
         super(metadata, elasticsearchOperations);
@@ -60,6 +60,11 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     private <S> List<S> iterableToList(Iterable<S> iterable) {
         return StreamUtils.fromIterable(iterable).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsById(String id) {
+        return findById(id).isPresent();
     }
 
     @Override
@@ -91,21 +96,21 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     @Override
     public boolean patch(String id, String painlessScript, Map<String, Object> scriptParams) {
-        UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexName(), id);
+        UpdateRequest updateRequest = new UpdateRequest(metadata.getIndexCoordinates().getIndexName(), id);
         Script script = createScript(painlessScript, scriptParams);
         updateRequest.script(script);
 
-        UpdateQuery updateQuery = new UpdateQueryBuilder()
-                .withClass(metadata.getJavaType())
-                .withId(id)
-                .withUpdateRequest(updateRequest)
+        UpdateQuery updateQuery = UpdateQuery.builder(id)
+                .withLang(PAINLESS_LANGUAGE)
+                .withScript(amendWithModificationTimeChange(painlessScript))
+                .withParams(scriptParams(scriptParams))
                 .build();
 
-        UpdateResponse updateResponse = elasticsearchOperations.update(updateQuery);
+        UpdateResponse updateResponse = operations.update(updateQuery, entityInformation.getIndexCoordinates());
 
         refresh();
 
-        if (updateResponse.getResult() != DocWriteResponse.Result.UPDATED) {
+        if (updateResponse.getResult() != UpdateResponse.Result.UPDATED) {
             throw new UpdateFailedException("Update result is not UPDATED but " + updateResponse.getResult());
         }
 
@@ -114,9 +119,13 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
 
     private Script createScript(String painlessScript, Map<String, Object> params) {
         String scriptWithModificationTimeChange = amendWithModificationTimeChange(painlessScript);
-        Map<String, Object> paramsWithModificationTimeChange = amendWithModificationTime(params);
+        Map<String, Object> paramsWithModificationTimeChange = scriptParams(params);
         return new Script(ScriptType.INLINE, PAINLESS_LANGUAGE, scriptWithModificationTimeChange,
                 paramsWithModificationTimeChange);
+    }
+
+    private Map<String, Object> scriptParams(Map<String, Object> params) {
+        return amendWithModificationTime(params);
     }
 
     private String amendWithModificationTimeChange(String painlessScript) {
@@ -134,6 +143,6 @@ abstract class BaseElasticsearchRepository<T extends ElasticsearchCommonModel>
     }
 
     private String getNowAsString() {
-        return DateUtils.formatZonedDateTimeISO_8601(ZonedDateTime.now());
+        return dateTimeFormat.format(ZonedDateTime.now());
     }
 }

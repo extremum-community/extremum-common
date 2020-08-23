@@ -21,8 +21,7 @@ public abstract class ReactiveUUIDDescriptorFacilities {
         return descriptorSaver.createAndSave(uuid.toString(), modelType, storageType());
     }
 
-    public Mono<UUID> resolve(Descriptor descriptor) {
-        return DescriptorResolver.resolveReactively(descriptor, storageType())
-                .map(UUID::fromString);
+    public Mono<String> resolve(Descriptor descriptor) {
+        return DescriptorResolver.resolveReactively(descriptor, storageType());
     }
 }

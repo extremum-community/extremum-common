@@ -12,9 +12,11 @@ import org.reactivestreams.Publisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
+import java.util.Arrays;
+
+import static io.extremum.dynamic.DynamicModelSupports.*;
 
 @Slf4j
 @Component
@@ -26,25 +28,31 @@ public class DynamicModelRegisteredEventListener implements ApplicationListener<
     public void onApplicationEvent(DynamicModelRegisteredEvent event) {
         log.info("Creating indexes for model {}", event.getModelName());
 
-        Publisher<String> pIdx1 = operations.getCollection(collectionNameFromModel(event.getModelName()))
-                .createIndex(
-                        Indexes.compoundIndex(
-                                new Document(VersionedModel.FIELDS.lineageId.name(), 1),
-                                new Document(Model.FIELDS.version.name(), 1)
-                        ),
-                        new IndexOptions().unique(true)
-                );
+        Mono<String> pIdx1 = operations.getCollection(collectionNameFromModel(event.getModelName()))
+                .flatMap(collection -> {
+                    Publisher<String> publisher = collection.createIndex(
+                            Indexes.compoundIndex(
+                                    new Document(VersionedModel.FIELDS.lineageId.name(), 1),
+                                    new Document(Model.FIELDS.version.name(), 1)
+                            ),
+                            new IndexOptions().unique(true)
+                    );
+                    return Mono.from(publisher);
+                });
 
-        Publisher<String> pIdx2 = operations.getCollection(collectionNameFromModel(event.getModelName()))
-                .createIndex(
-                        Indexes.compoundIndex(
-                                new Document(VersionedModel.FIELDS.lineageId.name(), 1),
-                                new Document(VersionedModel.FIELDS.currentSnapshot.name(), 1),
-                                new Document(Model.FIELDS.deleted.name(), 1)
-                        )
-                );
+        Mono<String> pIdx2 = operations.getCollection(collectionNameFromModel(event.getModelName()))
+                .flatMap(collection -> {
+                    Publisher<String> publisher = collection.createIndex(
+                            Indexes.compoundIndex(
+                                    new Document(VersionedModel.FIELDS.lineageId.name(), 1),
+                                    new Document(VersionedModel.FIELDS.currentSnapshot.name(), 1),
+                                    new Document(Model.FIELDS.deleted.name(), 1)
+                            )
+                    );
+                    return Mono.from(publisher);
+                });
 
 
-        Flux.fromArray(new Publisher[]{pIdx1, pIdx2}).subscribe();
+        Arrays.asList(pIdx1, pIdx2).forEach(Mono::subscribe);
     }
 }

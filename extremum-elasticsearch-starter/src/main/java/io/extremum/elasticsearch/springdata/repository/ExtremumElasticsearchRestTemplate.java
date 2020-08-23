@@ -1,371 +1,180 @@
 package io.extremum.elasticsearch.springdata.repository;
 
-import io.extremum.elasticsearch.facilities.ElasticsearchDescriptorFacilities;
+import io.extremum.elasticsearch.model.ElasticsearchCommonModel;
+import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.VersionType;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.ResultsMapper;
-import org.springframework.data.elasticsearch.core.SearchResultMapper;
-import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentProperty;
-import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.BulkOptions;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.Query;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SeqNoPrimaryTerm;
+import org.springframework.data.util.Streamable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.springframework.util.CollectionUtils.isEmpty;
+import java.util.stream.Collectors;
 
 /**
  * @author rpuch
  */
 public class ExtremumElasticsearchRestTemplate extends ElasticsearchRestTemplate {
-    private static final Logger logger = LoggerFactory.getLogger(ExtremumElasticsearchRestTemplate.class);
+    private ExtremumRequestFactory customizedRequestFactory;
 
-    private final SequenceNumberOperations sequenceNumberOperations = new SequenceNumberOperations();
-    private final SaveProcess saveProcess;
-    private final SearchPreparation searchPreparation;
-
-    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client,
-            ResultsMapper resultsMapper,
-            ElasticsearchDescriptorFacilities descriptorFacilities) {
-        super(client, resultsMapper);
-
-        saveProcess = new SaveProcess(descriptorFacilities);
-        searchPreparation = new SearchPreparation(this);
+    public ExtremumElasticsearchRestTemplate(RestHighLevelClient client, ElasticsearchConverter elasticsearchConverter) {
+        super(client, elasticsearchConverter);
     }
 
     @Override
-    public String index(IndexQuery query) {
-        if (query.getObject() != null) {
-            saveProcess.prepareForSave(query.getObject());
+    protected void initialize(ElasticsearchConverter elasticsearchConverter) {
+        super.initialize(elasticsearchConverter);
+
+        customizedRequestFactory = new ExtremumRequestFactory(elasticsearchConverter);
+    }
+
+    // The following methods (#index() and #save() are only overriden to support setting version, seq_no and primary_key
+    // after indexing. When this functionality makes it to the standard spring-data-elasticsearch, these overrides
+    // should be removed.
+
+    @Override
+    public String index(IndexQuery query, IndexCoordinates index) {
+
+        maybeCallbackBeforeConvertWithQuery(query, index);
+
+        IndexRequest request = customizedRequestFactory.indexRequest(query, index);
+        IndexResponse response = execute(client -> client.index(request, RequestOptions.DEFAULT));
+        String documentId = response.getId();
+
+        // We should call this because we are not going through a mapper.
+        Object queryObject = query.getObject();
+        if (queryObject != null) {
+            setPersistentEntityId(queryObject, documentId);
+            // PATCH: this is the only change we have here: we also set version, seq_no, primary_term
+            updateIndexedObject(queryObject, response.getVersion(), response.getSeqNo(), response.getPrimaryTerm());
         }
 
-        String documentId;
-        IndexRequest request = prepareIndex(query);
-        IndexResponse response;
-        try {
-            response = getClient().index(request, RequestOptions.DEFAULT);
-            documentId = response.getId();
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while index for request: " + request.toString(), e);
-        }
-        // We should call this because we are not going through a mapper.
-        if (query.getObject() != null) {
-            setPersistentEntityId(query.getObject(), documentId);
-            saveProcess.fillAfterSave(query.getObject(), response);
-        }
+        maybeCallbackAfterSaveWithQuery(query, index);
+
         return documentId;
     }
 
-    private IndexRequest prepareIndex(IndexQuery query) {
-        try {
-            String indexName = StringUtils.isEmpty(query.getIndexName())
-                    ? retrieveIndexNameFromPersistentEntity(query.getObject().getClass())[0]
-                    : query.getIndexName();
-            String type = StringUtils.isEmpty(query.getType())
-                    ? retrieveTypeFromPersistentEntity(query.getObject().getClass())[0]
-                    : query.getType();
-
-            IndexRequest indexRequest;
-
-            if (query.getObject() != null) {
-                String id = StringUtils.isEmpty(query.getId()) ? getPersistentEntityId(
-                        query.getObject()) : query.getId();
-                // If we have a query id and a document id, do not ask ES to generate one.
-                if (id != null) {
-                    indexRequest = new IndexRequest(indexName, type, id);
-                } else {
-                    indexRequest = new IndexRequest(indexName, type);
-                }
-                indexRequest.source(getResultsMapper().getEntityMapper().mapToString(query.getObject()),
-                        Requests.INDEX_CONTENT_TYPE);
-            } else if (query.getSource() != null) {
-                indexRequest = new IndexRequest(indexName, type, query.getId()).source(query.getSource(),
-                        Requests.INDEX_CONTENT_TYPE);
-            } else {
-                throw new ElasticsearchException(
-                        "object or source is null, failed to index the document [id: " + query.getId() + "]");
-            }
-            if (query.getVersion() != null) {
-                indexRequest.version(query.getVersion());
-                VersionType versionType = retrieveVersionTypeFromPersistentEntity(query.getObject().getClass());
-                indexRequest.versionType(versionType);
-            }
-
-            // in elasticsearch 7.1.0 client library, there is no parent() method
-//            if (query.getParentId() != null) {
-//                indexRequest.parent(query.getParentId());
-//            }
-
-            // This is the only thing we needed to add to this method for extremum-specific tasks
-            sequenceNumberOperations.fillSequenceNumberAndPrimaryTermOnIndexRequest(query.getObject(), indexRequest);
-
-            return indexRequest;
-        } catch (IOException e) {
-            throw new ElasticsearchException("failed to index the document [id: " + query.getId() + "]", e);
+    private void updateIndexedObject(@NonNull Object queryObject, long version, long seqNo, long primaryTerm) {
+        if (queryObject instanceof ElasticsearchCommonModel) {
+            ElasticsearchCommonModel model = (ElasticsearchCommonModel) queryObject;
+            model.setVersion(version);
+            model.setSeqNoPrimaryTerm(new SeqNoPrimaryTerm(seqNo, primaryTerm));
         }
     }
 
-    private String[] retrieveIndexNameFromPersistentEntity(Class<?> clazz) {
-        if (clazz != null) {
-            return new String[]{getPersistentEntityFor(clazz).getIndexName()};
+    @Override
+    public <T> Iterable<T> save(Iterable<T> entities, IndexCoordinates index) {
+
+        Assert.notNull(entities, "entities must not be null");
+        Assert.notNull(index, "index must not be null");
+
+        List<IndexQuery> indexQueries = Streamable.of(entities).stream().map(this::getIndexQuery)
+                .collect(Collectors.toList());
+
+        if (!indexQueries.isEmpty()) {
+            // PATCH: we obtain a bulk response to set version seq_no, primary_term
+            BulkResponse bulkResponse = doBulkOperation(indexQueries, BulkOptions.defaultOptions(), index);
+            int i = 0;
+            for (T entity : entities) {
+                BulkItemResponse item = bulkResponse.getItems()[i++];
+                DocWriteResponse response = item.getResponse();
+                setPersistentEntityId(entity, item.getId());
+                updateIndexedObject(entity, response.getVersion(), response.getSeqNo(), response.getPrimaryTerm());
+            };
         }
-        return null;
+
+        return indexQueries.stream().map(IndexQuery::getObject).map(entity -> (T) entity).collect(Collectors.toList());
     }
 
-    private void setPersistentEntityId(Object entity, String id) {
+    private <T> IndexQuery getIndexQuery(T entity) {
+        String id = getEntityId(entity);
 
-        ElasticsearchPersistentEntity<?> persistentEntity = getPersistentEntityFor(entity.getClass());
+        if (id != null) {
+            id = elasticsearchConverter.convertId(id);
+        }
+
+        IndexQueryBuilder builder = new IndexQueryBuilder() //
+                .withId(id) //
+                .withObject(entity);
+        SeqNoPrimaryTerm seqNoPrimaryTerm = getEntitySeqNoPrimaryTerm(entity);
+        if (seqNoPrimaryTerm != null) {
+            builder.withSeqNoPrimaryTerm(seqNoPrimaryTerm);
+        } else {
+            // version cannot be used together with seq_no and primary_term
+            builder.withVersion(getEntityVersion(entity));
+        }
+        return builder.build();
+    }
+
+    @Nullable
+    private String getEntityId(Object entity) {
+        ElasticsearchPersistentEntity<?> persistentEntity = getRequiredPersistentEntity(entity.getClass());
         ElasticsearchPersistentProperty idProperty = persistentEntity.getIdProperty();
 
-        // Only deal with text because ES generated Ids are strings !
-
-        if (idProperty != null && idProperty.getType().isAssignableFrom(String.class)) {
-            persistentEntity.getPropertyAccessor(entity).setProperty(idProperty, id);
-        }
-    }
-
-    private String[] retrieveTypeFromPersistentEntity(Class<?> clazz) {
-        if (clazz != null) {
-            return new String[]{getPersistentEntityFor(clazz).getIndexType()};
-        }
-        return null;
-    }
-
-    private VersionType retrieveVersionTypeFromPersistentEntity(Class<?> clazz) {
-        if (clazz != null) {
-            return getPersistentEntityFor(clazz).getVersionType();
-        }
-        return VersionType.EXTERNAL;
-    }
-
-    private String getPersistentEntityId(Object entity) {
-
-        ElasticsearchPersistentEntity<?> persistentEntity = getPersistentEntityFor(entity.getClass());
-        Object identifier = persistentEntity.getIdentifierAccessor(entity).getIdentifier();
-
-        if (identifier != null) {
-            return identifier.toString();
+        if (idProperty != null) {
+            return stringIdRepresentation(persistentEntity.getPropertyAccessor(entity).getProperty(idProperty));
         }
 
         return null;
     }
 
-    @Override
-    public void bulkIndex(List<IndexQuery> queries) {
-        prepareBulkForSave(queries);
+    @Nullable
+    private Long getEntityVersion(Object entity) {
+        ElasticsearchPersistentEntity<?> persistentEntity = getRequiredPersistentEntity(entity.getClass());
+        ElasticsearchPersistentProperty versionProperty = persistentEntity.getVersionProperty();
 
-        BulkRequest bulkRequest = new BulkRequest();
-        for (IndexQuery query : queries) {
-            bulkRequest.add(prepareIndex(query));
-        }
+        if (versionProperty != null) {
+            Object version = persistentEntity.getPropertyAccessor(entity).getProperty(versionProperty);
 
-        BulkResponse bulkResponse;
-        try {
-            bulkResponse = getClient().bulk(bulkRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while bulk for request: " + bulkRequest.toString(), e);
-        }
-        checkForBulkUpdateFailure(bulkResponse);
-
-        if (bulkResponse.getItems().length != queries.size()) {
-            String message = String.format("There were %d queries but %d responses in bulk",
-                    queries.size(), bulkResponse.getItems().length);
-            throw new IllegalStateException(message);
-        }
-
-        fillAfterBulkSave(queries, bulkResponse);
-    }
-
-    private void prepareBulkForSave(List<IndexQuery> queries) {
-        for (IndexQuery query : queries) {
-            if (query.getObject() != null) {
-                saveProcess.prepareForSave(query.getObject());
+            if (version != null && Long.class.isAssignableFrom(version.getClass())) {
+                return ((Long) version);
             }
         }
+
+        return null;
     }
 
-    private void fillAfterBulkSave(List<IndexQuery> queries, BulkResponse bulkResponse) {
-        for (int i = 0; i < queries.size(); i++) {
-            IndexQuery query = queries.get(i);
-            BulkItemResponse responseItem = bulkResponse.getItems()[i];
-            IndexResponse indexResponse = responseItem.getResponse();
-            if (query.getObject() != null) {
-                saveProcess.fillAfterSave(query.getObject(), indexResponse);
+    @Nullable
+    private SeqNoPrimaryTerm getEntitySeqNoPrimaryTerm(Object entity) {
+        ElasticsearchPersistentEntity<?> persistentEntity = getRequiredPersistentEntity(entity.getClass());
+        ElasticsearchPersistentProperty property = persistentEntity.getSeqNoPrimaryTermProperty();
+
+        if (property != null) {
+            Object seqNoPrimaryTerm = persistentEntity.getPropertyAccessor(entity).getProperty(property);
+
+            if (seqNoPrimaryTerm != null && SeqNoPrimaryTerm.class.isAssignableFrom(seqNoPrimaryTerm.getClass())) {
+                return (SeqNoPrimaryTerm) seqNoPrimaryTerm;
             }
         }
+
+        return null;
     }
 
-    private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {
-        if (bulkResponse.hasFailures()) {
-            Map<String, String> failedDocuments = new HashMap<>();
-            for (BulkItemResponse item : bulkResponse.getItems()) {
-                if (item.isFailed()) {
-                    failedDocuments.put(item.getId(), item.getFailureMessage());
-                }
-            }
-            throw new ElasticsearchException(
-                    "Bulk indexing has failures. Use ElasticsearchException.getFailedDocuments() for detailed messages ["
-                            + failedDocuments + "]",
-                    failedDocuments);
-        }
+    ElasticsearchPersistentEntity<?> getRequiredPersistentEntity(Class<?> clazz) {
+        return elasticsearchConverter.getMappingContext().getRequiredPersistentEntity(clazz);
     }
 
-    // Code that follows is needed just to work-around the fact that Spring Data Elasticsearch 3.2 uses old
-    // request method signatures which were removed in 7.1.0 (or earlier). Hence the copy-paste.
-
-    @Override
-    public <T> long count(SearchQuery searchQuery, Class<T> clazz) {
-        QueryBuilder elasticsearchQuery = searchQuery.getQuery();
-        QueryBuilder elasticsearchFilter = searchQuery.getFilter();
-
-        if (elasticsearchFilter == null) {
-            return doCount(prepareCount(searchQuery, clazz), elasticsearchQuery);
-        } else {
-            // filter could not be set into CountRequestBuilder, convert request into search request
-            return doCount(searchPreparation.prepareSearch(searchQuery, clazz), elasticsearchQuery, elasticsearchFilter);
-        }
+    private BulkResponse doBulkOperation(List<?> queries, BulkOptions bulkOptions, IndexCoordinates index) {
+        maybeCallbackBeforeConvertWithQueries(queries, index);
+        BulkRequest bulkRequest = customizedRequestFactory.bulkRequest(queries, bulkOptions, index);
+        BulkResponse bulkResponse = execute(client -> client.bulk(bulkRequest, RequestOptions.DEFAULT));
+        checkForBulkOperationFailure(bulkResponse);
+        maybeCallbackAfterSaveWithQueries(queries, index);
+        return bulkResponse;
     }
-
-    private long doCount(SearchRequest countRequest, QueryBuilder elasticsearchQuery) {
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        if (elasticsearchQuery != null) {
-            sourceBuilder.query(elasticsearchQuery);
-        }
-        countRequest.source(sourceBuilder);
-
-        try {
-            return getClient().search(countRequest, RequestOptions.DEFAULT).getHits().getTotalHits().value;
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error while searching for request: " + countRequest.toString(), e);
-        }
-    }
-
-    private <T> SearchRequest prepareCount(Query query, Class<T> clazz) {
-        String[] indexName = !isEmpty(query.getIndices())
-                ? query.getIndices().toArray(new String[0])
-                : retrieveIndexNameFromPersistentEntity(clazz);
-        String[] types = !isEmpty(query.getTypes()) ? query.getTypes().toArray(new String[0])
-                : retrieveTypeFromPersistentEntity(clazz);
-
-        Assert.notNull(indexName, "No index defined for Query");
-
-        SearchRequest countRequestBuilder = new SearchRequest(indexName);
-
-        if (types != null) {
-            countRequestBuilder.types(types);
-        }
-        return countRequestBuilder;
-    }
-
-    private long doCount(SearchRequest searchRequest, QueryBuilder elasticsearchQuery,
-            QueryBuilder elasticsearchFilter) {
-        if (elasticsearchQuery != null) {
-            searchRequest.source().query(elasticsearchQuery);
-        } else {
-            searchRequest.source().query(QueryBuilders.matchAllQuery());
-        }
-        if (elasticsearchFilter != null) {
-            searchRequest.source().postFilter(elasticsearchFilter);
-        }
-        SearchResponse response;
-        try {
-            response = getClient().search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error for search request: " + searchRequest.toString(), e);
-        }
-        return response.getHits().getTotalHits().value;
-    }
-
-    @Override
-    public <T> long count(CriteriaQuery criteriaQuery, Class<T> clazz) {
-        QueryBuilder elasticsearchQuery = new CriteriaQueryProcessor().createQueryFromCriteria(
-                criteriaQuery.getCriteria());
-        QueryBuilder elasticsearchFilter = new CriteriaFilterProcessor()
-                .createFilterFromCriteria(criteriaQuery.getCriteria());
-
-        if (elasticsearchFilter == null) {
-            return doCount(prepareCount(criteriaQuery, clazz), elasticsearchQuery);
-        } else {
-            // filter could not be set into CountRequestBuilder, convert request into search request
-            return doCount(searchPreparation.prepareSearch(criteriaQuery, clazz), elasticsearchQuery, elasticsearchFilter);
-        }
-    }
-
-    @Override
-    public <T> AggregatedPage<T> queryForPage(SearchQuery query, Class<T> clazz, SearchResultMapper mapper) {
-        SearchResponse response = doSearch(searchPreparation.prepareSearch(query, clazz), query);
-        return mapper.mapResults(response, clazz, query.getPageable());
-    }
-
-    @Override
-    public <T> Page<T> queryForPage(CriteriaQuery criteriaQuery, Class<T> clazz) {
-        QueryBuilder elasticsearchQuery = new CriteriaQueryProcessor().createQueryFromCriteria(
-                criteriaQuery.getCriteria());
-        QueryBuilder elasticsearchFilter = new CriteriaFilterProcessor()
-                .createFilterFromCriteria(criteriaQuery.getCriteria());
-        SearchRequest request = searchPreparation.prepareSearch(criteriaQuery, clazz);
-
-        if (elasticsearchQuery != null) {
-            request.source().query(elasticsearchQuery);
-        } else {
-            request.source().query(QueryBuilders.matchAllQuery());
-        }
-
-        if (criteriaQuery.getMinScore() > 0) {
-            request.source().minScore(criteriaQuery.getMinScore());
-        }
-
-        if (elasticsearchFilter != null) {
-            request.source().postFilter(elasticsearchFilter);
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("doSearch query:\n" + request.toString());
-        }
-
-        SearchResponse response;
-        try {
-            response = getClient().search(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error for search request: " + request.toString(), e);
-        }
-        return getResultsMapper().mapResults(response, clazz, criteriaQuery.getPageable());
-    }
-
-    private SearchResponse doSearch(SearchRequest searchRequest, SearchQuery searchQuery) {
-        searchPreparation.prepareSearch(searchRequest, searchQuery);
-
-        try {
-            return getClient().search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new ElasticsearchException("Error for search request with scroll: " + searchRequest.toString(), e);
-        }
-    }
-
-    // Here ends the copy-paste due to the fact that Spring Data Elasticsearch 3.2 uses old
-    // request method signatures which were removed in Elasticsearch 7.1.0 (or earlier)
 }

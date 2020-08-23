@@ -2,6 +2,7 @@ package io.extremum.elasticsearch.model;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.elasticsearch.core.query.SeqNoPrimaryTerm;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -26,8 +27,7 @@ class ElasticsearchCommonModelTest {
         setVersion(1L);
         setDeleted(true);
 
-        setSeqNo(2L);
-        setPrimaryTerm(3L);
+        setSeqNoPrimaryTerm(new SeqNoPrimaryTerm(2, 3));
     }};
     private final TestElasticsearchModel to = new TestElasticsearchModel();
 
@@ -43,8 +43,8 @@ class ElasticsearchCommonModelTest {
         assertThat(to.getVersion(), is(1L));
         assertThat(to.getDeleted(), is(sameInstance(from.getDeleted())));
 
-        assertThat(to.getSeqNo(), is(2L));
-        assertThat(to.getPrimaryTerm(), is(3L));
+        assertThat(to.getSeqNoPrimaryTerm().getSequenceNumber(), is(2L));
+        assertThat(to.getSeqNoPrimaryTerm().getPrimaryTerm(), is(3L));
     }
 
     private static class TestElasticsearchModel extends ElasticsearchCommonModel {

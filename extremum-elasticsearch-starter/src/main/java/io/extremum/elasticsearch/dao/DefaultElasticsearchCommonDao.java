@@ -47,6 +47,7 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
+import org.springframework.data.elasticsearch.core.query.SeqNoPrimaryTerm;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -59,10 +60,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
-import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.HttpStatus.SC_OK;
+import static java.util.Arrays.*;
+import static java.util.Optional.*;
+import static org.apache.http.HttpStatus.*;
 
 @Slf4j
 public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> implements ElasticsearchCommonDao<M> {
@@ -274,9 +274,9 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
 
         request.source(serializeModel(model), XContentType.JSON);
 
-        if (model.getSeqNo() != null && model.getPrimaryTerm() != null) {
-            request.setIfSeqNo(model.getSeqNo());
-            request.setIfPrimaryTerm(model.getPrimaryTerm());
+        if (model.getSeqNoPrimaryTerm() != null) {
+            request.setIfSeqNo(model.getSeqNoPrimaryTerm().getSequenceNumber());
+            request.setIfPrimaryTerm(model.getSeqNoPrimaryTerm().getPrimaryTerm());
         }
 
         final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
@@ -286,8 +286,9 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
             throw new RuntimeException("Document don't be indexed");
         }
 
-        model.setSeqNo(response.getSeqNo());
-        model.setPrimaryTerm(response.getPrimaryTerm());
+        if (response.getSeqNo() >= 0 && response.getPrimaryTerm() > 0) {
+            model.setSeqNoPrimaryTerm(new SeqNoPrimaryTerm(response.getSeqNo(), response.getPrimaryTerm()));
+        }
         model.setVersion(response.getVersion());
         return model;
     }
@@ -441,12 +442,13 @@ public class DefaultElasticsearchCommonDao<M extends ElasticsearchCommonModel> i
         model.setId(accessor.getId());
         model.setUuid(accessor.getUuid());
         model.setVersion(accessor.getVersion());
-        model.setSeqNo(accessor.getSeqNo());
-        model.setPrimaryTerm(accessor.getPrimaryTerm());
+        if (accessor.getSeqNo() >= 0 && accessor.getPrimaryTerm() > 0) {
+            model.setSeqNoPrimaryTerm(new SeqNoPrimaryTerm(accessor.getSeqNo(), accessor.getPrimaryTerm()));
+        }
 
         final Map<String, Object> sourceAsMap = accessor.getSourceAsMap();
 
-        final Boolean deleted = ofNullable(sourceAsMap)
+        final boolean deleted = ofNullable(sourceAsMap)
                 .map(m -> m.get(FIELDS.deleted.name()))
                 .map(Boolean.class::cast)
                 .orElse(false);

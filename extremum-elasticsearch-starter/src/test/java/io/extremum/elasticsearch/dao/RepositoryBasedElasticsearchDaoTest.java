@@ -1,5 +1,6 @@
 package io.extremum.elasticsearch.dao;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import io.extremum.common.descriptor.service.DescriptorService;
@@ -11,8 +12,6 @@ import io.extremum.elasticsearch.properties.ElasticsearchProperties;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
-import io.extremum.test.hamcrest.SameMomentMatcher;
-import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -20,21 +19,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.UncategorizedElasticsearchException;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SeqNoPrimaryTerm;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.extremum.test.hamcrest.SameMomentMatcher.atSameMomentAs;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static io.extremum.test.hamcrest.SameMomentMatcher.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -93,7 +102,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel loadedModel = dao.findById(savedModel.getId())
                 .orElseThrow(() -> new AssertionError("Did not find anything"));
 
-        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId().toString())));
+        assertThat(loadedModel.getUuid().getInternalId(), is(equalTo(savedModel.getId())));
     }
 
     @Test
@@ -121,16 +130,12 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
     @Test
     void testCreateModelWithVersionConflict() {
         TestElasticsearchModel model = new TestElasticsearchModel();
-        model = makeSureModelHasSeqNumberMoreThanZero(model);
+        TestElasticsearchModel savedModel = makeSureModelHasSeqNumberMoreThanZero(model);
 
-        model.setSeqNo(0L);
-        model.setName(UUID.randomUUID().toString());
-        try {
-            dao.save(model);
-            fail("An optimistic failure should occur");
-        } catch (ElasticsearchStatusException e) {
-            assertThat(e.getMessage(), containsString("version conflict"));
-        }
+        savedModel.setSeqNoPrimaryTerm(new SeqNoPrimaryTerm(0, 1));
+        savedModel.setName(UUID.randomUUID().toString());
+
+        assertThrows(OptimisticLockingFailureException.class, () -> dao.save(savedModel));
     }
 
     @NotNull
@@ -234,8 +239,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         dao.save(model);
 
         assertThat(model.getVersion(), is(notNullValue()));
-        assertThat(model.getSeqNo(), is(notNullValue()));
-        assertThat(model.getPrimaryTerm(), is(notNullValue()));
+        assertThat(model.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     @Test
@@ -247,8 +251,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
                 .orElseThrow(this::didNotFindAnything);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
-        assertThat(resultModel.getSeqNo(), is(notNullValue()));
-        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+        assertThat(resultModel.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     @Test
@@ -261,8 +264,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel resultModel = searchResult.get(0);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
-        assertThat(resultModel.getSeqNo(), is(notNullValue()));
-        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+        assertThat(resultModel.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     private SearchOptions exactMatchSearch() {
@@ -280,19 +282,16 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         TestElasticsearchModel resultModel = list.get(0);
 
         assertThat(resultModel.getVersion(), is(notNullValue()));
-        assertThat(resultModel.getSeqNo(), is(notNullValue()));
-        assertThat(resultModel.getPrimaryTerm(), is(notNullValue()));
+        assertThat(resultModel.getSeqNoPrimaryTerm(), is(notNullValue()));
     }
 
     @Test
     void testFindAll_throwsAnException() {
-        int modelsToCreate = 10;
-
-        for (int i = 0; i < modelsToCreate; i++) {
-            dao.save(createModelWithExternalDescriptor());
-        }
-
         assertThrows(UnsupportedOperationException.class, dao::findAll);
+    }
+
+    @Test
+    void testFindAllWithSort_throwsAnException() {
         assertThrows(UnsupportedOperationException.class, () -> dao.findAll(Sort.by("id")));
     }
 
@@ -451,7 +450,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
 
     @Test
     void givenNoEntityExists_whenPatchingIt_thenExceptionShouldBeThrown() {
-        assertThrows(ElasticsearchStatusException.class,
+        assertThrows(UncategorizedElasticsearchException.class,
                 () -> dao.patch(UUID.randomUUID().toString(), "ctx._source.name = \"new name\""));
     }
 
@@ -508,6 +507,8 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
 
     private TestElasticsearchModel parseJsonWithOurObjectMapper(String json) {
         ObjectMapper mapper = new BasicJsonObjectMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
         try {
             return mapper.readerFor(TestElasticsearchModel.class).readValue(json);
         } catch (IOException e) {
@@ -561,6 +562,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
         QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(uniqueName).analyzer("keyword");
+        @SuppressWarnings("deprecation") // we know what we test
         Iterable<TestElasticsearchModel> iterable = dao.search(query);
         List<TestElasticsearchModel> results = iterableToList(iterable);
 
@@ -573,6 +575,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
         dao.saveAll(oneDeletedAndOneNonDeletedWithGivenName(uniqueName));
 
         QueryStringQueryBuilder query = QueryBuilders.queryStringQuery(uniqueName).analyzer("keyword");
+        @SuppressWarnings("deprecation") // we know what we test
         Iterable<TestElasticsearchModel> iterable = dao.search(query, Pageable.unpaged());
         List<TestElasticsearchModel> results = iterableToList(iterable);
 
@@ -591,6 +594,7 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
 
         QueryStringQueryBuilder queryBuilder = QueryBuilders.queryStringQuery(uniqueName).analyzer("keyword");
         NativeSearchQuery query = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
+        @SuppressWarnings("deprecation") // we know what we test
         Iterable<TestElasticsearchModel> iterable = dao.search(query);
         List<TestElasticsearchModel> results = iterableToList(iterable);
 
@@ -645,9 +649,11 @@ class RepositoryBasedElasticsearchDaoTest extends TestWithServices {
                 .modelType(ModelUtils.getModelName(model.getClass()))
                 .storageType(StandardStorageType.ELASTICSEARCH)
                 .build();
+        descriptorService.store(descriptor);
 
         model.setUuid(descriptor);
 
         return model;
     }
+
 }

@@ -23,22 +23,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
-import static com.mongodb.client.model.Filters.or;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.created;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.deleted;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.model;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.modified;
-import static io.extremum.sharedmodels.basic.Model.FIELDS.version;
-import static java.lang.String.format;
+import static com.mongodb.client.model.Filters.*;
+import static io.extremum.sharedmodels.basic.Model.FIELDS.*;
+import static java.lang.String.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static reactor.core.publisher.Mono.defer;
-import static reactor.core.publisher.Mono.error;
-import static reactor.core.publisher.Mono.from;
-import static reactor.core.publisher.Mono.just;
-import static reactor.core.publisher.Mono.justOrEmpty;
+import static reactor.core.publisher.Mono.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -156,18 +145,20 @@ public class MongoDynamicModelDao implements JsonDynamicModelDao {
     // doesn't support Date to ZonedDateTime converting in a nested elements
     @Override
     public Mono<JsonDynamicModel> getByIdFromCollection(Descriptor id, String collectionName) {
-        FindPublisher<Document> p = mongoOperations.getCollection(collectionName)
-                .find(
-                        and(
-                                eq("_id", new ObjectId(id.getInternalId())),
-                                or(
-                                        eq(deleted.name(), false),
-                                        exists(deleted.name(), false)
-                                )
-                        )
-                );
 
-        return from(p)
+        return mongoOperations.getCollection(collectionName)
+                .flatMap(collection -> {
+                    FindPublisher<Document> publisher = collection.find(
+                            and(
+                                    eq("_id", new ObjectId(id.getInternalId())),
+                                    or(
+                                            eq(deleted.name(), false),
+                                            exists(deleted.name(), false)
+                                    )
+                            )
+                    );
+                    return Mono.from(publisher);
+                })
                 .flatMap(doc ->
                         mongoDescriptorFacilities
                                 .fromInternalId(doc.getObjectId("_id").toString())

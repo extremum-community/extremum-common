@@ -1,12 +1,14 @@
 package io.extremum.dynamic.dao;
 
+import com.mongodb.client.result.DeleteResult;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.reactivestreams.Publisher;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import reactor.core.publisher.Mono;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
 @RequiredArgsConstructor
 public class HardDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
@@ -20,8 +22,11 @@ public class HardDeleteRemoveStrategy implements DynamicModelRemoveStrategy {
     }
 
     private Mono<Void> doRemove(ObjectId oId, String collectionName) {
-        return Mono.from(mongoOperations.getCollection(collectionName)
-                .deleteOne(eq("_id", oId)))
+        return mongoOperations.getCollection(collectionName)
+                .flatMap(collection -> {
+                    Publisher<DeleteResult> publisher = collection.deleteOne(eq("_id", oId));
+                    return Mono.from(publisher);
+                })
                 .then();
     }
 

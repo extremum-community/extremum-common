@@ -1,7 +1,13 @@
 package io.extremum.starter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.common.collection.service.*;
+import io.extremum.common.collection.service.CollectionDescriptorService;
+import io.extremum.common.collection.service.CollectionDescriptorServiceImpl;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorExtractor;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.collection.service.ReactiveCollectionDescriptorServiceImpl;
+import io.extremum.common.collection.service.ReactiveCollectionOverride;
+import io.extremum.common.collection.service.ReactiveCollectionOverridesWithDescriptorExtractorList;
 import io.extremum.common.descriptor.dao.DescriptorDao;
 import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
@@ -9,19 +15,36 @@ import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.serde.StringToDescriptorConverter;
-import io.extremum.common.descriptor.service.*;
+import io.extremum.common.descriptor.service.DBDescriptorLoader;
+import io.extremum.common.descriptor.service.DescriptorService;
+import io.extremum.common.descriptor.service.DescriptorServiceImpl;
+import io.extremum.common.descriptor.service.ReactiveDescriptorService;
+import io.extremum.common.descriptor.service.ReactiveDescriptorServiceImpl;
+import io.extremum.common.descriptor.service.StaticDescriptorLoaderAccessorConfigurator;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
-import io.extremum.common.reactive.*;
+import io.extremum.common.reactive.IsolatedSchedulerReactifier;
+import io.extremum.common.reactive.Reactifier;
 import io.extremum.common.redisson.ExtremumRedisson;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.ReactiveCommonService;
-import io.extremum.common.support.*;
+import io.extremum.common.support.CommonServices;
+import io.extremum.common.support.ListBasedCommonServices;
+import io.extremum.common.support.ListBasedReactiveCommonServices;
+import io.extremum.common.support.ModelClasses;
+import io.extremum.common.support.ReactiveCommonServices;
+import io.extremum.common.support.ScanningModelClasses;
+import io.extremum.common.support.UniversalModelFinder;
+import io.extremum.common.support.UniversalModelFinderImpl;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
-import io.extremum.mongo.config.*;
+import io.extremum.mongo.config.DescriptorsMongoConfiguration;
+import io.extremum.mongo.config.DescriptorsReactiveMongoConfiguration;
+import io.extremum.mongo.config.MainMongoConfiguration;
+import io.extremum.mongo.config.MainReactiveMongoConfiguration;
+import io.extremum.mongo.config.MongoRepositoriesConfiguration;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import io.extremum.mongo.springdata.DescriptorsMongoDb;
 import io.extremum.mongo.springdata.MainMongoDb;
@@ -43,8 +66,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -76,7 +102,7 @@ public class CommonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public Config redissonConfig(@Qualifier("redis") ObjectMapper redisMapper) {
+    public Config redissonConfig() {
         Config config = new Config();
         config.useSingleServer().setAddress(redisProperties.getUri());
         if (StringUtils.hasLength(redisProperties.getPassword())) {
@@ -222,13 +248,6 @@ public class CommonConfiguration {
             ReactiveCollectionDescriptorService reactiveCollectionDescriptorService) {
         return new ReactiveDescriptorSaver(descriptorService, reactiveDescriptorService,
                 reactiveCollectionDescriptorService);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ReactiveEventPublisher reactiveEventPublisher(
-            List<ReactiveApplicationListener<? extends ApplicationEvent>> listeners) {
-        return new DefaultReactiveEventPublisher(listeners);
     }
 
     @Bean

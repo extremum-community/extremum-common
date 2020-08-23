@@ -1,6 +1,7 @@
 package io.extremum.elasticsearch.facilities;
 
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorService;
+import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.Descriptor;
@@ -25,11 +26,11 @@ class ReactiveElasticsearchDescriptorFacilitiesImplTest {
     private ReactiveElasticsearchDescriptorFacilitiesImpl facilities;
 
     @Spy
-    private DescriptorService descriptorService = new InMemoryDescriptorService();
+    private final DescriptorService descriptorService = new InMemoryDescriptorService();
     @Spy
-    private InMemoryReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
+    private final InMemoryReactiveDescriptorService reactiveDescriptorService = new InMemoryReactiveDescriptorService();
     @Spy
-    private ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
+    private final ReactiveCollectionDescriptorService reactiveCollectionDescriptorService =
             new InMemoryReactiveCollectionDescriptorService(reactiveDescriptorService, descriptorService);
 
     private final UUID uuid = UUID.randomUUID();
@@ -38,14 +39,14 @@ class ReactiveElasticsearchDescriptorFacilitiesImplTest {
     void initDescriptorSaver() {
         ReactiveDescriptorSaver descriptorSaver = new ReactiveDescriptorSaver(
                 descriptorService, reactiveDescriptorService, reactiveCollectionDescriptorService);
-        facilities = new ReactiveElasticsearchDescriptorFacilitiesImpl(descriptorSaver);
+        facilities = new ReactiveElasticsearchDescriptorFacilitiesImpl(new DescriptorFactory(), descriptorSaver);
     }
 
     @Test
     void whenCreatingANewDescriptorWithANewInternalId_thenARandomObjectIdShouldBeGeneratedAndDescriptorSavedWithThatId() {
         when(descriptorService.createExternalId()).thenReturn("external-id");
 
-        Descriptor descriptor = facilities.create(uuid, "Test").block();
+        Descriptor descriptor = facilities.createOrGet(uuid.toString(), "Test").block();
 
         assertThat(descriptor, is(notNullValue()));
         assertThat(descriptor.getExternalId(), is("external-id"));
@@ -64,9 +65,9 @@ class ReactiveElasticsearchDescriptorFacilitiesImplTest {
                 .storageType(StandardStorageType.ELASTICSEARCH)
                 .build();
 
-        UUID resolvedId = facilities.resolve(descriptor).block();
+        String resolvedId = facilities.resolve(descriptor).block();
 
-        assertThat(resolvedId, is(equalTo(uuid)));
+        assertThat(resolvedId, is(equalTo(uuid.toString())));
     }
 
     @Test
@@ -76,7 +77,7 @@ class ReactiveElasticsearchDescriptorFacilitiesImplTest {
                 .storageType(StandardStorageType.POSTGRES)
                 .build();
 
-        Mono<UUID> mono = facilities.resolve(descriptor);
+        Mono<String> mono = facilities.resolve(descriptor);
         try {
             mono.block();
             fail("An exception should be thrown");

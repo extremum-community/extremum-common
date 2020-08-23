@@ -4,28 +4,29 @@ import io.extremum.common.utils.ModelUtils;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
-import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
-import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import org.springframework.data.mongodb.core.mapping.event.AfterConvertCallback;
+import org.springframework.data.mongodb.core.mapping.event.AfterSaveCallback;
+import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback;
 
 /**
  * @author rpuch
  */
-public final class MongoCommonModelLifecycleListener extends BlockingMongoEventListener<MongoCommonModel> {
+public final class MongoCommonModelLifecycleCallbacks implements BeforeConvertCallback<MongoCommonModel>,
+        AfterSaveCallback<MongoCommonModel>, AfterConvertCallback<MongoCommonModel> {
     private final MongoDescriptorFacilities mongoDescriptorFacilities;
 
-    public MongoCommonModelLifecycleListener(MongoDescriptorFacilities mongoDescriptorFacilities) {
+    public MongoCommonModelLifecycleCallbacks(MongoDescriptorFacilities mongoDescriptorFacilities) {
         this.mongoDescriptorFacilities = mongoDescriptorFacilities;
     }
 
     @Override
-    protected void onBeforeConvertBlockingly(BeforeConvertEvent<MongoCommonModel> event) {
-        MongoCommonModel model = event.getSource();
-
-        fillRequiredFields(model);
+    public MongoCommonModel onBeforeConvert(MongoCommonModel entity, String collection) {
+        fillRequiredFields(entity);
+        return entity;
     }
-    
+
     private void fillRequiredFields(MongoCommonModel model) {
         final boolean internalIdGiven = model.getId() != null;
         final boolean uuidGiven = model.getUuid() != null;
@@ -56,10 +57,9 @@ public final class MongoCommonModelLifecycleListener extends BlockingMongoEventL
     }
 
     @Override
-    protected void onAfterSaveBlockingly(AfterSaveEvent<MongoCommonModel> event) {
-        MongoCommonModel model = event.getSource();
-
-        createDescriptorIfNeeded(model);
+    public MongoCommonModel onAfterSave(MongoCommonModel entity, Document document, String collection) {
+        createDescriptorIfNeeded(entity);
+        return entity;
     }
 
     private void createDescriptorIfNeeded(MongoCommonModel model) {
@@ -70,12 +70,11 @@ public final class MongoCommonModelLifecycleListener extends BlockingMongoEventL
     }
 
     @Override
-    protected void onAfterConvertBlockingly(AfterConvertEvent<MongoCommonModel> event) {
-        MongoCommonModel model = event.getSource();
-
-        resolveDescriptor(model);
+    public MongoCommonModel onAfterConvert(MongoCommonModel entity, Document document, String collection) {
+        resolveDescriptor(entity);
+        return entity;
     }
-    
+
     private void resolveDescriptor(MongoCommonModel model) {
         model.setUuid(mongoDescriptorFacilities.fromInternalId(model.getId()));
     }
