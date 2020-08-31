@@ -1,5 +1,7 @@
 package io.extremum.mongo.config;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -17,6 +19,7 @@ import io.extremum.starter.DateToZonedDateTimeConverter;
 import io.extremum.starter.DescriptorToStringConverter;
 import io.extremum.starter.ZonedDateTimeToDateConverter;
 import lombok.RequiredArgsConstructor;
+import org.bson.UuidRepresentation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -72,7 +75,11 @@ public class MainMongoConfiguration extends AbstractMongoClientConfiguration {
     @Bean
     @MainMongoDb
     public MongoClient mongoClient() {
-        return MongoClients.create(mongoProperties.getUri());
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(mongoProperties.getUri()))
+                .uuidRepresentation(UuidRepresentation.STANDARD)
+                .build();
+        return MongoClients.create(settings);
     }
 
     @Override
