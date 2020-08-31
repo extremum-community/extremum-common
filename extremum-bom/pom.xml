@@ -19,6 +19,7 @@
 
     <properties>
         <spring-boot-dependencies.version>2.2.4.RELEASE</spring-boot-dependencies.version>
+        <mongodb-driver.version>3.12.7</mongodb-driver.version>
         <elasticsearch.version>7.1.0</elasticsearch.version>
         <testcontainers.version>1.11.3</testcontainers.version>
         <mock-server.client.version>5.5.1</mock-server.client.version>
@@ -110,6 +111,22 @@
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-dynamic</artifactId>
                 <version>1.1.13-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver</artifactId>
+                <version>${mongodb-driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-core</artifactId>
+                <version>${mongodb-driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>bson</artifactId>
+                <version>${mongodb-driver.version}</version>
             </dependency>
 
             <dependency>
