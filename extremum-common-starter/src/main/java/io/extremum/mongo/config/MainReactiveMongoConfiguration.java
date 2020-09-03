@@ -1,5 +1,7 @@
 package io.extremum.mongo.config;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.WriteConcern;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -12,6 +14,7 @@ import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleCall
 import io.extremum.mongo.service.lifecycle.ReactiveMongoVersionedModelLifecycleCallbacks;
 import io.extremum.mongo.springdata.MainMongoDb;
 import lombok.RequiredArgsConstructor;
+import org.bson.UuidRepresentation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +38,11 @@ public class MainReactiveMongoConfiguration {
 
     @Bean
     public MongoClient reactiveMongoClient() {
-        return MongoClients.create(mongoProperties.getUri());
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(mongoProperties.getUri()))
+                .uuidRepresentation(UuidRepresentation.STANDARD)
+                .build();
+        return MongoClients.create(settings);
     }
 
     private String getDatabaseName() {
