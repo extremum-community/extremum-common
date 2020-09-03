@@ -125,6 +125,11 @@
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-async</artifactId>
+                <version>${mongodb-driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
                 <artifactId>bson</artifactId>
                 <version>${mongodb-driver.version}</version>
             </dependency>
