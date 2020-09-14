@@ -25,6 +25,10 @@
         <module>extremum-shared-models</module>
         <module>authentication-api</module>
         <module>extremum-test-harness</module>
+        <module>extremum-mongo-db-factory</module>
+        <module>extremum-mongo-db-factory/common</module>
+        <module>extremum-mongo-db-factory/sync</module>
+        <module>extremum-mongo-db-factory/reactive</module>
         <module>extremum-common-starter</module>
         <module>extremum-core-test</module>
         <module>extremum-security</module>

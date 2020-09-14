@@ -1,6 +1,7 @@
-package io.extremum.mongo.config;
+package io.extremum.mongo.dbfactory;
 
 import io.extremum.common.annotation.ToStorageString;
+import io.extremum.mongo.config.EnumToStringConverter;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;

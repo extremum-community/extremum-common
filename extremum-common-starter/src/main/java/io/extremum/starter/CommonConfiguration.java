@@ -47,7 +47,7 @@ import io.extremum.mongo.config.MainReactiveMongoConfiguration;
 import io.extremum.mongo.config.MongoRepositoriesConfiguration;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
 import io.extremum.mongo.springdata.DescriptorsMongoDb;
-import io.extremum.mongo.springdata.MainMongoDb;
+import io.extremum.mongo.dbfactory.MainMongoDb;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
 import io.extremum.starter.properties.DescriptorsProperties;

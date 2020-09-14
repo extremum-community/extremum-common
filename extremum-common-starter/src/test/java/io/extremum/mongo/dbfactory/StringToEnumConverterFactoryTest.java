@@ -1,6 +1,7 @@
-package io.extremum.mongo.config;
+package io.extremum.mongo.dbfactory;
 
 import io.extremum.common.annotation.FromStorageString;
+import io.extremum.mongo.config.StringToEnumConverterFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.converter.Converter;
 

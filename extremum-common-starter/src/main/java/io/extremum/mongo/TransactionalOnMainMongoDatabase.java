@@ -1,6 +1,6 @@
 package io.extremum.mongo;
 
-import io.extremum.mongo.springdata.MainMongoDb;
+import io.extremum.mongo.dbfactory.MainMongoDb;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.ElementType;

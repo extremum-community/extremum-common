@@ -6,7 +6,7 @@ import common.dao.mongo.MongoCommonDaoConfiguration;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.properties.MongoProperties;
-import io.extremum.mongo.springdata.MainMongoDb;
+import io.extremum.mongo.dbfactory.MainMongoDb;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.Document;

@@ -10,7 +10,7 @@ import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.redisson.CompositeCodecWithQuickFix;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
-import io.extremum.mongo.springdata.MainMongoDb;
+import io.extremum.mongo.dbfactory.MainMongoDb;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;

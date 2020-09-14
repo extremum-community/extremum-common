@@ -1,4 +1,4 @@
-package io.extremum.mongo.springdata;
+package io.extremum.mongo.dbfactory;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 
