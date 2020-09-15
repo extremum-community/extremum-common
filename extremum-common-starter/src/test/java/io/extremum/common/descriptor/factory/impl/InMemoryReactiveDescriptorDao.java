@@ -1,6 +1,6 @@
 package io.extremum.common.descriptor.factory.impl;
 
-import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
 

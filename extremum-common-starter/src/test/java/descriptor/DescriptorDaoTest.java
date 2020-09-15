@@ -1,14 +1,14 @@
 package descriptor;
 
 import config.DescriptorConfiguration;
-import io.extremum.common.descriptor.dao.DescriptorDao;
-import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.descriptors.sync.dao.DescriptorDao;
+import io.extremum.descriptors.common.dao.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
-import io.extremum.mongo.springdata.DescriptorsMongoDb;
+import io.extremum.descriptors.common.DescriptorsMongoDb;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
 import io.extremum.sharedmodels.content.Display;
@@ -18,9 +18,9 @@ import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor.Readiness;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
-import io.extremum.starter.DescriptorDaoFactory;
-import io.extremum.starter.properties.DescriptorsProperties;
-import io.extremum.starter.properties.RedisProperties;
+import io.extremum.descriptors.sync.dao.DescriptorDaoFactory;
+import io.extremum.descriptors.common.properties.DescriptorsProperties;
+import io.extremum.descriptors.common.properties.RedisProperties;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,7 +172,7 @@ class DescriptorDaoTest extends TestWithServices {
         Optional<Descriptor> retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
         assertFalse(retrievedDescriptor.isPresent());
 
-        descriptorRepository.save(descriptor);
+        descriptorMongoOperations.save(descriptor);
         retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
         assertTrue(retrievedDescriptor.isPresent());
         assertEquals(descriptor, retrievedDescriptor.get());
@@ -295,7 +295,7 @@ class DescriptorDaoTest extends TestWithServices {
         Descriptor descriptor = saveADescriptor();
 
         descriptor.setDeleted(true);
-        descriptorRepository.save(descriptor);
+        descriptorMongoOperations.save(descriptor);
 
         Optional<Descriptor> optDescriptor = descriptorRepository.findByExternalId(descriptor.getExternalId());
         assertThat(optDescriptor.isPresent(), is(false));

@@ -17,7 +17,6 @@ import java.util.List;
 public class MongoProperties {
     public static final String REPOSITORY_PACKAGES_PROPERTY = "mongo.repository-packages";
 
-    private String descriptorsDbName;
     private List<String> modelPackages = new ArrayList<>();
     private List<String> repositoryPackages;
 }

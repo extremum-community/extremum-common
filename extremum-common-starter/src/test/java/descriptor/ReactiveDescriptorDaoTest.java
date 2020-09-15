@@ -1,20 +1,21 @@
 package descriptor;
 
 import config.DescriptorConfiguration;
-import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
-import io.extremum.common.descriptor.dao.impl.DescriptorCodecs;
-import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
+import io.extremum.descriptors.common.dao.DescriptorCodecs;
+import io.extremum.descriptors.common.dao.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.common.redisson.CompositeCodecWithQuickFix;
+import io.extremum.descriptors.common.redisson.CompositeCodecWithQuickFix;
 import io.extremum.common.test.TestWithServices;
+import io.extremum.descriptors.common.DescriptorsMongoDb;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.mongo.dbfactory.MainMongoDb;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
-import io.extremum.starter.properties.DescriptorsProperties;
+import io.extremum.descriptors.common.properties.DescriptorsProperties;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ import org.redisson.client.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
@@ -54,6 +56,9 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
     @Autowired
     @MainMongoDb
     private ReactiveTransactionManager reactiveTransactionManager;
+    @Autowired
+    @DescriptorsMongoDb
+    private ReactiveMongoOperations descriptorsMongoOperations;
     @Autowired
     private DescriptorsProperties descriptorsProperties;
     @Autowired
@@ -194,7 +199,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         Mono<Descriptor> mono = reactiveDescriptorDao.retrieveByInternalId(internalId);
         assertThat(mono.block(), is(nullValue()));
 
-        descriptorRepository.save(originalDescriptor);
+        descriptorsMongoOperations.save(originalDescriptor).block();
         mono = reactiveDescriptorDao.retrieveByInternalId(internalId);
         Descriptor foundDescriptor = mono.block();
 

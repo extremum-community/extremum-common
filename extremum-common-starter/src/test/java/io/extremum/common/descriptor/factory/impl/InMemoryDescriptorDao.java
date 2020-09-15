@@ -1,6 +1,6 @@
 package io.extremum.common.descriptor.factory.impl;
 
-import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.descriptors.sync.dao.DescriptorDao;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 
 import java.util.Collection;
