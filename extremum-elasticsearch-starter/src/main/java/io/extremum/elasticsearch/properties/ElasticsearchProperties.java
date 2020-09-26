@@ -17,11 +17,16 @@ import java.util.List;
 @ConfigurationProperties("elasticsearch")
 @Valid
 public class ElasticsearchProperties {
-    private List<ElasticsearchProperties.Host> hosts;
+    private List<Host> hosts;
+    private boolean usingSsl;
     private String username;
     private String password;
     @NotEmpty
     private List<String> repositoryPackages;
+
+    public boolean hasAuth() {
+        return getUsername() != null && getPassword() != null;
+    }
 
     @Getter
     @Setter
