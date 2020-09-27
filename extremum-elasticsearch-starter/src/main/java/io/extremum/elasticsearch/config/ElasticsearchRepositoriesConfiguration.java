@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.reactive.DefaultReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.config.EnableElasticsearchAuditing;
@@ -76,7 +77,7 @@ public class ElasticsearchRepositoriesConfiguration {
                 .toArray(HttpHost[]::new);
         RestClientBuilder restClientBuilder = RestClient.builder(httpHosts);
 
-        if (elasticsearchProperties.getUsername() != null && elasticsearchProperties.getPassword() != null) {
+        if (elasticsearchProperties.hasAuth()) {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials(elasticsearchProperties.getUsername(), elasticsearchProperties.getPassword()));
@@ -113,7 +114,20 @@ public class ElasticsearchRepositoriesConfiguration {
                 .map(h -> h.getHost() + ":" + h.getPort())
                 .toArray(String[]::new);
 
-        return DefaultReactiveElasticsearchClient.create(HttpHeaders.EMPTY, hosts);
+        ClientConfiguration.MaybeSecureClientConfigurationBuilder builder = ClientConfiguration.builder()
+                .connectedTo(hosts);
+        if (elasticsearchProperties.isUsingSsl()) {
+            builder.usingSsl();
+        }
+        if (elasticsearchProperties.hasAuth()) {
+            builder.withBasicAuth(elasticsearchProperties.getUsername(),
+                    elasticsearchProperties.getPassword());
+        }
+        ClientConfiguration clientConfiguration = builder
+                .withDefaultHeaders(HttpHeaders.EMPTY)
+                .build();
+
+        return DefaultReactiveElasticsearchClient.create(clientConfiguration);
     }
 
     @Bean
