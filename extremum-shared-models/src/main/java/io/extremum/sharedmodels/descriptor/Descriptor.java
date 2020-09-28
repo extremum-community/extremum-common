@@ -411,7 +411,7 @@ public class Descriptor implements Serializable {
     }
 
     public enum FIELDS {
-        externalId, internalId, modelType, storageType, created, modified, version, deleted, display
+        externalId, internalId, modelType, storageType, collection, created, modified, version, deleted, display
     }
 
     public static class DescriptorBuilder {

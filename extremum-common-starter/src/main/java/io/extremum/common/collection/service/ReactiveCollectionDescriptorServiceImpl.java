@@ -1,6 +1,6 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;

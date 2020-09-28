@@ -1,6 +1,6 @@
 package io.extremum.common.descriptor.service;
 
-import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
 import io.extremum.mongo.facilities.DescriptorIsAlreadyReadyException;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;

@@ -1,7 +1,7 @@
 package io.extremum.common.descriptor.service;
 
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.descriptors.sync.dao.DescriptorDao;
 import io.extremum.common.uuid.UUIDGenerator;
 import io.extremum.sharedmodels.descriptor.DescriptorNotFoundException;
 import io.extremum.sharedmodels.descriptor.DescriptorNotReadyException;

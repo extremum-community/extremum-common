@@ -6,7 +6,7 @@ import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.starter.properties.DescriptorsProperties;
+import io.extremum.descriptors.common.properties.DescriptorsProperties;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RMap;

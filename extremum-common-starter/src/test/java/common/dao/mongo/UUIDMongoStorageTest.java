@@ -8,7 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import io.extremum.common.test.TestWithServices;
-import io.extremum.mongo.properties.MongoProperties;
+import io.extremum.mongo.dbfactory.MongoDatabaseFactoryProperties;
 import lombok.Data;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
@@ -36,7 +36,7 @@ class UUIDMongoStorageTest extends TestWithServices {
     private ReactiveMongoOperations reactiveMongoOperations;
 
     @Autowired
-    private MongoProperties mongoProperties;
+    private MongoDatabaseFactoryProperties mongoProperties;
 
     @Test
     void shouldReturnEntityWithSameUUIDWhenSearchingViaReactiveMongoTemplate() {

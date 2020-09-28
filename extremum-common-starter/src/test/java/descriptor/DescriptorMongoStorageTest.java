@@ -4,7 +4,7 @@ import com.mongodb.client.model.Filters;
 import config.DescriptorConfiguration;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.test.TestWithServices;
-import io.extremum.mongo.springdata.DescriptorsMongoDb;
+import io.extremum.descriptors.common.DescriptorsMongoDb;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import org.bson.Document;

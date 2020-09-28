@@ -8,9 +8,10 @@ import io.extremum.common.collection.service.ReactiveCollectionDescriptorService
 import io.extremum.common.collection.service.ReactiveCollectionDescriptorServiceImpl;
 import io.extremum.common.collection.service.ReactiveCollectionOverride;
 import io.extremum.common.collection.service.ReactiveCollectionOverridesWithDescriptorExtractorList;
-import io.extremum.common.descriptor.dao.DescriptorDao;
-import io.extremum.common.descriptor.dao.ReactiveDescriptorDao;
-import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDaoFactory;
+import io.extremum.descriptors.sync.dao.DescriptorDao;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
+import io.extremum.descriptors.common.dao.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.ReactiveDescriptorSaver;
@@ -26,7 +27,7 @@ import io.extremum.common.mapper.MapperDependenciesImpl;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.reactive.IsolatedSchedulerReactifier;
 import io.extremum.common.reactive.Reactifier;
-import io.extremum.common.redisson.ExtremumRedisson;
+import io.extremum.descriptors.common.redisson.ExtremumRedisson;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.service.ReactiveCommonService;
 import io.extremum.common.support.CommonServices;
@@ -39,20 +40,21 @@ import io.extremum.common.support.UniversalModelFinder;
 import io.extremum.common.support.UniversalModelFinderImpl;
 import io.extremum.common.uuid.StandardUUIDGenerator;
 import io.extremum.common.uuid.UUIDGenerator;
+import io.extremum.descriptors.sync.dao.DescriptorDaoFactory;
 import io.extremum.mapper.jackson.BasicJsonObjectMapper;
-import io.extremum.mongo.config.DescriptorsMongoConfiguration;
-import io.extremum.mongo.config.DescriptorsReactiveMongoConfiguration;
+import io.extremum.descriptors.sync.config.DescriptorsMongoConfiguration;
+import io.extremum.descriptors.reactive.config.DescriptorsReactiveMongoConfiguration;
 import io.extremum.mongo.config.MainMongoConfiguration;
 import io.extremum.mongo.config.MainReactiveMongoConfiguration;
 import io.extremum.mongo.config.MongoRepositoriesConfiguration;
 import io.extremum.mongo.reactive.MongoUniversalReactiveModelLoader;
-import io.extremum.mongo.springdata.DescriptorsMongoDb;
-import io.extremum.mongo.springdata.MainMongoDb;
+import io.extremum.descriptors.common.DescriptorsMongoDb;
+import io.extremum.mongo.dbfactory.MainMongoDb;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.DescriptorLoader;
-import io.extremum.starter.properties.DescriptorsProperties;
+import io.extremum.descriptors.common.properties.DescriptorsProperties;
 import io.extremum.starter.properties.ModelProperties;
-import io.extremum.starter.properties.RedisProperties;
+import io.extremum.descriptors.common.properties.RedisProperties;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -153,7 +155,7 @@ public class CommonConfiguration {
             RedissonReactiveClient redissonReactiveClient, DescriptorRepository descriptorRepository,
             @DescriptorsMongoDb ReactiveMongoOperations reactiveMongoOperations,
             @MainMongoDb ReactiveMongoDatabaseFactory mongoDatabaseFactory) {
-        return DescriptorDaoFactory.createReactive(redisProperties, descriptorsProperties,
+        return ReactiveDescriptorDaoFactory.create(redisProperties, descriptorsProperties,
                 redissonReactiveClient, descriptorRepository, reactiveMongoOperations, mongoDatabaseFactory);
     }
 

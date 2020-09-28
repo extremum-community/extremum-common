@@ -19,6 +19,7 @@
 
     <properties>
         <spring-boot-dependencies.version>2.3.3.RELEASE</spring-boot-dependencies.version>
+        <redisson.version>3.10.5</redisson.version>
         <testcontainers.version>1.11.3</testcontainers.version>
         <mock-server.client.version>5.5.1</mock-server.client.version>
     </properties>
@@ -43,6 +44,46 @@
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-test-harness</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-mongo-db-factory</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-mongo-db-factory-common</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-mongo-db-factory-sync</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-mongo-db-factory-reactive</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-descriptors</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-descriptors-common</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-descriptors-sync</artifactId>
+                <version>1.2.2-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.extremum</groupId>
+                <artifactId>extremum-descriptors-reactive</artifactId>
                 <version>1.2.2-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -132,13 +173,18 @@
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>3.10.5</version>
+                <version>${redisson.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-starter-web</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
 
             <dependency>

@@ -1,10 +1,9 @@
 package io.extremum.common.collection.service;
 
-import io.extremum.common.descriptor.dao.DescriptorDao;
+import io.extremum.descriptors.sync.dao.DescriptorDao;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
-import io.extremum.test.mockito.ReturnFirstArg;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

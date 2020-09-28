@@ -2,7 +2,7 @@ package descriptor;
 
 import config.DescriptorConfiguration;
 import io.extremum.common.test.TestWithServices;
-import io.extremum.mongo.springdata.DescriptorsMongoDb;
+import io.extremum.descriptors.common.DescriptorsMongoDb;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

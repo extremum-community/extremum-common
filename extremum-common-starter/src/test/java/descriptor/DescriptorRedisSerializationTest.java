@@ -1,19 +1,19 @@
 package descriptor;
 
 import config.DescriptorConfiguration;
-import io.extremum.common.descriptor.dao.DescriptorDao;
-import io.extremum.common.descriptor.dao.impl.DescriptorRepository;
+import io.extremum.descriptors.sync.dao.DescriptorDao;
+import io.extremum.descriptors.common.dao.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.service.DescriptorService;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.mongo.facilities.MongoDescriptorFacilities;
-import io.extremum.mongo.springdata.DescriptorsMongoDb;
+import io.extremum.descriptors.common.DescriptorsMongoDb;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.OwnedCoordinates;
-import io.extremum.starter.DescriptorDaoFactory;
-import io.extremum.starter.properties.DescriptorsProperties;
-import io.extremum.starter.properties.RedisProperties;
+import io.extremum.descriptors.sync.dao.DescriptorDaoFactory;
+import io.extremum.descriptors.common.properties.DescriptorsProperties;
+import io.extremum.descriptors.common.properties.RedisProperties;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
