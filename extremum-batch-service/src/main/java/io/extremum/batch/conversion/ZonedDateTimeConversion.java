@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 public class ZonedDateTimeConversion {
-    private static final DateTimeFormatter FORMATTER = ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ");
+    private static final DateTimeFormatter FORMATTER = ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSSSSZ");
 
     public static class ZoneDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
         @Override

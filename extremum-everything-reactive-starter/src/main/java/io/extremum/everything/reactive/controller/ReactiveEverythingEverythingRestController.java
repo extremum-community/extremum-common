@@ -52,8 +52,8 @@ public class ReactiveEverythingEverythingRestController implements EverythingEve
             @ApiImplicitParam(name = "expand", value = "Return expanded object or no", example = "false"),
             @ApiImplicitParam(name = "limit", value = "Limit for a list in a result", example = "5"),
             @ApiImplicitParam(name = "offset", value = "Page of a result list", example = "5"),
-            @ApiImplicitParam(name = "since", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2018-09-26T06:47:01.000580-0500"),
-            @ApiImplicitParam(name = "until", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
+            @ApiImplicitParam(name = "since", value = "Date in format uuuu-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2018-09-26T06:47:01.000580-0500"),
+            @ApiImplicitParam(name = "until", value = "Date in format uuuu-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
     })
     @GetMapping
     public Mono<Response> get(@PathVariable String id, Projection projection,
@@ -100,8 +100,8 @@ public class ReactiveEverythingEverythingRestController implements EverythingEve
             @ApiImplicitParam(name = "expand", value = "Return expanded object or no", example = "false"),
             @ApiImplicitParam(name = "limit", value = "Limit for a list in a result", example = "5"),
             @ApiImplicitParam(name = "offset", value = "Page of a result list", example = "5"),
-            @ApiImplicitParam(name = "since", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2018-09-26T06:47:01.000580-0500"),
-            @ApiImplicitParam(name = "until", value = "Date in format yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
+            @ApiImplicitParam(name = "since", value = "Date in format uuuu-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2018-09-26T06:47:01.000580-0500"),
+            @ApiImplicitParam(name = "until", value = "Date in format uuuu-MM-dd'T'HH:mm:ss.SSSSSSZ", example = "2019-09-26T06:47:01.000580-0500"),
     })
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<Object>> streamCollection(@PathVariable String id, Projection projection,

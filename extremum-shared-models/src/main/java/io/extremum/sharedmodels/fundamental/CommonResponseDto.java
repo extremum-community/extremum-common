@@ -18,12 +18,12 @@ public abstract class CommonResponseDto implements ResponseDto {
     private Descriptor id;
 
     /**
-     * Date/time of object creation in ISO-8601 format (yyyy-MM-dd'T'HH:mm:ss.SSSZ)
+     * Date/time of object creation in ISO-8601 format (uuuu-MM-dd'T'HH:mm:ss.SSSSSSXXX)
      */
     private ZonedDateTime created;
 
     /**
-     * Date/time of object's last modification in ISO-8601 format (yyyy-MM-dd'T'HH:mm:ss.SSSZ)
+     * Date/time of object's last modification in ISO-8601 format (uuuu-MM-dd'T'HH:mm:ss.SSSSSSXXX)
      */
     private ZonedDateTime modified;
 
