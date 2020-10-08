@@ -36,7 +36,7 @@ public class DescriptorResponseDto<T> {
     private String model;
 
     /**
-     * Timestamp of the Descriptor in ISO-8601 format YYYY-MM-DD'T'hh:mm:ss.ffffffZ.
+     * Timestamp of the Descriptor in ISO-8601 format uuuu-MM-dd'T'hh:mm:ss.SSSSSSXXX.
      */
     private ZonedDateTime timestamp;
 

@@ -24,7 +24,7 @@ public class DateConstants {
      * literal 'Z'. For example, it will fail to parse date-time like '2020-01-02T23:59:59Z' which is perfectly
      * valid according to ISO-8601 standard.
      */
-    public static final String DATETIME_FORMAT_WITH_MICROS = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX";
+    public static final String DATETIME_FORMAT_WITH_MICROS = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSXXX";
     public static final DateTimeFormatter RFC_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
             "EEE, dd MMM yyyy HH:mm:ss zzz");
     public static final DateTimeFormatter ISO_8601_ZONED_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(

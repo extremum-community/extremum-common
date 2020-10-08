@@ -98,7 +98,7 @@ public class ElasticsearchRepositoriesConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public SimpleElasticsearchMappingContext elasticsearchMappingContext() {
-        return new ElasticsearchMappingContextWithFixedCustomDateTimeParsing();
+        return new SimpleElasticsearchMappingContext();
     }
 
     @Bean

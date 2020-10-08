@@ -53,7 +53,7 @@ public final class DateUtils {
     }
 
     /**
-     * Parsing string in format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+     * Parsing string in format "uuuu-MM-dd'T'HH:mm:ss.SSSSSSXXX"
      */
     public static ZonedDateTime parseZonedDateTimeFromISO_8601(String date) {
         return parseZonedDateTime(date, ISO_8601_ZONED_DATE_TIME_FORMATTER);
