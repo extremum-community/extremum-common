@@ -1,6 +1,7 @@
 package io.extremum.watch.aop;
 
 import io.extremum.sharedmodels.basic.Model;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.processor.CommonServiceWatchProcessor;
 import io.extremum.watch.processor.MethodJoinPointInvocation;
 import io.extremum.watch.processor.PatchFlowWatchProcessor;
@@ -12,6 +13,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -24,6 +26,7 @@ import java.util.concurrent.Executor;
 @Component
 @Aspect
 @Slf4j
+@ConditionalOnBean(BlockingWatchConfiguration.class)
 public class CaptureChangesAspect {
     private final PatchFlowWatchProcessor patchFlowProcessor;
     private final CommonServiceWatchProcessor commonServiceProcessor;

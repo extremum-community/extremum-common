@@ -35,7 +35,7 @@ class WatchEventDispatcherTest {
     @Test
     void whenAnEventIsDispatched_thenItShouldBeSavedWithItsSubscribersAndANotificationSendShouldBeTriggered() {
         String modelId = "the-id";
-        TextWatchEvent event = new TextWatchEvent("the-patch", modelId, new WatchedModel());
+        TextWatchEvent event = new TextWatchEvent("the-patch", "the-full-patch", modelId, new WatchedModel());
         when(watchSubscriptionService.findAllSubscribersBySubscription("the-id"))
                 .thenReturn(singleton("Alex"));
 

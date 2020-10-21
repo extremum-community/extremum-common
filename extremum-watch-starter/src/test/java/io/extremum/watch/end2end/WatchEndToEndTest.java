@@ -12,8 +12,11 @@ import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
 import io.extremum.test.poll.Poller;
 import io.extremum.test.core.StringResponseMatchers;
+import io.extremum.watch.annotation.EnableWatch;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.config.TestWithServices;
 import io.extremum.watch.config.WatchTestConfiguration;
+import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import io.extremum.watch.end2end.fixture.WatchedModel;
 import io.extremum.watch.end2end.fixture.WatchedModelService;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -57,7 +61,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = WatchTestConfiguration.class)
+@SpringBootTest(classes = {WatchTestConfiguration.class, BlockingWatchConfiguration.class, WebSocketConfiguration.class})
 @TestInstance(Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
 class WatchEndToEndTest extends TestWithServices {

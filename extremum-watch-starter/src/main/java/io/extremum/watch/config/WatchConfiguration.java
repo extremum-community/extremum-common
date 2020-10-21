@@ -1,6 +1,5 @@
 package io.extremum.watch.config;
 
-import io.extremum.everything.regular.config.EverythingEverythingConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,11 +12,17 @@ import java.util.concurrent.Executors;
 
 @RequiredArgsConstructor
 @Configuration
-@AutoConfigureAfter(EverythingEverythingConfiguration.class)
+@AutoConfigureAfter(name = {"io.extremum.everything.regular.config.EverythingEverythingConfiguration", "io.extremum.everything.reactive.config.ReactiveEverythingConfiguration"})
 @EnableAspectJAutoProxy
 @EnableConfigurationProperties(WatchProperties.class)
 @EnableMongoRepositories("io.extremum.watch.repositories")
-@ComponentScan("io.extremum.watch")
+@ComponentScan(
+        value = "io.extremum.watch",
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.REGEX,
+                pattern = "io\\.extremum\\.watch\\.config\\.conditional\\..*"
+        )
+)
 @Import(KafkaConfiguration.class)
 public class WatchConfiguration {
     private final WatchProperties watchProperties;

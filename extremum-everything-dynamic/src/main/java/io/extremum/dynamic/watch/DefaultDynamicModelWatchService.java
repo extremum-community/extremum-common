@@ -50,7 +50,9 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
                         String jsonPatchString = objectMapper.writeValueAsString(jsonPatch);
                         log.debug("Convert JsonPatch into string {}", jsonPatchString);
 
-                        TextWatchEvent event = new TextWatchEvent(jsonPatchString, internalId, model);
+                        String fullReplacePatchString = constructFullReplaceJsonPatch(model);
+
+                        TextWatchEvent event = new TextWatchEvent(jsonPatchString, fullReplacePatchString, internalId, model);
                         watchEventConsumer.consume(event);
                     } catch (Exception e) {
                         log.error("Unable to watch 'patch' for model {}", model, e);
@@ -64,7 +66,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
                 .doOnNext(internalId -> {
                     try {
                         String jsonPatch = constructFullRemovalJsonPatch();
-                        TextWatchEvent event = new TextWatchEvent(jsonPatch, internalId, model);
+                        TextWatchEvent event = new TextWatchEvent(jsonPatch, null, internalId, model);
                         event.touchModelMotificationTime();
                         watchEventConsumer.consume(event);
                     } catch (Exception e) {
@@ -82,7 +84,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
 
                     try {
                         String jsonPatchString = constructFullReplaceJsonPatch(model.getModelData());
-                        TextWatchEvent event = new TextWatchEvent(jsonPatchString, internalId, model);
+                        TextWatchEvent event = new TextWatchEvent(jsonPatchString, null, internalId, model);
                         watchEventConsumer.consume(event);
                     } catch (Exception e) {
                         log.error("Unable to watch a 'save' invocation for model {}", model, e);

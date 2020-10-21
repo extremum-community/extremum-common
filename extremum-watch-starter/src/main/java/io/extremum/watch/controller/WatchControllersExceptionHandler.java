@@ -5,12 +5,14 @@ import io.extremum.sharedmodels.dto.Response;
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.watch.exception.WatchException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice("io.extremum.watch.controller")
+@ConditionalOnBean(WatchController.class)
 public class WatchControllersExceptionHandler {
     @ExceptionHandler
     public Response handleWatchException(WatchException e) {

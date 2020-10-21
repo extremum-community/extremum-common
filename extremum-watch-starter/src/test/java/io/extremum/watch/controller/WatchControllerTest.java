@@ -15,6 +15,8 @@ import io.extremum.datetime.ApiDateTimeFormat;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.core.StringResponseMatchers;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
+import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.services.WatchEventService;
 import io.extremum.watch.services.WatchSubscriptionService;
@@ -60,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes = {WatchControllersTestConfiguration.class, WatchController.class})
+@SpringBootTest(classes = {WatchControllersTestConfiguration.class, WebSocketConfiguration.class, BlockingWatchConfiguration.class, WatchController.class})
 class WatchControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -144,7 +146,7 @@ class WatchControllerTest {
         JsonPatch jsonPatch = new JsonPatch(Collections.singletonList(operation));
         String patchAsString = clientMapper.writeValueAsString(jsonPatch);
         return Collections.singletonList(
-                new TextWatchEvent(patchAsString, "internalId", new ModelWithFilledValues()));
+                new TextWatchEvent(patchAsString, null, "internalId", new ModelWithFilledValues()));
     }
 
     private void assertThatTheEventIsAsExpected(List<Map<String, Object>> events) {

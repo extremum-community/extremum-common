@@ -2,6 +2,8 @@ package io.extremum.watch.repositories;
 
 import io.extremum.watch.config.TestWithServices;
 import io.extremum.watch.config.WatchTestConfiguration;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
+import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
-@SpringBootTest(classes = WatchTestConfiguration.class)
+@SpringBootTest(classes = {WatchTestConfiguration.class, BlockingWatchConfiguration.class, WebSocketConfiguration.class})
 @TestInstance(PER_CLASS)
 class RedisSubscriptionRepositoryTest extends TestWithServices {
     @Autowired

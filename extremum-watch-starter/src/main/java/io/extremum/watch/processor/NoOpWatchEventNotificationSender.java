@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author rpuch
  */
-@Service
+// TODO remove? @Service
 public class NoOpWatchEventNotificationSender implements WatchEventNotificationSender {
     @Override
     public void send(TextWatchEventNotificationDto notificationDto) {

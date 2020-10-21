@@ -4,6 +4,7 @@ import io.extremum.common.descriptor.factory.DescriptorFactory;
 import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.Response;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.dto.TextWatchEventResponseDto;
 import io.extremum.watch.dto.converter.TextWatchEventConverter;
 import io.extremum.watch.exception.WatchException;
@@ -11,6 +12,7 @@ import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.services.WatchEventService;
 import io.extremum.watch.services.WatchSubscriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/watch")
 @RequiredArgsConstructor
+@ConditionalOnBean(BlockingWatchConfiguration.class)
 public class WatchController {
     private final WatchEventService watchEventService;
     private final PrincipalSource principalSource;

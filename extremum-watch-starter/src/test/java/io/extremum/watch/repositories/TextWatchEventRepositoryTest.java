@@ -3,13 +3,17 @@ package io.extremum.watch.repositories;
 import io.extremum.common.spring.data.OffsetBasedPageRequest;
 import io.extremum.watch.config.WatchTestConfiguration;
 import io.extremum.watch.config.TestWithServices;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
+import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import io.extremum.watch.controller.ModelWithFilledValues;
 import io.extremum.watch.models.TextWatchEvent;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -24,7 +28,7 @@ import static org.hamcrest.Matchers.hasSize;
 /**
  * @author rpuch
  */
-@SpringBootTest(classes = WatchTestConfiguration.class)
+@SpringBootTest(classes = {WatchTestConfiguration.class, BlockingWatchConfiguration.class, WebSocketConfiguration.class})
 //@DataMongoTest
 class TextWatchEventRepositoryTest extends TestWithServices {
     @Autowired
@@ -49,7 +53,7 @@ class TextWatchEventRepositoryTest extends TestWithServices {
 
     private void saveAnEventVisibleFor(String subscriber) {
         String modelId = randomString();
-        TextWatchEvent event = new TextWatchEvent("patch", modelId, new ModelWithFilledValues());
+        TextWatchEvent event = new TextWatchEvent("patch", "full-patch", modelId, new ModelWithFilledValues());
         event.setSubscribers(Collections.singleton(subscriber));
         repository.save(event);
     }

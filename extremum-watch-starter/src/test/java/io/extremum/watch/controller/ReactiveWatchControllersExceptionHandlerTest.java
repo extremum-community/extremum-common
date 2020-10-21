@@ -2,7 +2,6 @@ package io.extremum.watch.controller;
 
 import io.extremum.security.ExtremumAccessDeniedException;
 import io.extremum.sharedmodels.dto.Response;
-import io.extremum.watch.config.ReactiveWatchConfiguration;
 import io.extremum.watch.exception.WatchException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -22,18 +20,17 @@ import reactor.core.publisher.Mono;
 import java.io.UnsupportedEncodingException;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(ReactiveWatchControllerExceptionHandlerTest.TestController.class)
+@WebFluxTest(ReactiveWatchControllersExceptionHandlerTest.TestController.class)
 @ContextConfiguration(classes = {
         WatchControllersTestConfiguration.class,
         ReactiveWatchController.class,
         ReactiveWatchControllerExceptionHandler.class,
-        ReactiveWatchControllerExceptionHandlerTest.TestController.class
+        ReactiveWatchControllersExceptionHandlerTest.TestController.class
 })
-class ReactiveWatchControllerExceptionHandlerTest {
+class ReactiveWatchControllersExceptionHandlerTest {
     @Autowired
     private WebTestClient webTestClient;
 
