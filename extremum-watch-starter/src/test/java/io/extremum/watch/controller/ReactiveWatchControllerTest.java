@@ -12,12 +12,12 @@ import com.jayway.jsonpath.JsonPath;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.datetime.ApiDateTimeFormat;
-import io.extremum.security.ReactivePrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.processor.StompHandler;
 import io.extremum.watch.services.ReactiveWatchEventService;
+import io.extremum.watch.services.ReactiveWatchSubscriberIdProvider;
 import io.extremum.watch.services.ReactiveWatchSubscriptionService;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -74,7 +74,7 @@ import static org.mockito.Mockito.when;
     @MockBean
     private ReactiveWatchEventService watchEventService;
     @MockBean
-    private ReactivePrincipalSource principalSource;
+    private ReactiveWatchSubscriberIdProvider subscriberIdProvider;
     @MockBean
     private ReactiveWatchSubscriptionService watchSubscriptionService;
 
@@ -85,7 +85,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Mono.just("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Mono.just("Alex"));
         when(watchSubscriptionService.subscribe(any(), any())).thenReturn(Mono.empty());
 
         Flux<String> responseFlux = webTestClient.put()
@@ -113,7 +113,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Mono.just("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Mono.just("Alex"));
         when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
@@ -138,7 +138,7 @@ import static org.mockito.Mockito.when;
         ZonedDateTime since = ZonedDateTime.now().minusDays(1);
         ZonedDateTime until = since.plusDays(2);
 
-        when(principalSource.getPrincipal()).thenReturn(Mono.just("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Mono.just("Alex"));
         when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
@@ -204,7 +204,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Mono.just("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Mono.just("Alex"));
         when(watchSubscriptionService.unsubscribe(any(), any())).thenReturn(Mono.empty());
 
         Flux<String> responseFlux = webTestClient

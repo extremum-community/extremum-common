@@ -8,17 +8,16 @@ import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.ExtremumAccessDeniedException;
-import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
 import io.extremum.test.poll.Poller;
 import io.extremum.test.core.StringResponseMatchers;
-import io.extremum.watch.annotation.EnableWatch;
 import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.config.TestWithServices;
 import io.extremum.watch.config.WatchTestConfiguration;
 import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import io.extremum.watch.end2end.fixture.WatchedModel;
 import io.extremum.watch.end2end.fixture.WatchedModelService;
+import io.extremum.watch.services.WatchSubscriberIdProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -28,7 +27,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -73,7 +71,7 @@ class WatchEndToEndTest extends TestWithServices {
     private WatchedModelService watchedModelService;
 
     @MockBean
-    private PrincipalSource principalSource;
+    private WatchSubscriberIdProvider subscriberIdProvider;
     @SpyBean
     private RoleSecurity roleSecurity;
     @SpyBean
@@ -88,8 +86,8 @@ class WatchEndToEndTest extends TestWithServices {
     }
 
     private void plugInAFreshPrincipal() {
-        String principal = UUID.randomUUID().toString();
-        when(principalSource.getPrincipal()).thenReturn(Optional.of(principal));
+        String subscriberId = UUID.randomUUID().toString();
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Optional.of(subscriberId));
     }
 
     private void saveAFreshModel() {

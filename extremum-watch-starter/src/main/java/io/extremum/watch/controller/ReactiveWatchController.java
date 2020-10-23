@@ -1,7 +1,6 @@
 package io.extremum.watch.controller;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
-import io.extremum.security.ReactivePrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
@@ -9,6 +8,7 @@ import io.extremum.watch.dto.TextWatchEventResponseDto;
 import io.extremum.watch.dto.converter.TextWatchEventConverter;
 import io.extremum.watch.exception.WatchException;
 import io.extremum.watch.services.ReactiveWatchEventService;
+import io.extremum.watch.services.ReactiveWatchSubscriberIdProvider;
 import io.extremum.watch.services.ReactiveWatchSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReactiveWatchController {
     private final ReactiveWatchEventService watchEventService;
-    private final ReactivePrincipalSource principalSource;
+    private final ReactiveWatchSubscriberIdProvider subscriberIdProvider;
     private final ReactiveWatchSubscriptionService watchSubscriptionService;
     private final TextWatchEventConverter textWatchEventConverter;
     private final DescriptorFactory descriptorFactory;
@@ -65,10 +65,10 @@ public class ReactiveWatchController {
     }
 
     private Mono<String> getSubscriber() {
-        return principalSource.getPrincipal()
+        return subscriberIdProvider.getSubscriberId()
                 .onErrorMap(e -> {
-                    log.error("Cannot find principal", e);
-                    return new WatchException("Cannot find principal");
+                    log.error("Cannot find subscriber ID", e);
+                    return new WatchException("Cannot find subscriber ID");
                 });
     }
 

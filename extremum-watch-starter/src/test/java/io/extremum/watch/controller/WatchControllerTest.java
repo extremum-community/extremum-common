@@ -12,13 +12,13 @@ import com.jayway.jsonpath.JsonPath;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.datetime.ApiDateTimeFormat;
-import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.core.StringResponseMatchers;
 import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.services.WatchEventService;
+import io.extremum.watch.services.WatchSubscriberIdProvider;
 import io.extremum.watch.services.WatchSubscriptionService;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -72,7 +72,7 @@ class WatchControllerTest {
     @MockBean
     private WatchEventService watchEventService;
     @MockBean
-    private PrincipalSource principalSource;
+    private WatchSubscriberIdProvider subscriberIdProvider;
     @MockBean
     private WatchSubscriptionService watchSubscriptionService;
 
@@ -83,7 +83,7 @@ class WatchControllerTest {
 
     @Test
     void whenPuttingTwoDescriptorsToWatchList_thenBothShouldBeAdded() throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Optional.of("Alex"));
 
         mockMvc.perform(put("/watch")
                 .content("[\"dead\",\"beef\"]")
@@ -102,7 +102,7 @@ class WatchControllerTest {
 
     @Test
     void givenOneEventExists_whenGettingTheEventWithoutFiltration_thenItShouldBeReturned() throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Optional.of("Alex"));
         when(watchEventService.findEvents("Alex", Optional.empty(), Optional.empty(), Optional.empty()))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
@@ -122,7 +122,7 @@ class WatchControllerTest {
         ZonedDateTime since = ZonedDateTime.now().minusDays(1);
         ZonedDateTime until = since.plusDays(2);
 
-        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Optional.of("Alex"));
         when(watchEventService.findEvents(eq("Alex"), any(), any(), eq(Optional.of(10))))
                 .thenReturn(singleEventForReplaceFieldToNewValue());
 
@@ -178,7 +178,7 @@ class WatchControllerTest {
 
     @Test
     void whenDeletingTwoDescriptorsFromWatchList_thenBothShouldBeRemoved() throws Exception {
-        when(principalSource.getPrincipal()).thenReturn(Optional.of("Alex"));
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Optional.of("Alex"));
 
         mockMvc.perform(delete("/watch")
                 .content("[\"dead\",\"beef\"]")

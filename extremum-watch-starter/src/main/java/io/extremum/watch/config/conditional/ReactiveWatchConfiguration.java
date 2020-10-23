@@ -1,9 +1,14 @@
 package io.extremum.watch.config.conditional;
 
+import io.extremum.authentication.api.IdentityFinder;
+import io.extremum.authentication.api.SecurityIdentity;
+import io.extremum.security.ReactivePrincipalSource;
 import io.extremum.watch.controller.ReactiveWebSocketHandler;
 import io.extremum.watch.processor.ReactiveWebSocketWatchEventNotificationSender;
 import io.extremum.watch.processor.StompHandler;
 import io.extremum.watch.processor.WatchEventNotificationSender;
+import io.extremum.watch.services.ReactiveWatchSubscriberIdProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -49,5 +54,14 @@ public class ReactiveWatchConfiguration {
     @Bean
     public WebSocketService webSocketService() {
         return new HandshakeWebSocketService(new ReactorNettyRequestUpgradeStrategy());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ReactiveWatchSubscriberIdProvider reactiveSubscriberIdProvider(ReactivePrincipalSource principalSource,
+                                                                   IdentityFinder identityFinder) {
+        return () -> principalSource.getPrincipal()
+                .map(identityFinder::findByPrincipalId)
+                .map(SecurityIdentity::getExternalId);
     }
 }

@@ -12,6 +12,7 @@ import io.extremum.watch.config.*;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
 import io.extremum.watch.end2end.fixture.ReactiveWatchedModelService;
 import io.extremum.watch.end2end.fixture.WatchedModel;
+import io.extremum.watch.services.ReactiveWatchSubscriberIdProvider;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +71,7 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
     private ReactiveWatchedModelService watchedModelService;
 
     @MockBean
-    private ReactivePrincipalSource principalSource;
+    private ReactiveWatchSubscriberIdProvider subscriberIdProvider;
 
     @SpyBean
     private ReactiveRoleSecurity roleSecurity;
@@ -92,8 +93,8 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
     }
 
     private void plugInAFreshPrincipal() {
-        String principal = UUID.randomUUID().toString();
-        when(principalSource.getPrincipal()).thenReturn(Mono.just(principal));
+        String subscriberId = UUID.randomUUID().toString();
+        when(subscriberIdProvider.getSubscriberId()).thenReturn(Mono.just(subscriberId));
     }
 
     private void saveAFreshModel() {

@@ -1,7 +1,6 @@
 package io.extremum.watch.controller;
 
 import io.extremum.common.descriptor.factory.DescriptorFactory;
-import io.extremum.security.PrincipalSource;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.Response;
 import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
@@ -10,6 +9,7 @@ import io.extremum.watch.dto.converter.TextWatchEventConverter;
 import io.extremum.watch.exception.WatchException;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.services.WatchEventService;
+import io.extremum.watch.services.WatchSubscriberIdProvider;
 import io.extremum.watch.services.WatchSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @ConditionalOnBean(BlockingWatchConfiguration.class)
 public class WatchController {
     private final WatchEventService watchEventService;
-    private final PrincipalSource principalSource;
+    private final WatchSubscriberIdProvider watchSubscriberIdProvider;
     private final WatchSubscriptionService watchSubscriptionService;
     private final TextWatchEventConverter textWatchEventConverter;
     private final DescriptorFactory descriptorFactory;
@@ -68,8 +68,8 @@ public class WatchController {
     }
 
     private String getSubscriber() {
-        return principalSource.getPrincipal()
-                .orElseThrow(() -> new WatchException("Cannot find principal"));
+        return watchSubscriberIdProvider.getSubscriberId()
+                .orElseThrow(() -> new WatchException("Cannot find subscriber ID"));
     }
 
     @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
