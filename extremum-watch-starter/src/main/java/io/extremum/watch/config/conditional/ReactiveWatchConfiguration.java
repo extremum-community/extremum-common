@@ -2,12 +2,15 @@ package io.extremum.watch.config.conditional;
 
 import io.extremum.authentication.api.IdentityFinder;
 import io.extremum.authentication.api.SecurityIdentity;
+import io.extremum.common.reactive.Reactifier;
 import io.extremum.security.ReactivePrincipalSource;
 import io.extremum.watch.controller.ReactiveWebSocketHandler;
+import io.extremum.watch.processor.ReactiveWatchEventNotificationSender;
 import io.extremum.watch.processor.ReactiveWebSocketWatchEventNotificationSender;
 import io.extremum.watch.processor.StompHandler;
 import io.extremum.watch.processor.WatchEventNotificationSender;
 import io.extremum.watch.services.ReactiveWatchSubscriberIdProvider;
+import io.extremum.watch.services.ReactiveWatchSubscriptionService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +29,9 @@ import java.util.Map;
 @Configuration
 public class ReactiveWatchConfiguration {
     @Bean
-    public WatchEventNotificationSender watchEventNotificationSender(StompHandler stompHandler) {
-        return new ReactiveWebSocketWatchEventNotificationSender(stompHandler);
+    public ReactiveWatchEventNotificationSender watchEventNotificationSender(StompHandler stompHandler,
+                                                                             ReactiveWatchSubscriptionService subscriptionService) {
+        return new ReactiveWebSocketWatchEventNotificationSender(stompHandler, subscriptionService);
     }
 
     @Bean
@@ -59,9 +63,10 @@ public class ReactiveWatchConfiguration {
     @Bean
     @ConditionalOnMissingBean
     ReactiveWatchSubscriberIdProvider reactiveSubscriberIdProvider(ReactivePrincipalSource principalSource,
-                                                                   IdentityFinder identityFinder) {
+                                                                   IdentityFinder identityFinder,
+                                                                   Reactifier reactifier) {
         return () -> principalSource.getPrincipal()
-                .map(identityFinder::findByPrincipalId)
-                .map(SecurityIdentity::getExternalId);
+                .flatMap(principalId -> reactifier.mono(
+                        () -> identityFinder.findByPrincipalId(principalId).getExternalId()));
     }
 }

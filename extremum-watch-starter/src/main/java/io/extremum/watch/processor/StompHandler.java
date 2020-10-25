@@ -2,6 +2,7 @@ package io.extremum.watch.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -103,7 +104,7 @@ public class StompHandler {
         WebSocketSession session;
     }
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new BasicJsonObjectMapper();
 
     @Getter
     private final Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
@@ -155,17 +156,16 @@ public class StompHandler {
 
     public Mono<Void> handle(WebSocketSession session) {
         EmitterProcessor<WebSocketMessage> emitter = EmitterProcessor.create();
-        emitters.put(session.getId(), emitter);
-        return session.send(emitter.publish().autoConnect()).and(
-            session.receive().doOnNext(message -> {
-                Frame stompFrame = Frame.parse(message.getPayloadAsText());
+        session.receive().subscribe(message -> {
+            Frame stompFrame = Frame.parse(message.getPayloadAsText());
 
-                processFrame(
-                        stompFrame,
-                        session,
-                        outgoingFrame -> emitter.onNext(session.textMessage(outgoingFrame.toString())));
-            })
-        );
+            processFrame(
+                    stompFrame,
+                    session,
+                    outgoingFrame -> emitter.onNext(session.textMessage(outgoingFrame.toString())));
+        });
+        emitters.put(session.getId(), emitter);
+        return session.send(emitter.publish().autoConnect());
     }
 
     protected Frame createMessageFrame(Subscription subscription, Object payload) throws JsonProcessingException {

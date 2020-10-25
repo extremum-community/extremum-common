@@ -28,7 +28,7 @@ public final class WatchEventDispatcher implements WatchEventConsumer {
         event.setSubscribers(collectionToSet(subscribers));
         eventRepository.save(event);
 
-        notificationSender.send(event.toDto(subscribers));
+        notificationSender.send(event.getModelId(), event.toDto());
     }
 
     private Set<String> collectionToSet(Collection<String> subscribers) {

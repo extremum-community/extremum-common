@@ -61,5 +61,10 @@ public class PersistentWatchSubscriptionService implements WatchSubscriptionServ
     public Collection<String> findAllSubscribersBySubscription(String subscriptionId) {
         return subscriptionRepository.getAllSubscribersIdsBySubscription(subscriptionId);
     }
+
+    @Override
+    public Boolean isFreshSubscription(String modelId, String subscriberId) {
+        return subscriptionRepository.checkFreshSubscription(modelId, subscriberId);
+    }
 }
 

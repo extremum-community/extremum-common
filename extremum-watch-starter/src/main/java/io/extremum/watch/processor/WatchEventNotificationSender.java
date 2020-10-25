@@ -6,5 +6,5 @@ import io.extremum.watch.dto.TextWatchEventNotificationDto;
  * @author rpuch
  */
 public interface WatchEventNotificationSender {
-    void send(TextWatchEventNotificationDto notificationDto);
+    void send(String modelId, TextWatchEventNotificationDto notificationDto);
 }

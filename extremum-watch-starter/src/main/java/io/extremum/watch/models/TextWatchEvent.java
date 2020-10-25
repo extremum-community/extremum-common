@@ -53,7 +53,7 @@ public class TextWatchEvent {
         modelMetadata = ModelMetadata.fromModel(targetModel);
     }
 
-    public TextWatchEventNotificationDto toDto(Collection<String> subscribers) {
+    public TextWatchEventNotificationDto toDto() {
         return new TextWatchEventNotificationDto(jsonPatch, fullReplacePatch, subscribers);
     }
 

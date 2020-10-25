@@ -2,6 +2,7 @@ package io.extremum.watch.config;
 
 import io.extremum.watch.annotation.EnableWatch;
 import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
+import io.extremum.watch.config.conditional.KafkaConfiguration;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
 import io.extremum.watch.config.conditional.WebSocketConfiguration;
 import org.springframework.context.annotation.ImportSelector;
@@ -18,8 +19,14 @@ public class WatchConfigurationSelector implements ImportSelector {
         if (attributes != null) {
             boolean reactive = attributes.getBoolean("reactive");
             return reactive ?
-                    new String[] {ReactiveWatchConfiguration.class.getName()} :
-                    new String[] {BlockingWatchConfiguration.class.getName(), WebSocketConfiguration.class.getName()};
+                    new String[] {
+                            ReactiveWatchConfiguration.class.getName()
+                    } :
+                    new String[] {
+                            BlockingWatchConfiguration.class.getName(),
+                            WebSocketConfiguration.class.getName(),
+                            KafkaConfiguration.class.getName()
+                    };
          } else {
             return new String[0];
         }

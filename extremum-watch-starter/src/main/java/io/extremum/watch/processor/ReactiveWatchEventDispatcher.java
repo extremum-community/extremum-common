@@ -7,6 +7,7 @@ import io.extremum.watch.services.ReactiveWatchSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,20 +17,19 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Service
 @ConditionalOnBean(ReactiveWatchConfiguration.class)
-public final class ReactiveWatchEventDispatcher implements WatchEventConsumer {
+public final class ReactiveWatchEventDispatcher implements ReactiveWatchEventConsumer {
     private final ReactiveTextWatchEventRepository eventRepository;
     private final ReactiveWatchSubscriptionService watchSubscriptionService;
-    private final WatchEventNotificationSender notificationSender;
+    private final ReactiveWatchEventNotificationSender notificationSender;
 
     @Override
-    public void consume(TextWatchEvent event) {
-        Collection<String> subscribers = watchSubscriptionService.findAllSubscribersBySubscription(event.getModelId());
-
-        event.setSubscribers(collectionToSet(subscribers));
-        eventRepository
-                .save(event)
-                .doOnSuccess(e -> notificationSender.send(event.toDto(subscribers)))
-                .subscribe();
+    public Mono<Void> consume(TextWatchEvent event) {
+        return watchSubscriptionService.findAllSubscribersBySubscription(event.getModelId())
+                .flatMap(subscribers -> {
+                    event.setSubscribers(collectionToSet(subscribers));
+                    return eventRepository.save(event);
+                })
+                .flatMap(e -> notificationSender.send(event.getModelId(), event.toDto()));
     }
 
     private Set<String> collectionToSet(Collection<String> subscribers) {

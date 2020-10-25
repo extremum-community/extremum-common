@@ -39,7 +39,7 @@ class ReactivePatchFlowWatchProcessorTest {
     private ReactivePatchFlowWatchProcessor processor;
 
     @Mock
-    private WatchEventConsumer watchEventConsumer;
+    private ReactiveWatchEventConsumer watchEventConsumer;
     @Mock
     private DtoConversionService dtoConversionService;
     @Spy
@@ -60,12 +60,11 @@ class ReactivePatchFlowWatchProcessorTest {
         dto.setName("new-name");
 
         when(dtoConversionService.convertUnknownToRequestDtoReactively(any(), any())).thenReturn(Mono.just(dto));
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
 
-        processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model);
-
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer).consume(watchEventCaptor.capture());
                     TextWatchEvent event = watchEventCaptor.getValue();
                     assertThatEventModelIdMatchesModelId(model, event);
@@ -100,11 +99,9 @@ class ReactivePatchFlowWatchProcessorTest {
         NonWatchedModel model = new NonWatchedModel();
         JsonPatch jsonPatch = replaceNameWithNewName();
 
-        processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model);
-
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer, never()).consume(watchEventCaptor.capture());
                 })
                 .verifyComplete();

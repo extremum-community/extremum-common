@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 // TODO remove? @Service
 public class NoOpWatchEventNotificationSender implements WatchEventNotificationSender {
     @Override
-    public void send(TextWatchEventNotificationDto notificationDto) {
+    public void send(String modelId, TextWatchEventNotificationDto notificationDto) {
         // doing nothing
     }
 }

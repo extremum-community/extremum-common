@@ -46,24 +46,27 @@ public class ReactiveCaptureChangesAspect {
 
     private Mono<? extends Model> processAfterPatchEventSafely(ProceedingJoinPoint jp, Mono<? extends Model> returnedModelMono) {
         return withContext(returnedModelMono).map(result -> {
-            ReactivePatchFlow.isPatching(result.getT1(), result.getT2()).doOnSuccess(isPatching -> {
+            ReactivePatchFlow.isPatching(result.getT1(), result.getT2()).flatMap(isPatching -> {
                 if (!isPatching) {
-                    processPatchChanges(jp, result.getT1());
+                    return processPatchChanges(jp, result.getT1());
+                } else {
+                    return Mono.empty();
                 }
             }).subscribe();
             return result.getT1();
         });
    }
 
-    private void processPatchChanges(JoinPoint jp, Model returnedModel) {
+    private Mono<Void> processPatchChanges(JoinPoint jp, Model returnedModel) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Watch PatchFlow method with name {} and args {}",
                         jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
             }
-            patchFlowProcessor.process(new MethodJoinPointInvocation(jp), returnedModel);
+            return patchFlowProcessor.process(new MethodJoinPointInvocation(jp), returnedModel);
         } catch (Exception e) {
             log.error("Exception on watchPatchChanges() : ", e);
+            return Mono.empty();
         }
     }
 
@@ -72,9 +75,11 @@ public class ReactiveCaptureChangesAspect {
         @SuppressWarnings("unchecked")
         Mono<? extends Model> returnedModelMono = (Mono<? extends Model>) jp.proceed();
         return withContext(returnedModelMono).map(result -> {
-            ReactivePatchFlow.isPatching(result.getT1(), result.getT2()).doOnSuccess(isPatching -> {
+            ReactivePatchFlow.isPatching(result.getT1(), result.getT2()).flatMap(isPatching -> {
                 if (!isPatching) {
-                    processCommonServiceInvocation(jp, result.getT1());
+                    return processCommonServiceInvocation(jp, result.getT1());
+                } else {
+                    return Mono.empty();
                 }
             }).subscribe();
             return result.getT1();
@@ -88,15 +93,16 @@ public class ReactiveCaptureChangesAspect {
         return returnedModelMono.doOnSuccess(returnedModel -> processCommonServiceInvocation(jp, returnedModel));
     }
 
-    private void processCommonServiceInvocation(JoinPoint jp, Model returnedModel) {
+    private Mono<Void> processCommonServiceInvocation(JoinPoint jp, Model returnedModel) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Watch CommonService method with name {} and args {}",
                         jp.getSignature().getName(), Arrays.toString(jp.getArgs()));
             }
-            commonServiceProcessor.process(new MethodJoinPointInvocation(jp), returnedModel);
+            return commonServiceProcessor.process(new MethodJoinPointInvocation(jp), returnedModel);
         } catch (Exception e) {
             log.error("Exception on watchCommonServiceChanges() : ", e);
+            return Mono.empty();
         }
     }
 

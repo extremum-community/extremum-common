@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -54,5 +55,29 @@ class RedisSubscriptionRepositoryTest extends TestWithServices {
         Collection<String> subscribers = subscriptionRepository.getAllSubscribersIdsBySubscription("dead");
 
         assertThat(subscribers, equalTo(Collections.singletonList("Ben")));
+    }
+
+    @Test
+    void givenASubscriptionIsJustCreated_thenItShouldBeFresh() {
+        subscriptionRepository.subscribe(Collections.singletonList("dead"), "Alex");
+
+        assertThat(subscriptionRepository.checkFreshSubscription("dead", "Alex"), is(true));
+    }
+
+    @Test
+    void givenASubscriptionIsCreated_thenFreshCheckShouldNotSucceedTwice() {
+        subscriptionRepository.subscribe(Collections.singletonList("dead"), "Alex");
+
+        assertThat(subscriptionRepository.checkFreshSubscription("dead", "Alex"), is(true));
+        assertThat(subscriptionRepository.checkFreshSubscription("dead", "Alex"), is(false));
+    }
+
+    @Test
+    void givenTwoFreshSubscriptions_thenFreshCheckOnOneShouldNotAffectTheOther() {
+        subscriptionRepository.subscribe(Collections.singletonList("dead"), "Alex");
+        subscriptionRepository.subscribe(Collections.singletonList("dead"), "Ben");
+
+        assertThat(subscriptionRepository.checkFreshSubscription("dead", "Alex"), is(true));
+        assertThat(subscriptionRepository.checkFreshSubscription("dead", "Ben"), is(true));
     }
 }

@@ -14,6 +14,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +44,6 @@ class WatchEventDispatcherTest {
 
         assertThat(event.getSubscribers(), is(equalTo(singleton("Alex"))));
         verify(eventRepository).save(event);
-        verify(notificationSender).send(any());
+        verify(notificationSender).send(anyString(), any());
     }
 }

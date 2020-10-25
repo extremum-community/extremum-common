@@ -58,11 +58,6 @@ class ReactiveCaptureChangesAspectTest {
         patchFlowProxy = wrapWithAspect(originalPatchFlow);
     }
 
-    @AfterEach
-    void clearPatchingFlag() {
-        WatchCaptureContext.exitPatching();
-    }
-
     private <T> T wrapWithAspect(T proxiedObject) {
         return AspectWrapping.wrapInAspect(proxiedObject, aspect);
     }
@@ -72,6 +67,7 @@ class ReactiveCaptureChangesAspectTest {
         TestModel model = makeModel();
 
         when(dao.save(model)).thenReturn(Mono.just(model));
+        when(commonServiceWatchProcessor.process(any(), any())).thenReturn(Mono.empty());
 
         StepVerifier.create(commonServiceProxy.save(model))
                 .thenAwait(Duration.ofMillis(100))
@@ -117,6 +113,7 @@ class ReactiveCaptureChangesAspectTest {
 
         TestModel model = makeModel();
         when(originalPatchFlow.patch(any(), any())).thenReturn(Mono.just(model));
+        when(patchFlowWatchProcessor.process(any(), any())).thenReturn(Mono.empty());
 
         StepVerifier.create(patchFlowProxy.patch(descriptor, jsonPatch))
                 .thenAwait(Duration.ofMillis(100))

@@ -1,8 +1,6 @@
 package io.extremum.watch.config.conditional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import io.extremum.mapper.jackson.BasicJsonObjectMapper;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -36,7 +34,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
         resolver.setDefaultMimeType(MimeTypeUtils.APPLICATION_JSON);
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(new ObjectMapper());
+        converter.setObjectMapper(new BasicJsonObjectMapper());
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
         return false;

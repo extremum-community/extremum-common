@@ -27,17 +27,6 @@ public abstract class CommonServiceWatchProcessorBase {
     protected final DescriptorService descriptorService;
     protected final ModelClasses modelClasses;
     protected final DtoConversionService dtoConversionService;
-    protected final WatchEventConsumer watchEventConsumer;
-
-    public void process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
-        logInvocation(invocation);
-
-        if (isSaveMethod(invocation)) {
-            processSave(invocation.args());
-        } else if (isDeleteMethod(invocation)) {
-            processDeletion(returnedModel, invocation.args());
-        }
-    }
 
     protected void logInvocation(Invocation invocation) {
         if (log.isDebugEnabled()) {
@@ -53,8 +42,6 @@ public abstract class CommonServiceWatchProcessorBase {
         return "delete".equals(invocation.methodName());
     }
 
-    abstract protected void processSave(Object[] args) throws JsonProcessingException;
-
     protected boolean isModelWatched(Model model) {
         Class<?> modelClass = model.getClass();
         return isModelClassWatched(modelClass);
@@ -62,21 +49,5 @@ public abstract class CommonServiceWatchProcessorBase {
 
     protected boolean isModelClassWatched(Class<?> modelClass) {
         return modelClass.getAnnotation(CapturedModel.class) != null;
-    }
-
-    protected void processDeletion(Model returnedModel, Object[] args) throws JsonProcessingException {
-        String modelInternalId = (String) args[0];
-        Descriptor descriptor = descriptorService.loadByInternalId(modelInternalId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Did not find a descriptor by internal ID '%s'", modelInternalId)));
-        Class<Model> modelClass = modelClasses.getClassByModelName(descriptor.getModelType());
-
-        if (isModelClassWatched(modelClass)) {
-            String jsonPatch = constructFullRemovalJsonPatch(objectMapper);
-            TextWatchEvent event = new TextWatchEvent(jsonPatch, null, modelInternalId, returnedModel);
-            // TODO: should we just ALWAYS set modification time in CommonService.delete()?
-            event.touchModelMotificationTime();
-            watchEventConsumer.consume(event);
-        }
     }
 }

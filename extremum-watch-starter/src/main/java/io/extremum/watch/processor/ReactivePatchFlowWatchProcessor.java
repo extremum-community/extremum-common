@@ -14,6 +14,7 @@ import io.extremum.everything.services.management.PatchFlow;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
@@ -26,12 +27,12 @@ import java.util.Arrays;
 public class ReactivePatchFlowWatchProcessor {
     private final ModelClasses modelClasses;
     private final ObjectMapper objectMapper;
-    private final WatchEventConsumer watchEventConsumer;
+    private final ReactiveWatchEventConsumer watchEventConsumer;
     private final DtoConversionService dtoConversionService;
 
     public ReactivePatchFlowWatchProcessor(ModelClasses modelClasses,
                                            ObjectMapper objectMapper,
-                                           WatchEventConsumer watchEventConsumer,
+                                           ReactiveWatchEventConsumer watchEventConsumer,
                                            DtoConversionService dtoConversionService) {
         this.modelClasses = modelClasses;
         this.objectMapper = objectMapper;
@@ -39,10 +40,10 @@ public class ReactivePatchFlowWatchProcessor {
         this.dtoConversionService = dtoConversionService;
     }
 
-    public void process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
+    public Mono<Void> process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
         Object[] args = invocation.args();
         if (!isModelWatched(args[0])) {
-            return;
+            return Mono.empty();
         }
 
         if (log.isDebugEnabled()) {
@@ -52,13 +53,12 @@ public class ReactivePatchFlowWatchProcessor {
         String jsonPatchString = objectMapper.writeValueAsString(jsonPatch);
         log.debug("Convert JsonPatch into string {}", jsonPatchString);
 
-        JsonPatchUtils.constructFullReplaceJsonPatchReactively(objectMapper, dtoConversionService, returnedModel)
-                .doOnSuccess(fullReplacePatchString -> {
+        return JsonPatchUtils.constructFullReplaceJsonPatchReactively(objectMapper, dtoConversionService, returnedModel)
+                .flatMap(fullReplacePatchString -> {
                     String modelInternalId = ((Descriptor) args[0]).getInternalId();
                     TextWatchEvent event = new TextWatchEvent(jsonPatchString, fullReplacePatchString, modelInternalId, returnedModel);
-                    watchEventConsumer.consume(event);
-                })
-                .subscribe();
+                    return watchEventConsumer.consume(event);
+                });
     }
 
     private boolean isModelWatched(Object descriptor) {

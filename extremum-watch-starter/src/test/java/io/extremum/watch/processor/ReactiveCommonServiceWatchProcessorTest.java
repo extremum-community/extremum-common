@@ -50,7 +50,7 @@ class ReactiveCommonServiceWatchProcessorTest {
     @Mock
     private DtoConversionService dtoConversionService;
     @Mock
-    private WatchEventConsumer watchEventConsumer;
+    private ReactiveWatchEventConsumer watchEventConsumer;
     @Spy
     private ObjectMapper mapper = new SystemJsonObjectMapper(mock(MapperDependencies.class));
     @Mock
@@ -68,11 +68,11 @@ class ReactiveCommonServiceWatchProcessorTest {
         when(dtoConversionService.convertUnknownToRequestDtoReactively(same(model), any()))
                 .thenReturn(Mono.just(new WatchedModelRequestDto(model)));
 
-        processor.process(new TestInvocation("save", new Object[]{model}), model);
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
 
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("save", new Object[]{model}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer).consume(watchEventCaptor.capture());
                     TextWatchEvent event = watchEventCaptor.getValue();
                     assertThatEventModelIdMatchesModelId(model, event);
@@ -111,11 +111,9 @@ class ReactiveCommonServiceWatchProcessorTest {
     void whenProcessingSaveInvocationOnNonWatchedModel_thenInvocationShouldBeIgnored() throws Exception {
         NonWatchedModel model = new NonWatchedModel();
 
-        processor.process(new TestInvocation("save", new Object[]{model}), model);
-
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("save", new Object[]{model}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer, never()).consume(any());
                 })
                 .verifyComplete();
@@ -128,11 +126,11 @@ class ReactiveCommonServiceWatchProcessorTest {
         when(descriptorService.loadByInternalId(modelInternalId))
                 .thenReturn(Optional.ofNullable(model.getUuid()));
 
-        processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model);
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
 
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer).consume(watchEventCaptor.capture());
                     TextWatchEvent event = watchEventCaptor.getValue();
                     assertThatEventModelIdMatchesModelId(model, event);
@@ -162,11 +160,9 @@ class ReactiveCommonServiceWatchProcessorTest {
         when(descriptorService.loadByInternalId(modelInternalId))
                 .thenReturn(Optional.ofNullable(model.getUuid()));
 
-        processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model);
-
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("delete", new Object[]{modelInternalId}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer, never()).consume(any());
                 })
                 .verifyComplete();
@@ -176,11 +172,9 @@ class ReactiveCommonServiceWatchProcessorTest {
     void whenProcessingUnknownInvocation_thenInvocationShouldBeIgnored() throws Exception {
         NonWatchedModel model = new NonWatchedModel();
 
-        processor.process(new TestInvocation("method-we-are-not-interested-in", new Object[]{model}), model);
-
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(processor.process(new TestInvocation("method-we-are-not-interested-in", new Object[]{model}), model))
                 .thenAwait(Duration.ofMillis(100))
-                .assertNext(val -> {
+                .then(() -> {
                     verify(watchEventConsumer, never()).consume(any());
                 })
                 .verifyComplete();

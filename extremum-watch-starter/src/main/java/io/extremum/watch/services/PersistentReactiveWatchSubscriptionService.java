@@ -5,7 +5,7 @@ import io.extremum.security.ReactiveDataSecurity;
 import io.extremum.security.ReactiveRoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
-import io.extremum.watch.repositories.SubscriptionRepository;
+import io.extremum.watch.repositories.ReactiveSubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
@@ -19,16 +19,19 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @ConditionalOnBean(ReactiveWatchConfiguration.class)
-public class PersitentReactiveWatchSubscriptionService implements ReactiveWatchSubscriptionService {
-    private final SubscriptionRepository subscriptionRepository;
+public class PersistentReactiveWatchSubscriptionService implements ReactiveWatchSubscriptionService {
+    private final ReactiveSubscriptionRepository subscriptionRepository;
     private final ReactiveRoleSecurity roleSecurity;
     private final ReactiveDataSecurity dataSecurity;
     private final UniversalReactiveModelLoaders universalReactiveModelLoaders;
 
     @Override
     public Mono<Void> subscribe(Collection<Descriptor> ids, String subscriber) {
+        Mono<Void> subscribeMono = descriptorsToInternalIds(ids)
+                .flatMap(internalIds -> subscriptionRepository.subscribe(internalIds, subscriber));
+
         return checkWatchAllowed(ids)
-                .doOnSuccess(v -> subscriptionRepository.subscribe(descriptorsToInternalIds(ids), subscriber));
+                .then(subscribeMono);
     }
 
     private Mono<Void> checkWatchAllowed(Collection<Descriptor> ids) {
@@ -38,7 +41,7 @@ public class PersitentReactiveWatchSubscriptionService implements ReactiveWatchS
     private Mono<Void> checkDataSecurityAllowsToWatch(Collection<Descriptor> ids) {
         return Flux.fromIterable(ids)
                 .flatMap(universalReactiveModelLoaders::loadByDescriptor)
-                .map(dataSecurity::checkWatchAllowed)
+                .flatMap(dataSecurity::checkWatchAllowed)
                 .then();
     }
 
@@ -46,21 +49,26 @@ public class PersitentReactiveWatchSubscriptionService implements ReactiveWatchS
         return Flux.concat(ids.stream().map(roleSecurity::checkWatchAllowed).collect(Collectors.toList())).then();
     }
 
-    private List<String> descriptorsToInternalIds(Collection<Descriptor> ids) {
-        return ids.stream()
-                .map(Descriptor::getInternalId)
-                .collect(Collectors.toList());
+    private Mono<List<String>> descriptorsToInternalIds(Collection<Descriptor> ids) {
+        return Flux.fromIterable(ids)
+                .flatMap(Descriptor::getInternalIdReactively)
+                .collectList();
     }
 
     @Override
     public Mono<Void> unsubscribe(Collection<Descriptor> ids, String subscriber) {
-        subscriptionRepository.unsubscribe(descriptorsToInternalIds(ids), subscriber);
-        return Mono.empty();
+        return descriptorsToInternalIds(ids)
+                .flatMap(internalIds -> subscriptionRepository.unsubscribe(internalIds, subscriber));
     }
 
     @Override
-    public Collection<String> findAllSubscribersBySubscription(String subscriptionId) {
+    public Mono<Collection<String>> findAllSubscribersBySubscription(String subscriptionId) {
         return subscriptionRepository.getAllSubscribersIdsBySubscription(subscriptionId);
+    }
+
+    @Override
+    public Mono<Boolean> isFreshSubscription(String modelId, String subscriberId) {
+        return subscriptionRepository.checkFreshSubscription(modelId, subscriberId);
     }
 }
 

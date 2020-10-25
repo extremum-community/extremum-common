@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,24 +32,23 @@ class ReactiveWatchEventDispatcherTest {
     @Mock
     private ReactiveWatchSubscriptionService watchSubscriptionService;
     @Mock
-    private WatchEventNotificationSender notificationSender;
+    private ReactiveWatchEventNotificationSender notificationSender;
 
     @Test
     void whenAnEventIsDispatched_thenItShouldBeSavedWithItsSubscribersAndANotificationSendShouldBeTriggered() {
         String modelId = "the-id";
         TextWatchEvent event = new TextWatchEvent("the-patch", "the-full-patch", modelId, new WatchedModel());
         when(watchSubscriptionService.findAllSubscribersBySubscription("the-id"))
-                .thenReturn(singleton("Alex"));
+                .thenReturn(Mono.just(singleton("Alex")));
         when(eventRepository.save(any())).thenReturn(Mono.just(event));
+        when(notificationSender.send(anyString(), any())).thenReturn(Mono.empty());
 
-        dispatcher.consume(event);
-
-        StepVerifier.create(Mono.just(true))
+        StepVerifier.create(dispatcher.consume(event))
                 .thenAwait(Duration.ofMillis(100))
-                .consumeNextWith(val -> {
+                .then(() -> {
                     assertThat(event.getSubscribers(), is(equalTo(singleton("Alex"))));
                     verify(eventRepository).save(event);
-                    verify(notificationSender).send(any());
+                    verify(notificationSender).send(anyString(), any());
                 })
                 .verifyComplete();
     }

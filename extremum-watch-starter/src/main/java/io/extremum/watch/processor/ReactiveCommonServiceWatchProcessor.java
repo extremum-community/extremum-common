@@ -6,6 +6,7 @@ import io.extremum.common.model.BasicModel;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.common.service.CommonService;
 import io.extremum.common.support.ModelClasses;
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import static io.extremum.watch.processor.JsonPatchUtils.*;
 
@@ -23,24 +25,58 @@ import static io.extremum.watch.processor.JsonPatchUtils.*;
 @Service
 @ConditionalOnBean(ReactiveWatchConfiguration.class)
 public class ReactiveCommonServiceWatchProcessor extends CommonServiceWatchProcessorBase {
+    private ReactiveWatchEventConsumer watchEventConsumer;
+
     public ReactiveCommonServiceWatchProcessor(ObjectMapper objectMapper,
                                                DescriptorService descriptorService,
                                                ModelClasses modelClasses,
                                                DtoConversionService dtoConversionService,
-                                               WatchEventConsumer watchEventConsumer) {
-        super(objectMapper, descriptorService, modelClasses, dtoConversionService, watchEventConsumer);
+                                               ReactiveWatchEventConsumer watchEventConsumer) {
+        super(objectMapper, descriptorService, modelClasses, dtoConversionService);
+        this.watchEventConsumer = watchEventConsumer;
     }
 
-    protected void processSave(Object[] args) throws JsonProcessingException {
+    public Mono<Void> process(Invocation invocation, Model returnedModel) throws JsonProcessingException {
+        logInvocation(invocation);
+
+        if (isSaveMethod(invocation)) {
+            return processSave(invocation.args());
+        } else if (isDeleteMethod(invocation)) {
+            return processDeletion(returnedModel, invocation.args());
+        } else {
+            return Mono.empty();
+        }
+    }
+
+    private Mono<Void> processSave(Object[] args) throws JsonProcessingException {
         Model model = (Model) args[0];
         if (isModelWatched(model) && model instanceof BasicModel) {
-            constructFullReplaceJsonPatchReactively(objectMapper, dtoConversionService, model)
-                    .doOnSuccess(jsonPatchString -> {
+            return constructFullReplaceJsonPatchReactively(objectMapper, dtoConversionService, model)
+                    .flatMap(jsonPatchString -> {
                         String modelInternalId = ((BasicModel) model).getId().toString();
                         TextWatchEvent event = new TextWatchEvent(jsonPatchString, null, modelInternalId, model);
-                        watchEventConsumer.consume(event);
-                    })
-                    .subscribe();
+                        return watchEventConsumer.consume(event);
+                    });
+        } else {
+            return Mono.empty();
+        }
+    }
+
+    private Mono<Void> processDeletion(Model returnedModel, Object[] args) throws JsonProcessingException {
+        String modelInternalId = (String) args[0];
+        Descriptor descriptor = descriptorService.loadByInternalId(modelInternalId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("Did not find a descriptor by internal ID '%s'", modelInternalId)));
+        Class<Model> modelClass = modelClasses.getClassByModelName(descriptor.getModelType());
+
+        if (isModelClassWatched(modelClass)) {
+            String jsonPatch = constructFullRemovalJsonPatch(objectMapper);
+            TextWatchEvent event = new TextWatchEvent(jsonPatch, null, modelInternalId, returnedModel);
+            // TODO: should we just ALWAYS set modification time in CommonService.delete()?
+            event.touchModelMotificationTime();
+            return watchEventConsumer.consume(event);
+        } else {
+            return Mono.empty();
         }
     }
 }

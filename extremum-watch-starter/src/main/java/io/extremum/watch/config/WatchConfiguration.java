@@ -3,6 +3,7 @@ package io.extremum.watch.config;
 import io.extremum.authentication.api.IdentityExtension;
 import io.extremum.authentication.api.IdentityFinder;
 import io.extremum.authentication.api.SecurityIdentity;
+import io.extremum.watch.config.conditional.KafkaConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -11,7 +12,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

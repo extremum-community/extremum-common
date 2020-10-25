@@ -6,19 +6,18 @@ import io.extremum.security.PrincipalSource;
 import io.extremum.watch.processor.WatchEventNotificationSender;
 import io.extremum.watch.processor.WebSocketWatchEventNotificationSender;
 import io.extremum.watch.services.WatchSubscriberIdProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import io.extremum.watch.services.WatchSubscriptionService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.Optional;
-
 @Configuration
 public class BlockingWatchConfiguration {
     @Bean
-    WatchEventNotificationSender watchEventNotificationSender(SimpMessagingTemplate messagingTemplate) {
-        return new WebSocketWatchEventNotificationSender(messagingTemplate);
+    WatchEventNotificationSender watchEventNotificationSender(SimpMessagingTemplate messagingTemplate,
+                                                              WatchSubscriptionService watchSubscriptionService) {
+        return new WebSocketWatchEventNotificationSender(messagingTemplate, watchSubscriptionService);
     }
 
     @Bean
