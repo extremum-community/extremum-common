@@ -96,7 +96,16 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
                 .map(descriptorMongoOperations::save)
                 .collect(toList());
 
-        putManyToMaps(storedToMongo);
+        try {
+            putManyToMaps(storedToMongo);
+        } catch (RuntimeException e) {
+            try {
+                destroyBatch(storedToMongo);
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw e;
+        }
 
         return storedToMongo;
     }
