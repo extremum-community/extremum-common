@@ -14,6 +14,7 @@ import io.extremum.dynamic.services.impl.DefaultDatesProcessor;
 import io.extremum.dynamic.validator.services.impl.JsonDynamicModelValidator;
 import io.extremum.dynamic.validator.services.impl.networknt.NetworkntJsonDynamicModelValidator;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import reactor.core.publisher.Mono;
 
 @Import({
         DynamicModelLocalSchemaLocationConfiguration.class,
@@ -69,5 +71,11 @@ public class DynamicModuleAutoConfiguration {
     @ConditionalOnMissingBean
     public JsonDynamicModelDao jsonDynamicModelDao(ReactiveMongoOperations ops, ReactiveMongoDescriptorFacilities facilities) {
         return new MongoVersionedDynamicModelDao(ops, facilities);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ReactiveWatchEventConsumer dummyReactiveWatchEventConsumer() {
+        return event -> Mono.empty();
     }
 }

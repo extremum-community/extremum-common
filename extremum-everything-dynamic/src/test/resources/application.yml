@@ -2,9 +2,8 @@ spring:
   main:
     allow-bean-definition-overriding: true
 mongo:
-  serviceDbUri: mongodb://localhost:27017
+  uri: mongodb://localhost:27017
   serviceDbName: dynmodel
-  descriptorsDbUri: mongodb://localhost:27017
   descriptorsDbName: descriptors
 redis:
   uri: redis://localhost:6379

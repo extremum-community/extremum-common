@@ -7,6 +7,7 @@ import io.extremum.dynamic.server.supports.FilesSupportsService;
 import io.extremum.dynamic.server.supports.impl.DefaultFilesSupportsService;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.RoleSecurity;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -27,7 +28,8 @@ import static org.mockito.Mockito.*;
 @MockBeans({
         @MockBean(DataSecurity.class),
         @MockBean(RoleSecurity.class),
-        @MockBean(SecurityProvider.class)
+        @MockBean(SecurityProvider.class),
+        @MockBean(ReactiveWatchEventConsumer.class)
 })
 @RequiredArgsConstructor
 @EnableAutoConfiguration

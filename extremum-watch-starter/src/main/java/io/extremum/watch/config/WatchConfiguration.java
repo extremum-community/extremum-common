@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
                 pattern = "io\\.extremum\\.watch\\.config\\.conditional\\..*"
         )
 )
-@Import(KafkaConfiguration.class)
 public class WatchConfiguration {
     private final WatchProperties watchProperties;
 

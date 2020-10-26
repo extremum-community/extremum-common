@@ -29,7 +29,7 @@ import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.starter.CommonConfiguration;
 import io.extremum.watch.config.WatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
-import io.extremum.watch.processor.WatchEventConsumer;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -92,7 +92,7 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
     DefaultDynamicModelMetadataProviderService metadataProvider;
 
     @MockBean
-    WatchEventConsumer watchEventConsumer;
+    ReactiveWatchEventConsumer watchEventConsumer;
 
     ReactiveDynamicModelEverythingManagementService dynamicModelEverythingManagementService;
 
@@ -110,6 +110,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @Test
     void getOperation_shouldReturn_model() throws IOException {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         JsonDynamicModel model = createModel("TestDynamicModel", "{\"a\":\"b\"}");
         JsonDynamicModel savedModel = dynamicModelService.saveModel(model).block();
 
@@ -153,6 +155,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @Test
     void patchOperation_shouldPerformPatching_andReturnAPatchedModel() throws IOException, JSONException {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         String modelName = "PatchingDynamicModel";
         int schemaVersion = 1;
 
@@ -205,6 +209,8 @@ public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringB
 
     @Test
     void removeOperation_shouldRemoveModel_andReturnsWithEmptyPipe() throws JSONException {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         JsonDynamicModel model = createModel("ModelForRemove", "{\"a\":\"b\"}");
         JsonDynamicModel savedModel = dynamicModelDao.create(model, model.getModelName().toLowerCase()).block();
 

@@ -7,6 +7,7 @@ import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
 import io.extremum.watch.models.TextWatchEvent;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import io.extremum.watch.processor.WatchEventConsumer;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -14,6 +15,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,8 +23,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class DefaultDynamicModelWatchServiceTest {
     private static final String MODEL_NAME = "modelName";
@@ -35,7 +37,7 @@ class DefaultDynamicModelWatchServiceTest {
 
     static ObjectMapper mapper = new ObjectMapper();
 
-    WatchEventConsumer watchEventConsumer;
+    ReactiveWatchEventConsumer watchEventConsumer;
 
     DynamicModelWatchService watchService;
 
@@ -45,12 +47,14 @@ class DefaultDynamicModelWatchServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        watchEventConsumer = mock(WatchEventConsumer.class);
+        watchEventConsumer = mock(ReactiveWatchEventConsumer.class);
         watchService = new DefaultDynamicModelWatchService(watchEventConsumer, mapper);
     }
 
     @Test
     void watchPatchOperation() throws JSONException, IOException {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         JsonDynamicModel model = new JsonDynamicModel(DESCRIPTOR, MODEL_NAME, modelData);
 
         JsonNode node = mapper.readValue("[{\"op\":\"add\",\"path\":\"/tags/-\",\"value\": \"v\"}]", JsonNode.class);
@@ -79,6 +83,8 @@ class DefaultDynamicModelWatchServiceTest {
 
     @Test
     void watchSaveOperation() throws JSONException {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         JsonDynamicModel model = new JsonDynamicModel(DESCRIPTOR, MODEL_NAME, modelData);
 
         watchService.registerSaveOperation(model).block();
@@ -104,6 +110,8 @@ class DefaultDynamicModelWatchServiceTest {
 
     @Test
     void watchDeleteOperation() throws JSONException {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         JsonDynamicModel model = new JsonDynamicModel(DESCRIPTOR, MODEL_NAME, modelData);
 
         watchService.registerDeleteOperation(model).block();

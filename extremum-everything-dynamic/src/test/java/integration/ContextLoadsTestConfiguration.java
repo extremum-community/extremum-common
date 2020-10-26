@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Import;
         CommonConfiguration.class,
         ReactiveEverythingConfiguration.class,
         FileSystemSchemaProviderConfiguration.class,
-        DynamicModuleAutoConfiguration.class,
-        WatchConfiguration.class
+        DynamicModuleAutoConfiguration.class
 })
 @Configuration
 public class ContextLoadsTestConfiguration {

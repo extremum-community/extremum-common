@@ -12,7 +12,7 @@ import com.github.fge.jsonpatch.ReplaceOperation;
 import io.extremum.common.exceptions.ProgrammingErrorException;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.watch.models.TextWatchEvent;
-import io.extremum.watch.processor.WatchEventConsumer;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class DefaultDynamicModelWatchService implements DynamicModelWatchService {
-    private final WatchEventConsumer watchEventConsumer;
+    private final ReactiveWatchEventConsumer watchEventConsumer;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -45,7 +45,7 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
     private Mono<Void> processPatchInvocation(JsonPatch jsonPatch, JsonDynamicModel model) {
         return model.getId()
                 .getInternalIdReactively()
-                .doOnNext(internalId -> {
+                .flatMap(internalId -> {
                     try {
                         String jsonPatchString = objectMapper.writeValueAsString(jsonPatch);
                         log.debug("Convert JsonPatch into string {}", jsonPatchString);
@@ -53,9 +53,10 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
                         String fullReplacePatchString = constructFullReplaceJsonPatch(model);
 
                         TextWatchEvent event = new TextWatchEvent(jsonPatchString, fullReplacePatchString, internalId, model);
-                        watchEventConsumer.consume(event);
+                        return watchEventConsumer.consume(event);
                     } catch (Exception e) {
                         log.error("Unable to watch 'patch' for model {}", model, e);
+                        return Mono.error(e);
                     }
                 }).then();
     }
@@ -63,21 +64,22 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
     private Mono<Void> processDeleteInvocation(JsonDynamicModel model) {
         return model.getId()
                 .getInternalIdReactively()
-                .doOnNext(internalId -> {
+                .flatMap(internalId -> {
                     try {
                         String jsonPatch = constructFullRemovalJsonPatch();
                         TextWatchEvent event = new TextWatchEvent(jsonPatch, null, internalId, model);
                         event.touchModelMotificationTime();
-                        watchEventConsumer.consume(event);
+                        return watchEventConsumer.consume(event);
                     } catch (Exception e) {
                         log.error("Unable to watch 'delete' operation for model {}", model, e);
+                        return Mono.error(e);
                     }
                 }).then();
     }
 
     private Mono<Void> processSaveInvocation(JsonDynamicModel model) {
         return model.getId().getInternalIdReactively()
-                .doOnNext(internalId -> {
+                .flatMap(internalId -> {
                     if (log.isDebugEnabled()) {
                         log.debug("Watch method with name 'save' and args saved model {}", model);
                     }
@@ -85,9 +87,10 @@ public class DefaultDynamicModelWatchService implements DynamicModelWatchService
                     try {
                         String jsonPatchString = constructFullReplaceJsonPatch(model.getModelData());
                         TextWatchEvent event = new TextWatchEvent(jsonPatchString, null, internalId, model);
-                        watchEventConsumer.consume(event);
+                        return watchEventConsumer.consume(event);
                     } catch (Exception e) {
                         log.error("Unable to watch a 'save' invocation for model {}", model, e);
+                        return Mono.error(e);
                     }
                 }).then();
     }
