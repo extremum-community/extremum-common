@@ -27,7 +27,6 @@ import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.dto.ResponseDto;
 import io.extremum.starter.CommonConfiguration;
-import io.extremum.watch.config.WatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import org.codehaus.jettison.json.JSONArray;
@@ -40,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -62,8 +60,7 @@ import static reactor.core.publisher.Mono.just;
 @MockBeans({
         @MockBean(RoleSecurity.class),
         @MockBean(DataSecurity.class),
-        @MockBean(PrincipalSource.class),
-        @MockBean(ErrorAttributes.class)
+        @MockBean(PrincipalSource.class)
 })
 public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringBootTestWithServices {
     private static final Descriptor NOT_EXISTENT_DESCRIPTOR = Descriptor.builder()

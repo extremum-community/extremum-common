@@ -4,7 +4,6 @@ import configurations.FileSystemSchemaProviderConfiguration;
 import io.extremum.dynamic.DynamicModuleAutoConfiguration;
 import io.extremum.everything.reactive.config.ReactiveEverythingConfiguration;
 import io.extremum.starter.CommonConfiguration;
-import io.extremum.watch.config.WatchConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
