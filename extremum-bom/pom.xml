@@ -3,7 +3,7 @@
     <parent>
         <groupId>io.extremum</groupId>
         <artifactId>extremum-common-project</artifactId>
-        <version>1.1.14-SNAPSHOT</version>
+        <version>1.1.14</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,87 +30,87 @@
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-datetime</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-shared-models</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-shared-models-grpc</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-test-harness</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-common-starter</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-core-test</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-security</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-core</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-starter</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-reactive-starter</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-jpa-starter</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-elasticsearch-starter</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-watch-starter</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-jackson-mapper</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>authentication-api</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-annotations</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-dynamic</artifactId>
-                <version>1.1.14-SNAPSHOT</version>
+                <version>1.1.14</version>
             </dependency>
 
             <dependency>
