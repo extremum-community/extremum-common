@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -53,7 +54,6 @@ import static org.mockito.Mockito.*;
 import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(classes = {
-        WatchConfiguration.class,
         CommonConfiguration.class,
         ReactiveEverythingConfiguration.class,
         FileSystemSchemaProviderConfiguration.class,
@@ -62,7 +62,8 @@ import static reactor.core.publisher.Mono.just;
 @MockBeans({
         @MockBean(RoleSecurity.class),
         @MockBean(DataSecurity.class),
-        @MockBean(PrincipalSource.class)
+        @MockBean(PrincipalSource.class),
+        @MockBean(ErrorAttributes.class)
 })
 public class ReactiveDynamicModelEverythingManagementServiceTest extends SpringBootTestWithServices {
     private static final Descriptor NOT_EXISTENT_DESCRIPTOR = Descriptor.builder()
