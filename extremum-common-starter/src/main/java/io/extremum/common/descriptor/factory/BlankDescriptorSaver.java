@@ -7,6 +7,8 @@ import io.extremum.sharedmodels.descriptor.StorageType;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 public class BlankDescriptorSaver {
     private final DescriptorService descriptorService;
 
@@ -22,7 +24,7 @@ public class BlankDescriptorSaver {
         List<Descriptor> descriptors = internalIds.stream()
                 .map(internalId -> savers.createSingleDescriptor(internalId, storageType))
                 .peek(descriptor -> descriptor.setReadiness(Descriptor.Readiness.BLANK))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return descriptorService.storeBatch(descriptors);
     }
