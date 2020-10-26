@@ -16,7 +16,7 @@ public class ReactiveWebSocketWatchEventNotificationSender implements ReactiveWa
     protected Mono<String> getJsonPatch(String modelId, String subscriberId, TextWatchEventNotificationDto notificationDto) {
         return subscriptionService.isFreshSubscription(modelId, subscriberId)
             .map(isFresh -> {
-                if (isFresh) {
+                if (isFresh && notificationDto.getFullReplacePatch() != null) {
                     return notificationDto.getFullReplacePatch();
                 } else {
                     return notificationDto.getJsonPatch();

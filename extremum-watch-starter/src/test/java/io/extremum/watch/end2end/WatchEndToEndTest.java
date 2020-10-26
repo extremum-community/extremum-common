@@ -81,11 +81,11 @@ class WatchEndToEndTest extends TestWithServices {
 
     @BeforeEach
     void init() {
-        plugInAFreshPrincipal();
+        plugInAFreshSubscriberId();
         saveAFreshModel();
     }
 
-    private void plugInAFreshPrincipal() {
+    private void plugInAFreshSubscriberId() {
         String subscriberId = UUID.randomUUID().toString();
         when(subscriberIdProvider.getSubscriberId()).thenReturn(Optional.of(subscriberId));
     }
@@ -97,7 +97,7 @@ class WatchEndToEndTest extends TestWithServices {
     }
 
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsPatched_whenGettingWatchEvents_thenOnePatchEventShouldBeReturned()
+    void givenCurrentUserIsSubscribedToAModelAndTheModelIsPatched_whenGettingWatchEvents_thenOnePatchEventShouldBeReturned()
             throws Exception {
         subscribeToTheModel();
         patchToChangeNameTo("new name");
@@ -139,10 +139,10 @@ class WatchEndToEndTest extends TestWithServices {
 
     private List<Map<String, Object>> getNonZeroEventsForCurrentPrincipal() throws InterruptedException {
         Poller poller = new Poller(Duration.ofSeconds(10));
-        return poller.poll(this::getWatchEventsForCurrentPrincipal, events -> events.size() > 0);
+        return poller.poll(this::getWatchEventsForCurrentUser, events -> events.size() > 0);
     }
 
-    private List<Map<String, Object>> getWatchEventsForCurrentPrincipal() {
+    private List<Map<String, Object>> getWatchEventsForCurrentUser() {
         try {
             MvcResult mvcResult = mockMvc.perform(get("/watch")
                     .accept(MediaType.APPLICATION_JSON))
@@ -195,7 +195,7 @@ class WatchEndToEndTest extends TestWithServices {
     }
 
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenOneSaveEventShouldBeReturned()
+    void givenCurrentUserIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenOneSaveEventShouldBeReturned()
             throws Exception {
         subscribeToTheModel();
         saveToChangeNameTo("new name");
@@ -224,7 +224,7 @@ class WatchEndToEndTest extends TestWithServices {
     }
 
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsDeleted_whenGettingWatchEvents_thenOneDeletionEventShouldBeReturned()
+    void givenCurrentUserIsSubscribedToAModelAndTheModelIsDeleted_whenGettingWatchEvents_thenOneDeletionEventShouldBeReturned()
             throws Exception {
         subscribeToTheModel();
         deleteTheModel();

@@ -7,7 +7,6 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.ReplaceOperation;
 import com.jayway.jsonpath.JsonPath;
 import io.extremum.security.*;
-import io.extremum.watch.annotation.EnableWatch;
 import io.extremum.watch.config.*;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
 import io.extremum.watch.end2end.fixture.ReactiveWatchedModelService;
@@ -88,11 +87,11 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
 
     @BeforeEach
     void init() {
-        plugInAFreshPrincipal();
+        plugInAFreshSubscriberId();
         saveAFreshModel();
     }
 
-    private void plugInAFreshPrincipal() {
+    private void plugInAFreshSubscriberId() {
         String subscriberId = UUID.randomUUID().toString();
         when(subscriberIdProvider.getSubscriberId()).thenReturn(Mono.just(subscriberId));
     }
@@ -106,12 +105,12 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
     }
 
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsPatched_whenGettingWatchEvents_thenOnePatchEventShouldBeReturned()
+    void givenCurrentUserIsSubscribedToAModelAndTheModelIsPatched_whenGettingWatchEvents_thenOnePatchEventShouldBeReturned()
             throws Exception {
         subscribeToTheModel();
         patchToChangeNameTo("new name");
 
-        StepVerifier.create(getNonZeroEventsForCurrentPrincipal())
+        StepVerifier.create(getNonZeroEventsForCurrentUser())
                 .assertNext(event -> {
                     assertThatEventObjectMetadataIsCorrect(event, getModelExternalId());
                     Map<String, Object> operation = getSingleOperation(event);
@@ -165,7 +164,7 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
     }
 
     @SneakyThrows
-    private Flux<Map<String, Object>> getNonZeroEventsForCurrentPrincipal() {
+    private Flux<Map<String, Object>> getNonZeroEventsForCurrentUser() {
         Thread.sleep(1000);
         return getWatchEventsForCurrentPrincipal();
     }
@@ -208,11 +207,11 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
     }
 
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenOneSaveEventShouldBeReturned() {
+    void givenCurrentUserIsSubscribedToAModelAndTheModelIsSaved_whenGettingWatchEvents_thenOneSaveEventShouldBeReturned() {
         subscribeToTheModel();
         saveToChangeNameTo("new name");
 
-        StepVerifier.create(getNonZeroEventsForCurrentPrincipal())
+        StepVerifier.create(getNonZeroEventsForCurrentUser())
                 .assertNext(event -> {
                     assertThatEventObjectMetadataIsCorrect(event, getModelExternalId());
                     Map<String, Object> operation = getSingleOperation(event);
@@ -233,11 +232,11 @@ class ReactiveWatchEndToEndTest extends TestWithServices {
     }
 
     @Test
-    void givenCurrentPrincipalIsSubscribedToAModelAndTheModelIsDeleted_whenGettingWatchEvents_thenOneDeletionEventShouldBeReturned() {
+    void givenCurrentUserIsSubscribedToAModelAndTheModelIsDeleted_whenGettingWatchEvents_thenOneDeletionEventShouldBeReturned() {
         subscribeToTheModel();
         deleteTheModel();
 
-        StepVerifier.create(getNonZeroEventsForCurrentPrincipal())
+        StepVerifier.create(getNonZeroEventsForCurrentUser())
                 .assertNext(event -> {
                     assertThatEventObjectMetadataIsCorrect(event, getModelExternalId());
                     Map<String, Object> operation = getSingleOperation(event);

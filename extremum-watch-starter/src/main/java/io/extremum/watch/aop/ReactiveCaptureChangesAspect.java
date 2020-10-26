@@ -90,7 +90,8 @@ public class ReactiveCaptureChangesAspect {
     public Object watchCommonServiceDeletions(ProceedingJoinPoint jp) throws Throwable {
         @SuppressWarnings("unchecked")
         Mono<? extends Model> returnedModelMono = (Mono<? extends Model>) jp.proceed();
-        return returnedModelMono.doOnSuccess(returnedModel -> processCommonServiceInvocation(jp, returnedModel));
+        return returnedModelMono
+                .doOnSuccess(returnedModel -> processCommonServiceInvocation(jp, returnedModel).subscribe());
     }
 
     private Mono<Void> processCommonServiceInvocation(JoinPoint jp, Model returnedModel) {

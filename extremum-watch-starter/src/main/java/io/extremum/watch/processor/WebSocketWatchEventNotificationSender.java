@@ -12,7 +12,7 @@ public class WebSocketWatchEventNotificationSender implements WatchEventNotifica
     private final WatchSubscriptionService subscriptionService;
 
     protected String getJsonPatch(String modelId, String subscriberId, TextWatchEventNotificationDto notificationDto) {
-        if (subscriptionService.isFreshSubscription(modelId, subscriberId)) {
+        if (subscriptionService.isFreshSubscription(modelId, subscriberId) && notificationDto.getFullReplacePatch() != null) {
             return notificationDto.getFullReplacePatch();
         } else {
             return notificationDto.getJsonPatch();
