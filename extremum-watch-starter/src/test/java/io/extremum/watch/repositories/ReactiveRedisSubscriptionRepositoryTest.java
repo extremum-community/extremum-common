@@ -5,6 +5,7 @@ import io.extremum.watch.config.TestWithServices;
 import io.extremum.watch.config.WatchTestConfiguration;
 import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.config.conditional.WebSocketConfiguration;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,17 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @SpringBootTest(classes = {ReactiveWatchTestConfiguration.class})
-//@TestInstance(PER_CLASS)
+@TestInstance(PER_CLASS)
 class ReactiveRedisSubscriptionRepositoryTest extends TestWithServices {
     @Autowired
     private ReactiveSubscriptionRepository subscriptionRepository;
+
+    @BeforeEach
+    void cleanup() {
+        subscriptionRepository.unsubscribe(Arrays.asList("dead", "beef"), "Alex")
+                .and(subscriptionRepository.unsubscribe(Arrays.asList("dead", "beef"), "Ben"))
+                .block();
+    }
 
     @Test
     void givenOneSubscriptionExists_whenFindingSubscribersForThisModel_thenTheSubscriberShouldBeReturned() {

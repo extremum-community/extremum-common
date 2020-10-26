@@ -1,7 +1,6 @@
 package io.extremum.watch.repositories;
 
 import io.extremum.common.spring.data.OffsetBasedPageRequest;
-import io.extremum.watch.annotation.EnableWatch;
 import io.extremum.watch.config.ReactiveWatchTestConfiguration;
 import io.extremum.watch.config.TestWithServices;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;

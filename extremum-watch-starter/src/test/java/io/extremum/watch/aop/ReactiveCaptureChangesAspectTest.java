@@ -89,6 +89,7 @@ class ReactiveCaptureChangesAspectTest {
         TestModel model = makeModel();
 
         when(dao.deleteByIdAndReturn(any())).thenReturn(Mono.just(model));
+        when(commonServiceWatchProcessor.process(any(), any())).thenReturn(Mono.empty());
 
         StepVerifier
                 .create(commonServiceProxy.delete(model.getUuid().getInternalId()))
