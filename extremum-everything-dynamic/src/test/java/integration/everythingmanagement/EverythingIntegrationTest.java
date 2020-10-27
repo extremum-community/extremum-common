@@ -5,10 +5,12 @@ import io.extremum.dynamic.SchemaMetaService;
 import io.extremum.dynamic.dao.JsonDynamicModelDao;
 import io.extremum.dynamic.models.impl.JsonDynamicModel;
 import io.extremum.sharedmodels.constant.HttpStatus;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +18,8 @@ import static io.extremum.dynamic.DynamicModelSupports.collectionNameFromModel;
 import static io.extremum.dynamic.utils.DynamicModelTestUtils.buildModel;
 import static io.extremum.dynamic.utils.DynamicModelTestUtils.toMap;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -31,6 +35,9 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
 
     @Autowired
     SchemaMetaService schemaMetaService;
+
+    @MockBean
+    ReactiveWatchEventConsumer watchEventConsumer;
 
     @Test
     void get_returnOkResponse() {
@@ -56,6 +63,8 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
 
     @Test
     void patch_withValidPatchData_patchingAModel_and_returnOkResponse() {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         String modelName = "ADynamicModelForPatching";
         schemaMetaService.registerMapping(modelName, "simple.schema.json", 1);
 
@@ -103,6 +112,8 @@ public class EverythingIntegrationTest extends SpringBootTestWithServices {
 
     @Test
     void removeModel() {
+        when(watchEventConsumer.consume(any())).thenReturn(Mono.empty());
+
         String modelName = "AModelForRemove";
         schemaMetaService.registerMapping(modelName, "simple.schema.json", 1);
 

@@ -1,9 +1,11 @@
 package io.extremum.watch.processor;
 
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.repositories.TextWatchEventRepository;
 import io.extremum.watch.services.WatchSubscriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -13,6 +15,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
+@ConditionalOnBean(BlockingWatchConfiguration.class)
 public final class WatchEventDispatcher implements WatchEventConsumer {
     private final TextWatchEventRepository eventRepository;
     private final WatchSubscriptionService watchSubscriptionService;
@@ -25,7 +28,7 @@ public final class WatchEventDispatcher implements WatchEventConsumer {
         event.setSubscribers(collectionToSet(subscribers));
         eventRepository.save(event);
 
-        notificationSender.send(event.toDto(subscribers));
+        notificationSender.send(event.getModelId(), event.toDto());
     }
 
     private Set<String> collectionToSet(Collection<String> subscribers) {

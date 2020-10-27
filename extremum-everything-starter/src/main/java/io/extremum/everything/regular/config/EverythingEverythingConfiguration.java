@@ -40,7 +40,6 @@ import java.util.List;
 @AutoConfigureBefore({WebMvcAutoConfiguration.class, WebFluxAutoConfiguration.class})
 @Import(EverythingCoreConfiguration.class)
 public class EverythingEverythingConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     public EverythingGetDemultiplexer everythingDemultiplexer(

@@ -13,5 +13,6 @@ import java.util.Collection;
 @JsonInclude
 public class TextWatchEventNotificationDto {
     private final String jsonPatch;
+    private final String fullReplacePatch;
     private final Collection<String> subscribers;
 }

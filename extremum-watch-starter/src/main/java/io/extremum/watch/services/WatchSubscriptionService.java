@@ -10,4 +10,6 @@ public interface WatchSubscriptionService {
     void unsubscribe(Collection<Descriptor> ids, String subscriber);
 
     Collection<String> findAllSubscribersBySubscription(String subscriptionId);
+
+    Boolean isFreshSubscription(String modelId, String subscriberId);
 }

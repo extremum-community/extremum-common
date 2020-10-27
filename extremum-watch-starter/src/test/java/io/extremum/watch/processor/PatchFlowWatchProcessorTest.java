@@ -1,8 +1,10 @@
 package io.extremum.watch.processor;
 
+import io.extremum.common.dto.converters.services.DtoConversionService;
 import io.extremum.common.mapper.MapperDependencies;
 import io.extremum.common.mapper.SystemJsonObjectMapper;
 import io.extremum.common.support.ModelClasses;
+import io.extremum.watch.end2end.fixture.WatchedModelRequestDto;
 import io.extremum.watch.models.TextWatchEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -26,9 +28,7 @@ import static io.extremum.watch.processor.ProcessorTests.assertThatEventModelIdM
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * @author rpuch
@@ -40,6 +40,8 @@ class PatchFlowWatchProcessorTest {
 
     @Mock
     private WatchEventConsumer watchEventConsumer;
+    @Mock
+    private DtoConversionService dtoConversionService;
     @Spy
     private ModelClasses modelClasses = new TestModelClasses();
     @Spy
@@ -53,6 +55,11 @@ class PatchFlowWatchProcessorTest {
         WatchedModel model = new WatchedModel();
         model.setName("old-name");
         JsonPatch jsonPatch = replaceNameWithNewName();
+
+        WatchedModelRequestDto dto = new WatchedModelRequestDto();
+        dto.setName("new-name");
+
+        when(dtoConversionService.convertUnknownToRequestDto(any(), any())).thenReturn(dto);
 
         processor.process(new TestInvocation("patch", new Object[]{model.getUuid(), jsonPatch}), model);
 
@@ -83,7 +90,7 @@ class PatchFlowWatchProcessorTest {
     }
 
     @Test
-    void whenProcessingPatchInvocationInNonWatchedModel_thenEventShouldBeCreated() throws Exception {
+    void whenProcessingPatchInvocationInNonWatchedModel_thenEventShouldNotBeCreated() throws Exception {
         NonWatchedModel model = new NonWatchedModel();
         JsonPatch jsonPatch = replaceNameWithNewName();
 
