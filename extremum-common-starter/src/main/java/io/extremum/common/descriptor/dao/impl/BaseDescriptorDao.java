@@ -92,7 +92,16 @@ public abstract class BaseDescriptorDao implements DescriptorDao {
     public List<Descriptor> storeBatch(List<Descriptor> descriptorsToSave) {
         List<Descriptor> storedToMongo = descriptorRepository.saveAll(descriptorsToSave);
 
-        putManyToMaps(storedToMongo);
+        try {
+            putManyToMaps(storedToMongo);
+        } catch (RuntimeException e) {
+            try {
+                destroyBatch(storedToMongo);
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw e;
+        }
 
         return storedToMongo;
     }
