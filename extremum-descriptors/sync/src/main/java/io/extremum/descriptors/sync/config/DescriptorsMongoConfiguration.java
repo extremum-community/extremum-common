@@ -1,6 +1,7 @@
 package io.extremum.descriptors.sync.config;
 
 import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoDatabase;
 import io.extremum.descriptors.sync.lifecycle.CollectionDescriptorCoordinatesRefresher;
 import io.extremum.descriptors.common.CommonDescriptorsMongoConfiguration;
 import io.extremum.descriptors.common.DescriptorsMongoDb;
@@ -8,7 +9,6 @@ import io.extremum.descriptors.common.dao.DescriptorRepository;
 import io.extremum.descriptors.common.properties.DescriptorsMongoProperties;
 import io.extremum.descriptors.sync.dao.impl.SpringDataDescriptorRepository;
 import io.extremum.mongo.dbfactory.MainMongoDb;
-import io.extremum.descriptors.sync.springdata.MongoTemplateWithFixedDatabase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mapping.callback.EntityCallbacks;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.MongoDatabaseUtils;
+import org.springframework.data.mongodb.SessionSynchronization;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.WriteResultChecking;
@@ -38,8 +40,13 @@ public class DescriptorsMongoConfiguration {
             @DescriptorsMongoDb MappingMongoConverter descriptorsMappingMongoConverter,
             AuditingEntityCallback auditingEntityCallback,
             CollectionDescriptorCoordinatesRefresher collectionDescriptorCoordinatesRefresher) {
-        MongoTemplate template = new MongoTemplateWithFixedDatabase(mainMongoDbFactory,
-                descriptorsMappingMongoConverter, getDatabaseName());
+        MongoTemplate template = new MongoTemplate(mainMongoDbFactory, descriptorsMappingMongoConverter) {
+            @Override
+            protected MongoDatabase doGetDatabase() {
+                return MongoDatabaseUtils.getDatabase(getDatabaseName(), mainMongoDbFactory,
+                        SessionSynchronization.ON_ACTUAL_TRANSACTION);
+            }
+        };
         template.setWriteResultChecking(WriteResultChecking.EXCEPTION);
         template.setWriteConcern(WriteConcern.MAJORITY);
         template.setEntityCallbacks(explicitCallbacksToAvoidCircularDependencyProblem(
