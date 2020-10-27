@@ -1,5 +1,6 @@
 package io.extremum.descriptors.common;
 
+import io.extremum.sharedmodels.descriptor.Descriptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Collections.singletonList;
 
 /**
  * @author rpuch
@@ -77,20 +80,7 @@ public class CommonDescriptorsMongoConfiguration {
     }
 
     private Collection<String> getMappingBasePackages() {
-        // TODO: a better solution?
-        // We explicitly return here an empty set to disable pre-scanning
-        // for entities. If we allow the infrastructure to pre-scan, we would
-        // have to exclude entities from different Mongo databases, and
-        // it is not clear how to do it.
-        // On the other hand, when Repository instances are created, indices
-        // are created within a correct Mongo database (defined by MongoTemplate
-        // which is in turn defined by Repository-scanning annotation like
-        // @EnableMongoRepositories.
-        return emptyMappingBasePackagesSetToAvoidMultipleDatasourceProblems();
-    }
-
-    private Collection<String> emptyMappingBasePackagesSetToAvoidMultipleDatasourceProblems() {
-        return Collections.emptySet();
+        return singletonList(Descriptor.class.getPackage().getName());
     }
 
     private Set<Class<?>> scanForEntities(String basePackage) throws ClassNotFoundException {
@@ -115,6 +105,9 @@ public class CommonDescriptorsMongoConfiguration {
                                 MongoConfigurationSupport.class.getClassLoader()));
             }
         }
+
+        // adding it explicitly because otherwise it won't be added
+        initialEntitySet.add(Descriptor.class);
 
         return initialEntitySet;
     }
