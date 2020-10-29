@@ -38,6 +38,7 @@ public class TextWatchEvent {
     private long version;
 
     private String jsonPatch;
+    private String fullReplacePatch;
     private String modelId;
     private ModelMetadata modelMetadata;
     private Set<String> subscribers;
@@ -45,14 +46,15 @@ public class TextWatchEvent {
     public TextWatchEvent() {
     }
 
-    public TextWatchEvent(String jsonPatch, String modelId, Model targetModel) {
+    public TextWatchEvent(String jsonPatch, String fullReplacePatch, String modelId, Model targetModel) {
         this.jsonPatch = jsonPatch;
+        this.fullReplacePatch = fullReplacePatch;
         this.modelId = modelId;
         modelMetadata = ModelMetadata.fromModel(targetModel);
     }
 
-    public TextWatchEventNotificationDto toDto(Collection<String> subscribers) {
-        return new TextWatchEventNotificationDto(jsonPatch, subscribers);
+    public TextWatchEventNotificationDto toDto() {
+        return new TextWatchEventNotificationDto(jsonPatch, fullReplacePatch, subscribers);
     }
 
     public void touchModelMotificationTime() {

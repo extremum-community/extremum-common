@@ -111,6 +111,7 @@
                 <artifactId>extremum-everything-starter</artifactId>
                 <version>1.2.5-SNAPSHOT</version>
             </dependency>
+
             <dependency>
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-reactive-starter</artifactId>
@@ -150,6 +151,12 @@
                 <groupId>io.extremum</groupId>
                 <artifactId>extremum-everything-dynamic</artifactId>
                 <version>1.2.5-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver</artifactId>
+                <version>${mongodb-driver.version}</version>
             </dependency>
 
             <dependency>

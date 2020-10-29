@@ -1,6 +1,7 @@
-package io.extremum.watch.config;
+package io.extremum.watch.config.conditional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.extremum.watch.config.ExtremumKafkaProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

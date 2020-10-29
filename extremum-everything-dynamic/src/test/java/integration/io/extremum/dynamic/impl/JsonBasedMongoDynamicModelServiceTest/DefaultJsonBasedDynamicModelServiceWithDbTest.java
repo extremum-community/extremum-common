@@ -15,15 +15,12 @@ import io.extremum.dynamic.schema.provider.networknt.NetworkntSchemaProvider;
 import io.extremum.dynamic.schema.provider.networknt.caching.NetworkntCacheManager;
 import io.extremum.dynamic.schema.provider.networknt.impl.FileSystemNetworkntSchemaProvider;
 import io.extremum.dynamic.services.impl.DefaultJsonBasedDynamicModelService;
-import io.extremum.security.DataSecurity;
-import io.extremum.security.PrincipalSource;
-import io.extremum.security.RoleSecurity;
+import io.extremum.security.*;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.starter.CommonConfiguration;
-import io.extremum.watch.config.WatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
-import io.extremum.watch.processor.WatchEventConsumer;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -69,16 +66,14 @@ import static reactor.core.publisher.Mono.*;
 
 @Slf4j
 @ContextConfiguration(classes = {
-        WatchConfiguration.class,
         CommonConfiguration.class,
         FileSystemSchemaProviderConfiguration.class,
-        DynamicModuleAutoConfiguration.class,
-        WatchConfiguration.class
+        DynamicModuleAutoConfiguration.class
 })
 @MockBeans({
-        @MockBean(RoleSecurity.class),
-        @MockBean(DataSecurity.class),
-        @MockBean(PrincipalSource.class)
+        @MockBean(ReactiveRoleSecurity.class),
+        @MockBean(ReactiveDataSecurity.class),
+        @MockBean(ReactivePrincipalSource.class)
 })
 class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithServices {
     @Autowired
@@ -97,7 +92,12 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
     SchemaMetaService schemaMetaService;
 
     @MockBean
-    WatchEventConsumer watchConsumer;
+    ReactiveWatchEventConsumer watchConsumer;
+
+    private Mono<JsonDynamicModel> saveModel(JsonDynamicModel model) {
+        when(watchConsumer.consume(any())).thenReturn(Mono.empty());
+        return service.saveModel(model);
+    }
 
     @Test
     void validModelSavedInMongo() throws JSONException {
@@ -130,7 +130,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         schemaMetaService.registerMapping(model.getModelName(), "complex.schema.json", 1);
 
-        Mono<JsonDynamicModel> saved = service.saveModel(model);
+        Mono<JsonDynamicModel> saved = saveModel(model);
 
         StepVerifier.setDefaultTimeout(Duration.of(30, ChronoUnit.SECONDS));
 
@@ -197,7 +197,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
-        JsonDynamicModel saved = service.saveModel(model).block();
+        JsonDynamicModel saved = saveModel(model).block();
 
         JsonDynamicModel found = service.findById(saved.getId()).block();
 
@@ -233,7 +233,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
-        JsonDynamicModel saved = service.saveModel(model).block();
+        JsonDynamicModel saved = saveModel(model).block();
 
         JsonDynamicModel found = service.findById(saved.getId()).block();
 
@@ -246,7 +246,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
                 "\"model\": \"complexModel\",\n" +
                 "\"version\": 1}");
         JsonDynamicModel updatedModel = new JsonDynamicModel(idOfTheFoundModel, found.getModelName(), modelData_updated);
-        JsonDynamicModel updatedResult = service.saveModel(updatedModel).block();
+        JsonDynamicModel updatedResult = saveModel(updatedModel).block();
 
         assertEquals(idOfTheFoundModel, updatedResult.getId());
         assertFalse(updatedResult.getModelData().containsKey("_id"));
@@ -279,7 +279,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         schemaMetaService.registerMapping(modelName, "empty.schema.json", 1);
 
-        service.saveModel(model).block();
+        saveModel(model).block();
 
         Descriptor mockDescriptor = mock(Descriptor.class);
         when(mockDescriptor.getModelTypeReactively()).thenReturn(just("complex.schema.json"));
@@ -325,7 +325,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
-        JsonDynamicModel saved = service.saveModel(model).block();
+        JsonDynamicModel saved = saveModel(model).block();
 
         Object created = saved.getModelData().get(Model.FIELDS.created.name());
         String modified = (String) saved.getModelData().get(Model.FIELDS.model.name());
@@ -362,7 +362,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
 
-        JsonDynamicModel saved = service.saveModel(model).block();
+        JsonDynamicModel saved = saveModel(model).block();
 
         ZonedDateTime created = (ZonedDateTime) saved.getModelData().get(Model.FIELDS.created.name());
         ZonedDateTime modifiedWhenCreated = (ZonedDateTime) saved.getModelData().get(Model.FIELDS.modified.name());
@@ -373,7 +373,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
 
         assertEquals("modelName", saved.getModelData().get(Model.FIELDS.model.name()));
 
-        JsonDynamicModel updated = service.saveModel(saved).block();
+        JsonDynamicModel updated = saveModel(saved).block();
 
         assertEquals(2, (long) updated.getModelData().get(Model.FIELDS.version.name()));
 
@@ -401,7 +401,7 @@ class DefaultJsonBasedDynamicModelServiceWithDbTest extends SpringBootTestWithSe
         JsonDynamicModel model = new JsonDynamicModel("dynmodel", data);
 
         schemaMetaService.registerMapping(model.getModelName(), "empty.schema.json", 1);
-        JsonDynamicModel saved = service.saveModel(model).block();
+        JsonDynamicModel saved = saveModel(model).block();
 
         JsonDynamicModel removedModel = service.remove(saved.getId()).block();
         assertNotNull(removedModel);

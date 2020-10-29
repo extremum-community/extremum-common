@@ -2,9 +2,11 @@ package io.extremum.watch.services;
 
 import io.extremum.mongo.MongoConstants;
 import io.extremum.common.spring.data.OffsetBasedPageRequest;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.models.TextWatchEvent;
 import io.extremum.watch.repositories.TextWatchEventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnBean(BlockingWatchConfiguration.class)
 public class PersistentWatchEventService implements WatchEventService {
     private final TextWatchEventRepository eventRepository;
 

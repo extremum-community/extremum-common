@@ -5,8 +5,10 @@ import io.extremum.common.support.UniversalModelFinder;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.RoleSecurity;
 import io.extremum.sharedmodels.descriptor.Descriptor;
+import io.extremum.watch.config.conditional.BlockingWatchConfiguration;
 import io.extremum.watch.repositories.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnBean(BlockingWatchConfiguration.class)
 public class PersistentWatchSubscriptionService implements WatchSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final RoleSecurity roleSecurity;
@@ -57,6 +60,11 @@ public class PersistentWatchSubscriptionService implements WatchSubscriptionServ
     @Override
     public Collection<String> findAllSubscribersBySubscription(String subscriptionId) {
         return subscriptionRepository.getAllSubscribersIdsBySubscription(subscriptionId);
+    }
+
+    @Override
+    public Boolean isFreshSubscription(String modelId, String subscriberId) {
+        return subscriptionRepository.checkFreshSubscription(modelId, subscriberId);
     }
 }
 

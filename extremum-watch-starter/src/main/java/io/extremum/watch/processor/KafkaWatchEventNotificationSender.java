@@ -14,7 +14,7 @@ public class KafkaWatchEventNotificationSender implements WatchEventNotification
     private final KafkaTemplate<String, TextWatchEventNotificationDto> kafkaTemplate;
 
     @Override
-    public void send(TextWatchEventNotificationDto notificationDto) {
+    public void send(String modelId, TextWatchEventNotificationDto notificationDto) {
         kafkaTemplate.send(kafkaProperties.getTopic(), notificationDto);
     }
 }

@@ -38,13 +38,15 @@ public class ReactivePatchFlowImpl implements ReactivePatchFlow {
 
     @Override
     public Mono<Model> patch(Descriptor id, JsonPatch patch) {
-        return findModel(id)
-                .doOnNext(dataSecurity::checkPatchAllowed)
-                .flatMap(modelToPatch -> {
-                    return patcher.patch(id, modelToPatch, patch)
+        return id.getInternalIdReactively().flatMap(internalId ->
+                findModel(id)
+                    .doOnNext(dataSecurity::checkPatchAllowed)
+                    .flatMap(modelToPatch -> {
+                        return patcher.patch(id, modelToPatch, patch)
                             .flatMap(patchedModel -> saveWithHooks(id, modelToPatch, patchedModel));
-                })
-                .doOnNext(savedModel -> log.debug("Model with id {} has been patched with patch {}", id, patch));
+                    })
+                    .subscriberContext(context -> context.put(MODEL_BEING_PATCHED, internalId))
+                    .doOnNext(savedModel -> log.debug("Model with id {} has been patched with patch {}", id, patch)));
     }
 
     private Mono<Model> findModel(Descriptor id) {
@@ -61,5 +63,4 @@ public class ReactivePatchFlowImpl implements ReactivePatchFlow {
                             .then(Mono.fromSupplier(context::getCurrentStateModel));
                 });
     }
-
 }

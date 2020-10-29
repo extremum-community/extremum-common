@@ -5,6 +5,7 @@ import io.extremum.authentication.api.SecurityProvider;
 import io.extremum.security.DataSecurity;
 import io.extremum.security.PrincipalSource;
 import io.extremum.security.RoleSecurity;
+import io.extremum.watch.processor.ReactiveWatchEventConsumer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
