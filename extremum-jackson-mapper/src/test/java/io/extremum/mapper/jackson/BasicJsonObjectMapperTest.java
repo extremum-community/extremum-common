@@ -1,6 +1,9 @@
 package io.extremum.mapper.jackson;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.extremum.sharedmodels.dto.AlertLevelEnum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -130,14 +133,93 @@ class BasicJsonObjectMapperTest {
     }
 
     @Test
-    void parsesWhenZonedDateTimeIsNull() throws Exception{
+    void parsesWhenZonedDateTimeIsNull() throws Exception {
         ZonedDateTimeWrapper wrapper = mapper.readValue("{\"dateTime\":null}", ZonedDateTimeWrapper.class);
 
         assertThat(wrapper.dateTime, is(nullValue()));
     }
 
+    @Test
+    void shouldSerializeAlertLevelWarningAsWarn() throws Exception {
+        assertThat(mapper.writeValueAsString(AlertLevelEnum.WARNING), is("\"warn\""));
+    }
+
+    @Test
+    void shouldDeserializeAlertLevelWarningFromWarn() throws Exception {
+        assertThat(mapper.readValue("\"warn\"", AlertLevelEnum.class), is(AlertLevelEnum.WARNING));
+    }
+
+    @Test
+    void shouldSerializeBareEnumAsFieldLowerCase() throws Exception {
+        assertThat(mapper.writeValueAsString(BareEnum.VALUE), is("\"value\""));
+    }
+
+    @Test
+    void shouldDeserializeBareEnumFromFieldLowerCase() throws Exception {
+        assertThat(mapper.readValue("\"value\"", BareEnum.class), is(BareEnum.VALUE));
+    }
+
+    @Test
+    void shouldSerializeEnumWithMethodAnnotatedWithJsonValueUsingThisMethod() throws Exception {
+        assertThat(mapper.writeValueAsString(EnumAnnotatedWithJsonValueAndJsonCreator.VALUE), is("\"val\""));
+    }
+
+    @Test
+    void shouldDeserializeEnumWithMethodAnnotatedWithJsonCreatorUsingThisMethod() throws Exception {
+        assertThat(mapper.readValue("\"val\"", EnumAnnotatedWithJsonValueAndJsonCreator.class),
+                is(EnumAnnotatedWithJsonValueAndJsonCreator.VALUE));
+    }
+
+    @Test
+    void shouldSerializeEnumAnnotatedWithJsonPropertyUsingPropertyValue() throws Exception {
+        assertThat(mapper.writeValueAsString(EnumAnnotatedWithJsonProperty.VALUE), is("\"val\""));
+    }
+
+    @Test
+    void shouldDeserializeEnumAnnotatedWithJsonPropertyUsingPropertyValue() throws Exception {
+        assertThat(mapper.readValue("\"val\"", EnumAnnotatedWithJsonProperty.class),
+                is(EnumAnnotatedWithJsonProperty.VALUE));
+    }
+
     private static class ZonedDateTimeWrapper {
         @JsonProperty
         private ZonedDateTime dateTime;
+    }
+
+    private enum BareEnum {
+        VALUE
+    }
+
+    public enum NotAnnotatedEnumWithFromStringMethod {
+        VALUE;
+
+        public static NotAnnotatedEnumWithFromStringMethod fromString(String str) {
+            if ("val".equals(str)) {
+                return VALUE;
+            }
+            throw new IllegalArgumentException(String.format("Not supported: '%s'", str));
+        }
+    }
+
+    public enum EnumAnnotatedWithJsonValueAndJsonCreator {
+        VALUE;
+
+        @JsonValue
+        public String toValue() {
+            return "val";
+        }
+
+        @JsonCreator
+        public static EnumAnnotatedWithJsonValueAndJsonCreator fromValue(String str) {
+            if ("val".equals(str)) {
+                return VALUE;
+            }
+            throw new IllegalArgumentException(String.format("Not supported: '%s'", str));
+        }
+    }
+
+    public enum EnumAnnotatedWithJsonProperty {
+        @JsonProperty("val")
+        VALUE;
     }
 }

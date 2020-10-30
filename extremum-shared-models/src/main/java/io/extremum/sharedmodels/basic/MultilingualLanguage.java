@@ -1,5 +1,8 @@
 package io.extremum.sharedmodels.basic;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * IETF language tags in the format defined by RFC 5646 (language-TERRITORY).
  */
@@ -160,10 +163,12 @@ public enum MultilingualLanguage {
         this.value = value;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
 
+    @JsonCreator
     public static MultilingualLanguage fromString(String value) {
         if (value != null) {
             for (MultilingualLanguage item : MultilingualLanguage.values()) {

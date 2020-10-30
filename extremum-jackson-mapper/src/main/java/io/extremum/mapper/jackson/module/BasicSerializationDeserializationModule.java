@@ -1,16 +1,25 @@
 package io.extremum.mapper.jackson.module;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import io.extremum.mapper.jackson.deserializer.*;
-import io.extremum.mapper.jackson.serializer.*;
+import io.extremum.mapper.jackson.deserializer.DisplayDeserializer;
+import io.extremum.mapper.jackson.deserializer.DurationVariativeValueDeserializer;
+import io.extremum.mapper.jackson.deserializer.IntegerOrStringDeserializer;
+import io.extremum.mapper.jackson.deserializer.IntegerRangeOrValueDeserializer;
+import io.extremum.mapper.jackson.deserializer.PaginationDeserializer;
+import io.extremum.mapper.jackson.deserializer.StringOrMultilingualDeserializer;
+import io.extremum.mapper.jackson.serializer.DisplaySerializer;
+import io.extremum.mapper.jackson.serializer.DurationVariativeValueSerializer;
+import io.extremum.mapper.jackson.serializer.IdListOrObjectListSerializer;
+import io.extremum.mapper.jackson.serializer.IdOrObjectSerializer;
+import io.extremum.mapper.jackson.serializer.IntegerOrStringSerializer;
+import io.extremum.mapper.jackson.serializer.IntegerRangeOrValueSerializer;
+import io.extremum.mapper.jackson.serializer.StringOrMultilingualSerializer;
 import io.extremum.sharedmodels.basic.IdOrObject;
 import io.extremum.sharedmodels.basic.IntegerOrString;
 import io.extremum.sharedmodels.basic.StringOrMultilingual;
@@ -20,20 +29,14 @@ import io.extremum.sharedmodels.structs.DurationVariativeValue;
 import io.extremum.sharedmodels.structs.IdListOrObjectList;
 import io.extremum.sharedmodels.structs.IntegerRangeOrValue;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @author rpuch
  */
 public class BasicSerializationDeserializationModule extends SimpleModule {
     public BasicSerializationDeserializationModule(ObjectMapper mapper) {
-        setDeserializerModifier(new EnumDeserializerModifier());
-        addSerializer(Enum.class, new EnumSerializer());
         addSerializer(ObjectId.class, new ToStringSerializer());
         addDeserializer(ObjectId.class, new ObjectIdDeserializer());
 
@@ -59,6 +62,17 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         addDeserializer(Pagination.class, new PaginationDeserializer(mapper));
     }
 
+    @Override
+    public void setupModule(SetupContext context) {
+        super.setupModule(context);
+
+        addLowercasingEnumIntrospectorWithPriorityLowerThanStandard(context);
+    }
+
+    private void addLowercasingEnumIntrospectorWithPriorityLowerThanStandard(SetupContext context) {
+        context.appendAnnotationIntrospector(new LowercasingEnumAnnotationIntrospector());
+    }
+
     private static class ObjectIdDeserializer extends StdDeserializer<ObjectId> {
         ObjectIdDeserializer() {
             super(ObjectId.class);
@@ -70,56 +84,15 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         }
     }
 
-    private static class EnumSerializer extends StdSerializer<Enum> {
-        EnumSerializer() {
-            super(Enum.class);
-        }
-
+    private static class LowercasingEnumAnnotationIntrospector extends NopAnnotationIntrospector {
         @Override
-        public void serialize(Enum value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
-                throws IOException {
-            actuallySerialize(value, jsonGenerator);
-        }
-
-        private void actuallySerialize(Enum value, JsonGenerator jsonGenerator) throws IOException {
-            if (value != null) {
-                jsonGenerator.writeString(value.name().toLowerCase());
-            }
-        }
-
-        @Override
-        public void serializeWithType(Enum value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider,
-                                      TypeSerializer typeSer) throws IOException {
-            actuallySerialize(value, jsonGenerator);
-        }
-    }
-
-    private static class EnumDeserializerModifier extends BeanDeserializerModifier {
-        private static final Logger LOGGER = LoggerFactory.getLogger(EnumDeserializerModifier.class);
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public JsonDeserializer<Enum> modifyEnumDeserializer(
-                DeserializationConfig deserializationConfig, JavaType javaType, BeanDescription beanDescription, JsonDeserializer<?> jsonDeserializer) {
-            return new JsonDeserializer<Enum>() {
-                @Override
-                public Enum deserialize(
-                        JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-                    Class<? extends Enum> rawClass = (Class<Enum<?>>) javaType.getRawClass();
-                    for (Method method : rawClass.getMethods()) {
-                        if (method.getName().equals("fromString") && method.getParameterCount() == 1) {
-                            try {
-                                return (Enum) method.invoke(rawClass, jsonParser.getValueAsString());
-                            } catch (IllegalAccessException | InvocationTargetException e) {
-                                LOGGER.error("Can't retrieve enum " + rawClass.getName() +
-                                        " from string value " + jsonParser.getValueAsString(), e);
-                            }
-                        }
-                    }
-
-                    return Enum.valueOf(rawClass, jsonParser.getValueAsString().toUpperCase());
+        public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+            for (int i = 0; i < enumValues.length; i++) {
+                if (names[i] == null) {
+                    names[i] = enumValues[i].name().toLowerCase();
                 }
-            };
+            }
+            return names;
         }
     }
 }
