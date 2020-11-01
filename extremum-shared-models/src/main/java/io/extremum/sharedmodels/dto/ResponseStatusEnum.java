@@ -1,7 +1,7 @@
 package io.extremum.sharedmodels.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ResponseStatusEnum {
     /**
@@ -24,13 +24,13 @@ public enum ResponseStatusEnum {
      */
     FAIL("fail");
 
-    private String value;
+    private final String value;
 
     ResponseStatusEnum (String value) {
         this.value = value;
     }
 
-    @JsonGetter
+    @JsonValue
     public String getValue() {
         return this.value;
     }

@@ -48,7 +48,10 @@ public class Display implements Serializable {
     }
 
     public enum Type {
-        STRING, OBJECT
+        @JsonProperty("string")
+        STRING,
+        @JsonProperty("object")
+        OBJECT
     }
 
     public enum FIELDS {

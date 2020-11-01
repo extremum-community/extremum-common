@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.extremum.mapper.jackson.deserializer.DisplayDeserializer;
@@ -62,17 +61,6 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         addDeserializer(Pagination.class, new PaginationDeserializer(mapper));
     }
 
-    @Override
-    public void setupModule(SetupContext context) {
-        super.setupModule(context);
-
-        addLowercasingEnumIntrospectorWithPriorityLowerThanStandard(context);
-    }
-
-    private void addLowercasingEnumIntrospectorWithPriorityLowerThanStandard(SetupContext context) {
-        context.appendAnnotationIntrospector(new LowercasingEnumAnnotationIntrospector());
-    }
-
     private static class ObjectIdDeserializer extends StdDeserializer<ObjectId> {
         ObjectIdDeserializer() {
             super(ObjectId.class);
@@ -81,18 +69,6 @@ public class BasicSerializationDeserializationModule extends SimpleModule {
         @Override
         public ObjectId deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return new ObjectId(p.getValueAsString());
-        }
-    }
-
-    private static class LowercasingEnumAnnotationIntrospector extends NopAnnotationIntrospector {
-        @Override
-        public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
-            for (int i = 0; i < enumValues.length; i++) {
-                if (names[i] == null) {
-                    names[i] = enumValues[i].name().toLowerCase();
-                }
-            }
-            return names;
         }
     }
 }
