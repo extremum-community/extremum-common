@@ -39,6 +39,9 @@ public class IntegerOrString implements Serializable {
     }
 
     private enum Type {
-        NUMBER, STRING
+        @JsonProperty("number")
+        NUMBER,
+        @JsonProperty("string")
+        STRING
     }
 }

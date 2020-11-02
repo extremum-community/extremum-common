@@ -42,7 +42,7 @@ class WatchControllersExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/extremum-access-denied-exception");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(403));
         assertThat(root.getString("result"), is(nullValue()));
     }
@@ -66,7 +66,7 @@ class WatchControllersExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/watch-exception");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(500));
         assertThat(root.getString("result"), is(nullValue()));
     }

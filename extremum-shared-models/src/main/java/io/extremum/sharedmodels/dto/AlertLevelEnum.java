@@ -11,7 +11,7 @@ public enum  AlertLevelEnum {
     ERROR("error"),
     FATAL("fatal");
 
-    private String value;
+    private final String value;
 
     AlertLevelEnum (String value) {
         this.value = value;

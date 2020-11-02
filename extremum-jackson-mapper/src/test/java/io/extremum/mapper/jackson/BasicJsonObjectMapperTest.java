@@ -150,13 +150,13 @@ class BasicJsonObjectMapperTest {
     }
 
     @Test
-    void shouldSerializeBareEnumAsFieldLowerCase() throws Exception {
-        assertThat(mapper.writeValueAsString(BareEnum.VALUE), is("\"value\""));
+    void shouldSerializeBareEnumAsFieldName() throws Exception {
+        assertThat(mapper.writeValueAsString(BareEnum.VALUE), is("\"VALUE\""));
     }
 
     @Test
-    void shouldDeserializeBareEnumFromFieldLowerCase() throws Exception {
-        assertThat(mapper.readValue("\"value\"", BareEnum.class), is(BareEnum.VALUE));
+    void shouldDeserializeBareEnumFromFieldName() throws Exception {
+        assertThat(mapper.readValue("\"VALUE\"", BareEnum.class), is(BareEnum.VALUE));
     }
 
     @Test

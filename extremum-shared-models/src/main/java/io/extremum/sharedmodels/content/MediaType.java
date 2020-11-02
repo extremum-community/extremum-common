@@ -13,7 +13,7 @@ public enum MediaType {
     IMAGE_GIF("image/gif"),
     IMAGE_PNG("image/png");
 
-    private String value;
+    private final String value;
 
     MediaType(String value) {
         this.value = value;
