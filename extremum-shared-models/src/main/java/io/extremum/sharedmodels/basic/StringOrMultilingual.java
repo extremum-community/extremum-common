@@ -1,5 +1,6 @@
 package io.extremum.sharedmodels.basic;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,7 +52,12 @@ public class StringOrMultilingual implements Serializable {
     }
 
     public enum Type {
-        UNKNOWN, TEXT, MAP
+        @JsonProperty("unknown")
+        UNKNOWN,
+        @JsonProperty("text")
+        TEXT,
+        @JsonProperty("map")
+        MAP
     }
 
     public enum FIELDS {

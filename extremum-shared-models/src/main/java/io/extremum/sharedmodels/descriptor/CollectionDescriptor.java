@@ -1,5 +1,6 @@
 package io.extremum.sharedmodels.descriptor;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -63,6 +64,7 @@ public final class CollectionDescriptor implements Serializable {
         /**
          * Collection is identified by host (owning) entity and host field name.
          */
+        @JsonProperty("owned")
         OWNED {
             @Override
             String toCoordinatesString(CollectionCoordinates coordinates) {
@@ -72,6 +74,7 @@ public final class CollectionDescriptor implements Serializable {
         /**
          * Collection is identified by name (and optional parameter string).
          */
+        @JsonProperty("free")
         FREE {
             @Override
             String toCoordinatesString(CollectionCoordinates coordinates) {

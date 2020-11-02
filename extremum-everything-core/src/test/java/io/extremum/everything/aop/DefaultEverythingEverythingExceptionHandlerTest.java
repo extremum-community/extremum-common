@@ -52,7 +52,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
     void whenNothingIsThrown_thenOriginalResponseShouldBeReturned() throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/ok");
 
-        assertThat(root.getString("status"), is("OK"));
+        assertThat(root.getString("status"), is("ok"));
         assertThat(root.getInt("code"), is(200));
         assertThat(root.getString("result"), is("Success!"));
     }
@@ -68,7 +68,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/model-not-found");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(404));
         assertThat(root.getString("result"), is(nullValue()));
     }
@@ -86,7 +86,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/evr-evr-exception");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(500));
         assertThat(root.getString("result"), is(nullValue()));
     }
@@ -96,7 +96,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/validation-failure");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(400));
         assertThat(root.getString("result"), is("Unable to complete 'everything-everything' operation"));
     }
@@ -106,7 +106,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/descriptor-not-found");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(404));
         assertThat(root.getString("result"), is(nullValue()));
     }
@@ -116,7 +116,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/descriptor-not-ready");
 
-        assertThat(root.getString("status"), is("DOING"));
+        assertThat(root.getString("status"), is("doing"));
         assertThat(root.getInt("code"), is(102));
         assertThat(root.getString("result"), is(nullValue()));
         JSONArray alerts = root.getJSONArray("alerts");
@@ -131,7 +131,7 @@ class DefaultEverythingEverythingExceptionHandlerTest {
             throws Exception {
         JSONObject root = getSuccessfullyAndParseResponse("/extremum-access-denied-exception");
 
-        assertThat(root.getString("status"), is("FAIL"));
+        assertThat(root.getString("status"), is("fail"));
         assertThat(root.getInt("code"), is(403));
         assertThat(root.getString("result"), is(nullValue()));
     }
