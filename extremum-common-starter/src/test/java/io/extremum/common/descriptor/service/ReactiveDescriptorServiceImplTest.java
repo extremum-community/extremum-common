@@ -146,4 +146,13 @@ class ReactiveDescriptorServiceImplTest {
                 .expectError(DescriptorIsAlreadyReadyException.class)
                 .verify();
     }
+
+    @Test
+    void shouldRelayDestroyRequestToDao() {
+        when(reactiveDescriptorDao.destroy("external-id")).thenReturn(Mono.empty());
+
+        reactiveDescriptorService.destroyDescriptor("external-id").block();
+
+        verify(reactiveDescriptorDao).destroy("external-id");
+    }
 }

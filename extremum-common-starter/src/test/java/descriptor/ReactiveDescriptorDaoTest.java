@@ -1,43 +1,56 @@
 package descriptor;
 
 import config.DescriptorConfiguration;
-import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
-import io.extremum.descriptors.common.dao.DescriptorCodecs;
-import io.extremum.descriptors.common.dao.DescriptorRepository;
 import io.extremum.common.descriptor.factory.DescriptorSaver;
 import io.extremum.common.descriptor.factory.DescriptorSavers;
 import io.extremum.common.descriptor.service.DescriptorService;
-import io.extremum.descriptors.common.redisson.CompositeCodecWithQuickFix;
 import io.extremum.common.test.TestWithServices;
 import io.extremum.descriptors.common.DescriptorsMongoDb;
-import io.extremum.mongo.facilities.MongoDescriptorFacilities;
+import io.extremum.descriptors.common.dao.DescriptorCodecs;
+import io.extremum.descriptors.common.dao.DescriptorRepository;
+import io.extremum.descriptors.common.properties.DescriptorsProperties;
+import io.extremum.descriptors.common.properties.RedisProperties;
+import io.extremum.descriptors.common.redisson.CompositeCodecWithQuickFix;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDao;
+import io.extremum.descriptors.reactive.dao.ReactiveDescriptorDaoFactory;
 import io.extremum.mongo.dbfactory.MainMongoDb;
+import io.extremum.mongo.facilities.MongoDescriptorFacilities;
 import io.extremum.sharedmodels.descriptor.CollectionDescriptor;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.sharedmodels.descriptor.StandardStorageType;
-import io.extremum.descriptors.common.properties.DescriptorsProperties;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.redisson.api.RedissonReactiveClient;
 import org.redisson.client.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Map;
+import java.util.UUID;
 
-import static java.util.Collections.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
 @SpringBootTest(classes = DescriptorConfiguration.class)
@@ -62,9 +75,15 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
     @Autowired
     private DescriptorsProperties descriptorsProperties;
     @Autowired
+    private RedisProperties redisProperties;
+    @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private RedissonReactiveClient redissonReactiveClient;
+    @Autowired
+    private ReactiveMongoDatabaseFactory reactiveMongoDatabaseFactory;
 
-    RMap<String, Descriptor> descriptorsInRedis;
+    private RMap<String, Descriptor> descriptorsInRedis;
 
     @BeforeEach
     void createRedisMap() {
@@ -88,6 +107,7 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         return Descriptor.builder()
                 .externalId(descriptorService.createExternalId())
                 .internalId(new ObjectId().toString())
+                .type(Descriptor.Type.SINGLE)
                 .storageType(StandardStorageType.MONGO)
                 .build();
     }
@@ -256,5 +276,103 @@ class ReactiveDescriptorDaoTest extends TestWithServices {
         StepVerifier.create(mono)
                 .expectNext(singletonMap(descriptor.getInternalId(), descriptor.getExternalId()))
                 .verifyComplete();
+    }
+
+    @Test
+    void givenDescriptorExistsOnlyInMongoButNotInRedis_whenRetrievingItThenItShouldBeFound() {
+        String descriptorExternalId = createDescriptorAndReturnExternalId();
+        Descriptor removedFromRedis = descriptorsInRedis.remove(descriptorExternalId);
+        assertThat(removedFromRedis, is(notNullValue()));
+        assertThat(descriptorsInRedis.get(descriptorExternalId), is(nullValue()));
+
+        ReactiveDescriptorDao descriptorDaoWithEmptyCaches = ReactiveDescriptorDaoFactory.create(
+                redisProperties, descriptorsProperties, redissonReactiveClient, descriptorRepository,
+                descriptorsMongoOperations, reactiveMongoDatabaseFactory);
+        Descriptor retrievedFromMongo = descriptorDaoWithEmptyCaches.retrieveByExternalId(descriptorExternalId)
+                .block();
+
+        assertThat(retrievedFromMongo, is(notNullValue()));
+        assertThat(retrievedFromMongo.getExternalId(), equalTo(descriptorExternalId));
+    }
+
+    @Test
+    void givenDescriptorExistsOnlyInMongoButNotInRedis_whenRetrievingItThenItShouldBeFoundAndReinsertedToRedis() {
+        String descriptorExternalId = createDescriptorAndReturnExternalId();
+        Descriptor removedFromRedis = descriptorsInRedis.remove(descriptorExternalId);
+        assertThat(removedFromRedis, is(notNullValue()));
+        assertThat(descriptorsInRedis.get(descriptorExternalId), is(nullValue()));
+
+        ReactiveDescriptorDao descriptorDaoWithEmptyCaches = ReactiveDescriptorDaoFactory.create(
+                redisProperties, descriptorsProperties, redissonReactiveClient, descriptorRepository,
+                descriptorsMongoOperations, reactiveMongoDatabaseFactory);
+        descriptorDaoWithEmptyCaches.retrieveByExternalId(descriptorExternalId).block();
+
+        Descriptor descriptorReaddedToRedis = descriptorsInRedis.get(descriptorExternalId);
+        assertThat(descriptorReaddedToRedis, is(notNullValue()));
+        assertThat(descriptorReaddedToRedis.getExternalId(), equalTo(descriptorExternalId));
+    }
+
+    private String createDescriptorAndReturnExternalId() {
+        Descriptor descriptor = saveADescriptor();
+        return descriptor.getExternalId();
+    }
+
+    @Test
+    void destroyedDescriptorShouldBeRemovedFromMongo() {
+        Descriptor descriptor = saveADescriptor();
+
+        reactiveDescriptorDao.destroy(descriptor.getExternalId()).block();
+
+        Query query = new Query(where("_id").is(descriptor.getExternalId()));
+        Descriptor fromMongo = descriptorsMongoOperations.findOne(query, Descriptor.class).block();
+        assertThat(fromMongo, is(nullValue()));
+    }
+
+    private Descriptor saveADescriptor() {
+        return descriptorSaver.createAndSave(new ObjectId().toString(), "TestModel", StandardStorageType.MONGO);
+    }
+
+    @Test
+    void destroyedDescriptorShouldBeRemovedFromRedisDescriptorsMap() {
+        Descriptor descriptor = saveADescriptor();
+
+        reactiveDescriptorDao.destroy(descriptor.getExternalId()).block();
+
+        Descriptor fromRedis = descriptorsInRedis.get(descriptor.getExternalId());
+        assertThat(fromRedis, is(nullValue()));
+    }
+
+    @Test
+    void destroyedDescriptorShouldBeRemovedFromRedisInternalIdsMap() {
+        Descriptor descriptor = saveADescriptor();
+
+        reactiveDescriptorDao.destroy(descriptor.getExternalId()).block();
+
+        RMap<String, String> internalIdsMap = redissonClient.getMap(descriptorsProperties.getInternalIdsMapName(),
+                new StringCodec());
+
+        assertThat(internalIdsMap.get(descriptor.getInternalId()), is(nullValue()));
+    }
+
+    @Test
+    void destroyedCollectionDescriptorShouldBeRemovedFromRedisCoordinateStringsMap() {
+        CollectionDescriptor collectionDescriptor = CollectionDescriptor.forFree(randomString());
+        Descriptor descriptor = descriptorSaver.createAndSave(collectionDescriptor);
+
+        reactiveDescriptorDao.destroy(descriptor.getExternalId()).block();
+
+        RMap<String, String> collectionCoordinatesMap = redissonClient.getMap(
+                descriptorsProperties.getCollectionCoordinatesMapName(), new StringCodec());
+
+        assertThat(collectionCoordinatesMap.get(collectionDescriptor.getCoordinatesString()), is(nullValue()));
+    }
+    
+    private String randomString() {
+        return UUID.randomUUID().toString();
+    }
+
+    @Test
+    void shouldAllowDestroyingNonExistentDescriptor() {
+        reactiveDescriptorDao.destroy("no-such-descriptor-id").block();
     }
 }

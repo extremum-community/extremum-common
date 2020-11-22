@@ -17,4 +17,5 @@ public interface ReactiveDescriptorDao {
 
     Mono<Descriptor> store(Descriptor descriptor);
 
+    Mono<Void> destroy(String externalId);
 }

@@ -36,4 +36,9 @@ public class InMemoryReactiveDescriptorDao implements ReactiveDescriptorDao {
         descriptorMap.put(descriptor.getExternalId(), descriptor);
         return Mono.just(descriptor);
     }
+
+    @Override
+    public Mono<Void> destroy(String externalId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }
