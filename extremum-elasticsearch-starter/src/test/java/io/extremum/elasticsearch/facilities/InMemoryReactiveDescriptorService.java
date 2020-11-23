@@ -60,6 +60,11 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Mono<Void> destroyDescriptor(String externalId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     public Stream<Descriptor> descriptors() {
         return externalIdToDescriptorMap.values().stream();
     }

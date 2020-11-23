@@ -60,4 +60,9 @@ public class ReactiveDescriptorServiceImpl implements ReactiveDescriptorService 
                 })
                 .flatMap(reactiveDescriptorDao::store);
     }
+
+    @Override
+    public Mono<Void> destroyDescriptor(String externalId) {
+        return reactiveDescriptorDao.destroy(externalId);
+    }
 }

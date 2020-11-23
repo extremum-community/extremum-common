@@ -57,7 +57,12 @@ public class InMemoryReactiveDescriptorService implements ReactiveDescriptorServ
 
     @Override
     public Mono<Descriptor> makeDescriptorReady(String descriptorExternalId, String modelType) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public Mono<Void> destroyDescriptor(String externalId) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public Stream<Descriptor> descriptors() {

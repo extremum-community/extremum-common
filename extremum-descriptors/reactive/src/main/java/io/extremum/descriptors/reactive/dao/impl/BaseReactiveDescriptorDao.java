@@ -7,6 +7,7 @@ import org.redisson.api.RMapReactive;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.transaction.reactive.TransactionSynchronization;
 import org.springframework.transaction.reactive.TransactionSynchronizationManager;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
 @Slf4j
@@ -120,5 +123,30 @@ public abstract class BaseReactiveDescriptorDao implements ReactiveDescriptorDao
         Objects.requireNonNull(internalIds, "internalIds is null");
 
         return internalIdIndex.getAll(new HashSet<>(internalIds));
+    }
+
+    @Override
+    public Mono<Void> destroy(String externalId) {
+        return descriptors.remove(externalId)
+                .flatMap(removedDescriptor -> {
+                    Mono<Void> doDeletions = Mono.empty();
+                    if (removedDescriptor.hasInternalId()) {
+                        doDeletions = doDeletions
+                                .then(internalIdIndex.remove(removedDescriptor.getInternalId()))
+                                .then();
+                    }
+                    if (removedDescriptor.isCollection()) {
+                        String coordinatesString = removedDescriptor.getCollection().getCoordinatesString();
+                        doDeletions = doDeletions
+                                .then(collectionCoordinatesToExternalIds.remove(coordinatesString))
+                                .then();
+                    }
+                    return doDeletions.then(deleteFromMongo(externalId));
+                });
+    }
+
+    private Mono<Void> deleteFromMongo(String externalId) {
+        return reactiveMongoOperations.remove(new Query(where("_id").is(externalId)), Descriptor.class)
+                .then();
     }
 }
