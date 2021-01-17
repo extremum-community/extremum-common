@@ -96,8 +96,7 @@ public class BatchController {
         if (dto.getBody() != null) {
             request.body(BodyInserters.fromValue(dto.getBody()));
         }
-        return request.exchange()
-                .map(response -> new ValidatedRequest(dto.getId(), response));
+        return request.exchangeToMono(response -> Mono.just(new ValidatedRequest(dto.getId(), response)));
     }
 
     private Flux<Response> wrapResponses(ValidatedRequest validated) {

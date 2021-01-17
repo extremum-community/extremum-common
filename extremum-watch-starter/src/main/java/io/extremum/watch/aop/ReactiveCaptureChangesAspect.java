@@ -3,7 +3,9 @@ package io.extremum.watch.aop;
 import io.extremum.everything.services.management.ReactivePatchFlow;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.watch.config.conditional.ReactiveWatchConfiguration;
-import io.extremum.watch.processor.*;
+import io.extremum.watch.processor.MethodJoinPointInvocation;
+import io.extremum.watch.processor.ReactiveCommonServiceWatchProcessor;
+import io.extremum.watch.processor.ReactivePatchFlowWatchProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,7 +15,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -107,8 +109,8 @@ public class ReactiveCaptureChangesAspect {
         }
     }
 
-    private static <T> Mono<Tuple2<T, Context>> withContext(Mono<T> mono) {
-        return mono.flatMap(result -> Mono.subscriberContext().map(ctx -> Tuples.of(result, ctx)));
+    private static <T> Mono<Tuple2<T, ContextView>> withContext(Mono<T> mono) {
+        return mono.flatMap(result -> Mono.deferContextual(ctx -> Mono.just(Tuples.of(result, ctx))));
     }
 
     @Pointcut("execution(* io.extremum.everything.services.management.ReactivePatchFlow+.patch(..))")

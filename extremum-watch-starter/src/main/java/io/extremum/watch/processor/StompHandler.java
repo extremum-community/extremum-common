@@ -139,7 +139,7 @@ public class StompHandler {
                 String unsubscribeId = incomingFrame.headers.get("id");
                 Set<String> keys = subscriptions.entrySet()
                         .stream()
-                        .filter(e -> e.getValue().id  == unsubscribeId)
+                        .filter(e -> Objects.equals(e.getValue().id, unsubscribeId))
                         .map(Map.Entry::getKey)
                         .collect(Collectors.toSet());
                 keys.forEach(subscriptions::remove);

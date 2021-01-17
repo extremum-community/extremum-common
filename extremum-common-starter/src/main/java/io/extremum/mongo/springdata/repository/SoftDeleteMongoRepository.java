@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.data.util.Streamable;
 import org.springframework.util.Assert;

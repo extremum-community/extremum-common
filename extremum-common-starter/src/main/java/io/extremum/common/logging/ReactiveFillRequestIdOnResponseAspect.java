@@ -28,8 +28,10 @@ public class ReactiveFillRequestIdOnResponseAspect {
     private Mono<?> applyRequestIdOnObjectIfItIsResponse(Object object) {
         if (object instanceof Response) {
             Response response = (Response) object;
-            return Mono.subscriberContext()
-                    .map(context -> context.getOrDefault(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, "<none>"))
+            return Mono
+                    .deferContextual(context -> {
+                        return Mono.just(context.getOrDefault(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, "<none>"));
+                    })
                     .map(response::withRequestId);
         }
         return Mono.just(object);

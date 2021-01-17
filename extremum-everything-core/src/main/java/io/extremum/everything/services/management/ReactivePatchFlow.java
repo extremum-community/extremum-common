@@ -5,7 +5,7 @@ import io.extremum.common.model.HasUuid;
 import io.extremum.sharedmodels.basic.Model;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import java.util.Objects;
 
@@ -17,7 +17,7 @@ public interface ReactivePatchFlow {
 
     Mono<Model> patch(Descriptor id, JsonPatch patch);
 
-    static Mono<Boolean> isPatching(Model model, Context context) {
+    static Mono<Boolean> isPatching(Model model, ContextView context) {
         if (model instanceof HasUuid) {
             HasUuid hasUuid = (HasUuid) model;
             return hasUuid.getUuid().getInternalIdReactively()

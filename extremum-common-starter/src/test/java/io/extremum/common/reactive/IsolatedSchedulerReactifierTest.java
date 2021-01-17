@@ -13,7 +13,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class IsolatedSchedulerReactifierTest {
@@ -21,7 +24,7 @@ class IsolatedSchedulerReactifierTest {
 
     @Test
     void monoYieldsCorrectResult() {
-        reactifier = new IsolatedSchedulerReactifier(Schedulers.elastic());
+        reactifier = new IsolatedSchedulerReactifier(Schedulers.boundedElastic());
 
         Mono<Integer> mono = reactifier.mono(() -> 42);
 
@@ -67,7 +70,7 @@ class IsolatedSchedulerReactifierTest {
 
     @Test
     void fluxYieldsCorrectResult() {
-        reactifier = new IsolatedSchedulerReactifier(Schedulers.elastic());
+        reactifier = new IsolatedSchedulerReactifier(Schedulers.boundedElastic());
 
         Flux<Integer> flux = reactifier.flux(() -> Arrays.asList(1, 2));
 

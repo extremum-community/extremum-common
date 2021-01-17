@@ -16,7 +16,7 @@ public class RequestIdProvisionForLoggingFilter implements WebFilter {
             String requestId = randomRequestId();
             exchange.getAttributes().put(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, requestId);
             return chain.filter(exchange)
-                    .subscriberContext(loggingContext(requestId));
+                    .contextWrite(loggingContext(requestId));
         });
     }
 

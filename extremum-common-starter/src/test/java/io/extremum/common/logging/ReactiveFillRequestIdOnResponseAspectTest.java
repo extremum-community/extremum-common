@@ -35,7 +35,7 @@ class ReactiveFillRequestIdOnResponseAspectTest {
     @Test
     void givenControllerMethodReturnsMonoWithResponse_whenApplyingAspect_thenRequestIdShouldBeFilledAndPayloadRemainTheSame() {
         Mono<Response> mono = controllerProxy.returnsMonoWithResponse()
-                .subscriberContext(context);
+                .contextWrite(context);
 
         StepVerifier.create(mono)
                 .assertNext(this::assertThatResponseRequestIdIsFilledAndThePayloadIsTheSame)
@@ -75,7 +75,7 @@ class ReactiveFillRequestIdOnResponseAspectTest {
                 new TestControllerAdvice(), aspect);
 
         Mono<Response> mono = controllerAdviceProxy.returnsMonoWithResponse()
-                .subscriberContext(context);
+                .contextWrite(context);
 
         StepVerifier.create(mono)
                 .assertNext(this::assertThatResponseRequestIdIsFilledAndThePayloadIsTheSame)
