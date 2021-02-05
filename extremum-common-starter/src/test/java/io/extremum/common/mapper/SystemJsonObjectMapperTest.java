@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author rpuch
  */
 class SystemJsonObjectMapperTest {
-    private MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
-    private SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mapperDependencies);
+    private final MockedMapperDependencies mapperDependencies = new MockedMapperDependencies();
+    private final SystemJsonObjectMapper mapper = new SystemJsonObjectMapper(mapperDependencies);
 
     @Test
     void testZonedDateTimeParseSuccessfully() throws JsonProcessingException {

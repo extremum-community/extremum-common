@@ -334,7 +334,13 @@ public class Descriptor implements Serializable {
 
     @Override
     public String toString() {
-        return this.getExternalId();
+        if (hasExternalId()) {
+            return "externalId: " + externalId;
+        }
+        if (hasInternalId()) {
+            return "internalId: " + internalId;
+        }
+        return "No external/internal ID, " + super.toString();
     }
 
     @JsonIgnore
