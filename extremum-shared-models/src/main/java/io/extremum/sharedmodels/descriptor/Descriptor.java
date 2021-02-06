@@ -8,12 +8,15 @@ import io.extremum.common.annotation.FromStorageString;
 import io.extremum.common.annotation.ToStorageString;
 import io.extremum.sharedmodels.annotation.UsesStaticDependencies;
 import io.extremum.sharedmodels.content.Display;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Builder
 @Getter
@@ -310,26 +313,6 @@ public class Descriptor implements Serializable {
         } else {
             throw new IllegalStateException("Both externalId and internalId are null");
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Descriptor that = (Descriptor) o;
-        return Objects.equals(getExternalId(), that.getExternalId()) &&
-                Objects.equals(getInternalId(), that.getInternalId()) &&
-                Objects.equals(getModelType(), that.getModelType()) &&
-                Objects.equals(getStorageType(), that.getStorageType());
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getExternalId().hashCode();
     }
 
     @Override

@@ -175,7 +175,8 @@ class DescriptorDaoTest extends TestWithServices {
         descriptorMongoOperations.save(descriptor);
         retrievedDescriptor = descriptorDao.retrieveByInternalId(internalId);
         assertTrue(retrievedDescriptor.isPresent());
-        assertEquals(descriptor, retrievedDescriptor.get());
+        assertEquals(descriptor.getExternalId(), retrievedDescriptor.get().getExternalId());
+        assertEquals(descriptor.getInternalId(), retrievedDescriptor.get().getInternalId());
     }
 
     @NotNull

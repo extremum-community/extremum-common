@@ -75,7 +75,8 @@ class DescriptorRedisSerializationTest extends TestWithServices {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private void assertThatRetrievedDescriptorIsOk(Descriptor descriptor, Optional<Descriptor> retrievedDescriptor) {
         assertTrue(retrievedDescriptor.isPresent());
-        assertEquals(descriptor, retrievedDescriptor.get());
+        assertEquals(descriptor.getExternalId(), retrievedDescriptor.get().getExternalId());
+        assertEquals(descriptor.getInternalId(), retrievedDescriptor.get().getInternalId());
     }
 
     @Test
