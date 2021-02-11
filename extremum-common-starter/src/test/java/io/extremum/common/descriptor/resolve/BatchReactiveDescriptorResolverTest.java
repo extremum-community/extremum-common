@@ -11,10 +11,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,5 +47,12 @@ class BatchReactiveDescriptorResolverTest {
 
         // then
         assertThat(withoutExternalId.getExternalId(), is("external-id-2"));
+    }
+
+    @Test
+    void shouldNotDoAnythingIfTheDescriptorListIsEmpty() {
+        resolver.resolveExternalIds(emptyList()).block();
+
+        verify(descriptorService, never()).loadMapByInternalIds(any());
     }
 }

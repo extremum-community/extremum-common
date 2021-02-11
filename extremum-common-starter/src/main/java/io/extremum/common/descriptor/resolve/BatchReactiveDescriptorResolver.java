@@ -23,6 +23,9 @@ public class BatchReactiveDescriptorResolver implements ReactiveDescriptorResolv
             List<String> unresolvedDescriptorInternalIds = unresolvedDescriptors.stream()
                     .map(Descriptor::getInternalId)
                     .collect(Collectors.toList());
+            if (unresolvedDescriptorInternalIds.isEmpty()) {
+                return Mono.empty();
+            }
 
             return descriptorService.loadMapByInternalIds(unresolvedDescriptorInternalIds)
                     .flatMap(internalIdToExternalId -> {

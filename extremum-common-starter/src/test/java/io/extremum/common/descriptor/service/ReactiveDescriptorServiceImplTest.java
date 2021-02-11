@@ -16,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 
 import static io.extremum.test.mockito.ReturnFirstArgInMono.returnFirstArgInMono;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.is;
@@ -154,5 +155,12 @@ class ReactiveDescriptorServiceImplTest {
         reactiveDescriptorService.destroyDescriptor("external-id").block();
 
         verify(reactiveDescriptorDao).destroy("external-id");
+    }
+
+    @Test
+    void shouldNotGoToDaoWhenCollectionOfInternalIdsToLoadIsEmpty() {
+        reactiveDescriptorService.loadMapByInternalIds(emptyList()).block();
+
+        verify(reactiveDescriptorDao, never()).retrieveMapByInternalIds(any());
     }
 }
