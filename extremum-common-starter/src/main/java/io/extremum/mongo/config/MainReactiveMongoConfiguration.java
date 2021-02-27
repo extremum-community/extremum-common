@@ -9,6 +9,7 @@ import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilities;
 import io.extremum.mongo.facilities.ReactiveMongoDescriptorFacilitiesImpl;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoCommonModelLifecycleCallbacks;
 import io.extremum.mongo.service.lifecycle.ReactiveMongoVersionedModelLifecycleCallbacks;
+import io.extremum.mongo.springdata.EnableAllReactiveMongoAuditing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
+@EnableAllReactiveMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 @RequiredArgsConstructor
 @Import(ReactiveMongoDbFactoryConfiguration.class)
 public class MainReactiveMongoConfiguration {

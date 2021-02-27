@@ -9,15 +9,19 @@ import io.extremum.mongo.model.MongoCommonModel;
 import io.extremum.mongo.service.impl.ReactiveMongoCommonServiceImpl;
 import io.extremum.sharedmodels.descriptor.Descriptor;
 import io.extremum.test.aop.AspectWrapping;
-import io.extremum.watch.processor.*;
+import io.extremum.watch.processor.Invocation;
+import io.extremum.watch.processor.ReactiveCommonServiceWatchProcessor;
+import io.extremum.watch.processor.ReactivePatchFlowWatchProcessor;
 import lombok.SneakyThrows;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -25,12 +29,16 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.util.Collections;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
 class ReactiveCaptureChangesAspectTest {
@@ -121,7 +129,9 @@ class ReactiveCaptureChangesAspectTest {
                 .assertNext(result -> {
                     try {
                         verify(patchFlowWatchProcessor).process(invocationCaptor.capture(), same(model));
-                    } catch (JsonProcessingException e) {}
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
                     Invocation invocation = invocationCaptor.getValue();
                     assertThat(invocation.methodName(), is("patch"));
                     assertThat(invocation.args().length, is(2));
@@ -136,18 +146,14 @@ class ReactiveCaptureChangesAspectTest {
         return new JsonPatch(Collections.emptyList());
     }
 
-    public static <T> Mono<T> addContext(Mono<T> source){
-        return source.subscriberContext(context -> context.put("key", "Hello"));
-    }
-
     @Test
-    void whenInvokingSaveMethodOnCommonServiceAndPatchingFlagIsSet_thenTheInvocationShouldBeIgnored() throws Exception {
+    void whenInvokingSaveMethodOnCommonServiceAndPatchingFlagIsSet_thenTheInvocationShouldBeIgnored() {
         TestModel model = makeModel();
         when(dao.save(model)).thenReturn(Mono.just(model));
 
         Mono<TestModel> resultMono = Mono.just(model)
                 .flatMap(commonServiceProxy::save)
-                .subscriberContext(ctx -> ctx.put(ReactivePatchFlow.MODEL_BEING_PATCHED, model.getUuid().getInternalId()));
+                .contextWrite(ctx -> ctx.put(ReactivePatchFlow.MODEL_BEING_PATCHED, model.getUuid().getInternalId()));
 
         StepVerifier
                 .create(resultMono)
@@ -155,7 +161,9 @@ class ReactiveCaptureChangesAspectTest {
                 .assertNext(result -> {
                     try {
                         verify(commonServiceWatchProcessor, never()).process(any(), any());
-                    } catch (JsonProcessingException e) {}
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .verifyComplete();
     }

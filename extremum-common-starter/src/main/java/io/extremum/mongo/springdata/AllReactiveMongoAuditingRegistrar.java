@@ -4,19 +4,18 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.data.auditing.IsNewAwareAuditingHandler;
+import org.springframework.data.auditing.ReactiveIsNewAwareAuditingHandler;
 import org.springframework.data.auditing.config.AuditingBeanDefinitionRegistrarSupport;
 import org.springframework.data.auditing.config.AuditingConfiguration;
 import org.springframework.data.config.ParsingUtils;
-import org.springframework.data.mongodb.core.mapping.event.AuditingEntityCallback;
+import org.springframework.data.mongodb.core.mapping.event.ReactiveAuditingEntityCallback;
 import org.springframework.util.Assert;
 
 import java.lang.annotation.Annotation;
 
 /**
- * This is essentially MongoAuditingRegistrar with one customization. We cannot extend it as it is package local,
- * so we had to copy.
+ * This is essentially ReactiveMongoAuditingRegistrar with one customization. We cannot extend it as it is package
+ * local, so we had to copy.
  * The customization is that it applies the auditing to all
  * {@link org.springframework.data.mongodb.core.mapping.MongoMappingContext}s available in the application context,
  * and not only to one. This allows to solve a nasty problem with ZonedDateTime used as created/modified field type.
@@ -26,7 +25,7 @@ import java.lang.annotation.Annotation;
  * @author Oliver Gierke
  * @author rpuch
  */
-public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSupport {
+public class AllReactiveMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSupport {
 
     /*
      * (non-Javadoc)
@@ -34,7 +33,7 @@ public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSu
      */
     @Override
     protected Class<? extends Annotation> getAnnotation() {
-        return EnableAllMongoAuditing.class;
+        return EnableAllReactiveMongoAuditing.class;
     }
 
     /*
@@ -43,20 +42,7 @@ public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSu
      */
     @Override
     protected String getAuditingHandlerBeanName() {
-        return "mongoAuditingHandler";
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.springframework.data.auditing.config.AuditingBeanDefinitionRegistrarSupport#registerBeanDefinitions(org.springframework.core.type.AnnotationMetadata, org.springframework.beans.factory.support.BeanDefinitionRegistry)
-     */
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
-
-        Assert.notNull(annotationMetadata, "AnnotationMetadata must not be null!");
-        Assert.notNull(registry, "BeanDefinitionRegistry must not be null!");
-
-        super.registerBeanDefinitions(annotationMetadata, registry);
+        return "reactiveMongoAuditingHandler";
     }
 
     /*
@@ -68,7 +54,7 @@ public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSu
 
         Assert.notNull(configuration, "AuditingConfiguration must not be null!");
 
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(IsNewAwareAuditingHandler.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ReactiveIsNewAwareAuditingHandler.class);
 
         BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(
                 PersistentEntitiesLookup.class);
@@ -89,13 +75,14 @@ public class AllMongoAuditingRegistrar extends AuditingBeanDefinitionRegistrarSu
         Assert.notNull(auditingHandlerDefinition, "BeanDefinition must not be null!");
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null!");
 
-        BeanDefinitionBuilder listenerBeanDefinitionBuilder = BeanDefinitionBuilder
-                .rootBeanDefinition(AuditingEntityCallback.class);
-        listenerBeanDefinitionBuilder
-                .addConstructorArgValue(
-                        ParsingUtils.getObjectFactoryBeanDefinition(getAuditingHandlerBeanName(), registry));
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ReactiveAuditingEntityCallback.class);
 
-        registerInfrastructureBeanWithId(listenerBeanDefinitionBuilder.getBeanDefinition(),
-                AuditingEntityCallback.class.getName(), registry);
+        builder.addConstructorArgValue(
+                        ParsingUtils.getObjectFactoryBeanDefinition(getAuditingHandlerBeanName(), registry));
+        builder.getRawBeanDefinition().setSource(auditingHandlerDefinition.getSource());
+
+        registerInfrastructureBeanWithId(builder.getBeanDefinition(),
+                ReactiveAuditingEntityCallback.class.getName(), registry);
     }
+
 }

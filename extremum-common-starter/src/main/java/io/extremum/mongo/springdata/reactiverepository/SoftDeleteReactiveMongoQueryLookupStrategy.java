@@ -11,9 +11,10 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.data.repository.query.ReactiveQueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 
@@ -23,13 +24,13 @@ import java.lang.reflect.Method;
 public class SoftDeleteReactiveMongoQueryLookupStrategy implements QueryLookupStrategy {
     private final QueryLookupStrategy strategy;
     private final ReactiveMongoOperations mongoOperations;
-    private final QueryMethodEvaluationContextProvider evaluationContextProvider;
+    private final ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider;
     private final SoftDeletion softDeletion = new SoftDeletion();
 
     private static final SpelExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
 
     public SoftDeleteReactiveMongoQueryLookupStrategy(QueryLookupStrategy strategy,
-            ReactiveMongoOperations mongoOperations, QueryMethodEvaluationContextProvider evaluationContextProvider) {
+            ReactiveMongoOperations mongoOperations, ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider) {
         this.strategy = strategy;
         this.mongoOperations = mongoOperations;
         this.evaluationContextProvider = evaluationContextProvider;
@@ -59,15 +60,13 @@ public class SoftDeleteReactiveMongoQueryLookupStrategy implements QueryLookupSt
         }
 
         @Override
-        protected Query createQuery(ConvertingParameterAccessor accessor) {
-            Query query = super.createQuery(accessor);
-            return withNotDeleted(query);
+        protected Mono<Query> createQuery(ConvertingParameterAccessor accessor) {
+            return super.createQuery(accessor).map(this::withNotDeleted);
         }
 
         @Override
-        protected Query createCountQuery(ConvertingParameterAccessor accessor) {
-            Query query = super.createCountQuery(accessor);
-            return withNotDeleted(query);
+        protected Mono<Query> createCountQuery(ConvertingParameterAccessor accessor) {
+            return super.createCountQuery(accessor).map(this::withNotDeleted);
         }
         
         private Query withNotDeleted(Query query) {

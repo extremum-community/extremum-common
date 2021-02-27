@@ -36,12 +36,16 @@ import static java.util.stream.Collectors.*;
 public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonModel>
         extends BaseElasticsearchRepository<T> {
 
+    private final ElasticsearchEntityInformation<T, String> metadata;
+
     private final SoftDeletion softDeletion = new SoftDeletion();
 
     public SoftDeleteElasticsearchRepository(
             ElasticsearchEntityInformation<T, String> metadata,
             ElasticsearchOperations elasticsearchOperations) {
         super(metadata, elasticsearchOperations);
+
+        this.metadata = metadata;
     }
 
     @Override
@@ -131,7 +135,8 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
     public Page<T> findAll(Pageable pageable) {
         Query query = new CriteriaQuery(softDeletion.notDeleted());
         query.setPageable(pageable);
-        SearchHits<T> searchHits = operations.search(query, getEntityClass(), entityInformation.getIndexCoordinates());
+        SearchHits<T> searchHits = operations.search(query, metadata.getJavaType(),
+                entityInformation.getIndexCoordinates());
         return searchHitsToPage(searchHits);
     }
 
@@ -144,6 +149,6 @@ public class SoftDeleteElasticsearchRepository<T extends ElasticsearchCommonMode
 
     @Override
     public long count() {
-        return operations.count(new CriteriaQuery(softDeletion.notDeleted()), getEntityClass());
+        return operations.count(new CriteriaQuery(softDeletion.notDeleted()), metadata.getJavaType());
     }
 }

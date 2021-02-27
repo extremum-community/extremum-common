@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.repository.support.ReactiveMongoReposito
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.data.repository.query.ReactiveQueryMethodEvaluationContextProvider;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -44,7 +45,8 @@ public class ExtremumReactiveMongoRepositoryFactory extends ReactiveMongoReposit
             QueryMethodEvaluationContextProvider evaluationContextProvider) {
         if (isSoftDelete()) {
             Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
-            return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy, evaluationContextProvider);
+            return lookupStrategies.softDeleteQueryLookupStrategy(optStrategy,
+                    (ReactiveQueryMethodEvaluationContextProvider) evaluationContextProvider);
         } else {
             return super.getQueryLookupStrategy(key, evaluationContextProvider);
         }

@@ -6,8 +6,10 @@ import reactor.core.publisher.Mono;
 
 public class ReactiveLogging {
     public static Mono<?> logContextually(Runnable loggingAction) {
-        return Mono.subscriberContext()
-                .map(context -> context.getOrDefault(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, "<none>"))
+        return Mono
+                .deferContextual(context -> {
+                    return Mono.just(context.getOrDefault(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, "<none>"));
+                })
                 .doOnNext(requestId -> logWithRequestId(loggingAction, requestId));
     }
 

@@ -45,7 +45,7 @@ public class ReactivePatchFlowImpl implements ReactivePatchFlow {
                         return patcher.patch(id, modelToPatch, patch)
                             .flatMap(patchedModel -> saveWithHooks(id, modelToPatch, patchedModel));
                     })
-                    .subscriberContext(context -> context.put(MODEL_BEING_PATCHED, internalId))
+                    .contextWrite(context -> context.put(MODEL_BEING_PATCHED, internalId))
                     .doOnNext(savedModel -> log.debug("Model with id {} has been patched with patch {}", id, patch)));
     }
 

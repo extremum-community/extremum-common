@@ -16,7 +16,7 @@ class ReactiveLoggingTest {
         AtomicReference<String> reference = new AtomicReference<>();
 
         ReactiveLogging.logContextually(() -> reference.set(MDC.get(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME)))
-                .subscriberContext(Context.of(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, "uuid"))
+                .contextWrite(Context.of(LoggingConstants.REQUEST_ID_ATTRIBUTE_NAME, "uuid"))
                 .block();
 
         assertThat(reference.get(), is("uuid"));
